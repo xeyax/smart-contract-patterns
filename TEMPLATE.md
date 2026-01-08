@@ -42,15 +42,16 @@ Explain the core concept and mechanics of this pattern. Include diagrams if help
 
 ## Implementation
 
-```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+<!-- Focus on the pattern itself. Abstract away unrelated details
+     (transfers, oracle calls, etc.) with descriptive function names -->
 
-// Core implementation example
+```solidity
 contract PatternExample {
     // Key state variables
 
-    // Key functions
+    // Core pattern logic here
+    // Use abstract functions for implementation details:
+    //   _doSomething()  instead of  token.transfer(...)
 }
 ```
 
