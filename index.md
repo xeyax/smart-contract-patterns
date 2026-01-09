@@ -73,6 +73,17 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 | [Timelock on Shares](patterns/vaults/pattern-timelock-shares.md) | pattern | Lock shares after mint to prevent flash loans |
 | [Circuit Breaker](patterns/vaults/pattern-circuit-breaker.md) | pattern | Pause operations on oracle deviation |
 | [Oracle Arbitrage Risk](patterns/vaults/risk-oracle-arbitrage.md) | risk | Timing arbitrage from stale oracle prices |
+| [Oracle Reliability Requirements](patterns/oracles/req-oracle-reliability.md) | req | Core requirements for oracle integrations |
+| [TWAP Oracle](patterns/oracles/pattern-twap-oracle.md) | pattern | Manipulation-resistant time-weighted average price |
+| [Multi-hop Price](patterns/oracles/pattern-multihop-price.md) | pattern | Price via intermediate asset for long-tail tokens |
+| [Multi-Source Validation](patterns/oracles/pattern-multi-source-validation.md) | pattern | Cross-check multiple price sources |
+| [DEX Spot Price](patterns/oracles/pattern-dex-spot-price.md) | pattern | Real-time pool price (use with caution) |
+| [Chainlink Integration](patterns/oracles/pattern-chainlink-integration.md) | pattern | Off-chain oracle with staleness checks |
+| [Historical Bounds](patterns/oracles/pattern-historical-bounds.md) | pattern | Sanity check against price history |
+| [Oracle Staleness Risk](patterns/oracles/risk-oracle-staleness.md) | risk | Using outdated price data |
+| [Price Manipulation Risk](patterns/oracles/risk-price-manipulation.md) | risk | Flash loan and sandwich attacks on price |
+| [Oracle Frontrunning Risk](patterns/oracles/risk-oracle-frontrunning.md) | risk | MEV from predictable oracle updates |
+| [Oracle Centralization Risk](patterns/oracles/risk-oracle-centralization.md) | risk | Single point of failure in oracle |
 
 ---
 
@@ -114,7 +125,23 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 *No patterns yet*
 
 ### oracles
-*No patterns yet*
+
+**Requirements:**
+- [req-oracle-reliability](patterns/oracles/req-oracle-reliability.md) — core reliability requirements (R1-R4)
+
+**Patterns:**
+- [pattern-twap-oracle](patterns/oracles/pattern-twap-oracle.md) — manipulation-resistant time-weighted average (satisfies R1, R2, R3)
+- [pattern-multihop-price](patterns/oracles/pattern-multihop-price.md) — price via intermediate asset for long-tail tokens
+- [pattern-multi-source-validation](patterns/oracles/pattern-multi-source-validation.md) — cross-check multiple sources (satisfies R1, R2, R3, R4)
+- [pattern-dex-spot-price](patterns/oracles/pattern-dex-spot-price.md) — real-time pool price (satisfies R1, R4; violates R3)
+- [pattern-chainlink-integration](patterns/oracles/pattern-chainlink-integration.md) — off-chain oracle with staleness checks (satisfies R1, R3)
+- [pattern-historical-bounds](patterns/oracles/pattern-historical-bounds.md) — sanity check against price history (satisfies R2)
+
+**Risks:**
+- [risk-oracle-staleness](patterns/oracles/risk-oracle-staleness.md) — outdated price data (violates R1)
+- [risk-price-manipulation](patterns/oracles/risk-price-manipulation.md) — flash loan and sandwich attacks (violates R3)
+- [risk-oracle-frontrunning](patterns/oracles/risk-oracle-frontrunning.md) — MEV from predictable updates (violates R1, R2)
+- [risk-oracle-centralization](patterns/oracles/risk-oracle-centralization.md) — single point of failure (violates R4)
 
 ### governance
 *No patterns yet*
