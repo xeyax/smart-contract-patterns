@@ -73,6 +73,8 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 | [Timelock on Shares](patterns/vaults/pattern-timelock-shares.md) | pattern | Lock shares after mint to prevent flash loans |
 | [Circuit Breaker](patterns/vaults/pattern-circuit-breaker.md) | pattern | Pause operations on oracle deviation |
 | [Oracle Arbitrage Risk](patterns/vaults/risk-oracle-arbitrage.md) | risk | Timing arbitrage from stale oracle prices |
+| [DEX Price Oracle](patterns/oracles/pattern-dex-pricing.md) | pattern | Spot, TWAP, multi-hop pricing from DEX pools |
+| [Volatility Detection](patterns/oracles/pattern-volatility-detection.md) | pattern | Measure volatility via spot/TWAP/oracle deviation |
 
 ---
 
@@ -114,7 +116,10 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 *No patterns yet*
 
 ### oracles
-*No patterns yet*
+
+**Patterns:**
+- [pattern-dex-pricing](patterns/oracles/pattern-dex-pricing.md) — spot, TWAP, multi-hop pricing from DEX pools
+- [pattern-volatility-detection](patterns/oracles/pattern-volatility-detection.md) — measure volatility via price source deviation
 
 ### governance
 *No patterns yet*
