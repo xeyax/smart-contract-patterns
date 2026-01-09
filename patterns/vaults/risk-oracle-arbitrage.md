@@ -295,7 +295,7 @@ Example with 1% oracle deviation threshold:
 | [Dynamic Premium](./pattern-dynamic-premium.md) | Fee scales with volatility | Complex, unpredictable cost |
 | [Async Deposit/Withdrawal](./pattern-async-deposit.md) | Eliminates timing advantage | Delayed settlement |
 | [Timelock on Shares](./pattern-timelock-shares.md) | Prevents flash loans, adds price risk | Doesn't fix unfair allocation |
-| [Circuit Breaker](./pattern-circuit-breaker.md) | Pauses during oracle deviation | May block legitimate users |
+| [Circuit Breaker](./pattern-circuit-breaker.md) | Blocks operations when oracle price deviates from market reference (e.g., TWAP) | May pause during volatility; requires a reliable reference price |
 | [Proportional Deposit/Withdrawal](./pattern-proportional-deposit.md) | No oracle needed | User must have all assets |
 
 ## Related Patterns

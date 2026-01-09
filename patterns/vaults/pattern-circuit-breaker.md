@@ -121,10 +121,42 @@ modifier circuitBreakerCheckAll() {
 | Source | Pros | Cons |
 |--------|------|------|
 | **Uniswap TWAP** | On-chain, manipulation-resistant | Requires liquidity, gas cost |
-| **DEX Spot Price** | Real-time market price | Flash-loan manipulable |
+| **Multi-hop TWAP via Base Asset** | Works without direct token/stable pool | More moving parts, requires two reliable pools |
 | **Secondary Chainlink feed** | Independent source | May have same issues |
 | **Historical bounds** | Simple | Doesn't detect slow drift |
 | **Off-chain oracle** | Fast updates | Centralization risk |
+
+### Multi-hop TWAP / Spot (When No Token/Stable Pool Exists)
+
+Many long-tail tokens do not have deep liquidity against stablecoins (USDC/USDT). In that case, you can still compute an on-chain reference price in USD using a *bridge* (base asset) with deep stable liquidity:
+
+```
+P(token/USD) ≈ P(token/base) × P(base/USD)
+```
+
+Where:
+- `base` is a highly liquid asset such as **WETH** (preferred) or **WBTC** (fallback)
+- `P(token/base)` is derived from a DEX pool like `token/WETH`
+- `P(base/USD)` is derived from a deep DEX pool like `WETH/USDC`
+
+**TWAP variant (recommended for circuit breaker):**
+- `twap(token/base)` from Uniswap v3 `observe()` on the `token/base` pool
+- `twap(base/USDC)` from Uniswap v3 `observe()` on the `base/USDC` pool
+- `twap(token/USD) = twap(token/base) × twap(base/USDC)`
+
+**Spot variant (higher manipulation risk):**
+- `spot(token/base)` from Uniswap v3 `slot0()` (current tick/price)
+- `spot(base/USDC)` from Uniswap v3 `slot0()`
+- `spot(token/USD) = spot(token/base) × spot(base/USDC)`
+
+**Operational requirements (to keep this reference meaningful):**
+- **Whitelist pools** (addresses + fee tier) instead of discovering pools dynamically
+- **Liquidity/Depth thresholds** for both hops (reject if too shallow)
+- **Sufficient TWAP window and history** (ensure observations cover the window)
+- **Fallback route**: if no `token/WETH`, try `token/WBTC` (or fail closed)
+
+**Important limitation:**
+If a token has *no* meaningful on-chain liquidity even versus major bases (WETH/WBTC), there is no honest DEX-derived spot/TWAP reference price. In that case, circuit breaker must rely on a different reference source (e.g., secondary oracle) or the asset should be excluded from oracle-based NAV flows.
 
 ## Multi-Source Validation
 
