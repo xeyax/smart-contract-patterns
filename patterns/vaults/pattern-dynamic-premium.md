@@ -1,6 +1,6 @@
 # Dynamic Premium
 
-> Entry/exit fee that varies based on vault conditions (drift from target, oracle volatility), providing adaptive protection against oracle arbitrage.
+> Entry/exit fee that varies based on oracle volatility, providing adaptive protection against oracle arbitrage during high-risk periods.
 
 ## Metadata
 
@@ -16,8 +16,8 @@
 
 - Vault has varying risk levels over time
 - Fixed premium would be too high during normal conditions
-- Want fair pricing: higher risk → higher fee
-- Vault tracks target weights that can drift
+- Assets have periods of high and low volatility
+- Want lower fees during stable market conditions
 
 ## Avoid When
 
@@ -25,33 +25,35 @@
 - Gas cost of premium calculation is prohibitive
 - Vault risk profile is stable
 - Simple fixed premium is sufficient
+- Historical price data not available
 
 ## Trade-offs
 
 **Pros:**
 - Adaptive protection: fee matches actual risk
-- Lower cost for users during low-risk periods
-- Incentivizes deposits when vault is balanced
+- Lower cost for users during stable periods
+- Fair: high volatility = high oracle risk = higher fee
 - More precise than fixed premium
 
 **Cons:**
 - Complex fee calculation
 - Harder for users to predict cost
-- Requires reliable risk metrics (drift, volatility)
+- Requires reliable volatility metrics
 - More surface area for bugs
 
 ## How It Works
 
-Premium calculated as function of risk factors:
+Premium calculated as function of volatility:
 
 ```
-premium = basePremium + driftComponent + volatilityComponent
+premium = basePremium + volatilityComponent
 ```
 
 Where:
-- **basePremium** — minimum fee (covers oracle's normal deviation)
-- **driftComponent** — increases when vault is off-target
+- **basePremium** — minimum fee (covers oracle's normal deviation threshold)
 - **volatilityComponent** — increases during high price volatility
+
+**Why volatility matters:** High volatility = oracle more likely to be stale relative to real price = higher arbitrage risk.
 
 ## Requirements Satisfied
 
@@ -59,66 +61,6 @@ This pattern satisfies [Vault Fairness Requirements](./req-vault-fairness.md):
 - **R1: No Value Extraction** — premium ≥ potential arbitrage profit
 
 ## Implementation
-
-### Drift-Based Premium
-
-Premium increases when vault composition differs from target:
-
-```solidity
-contract DriftBasedPremiumVault {
-    uint256 public basePremiumBps;       // e.g., 25 = 0.25%
-    uint256 public maxDriftPremiumBps;   // e.g., 200 = 2%
-    uint256 constant BPS = 10000;
-
-    function calculatePremium() public view returns (uint256) {
-        uint256 drift = _calculateDrift();
-
-        // Linear scaling: drift 0% → base, drift 10% → base + maxDrift
-        uint256 driftPremium = drift * maxDriftPremiumBps / 1000;  // 1000 = 10%
-
-        return basePremiumBps + Math.min(driftPremium, maxDriftPremiumBps);
-    }
-
-    function _calculateDrift() internal view returns (uint256) {
-        uint256 totalDrift = 0;
-
-        for (uint i = 0; i < assets.length; i++) {
-            uint256 currentWeight = _getCurrentWeight(assets[i]);
-            uint256 targetWeight = _getTargetWeight(assets[i]);
-
-            // Sum of absolute deviations
-            if (currentWeight > targetWeight) {
-                totalDrift += currentWeight - targetWeight;
-            } else {
-                totalDrift += targetWeight - currentWeight;
-            }
-        }
-
-        return totalDrift / 2;  // Divide by 2 since deviations sum to 2x
-    }
-
-    function deposit(uint256[] calldata amounts) external returns (uint256 shares) {
-        uint256 premium = calculatePremium();
-        uint256 nav = _calculateNav();
-        uint256 depositValue = _calculateDepositValue(amounts);
-
-        // Apply premium
-        uint256 effectiveValue = depositValue * (BPS - premium) / BPS;
-        shares = effectiveValue * totalShares / nav;
-
-        _acceptDeposit(amounts);
-        _mintShares(msg.sender, shares);
-    }
-
-    // --- Abstract functions ---
-    function _getCurrentWeight(address asset) internal view returns (uint256);
-    function _getTargetWeight(address asset) internal view returns (uint256);
-    function _calculateNav() internal view returns (uint256);
-    function _calculateDepositValue(uint256[] calldata amounts) internal view returns (uint256);
-}
-```
-
-### Volatility-Based Premium
 
 Premium increases during high price volatility:
 
@@ -175,34 +117,7 @@ contract VolatilityBasedPremiumVault {
 }
 ```
 
-### Combined Premium
-
-```solidity
-function calculatePremium() public view returns (uint256) {
-    uint256 drift = _calculateDrift();
-    uint256 volatility = _calculateVolatility();
-
-    uint256 driftPremium = drift * maxDriftPremiumBps / 1000;
-    uint256 volPremium = volatility * maxVolatilityPremiumBps / 1000;
-
-    uint256 totalPremium = basePremiumBps + driftPremium + volPremium;
-
-    return Math.min(totalPremium, maxTotalPremiumBps);
-}
-```
-
 ## Premium Calculation Examples
-
-### Drift-Based
-
-| Drift from Target | Base | Drift Premium | Total |
-|-------------------|------|---------------|-------|
-| 0% (perfectly balanced) | 0.25% | 0% | 0.25% |
-| 2% | 0.25% | 0.4% | 0.65% |
-| 5% | 0.25% | 1% | 1.25% |
-| 10%+ | 0.25% | 2% (capped) | 2.25% |
-
-### Volatility-Based
 
 | Daily Volatility | Base | Vol Premium | Total |
 |------------------|------|-------------|-------|
@@ -212,26 +127,6 @@ function calculatePremium() public view returns (uint256) {
 | 10%+ (extreme) | 0.25% | 2% (capped) | 2.25% |
 
 ## Variations
-
-### Asymmetric Premium (Rebalancing Incentive)
-
-Lower fee for deposits that help rebalance:
-
-```solidity
-function calculateDepositPremium(uint256[] calldata amounts) public view returns (uint256) {
-    uint256 basePremium = calculatePremium();
-
-    // Check if deposit improves balance
-    bool improvesBalance = _depositImprovesBalance(amounts);
-
-    if (improvesBalance) {
-        // Discount for helpful deposits
-        return basePremium * 75 / 100;  // 25% discount
-    }
-
-    return basePremium;
-}
-```
 
 ### Time-Decaying Premium
 

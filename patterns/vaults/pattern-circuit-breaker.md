@@ -121,9 +121,52 @@ modifier circuitBreakerCheckAll() {
 | Source | Pros | Cons |
 |--------|------|------|
 | **Uniswap TWAP** | On-chain, manipulation-resistant | Requires liquidity, gas cost |
+| **DEX Spot Price** | Real-time market price | Flash-loan manipulable |
 | **Secondary Chainlink feed** | Independent source | May have same issues |
 | **Historical bounds** | Simple | Doesn't detect slow drift |
 | **Off-chain oracle** | Fast updates | Centralization risk |
+
+## Multi-Source Validation
+
+Using multiple price sources provides better diagnostics — you can determine WHICH source is wrong.
+
+### Implementation
+
+```solidity
+function isOracleHealthy() internal view returns (bool) {
+    uint256 oracle = _getChainlinkPrice();
+    uint256 twap = _getUniswapTWAP(30 minutes);
+    uint256 spot = _getUniswapSpot();
+
+    bool oracleVsTwap = _deviationOk(oracle, twap, 200);  // 2%
+    bool oracleVsSpot = _deviationOk(oracle, spot, 300);  // 3%
+    bool twapVsSpot = _deviationOk(twap, spot, 200);      // 2%
+
+    // Require oracle agrees with at least one reference
+    return oracleVsTwap || (oracleVsSpot && twapVsSpot);
+}
+```
+
+### Interpretation Table
+
+| Oracle vs TWAP | Oracle vs Spot | TWAP vs Spot | Interpretation | Action |
+|----------------|----------------|--------------|----------------|--------|
+| ✅ | ✅ | ✅ | All sources agree | Allow |
+| ❌ | ❌ | ✅ | Oracle stale | Pause |
+| ✅ | ❌ | ❌ | Spot manipulated | Allow (trust oracle) |
+| ❌ | ✅ | ❌ | TWAP lagging | Allow (trust oracle+spot) |
+| ❌ | ❌ | ❌ | High volatility or attack | Pause |
+
+### Why This Helps
+
+- **DEX spot** reflects real market but is manipulable
+- **TWAP** resists manipulation but lags during volatility
+- **Oracle** is independent but can be stale
+
+By comparing all three, you can identify:
+- Oracle staleness (TWAP and spot agree, oracle differs)
+- Spot manipulation (oracle and TWAP agree, spot differs)
+- Genuine volatility (all differ) → safer to pause
 
 ## Calibration
 

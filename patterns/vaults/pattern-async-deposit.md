@@ -42,6 +42,23 @@
 
 ## How It Works
 
+### Why Async Eliminates Arbitrage
+
+Oracle arbitrage requires **timing advantage** — knowing when oracle price differs from real price and acting on it. Async breaks this by removing user's control over the pricing moment.
+
+**Key criterion: Who controls when NAV is calculated?**
+
+| NAV calculated at | User controls claim timing? | Protection |
+|-------------------|---------------------------|------------|
+| Request time | Any | ❌ None — user knows price at request |
+| Claim time | Yes, freely | ❌ None — user waits for favorable price |
+| Claim time | No (auto/fixed window) | ✅ Yes — user can't choose moment |
+| Epoch boundary | N/A (fixed by protocol) | ✅ Yes — all users get same price |
+
+**The mechanism matters:** Simple "wait 24h" doesn't work if user can choose when to claim. True protection requires removing user's ability to select the pricing moment.
+
+---
+
 ### Approach 1: Delayed Deploy (Yearn-style)
 
 Deposit goes to idle pool first, deployed to strategies later by keeper:
@@ -78,15 +95,9 @@ Epoch N+1:
 
 ### Approach 3: Timelock (Enzyme-style)
 
-Shares cannot be transferred for a period after minting:
+Shares issued immediately but locked for a period. See [Timelock on Shares](./pattern-timelock-shares.md) for full details.
 
-```
-1. User deposits, receives shares
-2. sharesActionTimelock starts (e.g., 24 hours)
-3. User cannot transfer/redeem until timelock expires
-```
-
-**Why it works:** Flash loan attacks impossible. Arbitrageur must hold position through price uncertainty.
+**Important limitation:** Timelock does NOT prevent unfair share allocation — attacker still gets more shares than deserved, just can't exit instantly. It primarily prevents flash loan attacks.
 
 ## Implementation
 

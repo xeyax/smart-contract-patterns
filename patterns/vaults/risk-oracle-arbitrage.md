@@ -218,6 +218,46 @@ User extracts $200 extra
 | Multi-asset | In-kind (receive all assets) | Any | No |
 | Multi-asset | Single-asset out | Any asset | **YES** |
 
+## Arbitrage Direction Analysis
+
+When depositing at **target weights** into an **off-target vault**, the arbitrage direction is NOT deterministic — it depends on the combination of:
+1. Which asset has the oracle error
+2. Which direction the vault has drifted
+
+### Direction Table
+
+| Vault Drift | Oracle Error | Depositor Result |
+|-------------|--------------|------------------|
+| Overweight in asset A | A underpriced | **LOSS** — depositor brings less A, gets fewer "cheap" shares |
+| Overweight in asset A | A overpriced | **GAIN** — depositor brings less A, avoids overpaying |
+| Underweight in asset A | A underpriced | **GAIN** — depositor brings more A, gets more "cheap" shares |
+| Underweight in asset A | A overpriced | **LOSS** — depositor brings more A, overpays |
+
+### Example: Depositor Loses
+
+```
+Vault: 3 ETH + 0.5 BTC (BTC overweight vs 50/50 target)
+Oracle: ETH = $2000 (real = $2100), BTC = $40000 (correct)
+
+NAV (oracle) = $26,000
+NAV (real) = $26,300
+
+User deposits at target (50/50):
+  0.5 ETH + 0.025 BTC
+  Oracle value: $2,000
+  Real value: $2,050 (more ETH = more underpriced asset)
+
+shares = 2000 × 100 / 26000 = 7.69
+ownership = 7.14%
+
+Real value after = $28,350
+User's share = 7.14% × $28,350 = $2,024
+
+User paid $2,050, got $2,024 → LOSS $26
+```
+
+**Key insight:** Arbitrage risk exists, but the beneficiary depends on circumstances. This is why **drift-based premium is unfair** — it punishes depositors even when they might lose from the arbitrage.
+
 ## Conditions That Increase Risk
 
 | Factor | Higher Risk | Lower Risk |
@@ -251,15 +291,22 @@ Example with 1% oracle deviation threshold:
 
 | Pattern | How It Helps | Trade-off |
 |---------|--------------|-----------|
-| [Premium Buffer](./pattern-premium-buffer.md) | Fee covers oracle deviation | Worse UX, cost to users |
+| [Premium Buffer](./pattern-premium-buffer.md) | Fixed fee covers oracle deviation | Cost to all users |
+| [Dynamic Premium](./pattern-dynamic-premium.md) | Fee scales with volatility | Complex, unpredictable cost |
 | [Async Deposit/Withdrawal](./pattern-async-deposit.md) | Eliminates timing advantage | Delayed settlement |
+| [Timelock on Shares](./pattern-timelock-shares.md) | Prevents flash loans, adds price risk | Doesn't fix unfair allocation |
+| [Circuit Breaker](./pattern-circuit-breaker.md) | Pauses during oracle deviation | May block legitimate users |
 | [Proportional Deposit/Withdrawal](./pattern-proportional-deposit.md) | No oracle needed | User must have all assets |
 
 ## Related Patterns
 
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base pattern that has this risk
-- [Premium Buffer](./pattern-premium-buffer.md) — mitigation via fees
+- [Premium Buffer](./pattern-premium-buffer.md) — mitigation via fixed fees
+- [Dynamic Premium](./pattern-dynamic-premium.md) — mitigation via volatility-scaled fees
 - [Async Deposit/Withdrawal](./pattern-async-deposit.md) — mitigation via delayed settlement
+- [Timelock on Shares](./pattern-timelock-shares.md) — partial mitigation via lock period
+- [Circuit Breaker](./pattern-circuit-breaker.md) — mitigation via pause during deviation
+- [Proportional Deposit/Withdrawal](./pattern-proportional-deposit.md) — avoids oracle entirely
 
 ## References
 
