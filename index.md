@@ -72,6 +72,7 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 | [Async Deposit/Withdrawal](patterns/vaults/pattern-async-deposit.md) | pattern | Delayed settlement eliminates timing advantage |
 | [Timelock on Shares](patterns/vaults/pattern-timelock-shares.md) | pattern | Lock shares after mint to prevent flash loans |
 | [Circuit Breaker](patterns/vaults/pattern-circuit-breaker.md) | pattern | Pause operations on oracle deviation |
+| [High-Water Mark Performance Fee](patterns/vaults/pattern-high-water-mark-fee.md) | pattern | Performance fee via share dilution at profit peaks |
 | [Oracle Arbitrage Risk](patterns/vaults/risk-oracle-arbitrage.md) | risk | Timing arbitrage from stale oracle prices |
 | [Oracle Reliability Requirements](patterns/oracles/req-oracle-reliability.md) | req | Core requirements for oracle integrations |
 | [TWAP Oracle](patterns/oracles/pattern-twap-oracle.md) | pattern | Manipulation-resistant time-weighted average price |
@@ -117,6 +118,7 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 - [pattern-async-deposit](patterns/vaults/pattern-async-deposit.md) — delayed settlement (satisfies R4)
 - [pattern-timelock-shares](patterns/vaults/pattern-timelock-shares.md) — lock shares after mint (partially satisfies R4)
 - [pattern-circuit-breaker](patterns/vaults/pattern-circuit-breaker.md) — pause on oracle deviation (satisfies R4)
+- [pattern-high-water-mark-fee](patterns/vaults/pattern-high-water-mark-fee.md) — performance fee via share dilution at profit peaks
 
 **Risks:**
 - [risk-oracle-arbitrage](patterns/vaults/risk-oracle-arbitrage.md) — timing arbitrage (violates R1, R2, R4)
