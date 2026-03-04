@@ -73,7 +73,10 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 | [Timelock on Shares](patterns/vaults/pattern-timelock-shares.md) | pattern | Lock shares after mint to prevent flash loans |
 | [Circuit Breaker](patterns/vaults/pattern-circuit-breaker.md) | pattern | Pause operations on oracle deviation |
 | [High-Water Mark Performance Fee](patterns/vaults/pattern-high-water-mark-fee.md) | pattern | Performance fee via share dilution at profit peaks |
+| [Vault Wrapper (Meta-Vault)](patterns/vaults/pattern-vault-wrapper.md) | pattern | Fee/access layer over base strategy vault |
+| [Clone Factory](patterns/vaults/pattern-clone-factory.md) | pattern | EIP-1167 mass deployment of parameterized vaults |
 | [Oracle Arbitrage Risk](patterns/vaults/risk-oracle-arbitrage.md) | risk | Timing arbitrage from stale oracle prices |
+| [Vault Composability Risk](patterns/vaults/risk-vault-composability.md) | risk | Risks of layered ERC4626 composition |
 | [Oracle Reliability Requirements](patterns/oracles/req-oracle-reliability.md) | req | Core requirements for oracle integrations |
 | [TWAP Oracle](patterns/oracles/pattern-twap-oracle.md) | pattern | Manipulation-resistant time-weighted average price |
 | [Multi-hop Price](patterns/oracles/pattern-multihop-price.md) | pattern | Price via intermediate asset for long-tail tokens |
@@ -119,9 +122,12 @@ Security patterns and guards (reentrancy protection, pausable, rate limiting).
 - [pattern-timelock-shares](patterns/vaults/pattern-timelock-shares.md) — lock shares after mint (partially satisfies R4)
 - [pattern-circuit-breaker](patterns/vaults/pattern-circuit-breaker.md) — pause on oracle deviation (satisfies R4)
 - [pattern-high-water-mark-fee](patterns/vaults/pattern-high-water-mark-fee.md) — performance fee via share dilution at profit peaks
+- [pattern-vault-wrapper](patterns/vaults/pattern-vault-wrapper.md) — fee/access layer over base strategy vault (composability)
+- [pattern-clone-factory](patterns/vaults/pattern-clone-factory.md) — EIP-1167 mass deployment of parameterized vaults
 
 **Risks:**
 - [risk-oracle-arbitrage](patterns/vaults/risk-oracle-arbitrage.md) — timing arbitrage (violates R1, R2, R4)
+- [risk-vault-composability](patterns/vaults/risk-vault-composability.md) — risks of layered ERC4626 composition (affects R1, R3)
 
 ### yield
 *No patterns yet*
