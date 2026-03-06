@@ -26,6 +26,18 @@ A curated catalog of smart contract design patterns for DeFi applications. Desig
 - **Abstract away unrelated details** — use descriptive function names like `_acceptDeposit()`, `_processWithdrawal()`, `_calculateNav()` instead of implementation details (transfers, oracle calls, etc.)
 - **Keep examples minimal** — vault-specific, protocol-specific, or standard boilerplate code should be abstracted
 
+## Development Process
+
+A formalized workflow for building smart contracts using LLM agents with creator/reviewer cycles. Each phase produces a specific artifact, reviewed by a separate agent before proceeding.
+
+```
+Idea → Vision → Requirements → ADR (+ Research) → Plan → Implementation
+```
+
+See [process/README.md](process/README.md) for the full process description and prompts.
+
+---
+
 ## Pattern Categories
 
 ### token-standards
