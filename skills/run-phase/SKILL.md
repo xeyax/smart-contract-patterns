@@ -48,12 +48,37 @@ Each role (creator, reviewer) runs as a **separate subagent with its own context
 
 ### For ADR — special flow:
 
-1. **Scoper** — delegate to a subagent with prompt 04-adr-scoper.md. Result: list of decisions (DT-XXX) + research questions, saved to file.
-2. **STOP** — show the user the list. Ask: which decisions to run, which are already decided (user gives the answer directly), which to remove. Wait for response.
-3. **Already decided DTs** — write as ADR files with the user's decision (no creator/reviewer cycle).
-4. **For remaining DTs** (in dependency order):
-   a. If research is needed → run cycle 03-research-creator.md + 03-research-reviewer.md
-   b. Run cycle 04-adr-creator.md + 04-adr-reviewer.md (with research findings as input)
+1. **Scoper (initial)** — delegate to a subagent with 04-adr-scoper.md (initial run prompt). Result: constraints, grouped decisions, research needs, execution order. Save to scoping file.
+
+2. **STOP** — present the scoping result to the user with these guiding questions:
+   - "Are the extracted constraints correct? Anything missing?" (e.g., target network, protocol compatibility, budget)
+   - "Are there decisions you've already made? State them and I'll record as ADRs without a full cycle."
+   - "Are there decisions where you have a strong preference or inputs for the team?"
+   - "Anything missing from the list? Anything that should be removed?"
+   - "Which decisions feel unclear — where do you want research help? Any hints on where to look?"
+   Wait for response.
+
+3. **Scoper (refinement)** — delegate to a subagent with 04-adr-scoper.md (refinement run prompt). Pass the current scoping file + user feedback. Result: updated scope with statuses (DECIDED / NEEDS RESEARCH / READY FOR ADR / REMOVED) and directions for each DT. **Overwrites the scoping file.**
+
+4. **Process by status** (in the execution order from the refined scope):
+
+   Naming: DT-001 → `ADR-001.md` + `ADR-001-analysis.md`, etc.
+
+   The creator produces two files per ADR:
+   - `ADR-{NNN}.md` — compact decision (summary, decision, consequences)
+   - `ADR-{NNN}-analysis.md` — full reasoning (context, options, rationale)
+
+   By status:
+   - **DECIDED** → write as ADR decision file directly from the scope (no analysis file, no cycle needed)
+   - **NEEDS RESEARCH** → run research cycle (03-research-creator.md + 03-research-reviewer.md), passing the research directions from the scope.
+   - **NEEDS RESEARCH / READY FOR ADR** → create ADR (both files) via 04-adr-creator.md, passing developer input and research findings from the scope.
+
+5. **Review by group** — the scoper groups related decisions into clusters. Review follows the same grouping:
+
+   - **Single-DT group** → review immediately after creating that ADR.
+   - **Multi-DT group** → create ALL ADRs in the group first, then run ONE review covering all of them together. The reviewer checks each ADR individually AND cross-checks consistency between them.
+
+   Pass all ADR files (both decision and analysis) in the group to the reviewer. The reviewer writes a single review file per group to `docs/adr/.reviews/` (e.g., `docs/adr/.reviews/review-group-1-v1.md`).
 
 ### For other phases — standard cycle:
 
@@ -75,7 +100,44 @@ Cycle (maximum 3 iterations):
    - "NEEDS REVISION" → next iteration (creator fixes → reviewer checks)
    - 3 iterations without "ACCEPTED" → read the last review file, show it to the user, ask
 
-Review files: save alongside the artifact as `review-{phase}-v{N}.md`.
+Review files: save to a `.reviews/` subdirectory next to the artifact (e.g., `docs/.reviews/review-vision-v1.md`, `docs/adr/.reviews/review-ADR-001-v1.md`).
+
+## Developer interaction by phase
+
+Before running the creator and after receiving reviewer feedback, ask the user targeted questions to improve artifact quality and avoid wasted iterations.
+
+### Vision
+
+**Before creator** (after receiving the idea):
+- "Who are the main users? What situation are they in?"
+- "What solutions do they use now? What's wrong with them?"
+- "How would you measure success?"
+- "What should definitely NOT be in scope?"
+
+Incorporate answers into `{{IDEA}}` before passing to the creator.
+
+**After reviewer** (if NEEDS REVISION):
+- Present the reviewer's REMOVE/REWRITE suggestions and ask: "Do you agree with these cuts, or is something important being removed?"
+
+### Requirements
+
+**Before creator** (after vision is accepted):
+- "Any hard technical constraints?" (target chain, gas limits, must integrate with protocol X)
+- "Any specific security concerns beyond the standard?" (multisig, timelock, specific attack vectors you worry about)
+- "Is there an MVP scope — what must be in v1 vs. can wait?"
+
+Pass answers as additional context to the creator alongside `{{VISION_DOC}}`.
+
+**After reviewer** (if NEEDS REVISION):
+- Present the reviewer's KEEP/REWRITE/REMOVE/DEFER categorization and ask: "Do you agree with the REMOVE and DEFER items?"
+
+### ADR
+
+No additional questions before creator — the scoper pause already gathers all necessary input from the developer.
+
+### Plan, Implementation
+
+No phase-specific questions — the standard cycle is sufficient.
 
 ## Placeholders by phase
 
@@ -97,7 +159,8 @@ Use defaults unless the user overrides them. For patterns: if a local `patterns/
 | adr | `{{REQUIREMENTS_DOC}}` | Path to accepted requirements | `docs/requirements.md` |
 | adr | `{{RESEARCH_DOCS}}` | Paths to research docs (if research was done) | `docs/research/*.md` |
 | adr | `{{PATTERNS_LIST}}` | Pattern library — local dir or remote repo | local: `patterns/`, remote: `https://github.com/xeyax/smart-contract-patterns` |
-| adr | artifact path | Where to save each ADR | `docs/adr/{decision-topic}.md` |
+| adr | artifact path | Where to save each ADR decision | `docs/adr/ADR-{NNN}.md` (e.g., `ADR-001.md`) |
+| adr | analysis path | Where to save each ADR analysis | `docs/adr/ADR-{NNN}-analysis.md` |
 | plan | `{{REQUIREMENTS_DOC}}` | Path to accepted requirements | `docs/requirements.md` |
 | plan | `{{ALL_ADRS}}` | Paths to all ADR files | `docs/adr/*.md` |
 | plan | artifact path | Where to save the plan | `docs/plan.md` |
