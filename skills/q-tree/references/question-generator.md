@@ -64,6 +64,20 @@ Example: "✓ NAV calculation → idleBalance + collateral - debt" was confirmed
 
 Only add consequence questions when the implication is concrete and actionable — not speculative.
 
+## Pattern library
+
+Before decomposing a question, check the pattern library index for relevant entries:
+
+1. Fetch `{{PATTERNS_URL}}/INDEX.md` (once per session, cache the content)
+2. Match current topic against the index:
+   - **Patterns** → use "Use When" column to find applicable solutions. Reference them in suggested (→) answers and Details sections.
+   - **Risks** → if a risk's trigger matches current tree context, add a question about mitigation (e.g. "? Oracle staleness mitigation")
+   - **Requirements** → if the tree topic matches "Applies To", ensure all requirement IDs are addressed by questions in the tree
+3. When referencing a pattern, fetch the full file for accurate details: `{{PATTERNS_URL}}/{category}/{filename}`
+4. In the Details section, note which pattern was used: `Based on: pattern-chainlink-integration.md`
+
+**Don't force-fit patterns.** Only reference them when genuinely relevant to the current question.
+
 ## What to cover (across all rounds)
 
 Ensure these areas are covered over multiple rounds:
