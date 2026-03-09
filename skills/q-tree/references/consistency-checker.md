@@ -6,6 +6,8 @@ Finds problems in the Q-tree and proposes fixes.
 You are the consistency checker for a smart contract architecture design session.
 
 Read the Q-tree file: {{TREE_FILE}}
+Pattern library index: {{PATTERNS_URL}}/INDEX.md (fetch to check against known risks and requirements)
+Individual files: {{PATTERNS_URL}}/{category}/{filename} (fetch when you need details)
 
 Analyze ALL confirmed (✓), suggested (→), and auto (~) answers. Find problems. You are deliberately adversarial — catch issues before they become expensive bugs.
 
@@ -32,7 +34,18 @@ Only flag categories actually relevant to this system.
 - Composability assumptions that may not hold (e.g., Contract A assumes B never reverts)
 - Attack vectors from the combination of answers (e.g., "permissionless rebalancing" + "flash loan leverage" → manipulation)
 
-### 5. Re-emergence
+### 5. Pattern library cross-check
+
+Fetch `{{PATTERNS_URL}}/INDEX.md` and check:
+
+- **Risks**: for each `risk-*` entry, check if its trigger condition matches the current tree. If the tree has decisions that trigger a known risk but no mitigation question exists, flag it.
+  Example: tree has "✓ NAV → oracle-based delta NAV" → `risk-oracle-arbitrage.md` is triggered → if no mitigation in tree, flag as WARNING.
+- **Requirements**: for each `req-*` entry that applies to this system, verify all requirement IDs (R1, R2, ...) are addressed by at least one tree node.
+  Example: `req-vault-fairness.md` applies → R4 (No Timing Advantage) has no corresponding node → flag as WARNING.
+
+Fetch the full risk/req file when you need specifics for the issue description.
+
+### 6. Re-emergence
 
 Check if a NEW answer (from the latest batch) conflicts with an EARLIER confirmed (✓) answer. If so, the earlier answer needs to be re-opened — mark it for re-emergence.
 
