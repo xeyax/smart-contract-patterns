@@ -50,8 +50,26 @@ Pick the deepest unresolved (?) node that has no children yet. Decompose it.
 
 Priority:
 1. Open (?) leaf nodes without children → decompose these first
-2. Open (?) nodes whose children are all resolved → auto-close, move to next
-3. If multiple open nodes at same depth → depth-first (finish one branch)
+2. Shallow confirmed (✓) leaf nodes → if a ✓ leaf is important but under-specified, reopen it to ? and add sub-questions (see below)
+3. Open (?) nodes whose children are all resolved → auto-close, move to next
+4. If multiple open nodes at same depth → depth-first (finish one branch)
+
+### Shallow answer check
+
+After decomposing ? nodes, scan ✓ leaf nodes: is the answer sufficient for its importance? A shallow answer names a choice but leaves critical sub-decisions unresolved.
+
+Shallow: `✓ Oracle → Chainlink` — no feed, no staleness, no fallback.
+Sufficient: `✓ Fee recipient → treasury multisig` — simple, no sub-questions needed.
+
+If shallow: revert the node to `?`, add sub-questions as → children. The parent and all ancestors up to root become `?` (since they now have unresolved children). The original answer stays in the node text as context:
+
+```
+? Oracle → Chainlink (reopened — needs sub-questions)
+  → Feed availability? → check pair exists on target chain [d:feed]
+  → Staleness threshold? → heartbeat + sequencer check [d:stale]
+```
+
+**Don't over-decompose.** Only reopen when missing sub-decisions would block implementation. Simple factual answers don't need children.
 
 ## Consequence questions
 
@@ -78,16 +96,26 @@ Before decomposing a question, check the pattern library index for relevant entr
 
 **Don't force-fit patterns.** Only reference them when genuinely relevant to the current question.
 
-## What to cover (across all rounds)
+## Coverage areas (orientation, not checklist)
 
-Ensure these areas are covered over multiple rounds:
+Use these areas as a guide for what to cover across rounds. Not all areas apply to every project — skip irrelevant ones, adapt to the specific goal.
 
-1. **Contract decomposition** — what contracts, what responsibility each has
-2. **Value/token flows** — how tokens enter, move through, and exit
-3. **Access control & roles** — who can call what, admin vs user vs keeper
-4. **Upgradeability** — proxy, immutable, replaceable strategy
-5. **External integrations** — oracles, lending protocols, DEXes, bridges
-6. **Risk & failure modes** — oracle failure, protocol pause, extreme price moves
+1. **Protocol Goal** — what problem does this solve, for whom, what's the core value proposition
+2. **Domain / State** — what contracts exist, what state each holds, responsibility boundaries
+3. **Capital Flow** — how tokens enter, move through, and exit the system
+4. **Pricing / Oracle** — how prices are determined, what oracle sources, staleness/manipulation handling
+5. **Liquidity / Exit** — can users exit, under what conditions, what happens under stress
+6. **Risk / Failure** — oracle failure, protocol pause, extreme price moves, attack vectors
+7. **Permissions / Governance** — who can call what, admin vs user vs keeper, governance model
+8. **Evolution / Extensibility** — upgradeability, strategy replacement, parameter changes
+
+**Economic Questions** (cross-cutting) — weave into other areas, don't treat as a separate block:
+- Who profits and how? Who bears costs?
+- What are the incentive alignments / misalignments?
+- Where can value be extracted (MEV, arbitrage, griefing)?
+- Is the fee model sustainable? Does it create perverse incentives?
+
+When decomposing any area above, check if there's an economic angle that needs a sub-question.
 
 ## Question format
 
@@ -115,6 +143,7 @@ Write each question as a tree node. **One line, short answer (max ~10 words):**
 - **Don't re-ask resolved (✓) questions.**
 - **Don't ask about implementation details** (variable names, storage layout, code style).
 - **Don't ask questions with only one reasonable answer.**
+- **Details = trade-offs, not implementation.** Details sections explain WHY (options, pros/cons, reasoning). Never write function signatures, parameter types, interface definitions, or API specs — that's ADR/implementation scope. If it looks like a Solidity interface, it's too detailed.
 
 ## Output
 

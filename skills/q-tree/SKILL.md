@@ -1,9 +1,10 @@
 ---
 name: q-tree
 description: >-
-  Interactive architecture design through a question tree. Decomposition-based:
-  complex questions break into sub-questions. Agent proposes answers, user confirms.
-  Depth-first, one level at a time. Smart contract focus.
+  Interactive architecture design through a question tree — for new projects and
+  changes to existing systems. Decomposition-based: complex questions break into
+  sub-questions. Agent proposes answers, user confirms. Depth-first, one level at
+  a time. Smart contract focus.
 ---
 
 You are the orchestrator of an interactive architecture design session.
@@ -21,7 +22,8 @@ EXPAND    Subagent decomposes open questions ONE LEVEL down (5-7 sub-questions)
 CHECK     Subagent finds issues WITH proposed fixes
           You present → user accepts or overrides
 
-REPEAT    Until no open questions or user says "enough"
+READY?    You assess: coverage + no blockers + implementation drift
+          If ready → suggest summarize | If not → next EXPAND
 
 SUMMARIZE Subagent produces architecture-summary.md
 ```
@@ -138,6 +140,28 @@ Agent note: MVP scope → performance only simplest
 - Leaf nodes (no children) are resolved directly by the user
 - Counters in header updated after every batch
 
+### Details section: level of abstraction
+
+Details explain **why** (trade-offs, options, reasoning), not **how** (implementation).
+
+Good:
+```
+### [d:strategy-sep] Strategy separation
+- Separate contract (Yearn pattern) — strategy replaceable without user migration
+- Embedded in vault — simpler but locked to one strategy
+- Strategy only manages position; vault owns accounting and user-facing logic
+```
+
+Bad (too detailed — function signatures, parameters, storage):
+```
+### [d:strategy-functions] Strategy functions
+| Function | Caller | What it does |
+| deploy(uint256 amount) | Vault | Pull from vault, build position |
+| rebalance() | Keeper | Adjust LTV to target |
+```
+
+Rule: if it looks like an interface definition or API spec, it's too detailed for q-tree. That belongs in ADR or implementation planning.
+
 ## Algorithm
 
 ### Phase 1: INIT
@@ -166,35 +190,39 @@ Agent note: MVP scope → performance only simplest
 **a. Generate questions** — delegate to subagent with `references/question-generator.md`:
 - Pass: tree file path
 - Subagent decomposes open questions ONE LEVEL down, with suggested answers
-- **Hard limit: 5-7 questions per batch.** If subagent wrote more, only present the first 7. Remaining wait for the next round.
+- Subagent respects the hard limit (max 7 per batch)
 
-**b. Present ALL new nodes to user** — use this exact plain-text format (no markdown tables — they break in terminals):
+**b. Present ONE batch to user** — combine previous unanswered questions + new questions into a single numbered list. **Hard limit: max 7 items total.** If there are more, prioritize unanswered from previous rounds first (they're blocking progress), fill remaining slots with new questions. The rest wait for the next round.
+
+Use this exact plain-text format (no markdown tables — they break in terminals):
 
 ```
-[Round 2] Decomposing: "Contract architecture" — 6 sub-questions (4 suggested, 2 open):
+[Round 5] 7 questions (2 previous, 5 new — decomposing "Async withdraw"):
 
-1. → Vault + Strategy separation? → Separate contracts (Yearn pattern) [d:q1]
-2. → Share model? → ERC-4626 (composable, audited) [d:q2]
-3. → Adapter pattern? → ILendingAdapter, one impl per protocol
-4. ~ Chain → Arbitrum (from goal)
-5. ? Leverage method? — flash loan / iterative loops / hybrid [d:q5]
-6. ? Withdrawal model? — sync / async / hybrid [d:q6]
+1. ? First depositor protection? — virtual shares / min deposit [d:first-dep]  ← prev
+2. ? Moment of mint vs deploy? — before / after deploy [d:mint-moment]  ← prev
+3. ? Who executes queue? — keeper / permissionless [d:async-who]
+4. ? How user receives? — claim / auto-send [d:async-claim]
+5. → Swap paths? → DEX router, predefined paths [d:async-paths]
+6. ? Upgradeability form? — proxy vault / replaceable strategy / both [d:upgrade-form]
+7. ? Pause & emergency? — who pauses, what's allowed during pause [d:pause]
 
 Accept all? [Y / numbers to change / "details N"]
 ```
 
 Format rules:
-- **Numbered list**, one line per question: `N. marker Question? → Short answer [d:tag]`
+- **Flat numbered list, one question per line, no sub-headers or groupings.** Previous questions marked with `← prev` at the end of the line.
+- One line per question: `N. marker Question? → Short answer [d:tag]`
 - **Short answers only** — max ~10 words in the list. Details go in `[d:tag]` section of the tree file.
 - Open questions use `—` instead of `→`: `N. ? Question? — option A / option B`
-- **Show which parent is being decomposed** in the header: `Decomposing: "Parent question"`
-- **Always this format.** Do not use markdown tables. Do not switch formats between rounds.
+- Header line shows decomposition target: `[Round N] K questions (X previous, Y new — decomposing "Parent")`
+- **Always this format.** Do not use markdown tables. Do not add section headers inside the list. Do not switch formats between rounds.
 
 **CRITICAL: show EVERY new node.** Auto (~) nodes are shown too — the user may disagree with the derivation. Nothing gets confirmed (✓) without the user seeing it first.
 
 Ordering rules:
-- Independent questions first, dependent questions after
-- Within same level: suggested (→) before open (?), auto (~) at the end
+- Previous unanswered first (they're blocking deeper decomposition), marked with `← prev`
+- Then new: independent before dependent, suggested (→) before open (?), auto (~) at the end
 
 **c. Collect answers:**
 
@@ -263,11 +291,39 @@ Sensitive: "Chain: Arbitrum" affects 3 other decisions (gas, protocols, bridge)
 ```
 This is informational — no action needed, just awareness for the user.
 
-**No issues** → say "No consistency issues" and continue to next EXPAND.
+**No issues** → say "No consistency issues" and continue to readiness check.
+
+### Phase 3b: READINESS CHECK (after CHECK, orchestrator does this — no subagent)
+
+After every batch + consistency check, you (the orchestrator) assess whether the tree is ready to summarize. Three signals:
+
+**1. Coverage** — key areas from the coverage guide (Protocol Goal, Domain/State, Capital Flow, Pricing, Liquidity/Exit, Risk, Permissions, Evolution) have at least one resolved answer — only those relevant to this project.
+
+**2. No blockers** — consistency checker found no BLOCKER-severity issues.
+
+**3. Implementation drift** — questions from the last batch are increasingly implementation-scope (how to code it) rather than architecture-scope (which approach to take).
+
+How to tell the difference:
+- Architecture: "Sync vs async withdrawal?", "How to handle oracle failure?", "Fee model?"
+- Implementation: "Exact rebalance threshold?", "Error message format?", "Storage layout?"
+
+**When all three signals are positive**, proactively suggest stopping:
+
+```
+[Readiness] Coverage: 5/5 relevant areas resolved. No blocker issues.
+Last batch: 4/6 questions were implementation-scope.
+Ready to summarize? [Y / continue with "deeper into X"]
+```
+
+**User providing implementation-level answers** (e.g., "rebalance threshold: 85%, use basis points for fees") is a strong readiness signal — the user is already thinking in code. Record as ✓, then check readiness.
+
+**If not ready** — continue to next EXPAND.
+
+The user can always say "enough" to force summarize, or "continue" to keep going after a readiness prompt.
 
 ### Phase 4: SUMMARIZE
 
-When no open questions remain or user says "enough":
+Triggered by readiness check (user accepts) or user says "enough":
 - Delegate to subagent with `references/summarizer.md`
 - Pass: resolved tree file path
 - Result: `docs/architecture-summary.md`
