@@ -170,6 +170,32 @@ Use defaults unless the user overrides them. For patterns: if a local `patterns/
 | implementation | `{{RELEVANT_PATTERNS}}` | Patterns relevant to this task | local: `patterns/`, remote: `https://github.com/xeyax/smart-contract-patterns` |
 | implementation | `{{EXISTING_CODE}}` | Already implemented contracts | — (from project `src/` or `contracts/`) |
 
+## Migration
+
+If the project has existing ADR files in the old format (DT-* naming, single-file, reviews alongside):
+
+```bash
+# Dry run — shows what will change
+scripts/migrate-adr.sh docs/adr
+
+# Apply changes
+scripts/migrate-adr.sh docs/adr --apply
+```
+
+The script handles renaming (DT→ADR) and moving reviews to `.reviews/`. Splitting large files into decision + analysis requires an agent — the script flags which files need splitting.
+
+### Step 2: Split large ADR files (agent)
+
+After running the migration script, give an agent the splitting prompt and templates:
+
+```
+Read the instructions in scripts/split-adr-prompt.md and the templates in assets/.
+Split each large ADR file in docs/adr/ into decision + analysis.
+```
+
+Templates: `assets/adr-decision-template.md`, `assets/adr-analysis-template.md`
+Full instructions: `scripts/split-adr-prompt.md`
+
 ## Rules
 
 - Do not edit artifacts yourself
