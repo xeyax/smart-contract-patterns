@@ -144,6 +144,7 @@ Write each question as a tree node. **One line, short answer (max ~10 words):**
 - **Don't ask about implementation details** (variable names, storage layout, code style).
 - **Don't ask questions with only one reasonable answer.**
 - **Details = trade-offs, not implementation.** Details sections explain WHY (options, pros/cons, reasoning). Never write function signatures, parameter types, interface definitions, or API specs — that's ADR/implementation scope. If it looks like a Solidity interface, it's too detailed.
+- **Details = only what was confirmed.** A Detail section may only expand on the confirmed/suggested answer itself — trade-offs, reasoning, context. If writing a Detail reveals sub-decisions that weren't asked about (struct fields, ID strategy, mapping structure, specific parameters), those are NEW QUESTIONS — add them as child nodes, not as text in Details. Example: answer is "→ Data model → three mappings". Detail explains *why* three mappings. The composition of each struct → child questions: `→ Subscription struct?`, `→ ID generation?`.
 
 ## Output
 

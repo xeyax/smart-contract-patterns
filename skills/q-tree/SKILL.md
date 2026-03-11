@@ -162,28 +162,50 @@ Bad (too detailed — function signatures, parameters, storage):
 
 Rule: if it looks like an interface definition or API spec, it's too detailed for q-tree. That belongs in ADR or implementation planning.
 
+**Details = only confirmed information.** Details expand on what the user confirmed or what directly follows from the answer. If writing a Detail reveals sub-decisions that weren't discussed (struct fields, ID generation, mapping structure), those must become new questions in the next batch — not silently written into Details.
+
+Example: user confirms "✓ Data model → three mappings: subscriptions, merchants, stores".
+- OK in Detail: *why* three mappings (separation of concerns, gas), *why* events instead of on-chain history
+- NOT OK in Detail: `Subscription(id, subscriber, storeId, amount, interval, nextChargeAt, endAt, active)` — these are sub-decisions the user hasn't seen. They should be child questions.
+
 ## Algorithm
 
 ### Phase 1: INIT
 
 **New session:**
 1. User provides the goal.
-2. Create `docs/q-tree.md` with the goal in the Context block and an empty tree.
-3. Unless `--no-log`: create `docs/q-tree-log.md` with header and goal.
-4. Proceed to EXPAND.
+2. Check if `docs/domain-model.md` exists — if so, read as context, mention to user.
+3. Create `docs/q-tree.md` with the goal in the Context block and an empty tree.
+4. Unless `--no-log`: create `docs/q-tree-log.md` with header and goal.
+5. Proceed to EXPAND.
 
 **Resume (tree file already exists):**
 1. Read existing tree file.
-2. Count resolved / suggested / open nodes.
-3. Show status to user:
+2. Check if `docs/domain-model.md` exists — if so, read as context and cross-validate (see below).
+3. Count resolved / suggested / open nodes.
+4. Show status to user:
    ```
    Resuming q-tree: 12 resolved, 3 suggested, 2 open.
+   Cross-check with domain model: 1 contradiction found (see below).
    Open branches:
    - ? Fee model (under Value flows)
    - ? Emergency procedures (under Risk)
    Continuing with EXPAND...
    ```
-4. Proceed to EXPAND (next round picks up where the previous session left off).
+5. Proceed to EXPAND (next round picks up where the previous session left off).
+
+**Cross-validation with domain model:**
+
+On resume (or new session when `docs/domain-model.md` exists), check for contradictions between the q-tree and domain model:
+- q-tree has `✓ Withdrawal → async`, but domain model shows sync withdraw flow → flag contradiction
+- q-tree has decisions about an aggregate not in domain model → flag gap
+- Domain model has invariants that conflict with q-tree decisions → flag conflict
+
+Present contradictions with proposed fixes:
+```
+Contradiction: q-tree decided "async withdrawal", but domain model has sync withdraw flow.
+Fix: → Re-open "Withdrawal" as ? to re-evaluate, or update domain model. Which? [re-open / update domain model / skip]
+```
 
 ### Phase 2: EXPAND (loop)
 
