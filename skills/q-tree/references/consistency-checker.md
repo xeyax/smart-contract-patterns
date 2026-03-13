@@ -34,7 +34,9 @@ Only flag categories actually relevant to this system.
 - Composability assumptions that may not hold (e.g., Contract A assumes B never reverts)
 - Attack vectors from the combination of answers (e.g., "permissionless rebalancing" + "flash loan leverage" → manipulation)
 
-### 5. Pattern library cross-check
+### 5. Pattern library cross-check (defensive — verify completeness)
+
+Your role: verify ALL applicable risks and requirements are covered. The question-generator uses patterns proactively for suggestions, but may miss some. You are the safety net.
 
 Fetch `{{PATTERNS_URL}}/INDEX.md` and check:
 

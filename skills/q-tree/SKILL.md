@@ -196,7 +196,7 @@ Example: user confirms "✓ Data model → three mappings: subscriptions, mercha
 
 **Cross-validation with domain model:**
 
-On resume (or new session when `docs/domain-model.md` exists), check for contradictions between the q-tree and domain model:
+Runs **only at INIT** (resume or new session when `docs/domain-model.md` exists). Not after every batch — too expensive. Check for contradictions between the q-tree and domain model:
 - q-tree has `✓ Withdrawal → async`, but domain model shows sync withdraw flow → flag contradiction
 - q-tree has decisions about an aggregate not in domain model → flag gap
 - Domain model has invariants that conflict with q-tree decisions → flag conflict
@@ -212,6 +212,8 @@ Fix: → Re-open "Withdrawal" as ? to re-evaluate, or update domain model. Which
 **a. Generate questions** — delegate to subagent with `references/question-generator.md`:
 - Pass: tree file path
 - Subagent decomposes open questions ONE LEVEL down, with suggested answers
+- Subagent writes Details `[d:tag]` sections for new nodes (trade-offs, reasoning — not implementation)
+- Subagent also: re-evaluates previous open questions, checks for shallow ✓ answers, adds consequence questions — all in one run, all appear in the current batch
 - Subagent respects the hard limit (max 7 per batch)
 
 **b. Present ONE batch to user** — combine previous unanswered questions + new questions into a single numbered list. **Hard limit: max 7 items total.** If there are more, prioritize unanswered from previous rounds first (they're blocking progress), fill remaining slots with new questions. The rest wait for the next round.
@@ -287,9 +289,9 @@ This confirmation is only needed after discussions — not when the user gives c
 
 Agent NEVER goes silent for minutes. If something needs external data, ask user first.
 
-**d. Update tree file** on disk after recording all answers. Auto-close parent nodes whose children are all resolved.
+**d. Update tree file** on disk after recording all answers. Then auto-close: for each newly confirmed ✓ node, walk up to its parent — if ALL children of that parent are now ✓, mark parent as ✓ too (with a summary of children as its answer). Repeat recursively up to root.
 
-**e. Consequence questions** — handled by the question-generator subagent in the next EXPAND round. When decomposing a node whose answer revealed new sub-questions, the generator adds them as → or ~ children. The orchestrator does NOT create consequence questions directly.
+**e. Consequence questions** — handled by the question-generator subagent. Each time the generator runs, it checks all resolved (✓) nodes for implications and adds consequence questions as → or ~ children in the same batch. The orchestrator does NOT create consequence questions directly.
 
 ### Phase 3: CHECK (after every batch)
 
@@ -320,7 +322,7 @@ This is informational — no action needed, just awareness for the user.
 
 After every batch + consistency check, you (the orchestrator) assess whether the tree is ready to summarize. Three signals:
 
-**1. Coverage** — key areas from the coverage guide (Protocol Goal, Domain/State, Capital Flow, Pricing, Liquidity/Exit, Risk, Permissions, Evolution) have at least one resolved answer — only those relevant to this project.
+**1. Coverage** — key areas from the coverage guide (Protocol Goal, Domain/State, Capital Flow, Pricing, Liquidity/Exit, Risk, Permissions, Evolution) are addressed — only those relevant to this project. "Addressed" = at least one ✓ leaf node in the tree that directly relates to this area. Not all 8 areas apply to every project — skip irrelevant ones (e.g., Pricing/Oracle may not apply to a simple payment contract).
 
 **2. No blockers** — consistency checker found no BLOCKER-severity issues.
 
@@ -378,13 +380,14 @@ Fix gaps before finalizing? [Y / skip / pick numbers]
 
 ## Rules
 
-- **Nothing becomes ✓ without user seeing it.** Every new node (→, ~, ?) MUST be shown to the user in the batch output before it can be confirmed. The subagent writes → or ~ or ?, NEVER ✓. Only the orchestrator writes ✓, and only after the user has seen and accepted the answer.
+- **Nothing becomes ✓ without user seeing it.** Every new node (→, ~, ?) MUST be shown to the user in the batch output before it can be confirmed. The subagent writes → or ~ or ?, NEVER ✓. Only the orchestrator writes ✓, and only after the user has seen and accepted the answer. Exception: generator may demote ✓ → ? (shallow answer check) — this reopens a node, not confirms it. The reopened node + new children appear in the next batch for user review.
 - **Decomposition, not flat lists.** Questions are sub-questions of a parent. Parent auto-closes when all children resolve.
 - **One level at a time.** Don't generate grandchildren — wait for children to be answered first.
 - **Tree file is the single source of truth.** Update after every batch.
 - **Update counters** in the header after every update.
 - **Propose, don't interview.** Default to SUGGESTED answers. Only use OPEN when you genuinely can't decide.
 - **Distill** long answers to one line for the tree node. Details go in the Details section.
+- **Capture the idea, not consequences.** A node records the core decision: `✓ Withdrawal → async`. Consequences (needs keeper, needs queue, needs timeout) are separate child questions — not part of the answer. Consequences can be miscalculated; keeping them as separate questions lets the user confirm or reject each one independently.
 - **Depth-first.** Finish one branch before starting another.
 - **Respect user's time.** Never go silent for minutes. If external data is needed, ask first.
 - **Don't restate platform guarantees.** EVM/Solidity provides guarantees that are not design decisions — don't generate questions, answers, or invariants about them. Examples: transaction atomicity (all-or-nothing), msg.sender authentication, overflow protection (Solidity 0.8+), gas limits. These are given by the execution environment. Only ask about things the architect must decide.

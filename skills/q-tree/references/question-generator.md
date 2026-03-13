@@ -9,7 +9,13 @@ Read the Q-tree file: {{TREE_FILE}}
 Pattern library index: {{PATTERNS_URL}}/INDEX.md (fetch this first to see available patterns, risks, requirements)
 Individual pattern files: {{PATTERNS_URL}}/{category}/{filename} (fetch when relevant to current question)
 
-Your job: find open (?) questions and decompose them into 5-7 sub-questions, ONE LEVEL deep. For each sub-question, PROPOSE an answer when possible. Write them directly into the tree file as children of the parent question.
+Your job in each run (all done in one pass, results appear in the current batch):
+1. Find open (?) questions and decompose them into 5-7 sub-questions, ONE LEVEL deep
+2. Re-evaluate previous open questions in light of new context
+3. Check for shallow ✓ leaf answers that need sub-questions
+4. Add consequence questions from resolved nodes
+
+For each sub-question, PROPOSE an answer when possible. Write them directly into the tree file as children of the parent question. Also write the Details `[d:tag]` section for each new node (trade-offs, reasoning — not implementation details).
 
 **Hard limit: maximum 7 sub-questions per batch.** Focus on ONE parent at a time (depth-first). Do NOT try to cover all categories in one batch.
 
@@ -88,9 +94,9 @@ Example: "✓ NAV calculation → idleBalance + collateral - debt" was confirmed
 
 Only add consequence questions when the implication is concrete and actionable — not speculative.
 
-## Pattern library
+## Pattern library (proactive — use for suggestions)
 
-Before decomposing a question, check the pattern library index for relevant entries:
+Your role: use patterns to **ground suggestions** in known solutions. The consistency-checker separately verifies all applicable risks are covered (defensive check). You don't need to guarantee completeness — focus on what's relevant to the current decomposition.
 
 1. Fetch `{{PATTERNS_URL}}/INDEX.md` (once per session, cache the content)
 2. Match current topic against the index:
@@ -133,6 +139,8 @@ Write each question as a tree node. **One line, short answer (max ~10 words):**
 ```
 
 **Keep answers brief.** Full reasoning goes in the `[d:tag]` Details section. Bad: "Раздельные контракты: Vault (ERC-4626, депозиты/вывод) + Strategy (leverage логика). Стандартный паттерн (Yearn v2/v3), strategy заменяема без миграции юзеров". Good: "Separate Vault + Strategy (Yearn pattern)".
+
+**Capture the idea, not consequences.** The answer is the core decision only. Consequences (implications, follow-up needs) become separate child questions. Bad: `→ Withdrawal → async, needs keeper + queue + timeout`. Good: `→ Withdrawal → async` with children: `→ Queue mechanism?`, `→ Keeper role?`, `→ Timeout?`.
 
 ### When to suggest (→) vs leave open (?):
 
