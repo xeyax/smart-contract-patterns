@@ -238,6 +238,7 @@ Format rules:
 - **Short answers only** — max ~10 words in the list. Details go in `[d:tag]` section of the tree file.
 - Open questions use `—` instead of `→`: `N. ? Question? — option A / option B`
 - Header line shows decomposition target: `[Round N] K questions (X previous, Y new — decomposing "Parent")`
+- **Never show Details in the batch.** The batch is ONLY the numbered list + accept prompt. Details are written to the tree file silently. The user sees them only when they ask "details N". Do not add a "Details for open/complex questions" block, do not show reasoning below the list.
 - **Always this format.** Do not use markdown tables. Do not add section headers inside the list. Do not switch formats between rounds.
 
 **CRITICAL: show EVERY new node.** Auto (~) nodes are shown too — the user may disagree with the derivation. Nothing gets confirmed (✓) without the user seeing it first.
@@ -346,10 +347,34 @@ The user can always say "enough" to force summarize, or "continue" to keep going
 ### Phase 4: SUMMARIZE
 
 Triggered by readiness check (user accepts) or user says "enough":
-- Delegate to subagent with `references/summarizer.md`
-- Pass: resolved tree file path
-- Result: `docs/architecture-summary.md`
-- Present summary to user for final review
+1. Delegate to subagent with `references/summarizer.md`
+2. Pass: resolved tree file path
+3. Result: separate files under `docs/architecture/`:
+   - `overview.md` — overview + key decisions
+   - `contracts.md` — contract decomposition + state variables
+   - `interfaces.md` — function signatures per contract
+   - `invariants.md` — invariants per contract
+   - `access-control.md` — access control matrix
+   - `token-flows.md` — token flow traces
+   - `call-diagrams.md` — call sequence diagrams with postconditions
+   - `risks.md` — risk mitigation map
+   - `gaps.md` — collected gaps (only if gaps exist)
+
+**If GAPs found:**
+```
+Architecture artifacts generated (6 files in docs/architecture/).
+3 gaps found:
+1. [invariants] No invariants for Strategy — ? What must always be true for Strategy state?
+2. [risks] First depositor attack not addressed — ? First depositor protection?
+3. [access-control] Who calls liquidate() unclear — ? Liquidation caller?
+
+Fix gaps before finalizing? [Y / skip / pick numbers]
+```
+- User says Y → GAPs become new ? questions, return to EXPAND. After gaps are resolved, the full SUMMARIZE runs again — all artifacts are regenerated from scratch to ensure consistency.
+- User picks numbers → selected GAPs become questions, rest skipped. Same: full regeneration after resolution.
+- User says skip → finalize as-is with gaps noted
+
+**If no GAPs:** present artifact list to user for final review.
 
 ## Rules
 
@@ -362,6 +387,7 @@ Triggered by readiness check (user accepts) or user says "enough":
 - **Distill** long answers to one line for the tree node. Details go in the Details section.
 - **Depth-first.** Finish one branch before starting another.
 - **Respect user's time.** Never go silent for minutes. If external data is needed, ask first.
+- **Don't restate platform guarantees.** EVM/Solidity provides guarantees that are not design decisions — don't generate questions, answers, or invariants about them. Examples: transaction atomicity (all-or-nothing), msg.sender authentication, overflow protection (Solidity 0.8+), gas limits. These are given by the execution environment. Only ask about things the architect must decide.
 - **Log progress:** `[Round N] Resolved: X | Suggested: Y | Open: Z` (to user always; to log file unless `--no-log`)
 
 ## Session log (disable with `--no-log`)
@@ -423,5 +449,5 @@ Rules:
 |-------------|---------|
 | Tree file path | `docs/q-tree.md` |
 | Log file path | `docs/q-tree-log.md` (unless `--no-log`) |
-| Summary path | `docs/architecture-summary.md` |
+| Summary dir | `docs/architecture/` |
 | Patterns URL | `https://raw.githubusercontent.com/xeyax/smart-contract-patterns/master/patterns` |

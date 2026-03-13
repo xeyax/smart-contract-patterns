@@ -48,6 +48,12 @@ NOT generic categories — frame them for the specific project.
 
 Pick the deepest unresolved (?) node that has no children yet. Decompose it.
 
+### Re-evaluate previous open questions
+
+Before building the batch, review all open (?) leaf nodes that have been shown before. The tree now has more context than when they were first asked. If you can now suggest an answer based on resolved siblings/ancestors, upgrade `?` to `→` with a suggested answer. The user will see these as `← prev` in the batch and can confirm or override.
+
+Example: Round 2 asked `? Oracle fallback? — TWAP / Redstone / none`, user skipped. By Round 5, `✓ Oracle → Chainlink` and `✓ Manipulation resistance → needed` are resolved. Now suggest: `→ Oracle fallback? → Uniswap TWAP 30min (complements Chainlink, manipulation resistant) ← prev`.
+
 Priority:
 1. Open (?) leaf nodes without children → decompose these first
 2. Shallow confirmed (✓) leaf nodes → if a ✓ leaf is important but under-specified, reopen it to ? and add sub-questions (see below)
@@ -143,6 +149,7 @@ Write each question as a tree node. **One line, short answer (max ~10 words):**
 - **Don't re-ask resolved (✓) questions.**
 - **Don't ask about implementation details** (variable names, storage layout, code style).
 - **Don't ask questions with only one reasonable answer.**
+- **Don't ask about platform guarantees.** EVM/Solidity already guarantees: transaction atomicity, msg.sender authentication, overflow protection (0.8+), gas metering. These are not architecture decisions — don't generate questions or invariants about them.
 - **Details = trade-offs, not implementation.** Details sections explain WHY (options, pros/cons, reasoning). Never write function signatures, parameter types, interface definitions, or API specs — that's ADR/implementation scope. If it looks like a Solidity interface, it's too detailed.
 - **Details = only what was confirmed.** A Detail section may only expand on the confirmed/suggested answer itself — trade-offs, reasoning, context. If writing a Detail reveals sub-decisions that weren't asked about (struct fields, ID strategy, mapping structure, specific parameters), those are NEW QUESTIONS — add them as child nodes, not as text in Details. Example: answer is "→ Data model → three mappings". Detail explains *why* three mappings. The composition of each struct → child questions: `→ Subscription struct?`, `→ ID generation?`.
 
