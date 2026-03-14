@@ -11,17 +11,21 @@ Generate architecture artifacts as separate files under {{SUMMARY_DIR}}/. Each a
 
 ## Output files
 
-| File | Content |
-|---|---|
-| `overview.md` | Overview + key decisions |
-| `contracts.md` | Contract decomposition + interaction graph + state variables |
-| `interfaces.md` | Function signatures per contract |
-| `invariants.md` | Invariants per contract |
-| `access-control.md` | Access control matrix |
-| `token-flows.md` | Token flow traces |
-| `call-diagrams.md` | Call sequence diagrams with postconditions |
-| `risks.md` | Risk mitigation map |
-| `gaps.md` | All [GAP] entries collected (only if gaps exist) |
+Generate in this order — each artifact can use previously generated ones as context for consistency. The q-tree remains the source of truth; earlier artifacts help cross-check names, signatures, and boundaries.
+
+| # | File | Content |
+|---|---|---|
+| 1 | `contracts.md` | Contract decomposition + interaction graph + state variables |
+| 2 | `interfaces.md` | Function signatures per contract |
+| 3 | `call-diagrams.md` | Call sequence diagrams with postconditions |
+| 4 | `token-flows.md` | Token flow traces |
+| 5 | `access-control.md` | Access control matrix |
+| 6 | `state-machines.md` | Entity lifecycles *(optional — only if project has entities with discrete states)* |
+| 7 | `invariants.md` | Invariants per contract |
+| 8 | `risks.md` | Risk mitigation map |
+| 9 | `overview.md` | Overview + key decisions |
+| 10 | `plan.md` | Development plan (tasks, dependencies, order) |
+| 11 | `gaps.md` | All [GAP] entries collected (only if gaps exist) — always last |
 
 ## Artifact specs
 
@@ -80,26 +84,40 @@ Function signatures per contract. This is the bridge from architecture to implem
 ## Vault
 
 ```solidity
-// User actions
+// --- User actions ---
+
+// Deposit token, mint shares proportional to NAV
 function deposit(uint256 amount, address token) external
+// Burn shares, request withdrawal
 function withdraw(uint256 shares) external
+// Claim completed async withdrawal
 function claimWithdraw() external
 
-// Admin
+// --- Admin ---
+
+// Update platform fee (capped by MAX_FEE_BPS)
 function setFee(uint256 newFeeBps) external onlyOwner
+// Whitelist token with min amount
 function addToken(address token, uint256 minAmount) external onlyOwner
 
-// View
+// --- View ---
+
+// Total USDC held + deployed
 function totalAssets() external view returns (uint256)
+// Current price per share
 function sharePrice() external view returns (uint256)
 ```
 
 ## Strategy
 
 ```solidity
+// Deploy USDC into Aave leverage position
 function deployCapital(uint256 amount) external onlyVault
+// Unwind position, return USDC to vault
 function withdrawCapital(uint256 amount) external onlyVault
+// Adjust LTV to target ratio
 function rebalance() external onlyKeeper
+// Current Aave position
 function getPosition() external view returns (uint256 collateral, uint256 debt)
 ```
 
@@ -110,11 +128,12 @@ Rules:
 - Parameters and return types = Solidity types (uint256, address, bool, bytes). This is the one artifact where implementation types are appropriate.
 - If a function is implied by call-diagrams but signature details aren't clear from the tree — `[GAP]`.
 - Do NOT include function bodies — only signatures.
+- **One-line description above each function** as a comment. Short — what the function does, not how.
 - **Parameter sufficiency check (CRITICAL):** For every function, verify: "Can the contract execute ALL described behavior (from token-flows, call-diagrams, and q-tree Details) using ONLY these parameters + its own state?" If a value is needed at runtime but cannot be derived from parameters or state — it's a missing parameter → `[GAP]`. Trace the information flow: who knows this value? How does it reach the function?
 
 ### invariants.md
 
-For each contract, list what must ALWAYS be true:
+For each contract, list what must ALWAYS be true — after ANY sequence of valid calls:
 
 ## Vault
 - I1: totalShares > 0 → totalAssets > 0
@@ -255,6 +274,93 @@ Rules:
 - Mitigation = reference to specific ✓ node in q-tree.
 - Status: COVERED (has mitigation) / UNCOVERED (`[GAP]`).
 - Don't list risks that clearly don't apply to this project.
+
+### state-machines.md *(optional)*
+
+Only generate if the project has entities with discrete state lifecycles (e.g., subscription, loan, proposal, order). Skip entirely if no entity has meaningful states.
+
+For each entity with a lifecycle:
+
+## Subscription
+
+States: `Active`, `Paused`, `Cancelled`, `Expired`
+
+```mermaid
+stateDiagram-v2
+    [*] --> Active : subscribe()
+    Active --> Paused : pause()
+    Paused --> Active : resume()
+    Active --> Cancelled : cancel()
+    Paused --> Cancelled : cancel()
+    Active --> Expired : charge fails + maxFailures reached
+```
+
+| From | To | Trigger | Guard |
+|------|----|---------|-------|
+| * | Active | subscribe() | valid token, amount >= minAmount |
+| Active | Paused | pause() | onlySubscriber |
+| Paused | Active | resume() | onlySubscriber |
+| Active | Cancelled | cancel() | onlySubscriber or onlyMerchant |
+| Active | Expired | _chargeSingle() | consecutiveFailures >= maxFailures |
+
+Invariants:
+- Only Active subscriptions can be charged
+- Cancelled/Expired are terminal — no transitions out
+
+Rules:
+- One section per entity.
+- Mermaid `stateDiagram-v2` showing states and transitions.
+- Transition table: From, To, Trigger (function), Guard (who/condition).
+- State invariants: what must be true in each state.
+- **Only include entities where state transitions are a design decision.** If an entity is just CRUD with no meaningful lifecycle — skip it.
+- If a state or transition can't be derived from the tree — `[GAP]`.
+
+### plan.md
+
+Development plan derived from contracts, interfaces, and call-diagrams. Also a completeness check — if you can't break the architecture into concrete tasks, something is underspecified.
+
+## Tasks
+
+| # | Task | Contract | Depends on | Traceable to |
+|---|------|----------|------------|-------------|
+| 1 | Deploy setup (Foundry, fork, test infra) | — | — | — |
+| 2 | Vault base (ERC-4626, deposit/withdraw stubs) | Vault | 1 | d:capital-flow |
+| 3 | Strategy base (deploy/withdraw capital) | Strategy | 2 | d:strategy-sep |
+| 4 | Aave adapter (supply/borrow/repay) | AaveAdapter | 1 | d:flash-loop |
+| 5 | Vault ↔ Strategy integration | Vault, Strategy | 2, 3, 4 | d:capital-flow |
+| 6 | Fee logic | Vault | 2 | d:fee-model |
+| 7 | Rebalance | Strategy | 3, 4 | d:rebalance |
+| 8 | Access control (roles, modifiers) | All | 2, 3 | d:access-control |
+| 9 | Emergency / pause | Vault, Strategy | 5 | d:risk |
+| 10 | Integration tests on fork | All | 5-9 | — |
+
+## Order
+
+Build bottom-up: adapters → core contracts → integrations → access control → emergency → tests.
+
+```mermaid
+graph LR
+    1[Setup] --> 2[Vault base]
+    1 --> 4[Aave adapter]
+    2 --> 3[Strategy base]
+    3 --> 5[Integration]
+    4 --> 5
+    2 --> 6[Fee logic]
+    3 --> 7[Rebalance]
+    5 --> 8[Access control]
+    5 --> 9[Emergency]
+    8 --> 10[Tests]
+    9 --> 10
+```
+
+Rules:
+- One task = one bounded unit of work (implementable + testable in isolation).
+- **Depends on** = what must be done first. No circular dependencies.
+- **Traceable to** = q-tree `[d:tag]` or node that defines this task's scope.
+- If a task can't be clearly scoped from the tree — `[GAP]`.
+- Order: dependencies first, then independent tasks in parallel where possible.
+- Include setup (Foundry, fork) as task 1 and integration tests as final task.
+- **This is a completeness check:** if the architecture is well-defined, every contract and every function from interfaces.md maps to exactly one task. If not → [GAP].
 
 ### gaps.md
 

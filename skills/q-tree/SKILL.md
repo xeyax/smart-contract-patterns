@@ -351,16 +351,18 @@ The user can always say "enough" to force summarize, or "continue" to keep going
 Triggered by readiness check (user accepts) or user says "enough":
 1. Delegate to subagent with `references/summarizer.md`
 2. Pass: resolved tree file path
-3. Result: separate files under `docs/architecture/`:
-   - `overview.md` — overview + key decisions
-   - `contracts.md` — contract decomposition + state variables
-   - `interfaces.md` — function signatures per contract
-   - `invariants.md` — invariants per contract
-   - `access-control.md` — access control matrix
-   - `token-flows.md` — token flow traces
-   - `call-diagrams.md` — call sequence diagrams with postconditions
-   - `risks.md` — risk mitigation map
-   - `gaps.md` — collected gaps (only if gaps exist)
+3. Result: separate files under `docs/architecture/`, generated in dependency order (each uses prior artifacts as context for consistency):
+   1. `contracts.md` — contract decomposition + state variables
+   2. `interfaces.md` — function signatures per contract
+   3. `call-diagrams.md` — call sequence diagrams with postconditions
+   4. `token-flows.md` — token flow traces
+   5. `access-control.md` — access control matrix
+   6. `state-machines.md` — entity lifecycles *(only if entities with discrete states exist)*
+   7. `invariants.md` — invariants per contract
+   8. `risks.md` — risk mitigation map
+   9. `overview.md` — overview + key decisions
+   10. `plan.md` — development plan (tasks, dependencies, order)
+   11. `gaps.md` — collected gaps (only if gaps exist) — always last
 
 **If GAPs found:**
 ```
