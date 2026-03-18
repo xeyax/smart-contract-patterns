@@ -45,17 +45,21 @@ Optionally:
 ### Profile
 
 At INIT, read the profile file. The profile defines:
-- **Coverage areas** — orientation for question generation (passed to question-generator as `{{PROFILE_COVERAGE}}`)
-- **Concern categories** — what the consistency checker looks for (passed as `{{PROFILE_CONCERNS}}`)
+- **Coverage Areas** — orientation for question generation (passed to question-generator as `{{PROFILE_COVERAGE}}`)
+- **Concern Categories** — what the consistency checker looks for (passed as `{{PROFILE_CONCERNS}}`)
 - **Definition of Done** — when to suggest stopping
-- **Artifacts** — what to generate at the end
-- **Summarizer** — which reference file to use (or none)
-- **Review** — whether to run cross-artifact review after summarize
-- **Pattern library** — URL (optional, passed to subagents as `{{PATTERNS_URL}}`)
+- **Artifacts** — ordered list of what to generate at the end
+- **Summarizer** — `ref: references/summarizer.md` or omit section for no artifacts
+- **Review** — `enabled: yes` or `enabled: no`
+- **Pattern Library** — `url: ...` or omit section for no patterns (passed as `{{PATTERNS_URL}}`)
 - **Constraints** — domain-specific rules (passed as `{{PROFILE_CONSTRAINTS}}`)
-- **Domain model cross-validation** — whether to cross-check with existing domain model
+- **Domain Model Cross-Validation** — `enabled: yes/no` + `file: path`
 
-Pass relevant profile sections to subagents when dispatching them.
+When dispatching subagents, substitute `{{...}}` placeholders in their reference files with the corresponding profile section content. If a profile section is omitted, the placeholder is empty and conditional blocks in the reference file are skipped.
+
+### Custom profiles
+
+To create a custom profile, use `profiles/spec.md` or `profiles/exploration.md` as a template. All sections are optional — omitted sections use empty defaults (no coverage, no constraints, no artifacts, etc.). See the built-in profiles for examples of the format.
 
 ## Output
 
@@ -231,7 +235,7 @@ Fix: → Re-open "Withdrawal" as ? to re-evaluate, or update domain model. Which
 ### Phase 2: EXPAND (loop)
 
 **a. Generate questions** — delegate to subagent with `references/question-generator.md`:
-- Pass: tree file path
+- Pass: tree file path, `{{PROFILE_COVERAGE}}`, `{{PROFILE_CONSTRAINTS}}`, `{{PATTERNS_URL}}` (if provided)
 - Subagent decomposes open questions ONE LEVEL down, with suggested answers
 - Subagent writes Details `[d:tag]` sections for new nodes (trade-offs, reasoning — not implementation)
 - Subagent also: re-evaluates previous open questions, checks for shallow ✓ answers, adds consequence questions — all in one run, all appear in the current batch
@@ -317,6 +321,7 @@ Agent NEVER goes silent for minutes. If something needs external data, ask user 
 ### Phase 3: CHECK (after every batch)
 
 Delegate to subagent with `references/consistency-checker.md`.
+Pass: tree file path, `{{PROFILE_CONCERNS}}`, `{{PATTERNS_URL}}` (if provided).
 
 **Issues found** — present each WITH a proposed fix:
 ```
@@ -381,8 +386,8 @@ The user can always say "enough" to force summarize, or "continue" to keep going
 
 Triggered by readiness check (user accepts) or user says "enough":
 1. Delegate to subagent with the summarizer reference from the profile (e.g., `references/summarizer.md`)
-2. Pass: resolved tree file path, summary directory
-3. Subagent generates all artifacts defined in the profile's artifact list
+2. Pass: resolved tree file path, summary directory (`{{SUMMARY_DIR}}`), `{{PATTERNS_URL}}` (if provided)
+3. Subagent generates all artifacts in the order defined by the profile (each can use prior artifacts as context for consistency)
 4. Present completion to user:
 ```
 Architecture artifacts generated (N files in docs/architecture/).
@@ -396,7 +401,7 @@ If the profile has review enabled → proceed to REVIEW. Otherwise → present a
 **Only if the active profile has review enabled.** Runs after SUMMARIZE.
 
 1. Delegate to subagent with `references/reviewer.md`
-2. Pass: summary directory, tree file path
+2. Pass: summary directory (`{{SUMMARY_DIR}}`), tree file path (`{{TREE_FILE}}`)
 
 **Reviewer found artifact issues** (wrong projection from tree):
 Re-run SUMMARIZE once, passing reviewer's artifact issues as corrections. Max 1 re-summarize cycle — if issues persist after re-generation, report them to the user.
@@ -486,13 +491,20 @@ Rules:
 
 ## Placeholders
 
-| Placeholder | Default |
-|-------------|---------|
-| Profile path | `profiles/spec.md` |
-| Tree file path | `docs/q-tree.md` |
+These placeholders appear in subagent reference files. The orchestrator substitutes them with actual values when dispatching subagents.
+
+| Placeholder | Source | Default |
+|-------------|--------|---------|
+| `{{TREE_FILE}}` | fixed | `docs/q-tree.md` |
+| `{{SUMMARY_DIR}}` | fixed | `docs/architecture/` |
+| `{{PATTERNS_URL}}` | profile's Pattern Library `url:` | empty (skip pattern sections) |
+| `{{PROFILE_COVERAGE}}` | profile's Coverage Areas section | empty (decompose by goal structure) |
+| `{{PROFILE_CONCERNS}}` | profile's Concern Categories section | empty (skip missing concerns check) |
+| `{{PROFILE_CONSTRAINTS}}` | profile's Constraints section | empty (no constraints) |
+
+Other settings:
+
+| Setting | Default |
+|---------|---------|
+| Profile path | `profiles/spec.md` (auto-detected if not specified) |
 | Log file path | `docs/q-tree-log.md` (unless `--no-log`) |
-| Summary dir | `docs/architecture/` |
-| Patterns URL | from profile (optional) |
-| `{{PROFILE_COVERAGE}}` | from profile's Coverage Areas section |
-| `{{PROFILE_CONCERNS}}` | from profile's Concern Categories section |
-| `{{PROFILE_CONSTRAINTS}}` | from profile's Constraints section |

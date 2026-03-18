@@ -31,7 +31,18 @@ Only flag categories actually relevant to this system. If no concern categories 
 - Composability assumptions that may not hold (e.g., Contract A assumes B never reverts)
 - Attack vectors from the combination of answers (e.g., "permissionless rebalancing" + "flash loan leverage" → manipulation)
 
-### 5. Pattern library cross-check (if {{PATTERNS_URL}} is provided — defensive, verify completeness)
+### 5. Boundary clarity
+
+When two or more components participate in the same operation (from ✓ nodes), check: is it unambiguous who calls whom? Look for cases where:
+- Component A "computes X", but data for X lives in component B — who initiates the call?
+- Component A "stores" a dependency that component B "uses" — does B call A, or does A push to B?
+- An operation spans multiple components but the tree doesn't define the call direction
+
+For each ambiguity → flag as WARNING with a concrete question that resolves it.
+
+Example: tree has "✓ Service A computes total cost" and "✓ pricing data lives in Service B". Who calls whom — does A query B, or does B push prices to A? → WARNING: boundary unclear between A and B for cost computation.
+
+### 6. Pattern library cross-check (if {{PATTERNS_URL}} is provided — defensive, verify completeness)
 
 If the profile provides a pattern library URL:
 
@@ -48,7 +59,7 @@ Fetch the full risk/req file when you need specifics for the issue description.
 
 If no pattern library is provided, skip this check.
 
-### 6. Re-emergence
+### 7. Re-emergence
 
 Check if a NEW answer (from the latest batch) conflicts with an EARLIER confirmed (✓) answer. If so, the earlier answer needs to be re-opened — mark it for re-emergence.
 
