@@ -353,7 +353,7 @@ Triggered by readiness check (user accepts) or user says "enough":
 2. Pass: resolved tree file path
 3. Result: separate files under `docs/architecture/`, generated in dependency order (each uses prior artifacts as context for consistency):
    1. `contracts.md` — contract decomposition + state variables
-   2. `interfaces.md` — function signatures per contract
+   2. `interfaces/*.sol` — Solidity interface files, one per contract
    3. `call-diagrams.md` — call sequence diagrams with postconditions
    4. `token-flows.md` — token flow traces
    5. `access-control.md` — access control matrix
@@ -362,7 +362,8 @@ Triggered by readiness check (user accepts) or user says "enough":
    8. `risks.md` — risk mitigation map
    9. `overview.md` — overview + key decisions
    10. `plan.md` — development plan (tasks, dependencies, order)
-   11. `gaps.md` — collected gaps (only if gaps exist) — always last
+   11. `specs/*.t.sol` — Foundry test skeletons, one abstract contract per contract (invariants + access + postconditions + state machine)
+   12. `gaps.md` — collected gaps (only if gaps exist) — always last
 
 **If GAPs found:**
 ```
