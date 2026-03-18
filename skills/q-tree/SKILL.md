@@ -4,7 +4,7 @@ description: >-
   Interactive architecture design through a question tree — for new projects and
   changes to existing systems. Decomposition-based: complex questions break into
   sub-questions. Agent proposes answers, user confirms. Depth-first, one level at
-  a time. Smart contract focus.
+  a time. Supports domain profiles for specialization.
 ---
 
 You are the orchestrator of an interactive architecture design session.
@@ -14,34 +14,53 @@ You **propose answers** to architecture questions based on context, present them
 ## Flow
 
 ```
-INIT      New: create tree file with goal | Resume: read existing tree, show status
+INIT      Load profile. New: create tree | Resume: read tree, show status
 
-EXPAND    Subagent decomposes open questions ONE LEVEL down (5-7 sub-questions)
+EXPAND    Subagent decomposes open questions ONE LEVEL down (coverage from profile)
           You present batch → user: accept / override / ask questions / skip
 
-CHECK     Subagent finds issues WITH proposed fixes
+CHECK     Subagent finds issues WITH proposed fixes (concerns from profile)
           You present → user accepts or overrides
 
-READY?    You assess: coverage + no blockers + implementation drift
+READY?    Assess against Definition of Done from profile
           If ready → suggest summarize | If not → next EXPAND
 
-SUMMARIZE Subagent produces architecture-summary.md
+SUMMARIZE Subagent produces artifacts (if profile defines summarizer)
+
+REVIEW    Subagent checks cross-artifact consistency (if profile enables review)
+          → artifact issues → re-SUMMARIZE (1 cycle max)
+          → tree gaps → EXPAND
+          → clean → done
 ```
 
 ## Input
 
 The user provides a goal (e.g., "leveraged vault on Aave v3").
 
-Optionally: path to existing docs (vision, requirements) or existing q-tree to resume.
+Optionally:
+- `--profile=path` — profile file. Built-in profiles: `profiles/spec.md` (smart contract architecture), `profiles/exploration.md` (freeform exploration). Custom profiles: any path to a markdown file following the profile format. **If not specified:** auto-detect from the goal. If the goal implies building a smart contract system (mentions contracts, vault, DeFi, Solidity, ERC-*, etc.) → `spec`. Otherwise → `exploration`. If ambiguous, ask in one line: `Profile: spec (smart contract architecture) or exploration? [spec/explore]`
+- Path to existing docs (vision, requirements) or existing q-tree to resume.
+- `--no-log` — disable session log.
 
-### Pattern library
+### Profile
 
-Pass `{{PATTERNS_URL}}` to subagents (question-generator, consistency-checker). They use it to ground suggestions in proven patterns and check against known risks. The library contains `pattern-*` (solutions), `risk-*` (known risks), and `req-*` (requirements) files.
+At INIT, read the profile file. The profile defines:
+- **Coverage areas** — orientation for question generation (passed to question-generator as `{{PROFILE_COVERAGE}}`)
+- **Concern categories** — what the consistency checker looks for (passed as `{{PROFILE_CONCERNS}}`)
+- **Definition of Done** — when to suggest stopping
+- **Artifacts** — what to generate at the end
+- **Summarizer** — which reference file to use (or none)
+- **Review** — whether to run cross-artifact review after summarize
+- **Pattern library** — URL (optional, passed to subagents as `{{PATTERNS_URL}}`)
+- **Constraints** — domain-specific rules (passed as `{{PROFILE_CONSTRAINTS}}`)
+- **Domain model cross-validation** — whether to cross-check with existing domain model
+
+Pass relevant profile sections to subagents when dispatching them.
 
 ## Output
 
 - `docs/q-tree.md` — the question tree (updated after every batch)
-- `docs/architecture-summary.md` — generated at the end
+- Artifacts under `docs/architecture/` — if profile defines a summarizer (see Phase 4)
 - `docs/q-tree-log.md` — session log (enabled by default; disable with `--no-log`)
 
 ## Tree structure principle
@@ -172,16 +191,18 @@ Example: user confirms "✓ Data model → three mappings: subscriptions, mercha
 
 ### Phase 1: INIT
 
+**Load profile** — read the profile file (default: `profiles/spec.md`, or `--profile=path`). Extract all sections for use in later phases.
+
 **New session:**
 1. User provides the goal.
-2. Check if `docs/domain-model.md` exists — if so, read as context, mention to user.
+2. If profile has domain model cross-validation enabled: check if the domain model file exists — if so, read as context, mention to user.
 3. Create `docs/q-tree.md` with the goal in the Context block and an empty tree.
 4. Unless `--no-log`: create `docs/q-tree-log.md` with header and goal.
 5. Proceed to EXPAND.
 
 **Resume (tree file already exists):**
 1. Read existing tree file.
-2. Check if `docs/domain-model.md` exists — if so, read as context and cross-validate (see below).
+2. If profile has domain model cross-validation enabled: check if the domain model file exists — if so, read as context and cross-validate (see below).
 3. Count resolved / suggested / open nodes.
 4. Show status to user:
    ```
@@ -320,27 +341,35 @@ This is informational — no action needed, just awareness for the user.
 
 ### Phase 3b: READINESS CHECK (after CHECK, orchestrator does this — no subagent)
 
-After every batch + consistency check, you (the orchestrator) assess whether the tree is ready to summarize. Three signals:
+After every batch + consistency check, you (the orchestrator) assess whether the tree is ready based on the **Definition of Done from the active profile**. The profile may define different readiness criteria. Common signals:
 
-**1. Coverage** — key areas from the coverage guide (Protocol Goal, Domain/State, Capital Flow, Pricing, Liquidity/Exit, Risk, Permissions, Evolution) are addressed — only those relevant to this project. "Addressed" = at least one ✓ leaf node in the tree that directly relates to this area. Not all 8 areas apply to every project — skip irrelevant ones (e.g., Pricing/Oracle may not apply to a simple payment contract).
+**1. Coverage** (if profile defines coverage areas) — key areas from the profile's coverage list are addressed — only those relevant to this project. "Addressed" = at least one ✓ leaf node in the tree that directly relates to this area. Skip irrelevant areas.
 
 **2. No blockers** — consistency checker found no BLOCKER-severity issues.
 
-**3. Implementation drift** — questions from the last batch are increasingly implementation-scope (how to code it) rather than architecture-scope (which approach to take).
+**3. Implementation drift** (if profile checks for it) — questions from the last batch are increasingly execution-scope (how to do it) rather than decision-scope (which approach to take).
 
-How to tell the difference:
-- Architecture: "Sync vs async withdrawal?", "How to handle oracle failure?", "Fee model?"
-- Implementation: "Exact rebalance threshold?", "Error message format?", "Storage layout?"
+**4. Goal achieved** (if profile uses goal-based DoD) — assess whether the stated goal is answered: all aspects explored, no open branches that block the answer. If so, proactively suggest stopping with a summary of the conclusion.
 
-**When all three signals are positive**, proactively suggest stopping:
+How to tell the difference between decision-scope and execution-scope:
+- Decision: "Sync vs async withdrawal?", "How to handle oracle failure?", "Fee model?"
+- Execution: "Exact rebalance threshold?", "Error message format?", "Storage layout?"
+
+**When readiness signals are positive**, proactively suggest stopping:
 
 ```
 [Readiness] Coverage: 5/5 relevant areas resolved. No blocker issues.
-Last batch: 4/6 questions were implementation-scope.
+Last batch: 4/6 questions were execution-scope.
 Ready to summarize? [Y / continue with "deeper into X"]
 ```
 
-**User providing implementation-level answers** (e.g., "rebalance threshold: 85%, use basis points for fees") is a strong readiness signal — the user is already thinking in code. Record as ✓, then check readiness.
+If the profile has no summarizer, suggest ending instead:
+```
+[Readiness] Goal appears answered. No open branches blocking the conclusion.
+End session? [Y / continue with "deeper into X"]
+```
+
+**User providing execution-level answers** is a strong readiness signal — the user is already thinking in specifics. Record as ✓, then check readiness.
 
 **If not ready** — continue to next EXPAND.
 
@@ -348,38 +377,44 @@ The user can always say "enough" to force summarize, or "continue" to keep going
 
 ### Phase 4: SUMMARIZE
 
+**Only if the active profile defines a summarizer.** If no summarizer — the session ends at READY (the tree itself is the output).
+
 Triggered by readiness check (user accepts) or user says "enough":
-1. Delegate to subagent with `references/summarizer.md`
-2. Pass: resolved tree file path
-3. Result: separate files under `docs/architecture/`, generated in dependency order (each uses prior artifacts as context for consistency):
-   1. `contracts.md` — contract decomposition + state variables
-   2. `interfaces/*.sol` — Solidity interface files, one per contract
-   3. `call-diagrams.md` — call sequence diagrams with postconditions
-   4. `token-flows.md` — token flow traces
-   5. `access-control.md` — access control matrix
-   6. `state-machines.md` — entity lifecycles *(only if entities with discrete states exist)*
-   7. `invariants.md` — invariants per contract
-   8. `risks.md` — risk mitigation map
-   9. `overview.md` — overview + key decisions
-   10. `plan.md` — development plan (tasks, dependencies, order)
-   11. `specs/*.t.sol` — Foundry test skeletons, one abstract contract per contract (invariants + access + postconditions + state machine)
-   12. `gaps.md` — collected gaps (only if gaps exist) — always last
-
-**If GAPs found:**
+1. Delegate to subagent with the summarizer reference from the profile (e.g., `references/summarizer.md`)
+2. Pass: resolved tree file path, summary directory
+3. Subagent generates all artifacts defined in the profile's artifact list
+4. Present completion to user:
 ```
-Architecture artifacts generated (6 files in docs/architecture/).
-3 gaps found:
-1. [invariants] No invariants for Strategy — ? What must always be true for Strategy state?
-2. [risks] First depositor attack not addressed — ? First depositor protection?
-3. [access-control] Who calls liquidate() unclear — ? Liquidation caller?
-
-Fix gaps before finalizing? [Y / skip / pick numbers]
+Architecture artifacts generated (N files in docs/architecture/).
+Proceeding to review...
 ```
-- User says Y → GAPs become new ? questions, return to EXPAND. After gaps are resolved, the full SUMMARIZE runs again — all artifacts are regenerated from scratch to ensure consistency.
-- User picks numbers → selected GAPs become questions, rest skipped. Same: full regeneration after resolution.
-- User says skip → finalize as-is with gaps noted
 
-**If no GAPs:** present artifact list to user for final review.
+If the profile has review enabled → proceed to REVIEW. Otherwise → present artifact list for final review.
+
+### Phase 5: REVIEW
+
+**Only if the active profile has review enabled.** Runs after SUMMARIZE.
+
+1. Delegate to subagent with `references/reviewer.md`
+2. Pass: summary directory, tree file path
+
+**Reviewer found artifact issues** (wrong projection from tree):
+Re-run SUMMARIZE once, passing reviewer's artifact issues as corrections. Max 1 re-summarize cycle — if issues persist after re-generation, report them to the user.
+
+**Reviewer found tree gaps** (tree is missing information):
+Present as new ? questions:
+```
+Review found 2 tree gaps:
+1. [cross-flow] migrate flow missing slippage — ? Max slippage for migration swaps?
+2. [dependency] No oracle interface — ? Which oracle interface to use?
+
+Fix gaps? [Y / pick numbers / skip]
+```
+- User says Y → gaps become new ? questions, return to EXPAND. After gaps are resolved, full SUMMARIZE + REVIEW runs again.
+- User picks numbers → selected gaps become questions, rest skipped. Same: full regeneration after resolution.
+- User says skip → finalize as-is with gaps noted.
+
+**Clean (no issues):** present artifact list for final review.
 
 ## Rules
 
@@ -393,7 +428,7 @@ Fix gaps before finalizing? [Y / skip / pick numbers]
 - **Capture the idea, not consequences.** A node records the core decision: `✓ Withdrawal → async`. Consequences (needs keeper, needs queue, needs timeout) are separate child questions — not part of the answer. Consequences can be miscalculated; keeping them as separate questions lets the user confirm or reject each one independently.
 - **Depth-first.** Finish one branch before starting another.
 - **Respect user's time.** Never go silent for minutes. If external data is needed, ask first.
-- **Don't restate platform guarantees.** EVM/Solidity provides guarantees that are not design decisions — don't generate questions, answers, or invariants about them. Examples: transaction atomicity (all-or-nothing), msg.sender authentication, overflow protection (Solidity 0.8+), gas limits. These are given by the execution environment. Only ask about things the architect must decide.
+- **Respect profile constraints.** The active profile may define domain-specific constraints (e.g., platform guarantees to exclude). Pass them to subagents and follow them throughout the session.
 - **Log progress:** `[Round N] Resolved: X | Suggested: Y | Open: Z` (to user always; to log file unless `--no-log`)
 
 ## Session log (disable with `--no-log`)
@@ -453,7 +488,11 @@ Rules:
 
 | Placeholder | Default |
 |-------------|---------|
+| Profile path | `profiles/spec.md` |
 | Tree file path | `docs/q-tree.md` |
 | Log file path | `docs/q-tree-log.md` (unless `--no-log`) |
 | Summary dir | `docs/architecture/` |
-| Patterns URL | `https://raw.githubusercontent.com/xeyax/smart-contract-patterns/master/patterns` |
+| Patterns URL | from profile (optional) |
+| `{{PROFILE_COVERAGE}}` | from profile's Coverage Areas section |
+| `{{PROFILE_CONCERNS}}` | from profile's Concern Categories section |
+| `{{PROFILE_CONSTRAINTS}}` | from profile's Constraints section |

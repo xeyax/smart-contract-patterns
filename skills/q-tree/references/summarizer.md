@@ -512,53 +512,6 @@ Only created if there are `[GAP]` entries in other artifacts. Collect ALL gaps:
 If there are gaps: the orchestrator returns these as new ? questions to the EXPAND phase.
 If no gaps: the architecture is ready for implementation.
 
-## Cross-artifact consistency checks
-
-Run after all artifacts are generated. Walk through every artifact and check for the following. Any finding becomes an entry in gaps.md.
-
-### 1. Multiplicity check
-
-If contracts.md says "per-X" (per-token fees, multiple strategies, per-user limits), verify that interfaces reflect this:
-- Is there a collection (mapping, array) in state variables?
-- Do function signatures accept the relevant key as a parameter?
-- Is there an admin function to add/remove items?
-
-Example: contracts.md says "per-token fee override". But `setFee(uint256 bps)` has no token parameter → `[GAP]: setFee needs token parameter to support per-token fees`.
-
-### 2. Stored vs parameter check
-
-For every address or external dependency a function uses:
-- **Caller-provided** (parameter): can a malicious caller pass a malicious contract? Does the function validate it (whitelist, interface check)? If not → `[GAP]: no validation for caller-provided [param] in [function]`.
-- **Stored** (state variable): does it limit flexibility unnecessarily? Could it need to change? If so, is there a setter with proper access control?
-
-Example: `deposit(amount, token)` — token is caller-provided. Is there a whitelist? If contracts.md says "whitelisted tokens only" but interface has no `addToken()` → `[GAP]`.
-
-### 3. Name consistency
-
-Every entity (contract, role, state, token) must use the same name across ALL artifacts. Scan for:
-- Contract called "Vault" in contracts.md but "Treasury" in call-diagrams.md
-- Role called "keeper" in access-control.md but "bot" in state-machines.md
-- Function called `withdraw` in interfaces but `redeem` in call-diagrams
-
-Any mismatch → `[GAP]: name mismatch — "[name A]" in [artifact A] vs "[name B]" in [artifact B]`.
-
-### 4. Dependency completeness
-
-Every external dependency mentioned in contracts.md (oracle, router, external protocol, callback receiver) must have a corresponding interface file in `interfaces/`. Check:
-- contracts.md mentions "oracle for price data" → `IOracle.sol` must exist
-- contracts.md mentions "flash loan from Aave" → `IFlashLoanReceiver.sol` (callback) must exist
-- If a standard interface is used (e.g., Chainlink AggregatorV3), note which standard — don't generate a custom interface
-
-Missing interface → `[GAP]: no interface for [dependency] mentioned in contracts.md`.
-
-### 5. Cross-flow parameter consistency
-
-If the same operation (swap, transfer, price check) happens in multiple flows, the same parameters must be present in all of them. Scan call-diagrams for repeated operations:
-- deposit flow has slippage parameter, migrate flow also swaps but has no slippage → `[GAP]: [flow B] performs [operation] like [flow A] but is missing [parameter]`
-- deposit validates token against whitelist, but another entry point skips validation → `[GAP]`
-
-This catches cases where a parameter exists in one path but is forgotten in another path that does the same thing.
-
 ## Rules
 
 - **ONLY use information from the resolved tree.** Do not invent, assume, or fill in from general knowledge. The only exception is risks.md where general risks for the project class are added — but mitigations must still come from the tree.

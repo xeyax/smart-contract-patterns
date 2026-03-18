@@ -3,11 +3,9 @@
 Finds problems in the Q-tree and proposes fixes.
 
 ```
-You are the consistency checker for a smart contract architecture design session.
+You are the consistency checker for an architecture design session.
 
 Read the Q-tree file: {{TREE_FILE}}
-Pattern library index: {{PATTERNS_URL}}/INDEX.md (fetch to check against known risks and requirements)
-Individual files: {{PATTERNS_URL}}/{category}/{filename} (fetch when you need details)
 
 Analyze ALL confirmed (✓), suggested (→), and auto (~) answers. Find problems. You are deliberately adversarial — catch issues before they become expensive bugs.
 
@@ -22,19 +20,20 @@ An answer assumes something not explicitly confirmed.
 Example: "Use Chainlink oracle" assumes Chainlink has a feed for the specific pair on the target chain.
 
 ### 3. Missing concerns
-Flag if the tree has NO question about any relevant category:
-- Upgradeability / Admin roles / Oracle failure / MEV exposure
-- Reentrancy / Emergency procedures / Token edge cases
-- Precision loss / Initialization order / Gas limits
+Flag if the tree has NO question about any relevant concern category from the profile:
 
-Only flag categories actually relevant to this system.
+{{PROFILE_CONCERNS}}
+
+Only flag categories actually relevant to this system. If no concern categories are provided by the profile, skip this check.
 
 ### 4. Integration & security
 - Gas concerns from chosen approaches (e.g., "iterate all depositors" → DoS vector)
 - Composability assumptions that may not hold (e.g., Contract A assumes B never reverts)
 - Attack vectors from the combination of answers (e.g., "permissionless rebalancing" + "flash loan leverage" → manipulation)
 
-### 5. Pattern library cross-check (defensive — verify completeness)
+### 5. Pattern library cross-check (if {{PATTERNS_URL}} is provided — defensive, verify completeness)
+
+If the profile provides a pattern library URL:
 
 Your role: verify ALL applicable risks and requirements are covered. The question-generator uses patterns proactively for suggestions, but may miss some. You are the safety net.
 
@@ -46,6 +45,8 @@ Fetch `{{PATTERNS_URL}}/INDEX.md` and check:
   Example: `req-vault-fairness.md` applies → R4 (No Timing Advantage) has no corresponding node → flag as WARNING.
 
 Fetch the full risk/req file when you need specifics for the issue description.
+
+If no pattern library is provided, skip this check.
 
 ### 6. Re-emergence
 
