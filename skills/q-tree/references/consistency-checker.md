@@ -65,7 +65,22 @@ Check if a NEW answer (from the latest batch) conflicts with an EARLIER confirme
 
 Example: Round 1 confirmed "Oracle: Chainlink". Round 3 confirmed "Support long-tail tokens" — but Chainlink doesn't have feeds for most long-tail tokens. The oracle decision must be revisited.
 
-### 8. Domain model cross-validation (if {{DOMAIN_MODEL_FILE}} is provided)
+### 8. Readiness assessment (if {{PROFILE_DOD}} is provided)
+
+Assess the tree against the Definition of Done from the profile:
+
+{{PROFILE_DOD}}
+
+Common signals to check (depending on what the profile defines):
+
+- **Coverage** — key areas from `{{PROFILE_COVERAGE}}` are addressed. "Addressed" = at least one ✓ leaf node directly related to this area. Only count areas relevant to this project.
+- **No blockers** — no BLOCKER-severity issues from this run.
+- **Implementation drift** — questions from the latest batch are increasingly execution-scope (how to do it) rather than decision-scope (which approach to take). Decision: "Sync vs async withdrawal?", "Fee model?". Execution: "Exact rebalance threshold?", "Error message format?", "Storage layout?".
+- **Goal achieved** — the stated goal is answered: all aspects explored, no open branches blocking the answer.
+
+If no Definition of Done is provided, skip this check.
+
+### 9. Domain model cross-validation (if {{DOMAIN_MODEL_FILE}} is provided)
 
 Read the domain model file and cross-check against the tree:
 
@@ -107,7 +122,21 @@ After issues, list confirmed answers that have high downstream impact:
 
 Only list decisions with 2+ dependents. This helps the user know which decisions to think carefully about.
 
-If NO issues and no sensitive decisions: output "No consistency issues found."
+### Readiness
+
+If Definition of Done was provided, add a readiness section:
+
+```
+## Readiness
+- Coverage: 5/5 relevant areas resolved (list which)
+- Blockers: none
+- Implementation drift: 4/6 questions in last batch were execution-scope
+- READY: yes/no
+```
+
+If no Definition of Done was provided, omit this section.
+
+If NO issues, no sensitive decisions, and no readiness section: output "No consistency issues found."
 
 ## Rules
 - Be specific — exact attack vectors, exact conflicting answers.

@@ -22,10 +22,8 @@ EXPAND    Subagent decomposes open questions ONE LEVEL down (coverage from profi
           You present batch → user: accept / override / postpone / ask questions
           Pushback → deepen discussion with ✗/! markers → CHECK
 
-CHECK     Subagent finds issues WITH proposed fixes (concerns from profile)
-          You present → user accepts or overrides
-
-READY?    Assess against Definition of Done from profile
+CHECK     Subagent finds issues WITH proposed fixes + assesses readiness (DoD from profile)
+          You present issues → user accepts or overrides
           If ready → suggest summarize | If not → next EXPAND
 
 SUMMARIZE Subagent produces artifacts (if profile defines summarizer)
@@ -170,12 +168,12 @@ This confirmation is only needed after discussions — not when the user gives c
 
 Agent NEVER goes silent for minutes. If something needs external data, ask user first.
 
-**Update tree file** on disk after recording all answers. Then auto-close: for each newly confirmed ✓ node, walk up to its parent — if all **question** children (`?`, `→`, `~`) of that parent are now ✓, mark parent as ✓ too (with a summary of children as its answer). Exploration markers (`✗`, `!`) are not questions and are excluded from auto-close. Repeat recursively up to root. Consequence questions are handled by the question-generator subagent in the next run — the orchestrator does NOT create them directly.
+**Update tree file** on disk after recording all answers. Auto-close: if all question children (`?`, `→`, `~`) of a parent are ✓, mark parent ✓ too (summary of children as answer). Recurse up. `✗`/`!` markers are excluded from auto-close.
 
 ### CHECK
 
 Delegate to subagent (`references/consistency-checker.md`).
-Pass: tree file path, `{{PROFILE_CONCERNS}}`, `{{PATTERNS_URL}}`, `{{DOMAIN_MODEL_FILE}}`.
+Pass: tree file path, `{{PROFILE_CONCERNS}}`, `{{PROFILE_COVERAGE}}`, `{{PROFILE_DOD}}`, `{{PATTERNS_URL}}`, `{{DOMAIN_MODEL_FILE}}`.
 
 **Issues found** — present each WITH a proposed fix:
 ```
@@ -196,25 +194,9 @@ Sensitive: "Chain: Arbitrum" affects 3 other decisions (gas, protocols, bridge)
 ```
 This is informational — no action needed, just awareness for the user.
 
-**No issues** → say "No consistency issues" and continue to readiness check.
+**No issues** → say "No consistency issues."
 
-### READINESS CHECK
-
-Orchestrator assesses against **Definition of Done from profile** (no subagent). Common signals:
-
-**1. Coverage** (if profile defines coverage areas) — key areas from the profile's coverage list are addressed — only those relevant to this project. "Addressed" = at least one ✓ leaf node in the tree that directly relates to this area. Skip irrelevant areas.
-
-**2. No blockers** — consistency checker found no BLOCKER-severity issues.
-
-**3. Implementation drift** (if profile checks for it) — questions from the last batch are increasingly execution-scope (how to do it) rather than decision-scope (which approach to take).
-
-**4. Goal achieved** (if profile uses goal-based DoD) — assess whether the stated goal is answered: all aspects explored, no open branches that block the answer. If so, proactively suggest stopping with a summary of the conclusion.
-
-How to tell the difference between decision-scope and execution-scope:
-- Decision: "Sync vs async withdrawal?", "How to handle oracle failure?", "Fee model?"
-- Execution: "Exact rebalance threshold?", "Error message format?", "Storage layout?"
-
-**When readiness signals are positive**, proactively suggest stopping:
+**Readiness** — the checker also returns a readiness assessment. When readiness signals are positive, proactively suggest stopping:
 
 ```
 [Readiness] Coverage: 5/5 relevant areas resolved. No blocker issues.
@@ -228,7 +210,7 @@ If the profile has no summarizer, suggest ending instead:
 End session? [Y / continue with "deeper into X"]
 ```
 
-**User providing execution-level answers** is a strong readiness signal — the user is already thinking in specifics. Record as ✓, then check readiness.
+**User providing execution-level answers** is a strong readiness signal — the user is already thinking in specifics. Record as ✓, then check.
 
 **If not ready** — continue to next EXPAND.
 
@@ -236,7 +218,7 @@ The user can always say "enough" to force summarize, or "continue" to keep going
 
 ### SUMMARIZE
 
-Only if profile defines a summarizer. Otherwise session ends at READY (tree is the output).
+Only if profile defines a summarizer. Otherwise session ends at CHECK (tree is the output).
 
 Delegate to subagent (ref from profile, e.g. `profiles/spec/summarizer.md`).
 Pass: tree file path, `{{SUMMARY_DIR}}`, `{{PATTERNS_URL}}`.
@@ -296,6 +278,7 @@ These placeholders appear in subagent reference files. The orchestrator substitu
 | `{{PATTERNS_URL}}` | profile's Pattern Library `url:` | empty (skip pattern sections) |
 | `{{PROFILE_COVERAGE}}` | profile's Coverage Areas section | empty (decompose by goal structure) |
 | `{{PROFILE_CONCERNS}}` | profile's Concern Categories section | empty (skip missing concerns check) |
+| `{{PROFILE_DOD}}` | profile's Definition of Done section | empty (user decides when to stop) |
 | `{{PROFILE_CONSTRAINTS}}` | profile's Constraints section | empty (no constraints) |
 | `{{DOMAIN_MODEL_FILE}}` | profile's Domain Model Cross-Validation `file:` | empty (skip domain model check) |
 
