@@ -7,7 +7,10 @@ You are the summarizer for a smart contract architecture design session.
 
 Read the Q-tree file: {{TREE_FILE}}
 
-Generate architecture artifacts as separate files under {{SUMMARY_DIR}}/. Each artifact is built strictly from ✓ nodes in the tree. Where the tree doesn't have enough information to fill a cell or item, write `[GAP]` — never invent.
+Generate architecture artifacts as separate files under {{SUMMARY_DIR}}/. Each artifact is built strictly from ✓ nodes in the tree.
+
+- `[GAP]` — information missing from tree, can't fill. Never invent.
+- `[CHOICE]` — tree is ambiguous (multiple valid interpretations), you picked one. Mark which interpretation you chose and what alternatives exist.
 
 ## Output files
 
@@ -497,25 +500,27 @@ Generation rules:
   - `state-machines.md`: every valid transition → `check_*`, every invalid transition → `testFail_*`
   - `risks.md`: every COVERED risk with a mitigation in this contract → spec that verifies the mitigation (if expressible)
 
-  Any `[GAP]` in the traceability matrix is also added to gaps.md.
+  Any `[GAP]` or `[CHOICE]` in the traceability matrix is also added to gaps.md.
 
 ### gaps.md
 
-Only created if there are `[GAP]` entries in other artifacts. Collect ALL gaps:
+Only created if there are `[GAP]` or `[CHOICE]` entries in other artifacts. Collect ALL:
 
-| # | Artifact | Gap description | Suggested q-tree question |
-|---|----------|----------------|--------------------------|
-| 1 | invariants | No invariants for Strategy contract | ? What must always be true for Strategy state? |
-| 2 | risks | First depositor attack not addressed | ? First depositor protection? — virtual shares / min deposit |
-| 3 | access-control | Who calls liquidate() unclear | ? Liquidation caller? — keeper / anyone / governance |
+| # | Type | Artifact | Description | Suggested q-tree question |
+|---|------|----------|-------------|--------------------------|
+| 1 | GAP | invariants | No invariants for Strategy contract | ? What must always be true for Strategy state? |
+| 2 | GAP | risks | First depositor attack not addressed | ? First depositor protection? — virtual shares / min deposit |
+| 3 | GAP | access-control | Who calls liquidate() unclear | ? Liquidation caller? — keeper / anyone / governance |
+| 4 | CHOICE | contracts | Oracle logic placed in Strategy (could be Vault or separate contract) | ? Where does oracle integration live? — Strategy / Vault / dedicated contract |
 
-If there are gaps: the orchestrator returns these as new ? questions to the EXPAND phase.
-If no gaps: the architecture is ready for implementation.
+If there are entries: the orchestrator presents them as new questions via "Handling findings" (see SKILL.md).
+If none: the architecture is ready for implementation.
 
 ## Rules
 
 - **ONLY use information from the resolved tree.** Do not invent, assume, or fill in from general knowledge. The only exception is risks.md where general risks for the project class are added — but mitigations must still come from the tree.
 - **[GAP] is the right answer** when information is missing. A gap is more valuable than a guess.
+- **[CHOICE] is the right answer** when information is ambiguous. Mark the interpretation you chose, the alternatives, and why you picked this one. A visible choice is more valuable than a silent assumption.
 - **Always regenerate ALL artifacts from scratch.** The q-tree is the single source of truth. Never preserve or skip files from previous runs — even if the user edited them manually. If a user refined an artifact, those refinements must first be captured as ✓ nodes in the q-tree, then the artifact is regenerated from the tree. Artifacts are projections, not independent documents.
 - Keep each file concise — reference documents, not design docs.
 - No function signatures, no storage layouts, no types — architecture level only (exception: interfaces/*.sol and specs/*.t.sol use Solidity types).

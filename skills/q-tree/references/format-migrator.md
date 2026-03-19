@@ -42,6 +42,7 @@ Verify auto-close rules from the format rules file. Fix any violations (parents 
 
 ## Rules
 
+- **Use Read/Grep/Edit tools only.** Never use Bash commands (awk, grep, sed, cat) for file operations — use the dedicated Read, Grep, and Edit tools instead. This avoids unnecessary permission prompts.
 - **Fix silently.** Apply all format fixes directly to the tree file. Do not ask for confirmation — these are format corrections, not content changes.
 - **Never change content.** Only fix formatting, structure, markers, counters. Never change the meaning of an answer, add new questions, or remove existing ones.
 - **Migrate legacy markers.** If the tree contains `✗` or `!` nodes from older sessions, move their content to the Details section and remove them from the tree.

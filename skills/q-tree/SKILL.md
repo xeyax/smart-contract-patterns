@@ -102,51 +102,36 @@ Subagent returns proposals + a ready-to-present batch (see generator's Output se
 
 For detailed rules on batch presentation, answer collection, decomposition triggers, partial acceptance, stall detection, and general rules — see `references/expand-rules.md`.
 
+### Handling findings
+
+CHECK, SUMMARIZE, and REVIEW all produce findings that may require tree updates. The orchestrator handles them uniformly by type:
+
+**Issues with fixes** — an existing answer has a problem. Present with proposed fix:
+```
+Issue: [title] — [problem]
+Fix: → [action]. Accept? [Y/n/alt]
+```
+If fix changes a ✓ answer → show as re-opened. User accepts → update tree. User overrides → record override. Re-run checker if fixes were significant.
+
+**Tree questions** — information missing from the tree. Sources: checker issues ("add question about Z"), summarizer `[GAP]`/`[CHOICE]` entries in gaps.md, reviewer tree gaps. Collect all pending questions from the current phase and present:
+```
+N questions from [phase]:
+1. ? [question]
+2. ? [question]
+Add to tree? [Y / pick numbers / skip]
+```
+Accepted → `?` nodes in tree → EXPAND. After resolution, resume from the phase that produced the questions.
+
+**Informational** — sensitive decisions, notes. Show to user, no action needed.
+
 ### CHECK
 
 Delegate to subagent (`references/consistency-checker.md`).
 Pass: tree file path, `{{PROFILE_CONCERNS}}`, `{{PROFILE_COVERAGE}}`, `{{PROFILE_DOD}}`, `{{PATTERNS_URL}}`, `{{DOMAIN_MODEL_FILE}}`.
 
-**Issues found** — present each WITH a proposed fix:
-```
-Issue: Balancer flash + USDT — Balancer doesn't support USDT flash loans
-Fix: → switch to Aave for USDT pairs (0.05% fee). Accept? [Y/n/alt]
-```
-User accepts fix → update tree. User overrides → record override. Re-run checker if changes were significant.
+Handle issues, questions, and informational findings per "Handling findings".
 
-**Re-emergence** — if a fix requires changing an earlier confirmed (✓) answer, revert that answer to → (suggested new value) in the tree and present to the user:
-```
-Re-opened: "Oracle: Chainlink" (was ✓, conflicts with "support long-tail tokens")
-New suggestion: → Chainlink + fallback to Uniswap TWAP for long-tail. Accept? [Y/n/alt]
-```
-
-**Sensitive decisions** — if the checker reports high-impact answers, show them:
-```
-Sensitive: "Chain: Arbitrum" affects 3 other decisions (gas, protocols, bridge)
-```
-This is informational — no action needed, just awareness for the user.
-
-**No issues** → say "No consistency issues."
-
-**Readiness** — the checker also returns a readiness assessment. When readiness signals are positive, proactively suggest stopping:
-
-```
-[Readiness] Coverage: 5/5 relevant areas resolved. No blocker issues.
-Last batch: 4/6 questions were execution-scope.
-Ready to summarize? [Y / continue with "deeper into X"]
-```
-
-If the profile has no summarizer, suggest ending instead:
-```
-[Readiness] Goal appears answered. No open branches blocking the conclusion.
-End session? [Y / continue with "deeper into X"]
-```
-
-**User providing execution-level answers** is a strong readiness signal — the user is already thinking in specifics. Record as ✓, then check.
-
-**If not ready** — continue to next EXPAND.
-
-The user can always say "enough" to force summarize, or "continue" to keep going after a readiness prompt.
+**Readiness** — the checker also returns a readiness assessment (if profile defines DoD). When READY → suggest summarize (or end session if no summarizer). Not ready → next EXPAND. User can always say "enough" to force summarize or "continue" after a readiness prompt.
 
 ### SUMMARIZE
 
@@ -154,30 +139,25 @@ Only if profile defines a summarizer. Otherwise session ends at CHECK (tree is t
 
 Delegate to subagent (ref from profile, e.g. `profiles/spec/summarizer.md`).
 Pass: tree file path, `{{SUMMARY_DIR}}`, `{{PATTERNS_URL}}`.
-Artifacts generated in profile-defined order (each uses prior as context).
 
-If review enabled → REVIEW. Otherwise → present artifact list.
+The summarizer generates artifacts and marks:
+- `[GAP]` — information missing from tree, can't fill
+- `[CHOICE]` — tree is ambiguous, summarizer picked one interpretation
+
+Both are collected in `gaps.md` with suggested questions. Handle per "Handling findings".
+
+If review enabled → REVIEW. Otherwise → present gaps (if any), then artifact list.
 
 ### REVIEW
 
 Only if profile has review enabled. Delegate to subagent (ref from profile, e.g. `profiles/spec/reviewer.md`).
 Pass: `{{SUMMARY_DIR}}`, `{{TREE_FILE}}`.
 
-**Artifact issues** → re-run SUMMARIZE once with corrections. Max 1 cycle — if issues persist, report to user.
+- **Artifact issues** → re-run SUMMARIZE once with corrections. If issues persist → report to user.
+- **Tree gaps** → merge with gaps.md, handle per "Handling findings".
+- **Clean** → present artifact list, done.
 
-**Tree gaps** — present as new ? questions:
-```
-Review found 2 tree gaps:
-1. [cross-flow] migrate flow missing slippage — ? Max slippage for migration swaps?
-2. [dependency] No oracle interface — ? Which oracle interface to use?
-
-Fix gaps? [Y / pick numbers / skip]
-```
-- Y → gaps become ? questions, return to EXPAND. After resolution, full SUMMARIZE + REVIEW again. **Max 2 cycles** — then finalize with gaps noted.
-- Pick numbers → selected become questions, rest skipped. Same cycle limit.
-- Skip → finalize as-is.
-
-**Clean** → present artifact list.
+**Cycle limit:** max 2 full SUMMARIZE→REVIEW cycles. After that → finalize with remaining gaps noted.
 
 ## Rules
 
