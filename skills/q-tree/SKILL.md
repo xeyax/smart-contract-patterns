@@ -76,9 +76,13 @@ To create a custom profile, create a directory with `profile.md` inside. Use `pr
 
 Read profile from profile directory (default: `profiles/spec/`). If domain model cross-validation enabled, read domain model file as context.
 
-**New:** create `docs/q-tree.md` with goal in Context block, empty tree → EXPAND.
+**New:** create `docs/q-tree.md` with goal + counters, empty tree → EXPAND.
 
-**Resume:** read tree, show status → EXPAND.
+**Resume:** read tree → **migrate format** → show status → EXPAND.
+
+1. Delegate to subagent (`references/format-migrator.md`). Pass: `{{TREE_FILE}}`, `{{FORMAT_RULES_FILE}}`. The subagent fixes format deviations and updates counters. **Wait for completion before proceeding.**
+2. Show status (using updated counters):
+
 ```
 Resuming q-tree: 12 resolved, 3 suggested, 2 open.
 Open branches:
@@ -86,6 +90,8 @@ Open branches:
 - ? Emergency procedures (under Risk)
 Continuing with EXPAND...
 ```
+
+If the migrator applied fixes, mention it briefly: `Format updated to current rules (N fixes).`
 
 ### EXPAND (loop)
 
@@ -257,7 +263,7 @@ Fix gaps? [Y / pick numbers / skip]
 - **Respect user's time.** Never go silent for minutes. If external data is needed, ask first.
 - **Respect profile constraints.** Pass them to subagents and follow them throughout the session.
 - **Log progress:** `[Round N] Resolved: X | Suggested: Y | Open: Z` (to user always; to log file unless `--no-log`)
-- **Track constraints.** Global constraints go in the tree header. Local constraints go in Details. Promote to global when a constraint applies broadly.
+- **Constraints live in the tree.** Initial facts from goal → `~` nodes. Constraints discovered during discussion → `!` nodes (children of the contested question).
 - **Deepened discussions are bounded.** After 3 exchanges without new ✗ or !, suggest confirming, postponing, or reframing.
 
 ## Session log (disable with `--no-log`)
@@ -273,6 +279,7 @@ These placeholders appear in subagent reference files. The orchestrator substitu
 | Placeholder | Source | Default |
 |-------------|--------|---------|
 | `{{TREE_FILE}}` | fixed | `docs/q-tree.md` |
+| `{{FORMAT_RULES_FILE}}` | fixed | `references/tree-format.md` (relative to skill root) |
 | `{{SUMMARY_DIR}}` | fixed | `docs/architecture/` |
 | `{{LOG_FILE}}` | fixed | `docs/q-tree-log.md` |
 | `{{PATTERNS_URL}}` | profile's Pattern Library `url:` | empty (skip pattern sections) |

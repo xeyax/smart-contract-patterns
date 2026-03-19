@@ -10,19 +10,19 @@
 - **Consequence questions** = new children that appear when an answer reveals new sub-questions (handled by question-generator)
 
 ```
-? Shares minting                              ← composite, OPEN (has unresolved children)
-  ✓ Standard → ERC-4626
-  ✓ NAV calculation → idleBalance + collateral - debt
-  ? First depositor protection — virtual shares / min deposit
-  → Mint timing → after leverage (delta NAV)  ← consequence of NAV answer
+- ? Shares minting                              ← composite, OPEN (has unresolved children)
+  - ✓ Standard → ERC-4626
+  - ✓ NAV calculation → idleBalance + collateral - debt
+  - ? First depositor protection — virtual shares / min deposit
+  - → Mint timing → after leverage (delta NAV)  ← consequence of NAV answer
 
 ↓ all children resolved → parent auto-closes:
 
-✓ Shares minting                              ← auto-closed
-  ✓ Standard → ERC-4626
-  ✓ NAV calculation → idleBalance + collateral - debt
-  ✓ First depositor protection → virtual shares
-  ✓ Mint timing → after leverage (delta NAV)
+- ✓ Shares minting                              ← auto-closed
+  - ✓ Standard → ERC-4626
+  - ✓ NAV calculation → idleBalance + collateral - debt
+  - ✓ First depositor protection → virtual shares
+  - ✓ Mint timing → after leverage (delta NAV)
 ```
 
 **One level at a time.** Decompose one level deep per round. Deeper levels appear after the current level is answered.
@@ -34,16 +34,14 @@
 
 > Goal: [user's goal as stated]
 >
-> Constraints:
-> - [global constraint — applies to all decisions]
-> - [another global constraint]
->
 > Resolved: N | Suggested: N | Open: N
 
 Markers: ✓ confirmed | → suggested | ? open | ~ auto
 
 ## Tree
 
+- ~ Chain → Arbitrum (from goal)
+- ~ Base asset → USDC (from goal)
 - ? Contract architecture
   - ✓ Decomposition → Vault + Strategy (Yearn pattern)
   - → Share model → ERC-4626 (composable, audited) [d:shares]
@@ -79,8 +77,8 @@ Agent note: MVP scope → performance only simplest
 
 ## Conventions
 
-- One line per node: `marker question → answer [d:tag]`
-- Tree depth = list indent (2 spaces per level)
+- Every node is a markdown list item: `- marker question → answer [d:tag]`
+- Tree depth = nested list indent (2 spaces + `- ` per level)
 - `[d:tag]` links to a Details section for complex questions
 - Composite nodes (with children) auto-close to `✓` when all **question** children (`?`, `→`, `~`) are resolved. Exploration markers (`✗`, `!`) are not questions and are excluded from auto-close
 - Leaf nodes (no children) are resolved directly by the user
