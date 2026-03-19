@@ -126,8 +126,26 @@ Rules:
 | "2 aave, 5 threshold" | Override specific, accept rest |
 | "details N" | Show reasoning from Details section |
 | "skip N" / "postpone N" | Keep current marker, skip for this round |
+| *accepts part, rejects part* | Partial acceptance (see below) |
 | *asks a question / "tell me about N"* | Discussion (see below) |
 | *rejects answer, challenges, asks counter-questions* | Pushback — offer EXPLORE (see below) |
+
+**Handling partial acceptance:**
+
+The user accepts part of a suggested answer and rejects part (e.g., "I like the request interface but not the claim pattern"). Decompose into child nodes — accepted parts become `✓`, rejected become `✗`:
+
+```
+Before: → ERC-7540? → adopt for async vault [d:erc7540]
+
+User: "claim не нравится, остальное подходит"
+
+After:
+✓ ERC-7540 → adopt request interface, reject claim [d:erc7540]
+  ✓ requestDeposit/requestRedeem interface
+  ✗ claim pattern — shares sent directly to users
+```
+
+Record **both sides** — what was accepted and why, what was rejected and why. Never collapse a partial acceptance into a single `✗`.
 
 **Handling questions and discussions:**
 
