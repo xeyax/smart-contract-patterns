@@ -19,8 +19,7 @@ For tree file format, markers, and conventions — see `references/tree-format.m
 INIT      Load profile. New: create tree | Resume: read tree, show status
 
 EXPAND    Subagent decomposes open questions ONE LEVEL down (coverage from profile)
-          You present batch → user: accept / override / postpone / ask questions
-          Pushback → deepen discussion with ✗/! markers → CHECK
+          You present batch → BATCH/FOCUS loop until all resolved or skipped → CHECK
 
 CHECK     Subagent finds issues WITH proposed fixes + assesses readiness (DoD from profile)
           You present issues → user accepts or overrides
@@ -97,106 +96,74 @@ If the migrator applied fixes, mention it briefly: `Format updated to current ru
 
 **Generate questions** — delegate to subagent (`references/question-generator.md`).
 Pass: tree file path, `{{PROFILE_COVERAGE}}`, `{{PROFILE_CONSTRAINTS}}`, `{{PATTERNS_URL}}`.
-Subagent returns proposals (see generator's Output section for format). You write accepted nodes to the tree.
+Subagent returns proposals + a ready-to-present batch (see generator's Output section). You write accepted nodes to the tree.
 
-**Present batch** — combine previous unanswered + new questions into a single numbered list. **Hard limit: max 5 items total.** Previous unanswered first (they block progress), then new: independent before dependent, suggested (→) before open (?), auto (~) last. Example:
+**Present batch** — take the batch from the generator's output (already ordered, limited to 5, formatted). Add the round header and accept prompt:
 
 ```
 [Round 5] 5 questions (2 previous, 3 new — decomposing "Async withdraw"):
 
-1. ? First depositor protection? — virtual shares / min deposit [d:first-dep]  ← prev
-2. ? Moment of mint vs deploy? — before / after deploy [d:mint-moment]  ← prev
-3. ? Who executes queue? — keeper / permissionless [d:async-who]
-4. ? How user receives? — claim / auto-send [d:async-claim]
-5. → Swap paths? → DEX router, predefined paths [d:async-paths]
+[batch from generator]
 
 Accept all? [Y / numbers to change / "details N"]
 ```
 
-Rules:
-1. **Flat numbered list, no tables/headers.** One question per line: `N. marker Question? → answer [d:tag]`. Open questions use `—` with options instead of `→`. Previous questions marked `← prev`.
-2. **No Details in the batch.** Only the numbered list + accept prompt. User sees details when they ask `"details N"`.
-3. **Show EVERY new node** (including `~` auto). Nothing becomes ✓ without the user seeing it first.
+Rule: **Show EVERY new node** (including `~` auto). Nothing becomes ✓ without the user seeing it first.
 
-**Collect answers:**
+**Collect answers — single loop with depth-first decomposition.**
 
-| User says | Action |
-|-----------|--------|
-| "Y" / "ok" / accept all | All → and ~ become ✓ |
-| "2 aave, 5 threshold" | Override specific, accept rest |
-| "details N" | Show reasoning from Details section |
-| "skip N" / "postpone N" | Keep current marker, skip for this round |
-| *answers some + "let's dig into N"* | Record given answers, postpone unanswered, deepen N |
-| *accepts part, rejects part* | Partial acceptance (see below) |
-| *asks a question / "tell me about N"* | Discussion (see below) |
-| *rejects answer, challenges, asks counter-questions* | Pushback — offer EXPLORE (see below) |
+The loop processes unanswered questions until all are resolved or skipped, then exits to CHECK. On every user response:
 
-**Write-first rule:** whenever the user's response contains answers (even partial), write them to the tree file immediately — before deepening discussion, asking follow-ups, or moving to the next step. Never hold confirmed answers in memory across exchanges.
+1. **Parse** the response as a whole. A single message may contain answers to some questions AND a request to dig into another.
+2. **Write immediately.** Every answer, override, or skip → write to tree file now. Never hold confirmed answers in memory across exchanges. Record rejected variants and discovered constraints in the Details section of the question, not as tree nodes.
+3. **Route:**
+   - All questions answered or skipped → exit to CHECK.
+   - User wants to dig into a question (details, question, pushback, "dig into N") → **decompose** that question into sub-questions, present them. If the user asks about multiple questions, dig into the **first** one mentioned — the rest wait.
+   - Otherwise (some answered, no dig-in request, remaining > 0) → show remaining unanswered.
 
-**Handling partial acceptance:**
+**What triggers decomposition:**
+- "details N" — user wants reasoning; show it, then if unresolved, decompose into sub-questions
+- Asks a question about N / "tell me about N" — user needs more info to decide
+- Pushback on N — user rejects the answer ("why not X?", "I think this should be...")
+- "let's dig into N" / "N подробнее" — explicit request
+- Partial acceptance of N — user accepts part, rejects part ("claim не нравится, остальное ок")
 
-The user accepts part of a suggested answer and rejects part (e.g., "I like the request interface but not the claim pattern"). Decompose into child nodes — accepted parts become `✓`, rejected become `✗`:
+**What does NOT trigger decomposition:**
+- Simple override ("2 aave") — this is an answer, write it
+- "skip N" / "postpone N" — write the skip, continue with remaining
 
+**Decomposition** = the question becomes a parent node, sub-questions become children. The same collect loop runs on the children. When all children are resolved → parent auto-closes → re-read tree → show remaining unanswered at the parent level.
+
+**Partial acceptance:** user accepts part of a suggested answer and rejects part. The accepted part becomes the answer on the node. The rejected part with reasoning goes into Details. If the accepted part has sub-decisions, those become child questions.
 ```
 Before: → ERC-7540? → adopt for async vault [d:erc7540]
-
 User: "claim не нравится, остальное подходит"
-
 After:
-✓ ERC-7540 → adopt request interface, reject claim [d:erc7540]
-  ✓ requestDeposit/requestRedeem interface
-  ✗ claim pattern — shares sent directly to users
+✓ ERC-7540 → adopt request interface, no claim — shares sent directly [d:erc7540]
+
+In Details [d:erc7540]:
+Rejected: claim pattern (claimDeposit/claimRedeem) — unnecessary step,
+shares and USDC sent directly to users at finalize.
 ```
 
-`✗` children are excluded from auto-close (exploration trail convention), so the parent can be `✓`. Record **both sides** — what was accepted and why, what was rejected and why. Never collapse a partial acceptance into a single `✗`.
+**Answering user questions:** if the user asks a factual question instead of giving an answer — answer it inline. If you can't answer from context/knowledge, tell the user: "I'd need to check [what]. Research this, or do you already know?"
 
-**Handling questions and discussions:**
-
-The user may ask questions instead of giving direct answers. This is normal — answer them, then confirm what to record.
-
-```
-Can I answer from context / knowledge?
-│
-├─ YES → answer inline, continue collecting answers for the batch
-│
-└─ NO (needs web search, on-chain data, doc lookup) →
-   tell the user: "I'd need to check [what exactly]. Research this, or do you already know?"
-   │
-   ├─ User: "research it" → delegate to a subagent, return with findings + suggestion
-   └─ User: provides the answer → record it
-```
-
-**Handling pushback — deepening discussion:**
-
-Pushback = user rejects the suggested answer AND engages deeper ("why not X?", "what about Y?", "I don't think this works because..."). Different from a simple override ("2 aave") or a clarifying question ("what is pro-rata?").
-
-When you detect pushback on a question:
-1. Finish collecting answers for the rest of the batch (don't abandon other questions)
-2. Record confirmed answers for other questions
-3. Deepen discussion on the contested question:
-   - Track `✗` (rejected variant + reason) and `!` (constraint discovered) as children of the node
-   - Narrow the space: ask what properties matter, what's unacceptable — don't present menus of options
-   - **Record incrementally:** after each exchange, show what you're recording, write markers to tree file, log to session log
-   - After 3 exchanges without new ✗ or ! → suggest: `"Confirm what we have, postpone, or reframe?"`
-4. On resolution: winning variant becomes ✓, ✗ and ! stay as permanent record → CHECK
-5. Postpone → keep current marker → CHECK
-6. **On exit from deep-dive:** re-read the tree file to restore batch context. Do not rely on conversation memory for the state of other questions — the tree is the source of truth.
-
-After any discussion, show what you're about to record before writing:
-
+**After any extended discussion** (more than one exchange on a question), show what you're about to record before writing:
 ```
 Recording from our discussion:
 1. ✓ Share pricing → delta NAV (depositor bears swap costs)
-2. ✓ Redemption → delta NAV + exit fee (grief protection)
-3. ? Contract decomposition → still open, next round
+2. Updated Details [d:share-pricing]: rejected flat fee (not aligned with vault performance)
 Confirm? [Y / numbers to change]
 ```
 
-This confirmation is only needed after discussions — not when the user gives clear answers (Y, overrides, skip).
+**Stall detection:** after 3 exchanges on the same question without progress (no new answers, no narrowing of options), suggest: `"Confirm what we have, postpone, or reframe?"`
 
-Agent NEVER goes silent for minutes. If something needs external data, ask user first.
+#### General rules
 
-**Update tree file** on disk after recording all answers. Auto-close: if all question children (`?`, `→`, `~`) of a parent are ✓, mark parent ✓ too (summary of children as answer). Recurse up. `✗`/`!` markers are excluded from auto-close.
+- **Agent NEVER goes silent for minutes.** If external data is needed, ask user first.
+- **Narrow the space** when digging in. Ask what properties matter, what's unacceptable — don't present menus of options.
+- **Re-read tree** after returning from a decomposed branch. Do not rely on conversation memory for the state of other questions.
+- **Auto-close** after writing — apply auto-close rules from `references/tree-format.md`. Recurse up.
 
 ### CHECK
 
@@ -282,11 +249,9 @@ Fix gaps? [Y / pick numbers / skip]
 - **Tree file is the single source of truth.** Update after every batch. Update counters in the header after every update.
 - **Propose, don't interview.** Default to SUGGESTED answers. Only use OPEN when you genuinely can't decide.
 - **Depth-first.** Finish one branch before starting another.
-- **Respect user's time.** Never go silent for minutes. If external data is needed, ask first.
 - **Respect profile constraints.** Pass them to subagents and follow them throughout the session.
 - **Log progress:** `[Round N] Resolved: X | Suggested: Y | Open: Z` (to user always; to log file unless `--no-log`)
-- **Constraints live in the tree.** Initial facts from goal → `~` nodes. Constraints discovered during discussion → `!` nodes (children of the contested question).
-- **Deepened discussions are bounded.** After 3 exchanges without new ✗ or !, suggest confirming, postponing, or reframing.
+- **Constraints live in Details.** Initial facts from goal → `~` nodes in tree. Constraints discovered during discussion → recorded in the Details section of the relevant question.
 
 ## Session log (disable with `--no-log`)
 

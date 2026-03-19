@@ -145,8 +145,9 @@ Format each question as a tree node. **One line, short answer (max ~10 words):**
 ## Critical rules
 
 - **NEVER write to the tree file.** Return all proposals to the orchestrator. Only propose → , ~ , or ? markers — never ✓. The orchestrator confirms after showing to user.
-- **Don't touch exploration markers.** `✗` (rejected) and `!` (constraint) are exploration artifacts — skip them when scanning children, don't decompose or re-ask.
+- **Rejected variants and constraints live in Details, not in the tree.** When scanning the tree, check Details sections for context on why certain options were eliminated — don't re-propose rejected variants.
 - **ONE level deep.** Children of the target parent only. No grandchildren.
+- **Siblings must be independent.** Questions at the same level must not be potential parents of each other. If question A could decompose into sub-questions that include B, then B is a child of A — not a sibling. If you notice existing siblings that should be grouped under a common parent, propose a restructure (see Output).
 - **Don't re-ask resolved (✓) questions.**
 - **Don't ask about implementation details** (variable names, storage layout, code style).
 - **Don't ask questions with only one reasonable answer.**
@@ -154,12 +155,30 @@ Format each question as a tree node. **One line, short answer (max ~10 words):**
 - **Details = trade-offs, not implementation.** Details sections explain WHY (options, pros/cons, reasoning). Never write function signatures, parameter types, interface definitions, or API specs — that's ADR/implementation scope. If it looks like a Solidity interface, it's too detailed.
 - **Details = only what was confirmed.** A Detail section may only expand on the confirmed/suggested answer itself — trade-offs, reasoning, context. If writing a Detail reveals sub-decisions that weren't asked about (struct fields, ID strategy, mapping structure, specific parameters), those are NEW QUESTIONS — add them as child nodes, not as text in Details. Example: answer is "→ Data model → three mappings". Detail explains *why* three mappings. The composition of each struct → child questions: `→ Subscription struct?`, `→ ID generation?`.
 
+## Batch formation
+
+After generating proposals, form a ready-to-present batch for the orchestrator:
+
+1. Collect **previous unanswered** — open (`?`) and suggested (`→`) leaf nodes already in the tree that were shown to the user but not yet resolved.
+2. Add **new proposals** from this run (new questions, re-evaluated, consequence).
+3. Order: previous unanswered first (they block progress), then new — independent before dependent, suggested (`→`) before open (`?`), auto (`~`) last.
+4. **Hard limit: max 5 items total.** If more — prioritize previous, then depth-first.
+5. Format each line as: `N. marker Question? → answer [d:tag]`. Open questions use `—` with options instead of `→`. Previous questions marked `← prev`.
+
+The batch is a flat numbered list — no tables, no headers, no Details.
+
 ## Output
 
-Return your proposals in this structure (the orchestrator writes to the tree file):
+Return proposals + batch in this structure:
 
 ```
 ## Decomposing: [parent node text]
+
+### Batch
+1. ? First depositor protection? — virtual shares / min deposit [d:first-dep]  ← prev
+2. ? Moment of mint vs deploy? — before / after deploy [d:mint-moment]  ← prev
+3. ? Who executes queue? — keeper / permissionless [d:async-who]
+4. → Swap paths? → DEX router, predefined paths [d:async-paths]
 
 ### New questions
 - → Question? → Short answer (key reason) [d:tag]
@@ -179,6 +198,10 @@ Return your proposals in this structure (the orchestrator writes to the tree fil
 ### Auto-close candidates
 - ? Shares minting → all children resolved, can auto-close
 
+### Restructure proposals
+- Group: "? Oracle choice" + "? Price staleness handling" → new parent "? Price feed architecture"
+  Reason: both are aspects of the same design decision
+
 ### Details
 [d:tag] Title
 - Option A — pros
@@ -186,5 +209,5 @@ Return your proposals in this structure (the orchestrator writes to the tree fil
 Based on: pattern-name.md (if applicable)
 ```
 
-Omit empty sections. The orchestrator uses this to build the batch and update the tree.
+Omit empty sections (except Batch — always present). The orchestrator presents the Batch directly and uses the remaining sections to update the tree.
 ```

@@ -36,7 +36,7 @@
 >
 > Resolved: N | Suggested: N | Open: N
 
-Markers: ✓ confirmed | → suggested | ? open | ~ auto
+Markers: ✓ confirmed | → suggested | ? open | ~ auto-derived
 
 ## Tree
 
@@ -70,17 +70,15 @@ Agent note: MVP scope → performance only simplest
 | `→` | Suggested — agent proposes, awaiting confirmation | Confirm or override |
 | `?` | Open — agent can't decide, needs user input | Answer required |
 | `~` | Auto — derived from prior answers, shown for transparency | Override if wrong |
-| `!` | Constraint — discovered during exploration, limits solution space | Override if wrong |
-| `✗` | Rejected — variant eliminated during exploration (with reason) | No |
 
-`!` and `✗` only appear inside exploration trails — children of nodes being discussed during pushback. If a question becomes irrelevant, delete it from the tree and note the reason in the parent's Details section.
+If a question becomes irrelevant, delete it from the tree and note the reason in the parent's Details section.
 
 ## Conventions
 
 - Every node is a markdown list item: `- marker question → answer [d:tag]`
 - Tree depth = nested list indent (2 spaces + `- ` per level)
 - `[d:tag]` links to a Details section for complex questions
-- Composite nodes (with children) auto-close to `✓` when all **question** children (`?`, `→`, `~`) are resolved. Exploration markers (`✗`, `!`) are not questions and are excluded from auto-close
+- Composite nodes (with children) auto-close to `✓` when all children (`?`, `→`, `~`) are resolved
 - Leaf nodes (no children) are resolved directly by the user
 - Counters in header updated after every batch
 
@@ -108,17 +106,25 @@ Rule: if it looks like an interface definition or API spec, it's too detailed fo
 
 **Details = only confirmed information.** Details expand on what the user confirmed or what directly follows from the answer. If writing a Detail reveals sub-decisions that weren't discussed (struct fields, ID generation, mapping structure), those must become new questions in the next batch — not silently written into Details.
 
-**Exploration trail.** Constraints (`!`) and rejected variants (`✗`) live in the tree as child nodes of the discussed question. The Details section provides the fuller "why" — written when the user confirms an answer.
+**Rejected variants and constraints** belong in Details, not in the tree. When the user rejects an option or discovers a constraint during discussion, record it in the Details section of that question:
 
 ```markdown
 ### [d:oracle-design] Oracle design
 Chainlink primary + TWAP cross-check + emergency state machine.
-Only approach satisfying all constraints — non-manipulable (Chainlink is off-chain),
-survives Chainlink death (emergency mode with orderly wind-down), FV-friendly (FREI-PI invariants as safety net).
-See tree for rejected variants and constraints.
+
+Why this approach:
+- Non-manipulable (Chainlink is off-chain)
+- Survives Chainlink death (emergency mode with orderly wind-down)
+
+Rejected:
+- Pure TWAP — manipulable by large swaps
+- Chainlink only — no fallback if feed dies
+
+Constraints discovered:
+- Must survive oracle downtime (from risk discussion)
 ```
 
-Keep Details concise for explored nodes — the tree already shows what was rejected and why. Details explain the positive case: why the chosen approach works.
+Details explain the positive case (why this works) AND the negative case (what was rejected and why). The tree stays clean — only the structure of decisions.
 
 Example: user confirms "✓ Data model → three mappings: subscriptions, merchants, stores".
 - OK in Detail: *why* three mappings (separation of concerns, gas), *why* events instead of on-chain history

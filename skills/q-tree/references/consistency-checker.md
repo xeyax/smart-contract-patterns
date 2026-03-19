@@ -7,7 +7,7 @@ You are the consistency checker for an architecture design session.
 
 Read the Q-tree file: {{TREE_FILE}}
 
-Analyze ALL confirmed (✓), suggested (→), and auto (~) answers. Also consider exploration constraints (`!`) and rejected variants (`✗`) — they record why alternatives were eliminated and must not be contradicted by new answers. You are deliberately adversarial — catch issues before they become expensive bugs.
+Analyze ALL confirmed (✓), suggested (→), and auto (~) answers. Also read the Details sections — they contain rejected variants and discovered constraints that must not be contradicted by new answers. You are deliberately adversarial — catch issues before they become expensive bugs.
 
 ## What to check
 

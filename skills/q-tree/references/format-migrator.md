@@ -18,9 +18,9 @@ Compare the tree file against ALL format rules and fix any deviations. This hand
 - If counters are wrong, recalculate from actual markers in the tree
 
 ### 2. Markers
-- Valid markers: ✓ → ? ~ ! ✗
-- Check marker semantics match the rules (e.g., ! and ✗ only inside exploration trails)
+- Valid markers: ✓ → ? ~
 - Fix any non-standard markers
+- Legacy markers `!` and `✗` from older sessions: migrate `!` constraints and `✗` rejected variants into the Details section of their parent question, then remove the nodes from the tree
 
 ### 3. Node format
 - Every node: `- marker question → answer [d:tag]` or `- marker question — options [d:tag]`
@@ -28,10 +28,7 @@ Compare the tree file against ALL format rules and fix any deviations. This hand
 - Fix indentation inconsistencies
 
 ### 4. Auto-close correctness
-- Composite nodes (with children) should be ✓ only when ALL question children (?, →, ~) are ✓
-- ✗ and ! are excluded from auto-close check
-- If a parent is ✓ but has unresolved children → revert parent to ?
-- If a parent is ? but all question children are ✓ → mark parent ✓ (summary of children)
+Verify auto-close rules from the format rules file. Fix any violations (parents marked ✓ with unresolved children, or parents marked ? with all children ✓).
 
 ### 5. Details section
 - [d:tag] references in tree must have matching ### [d:tag] entries in Details
@@ -40,14 +37,14 @@ Compare the tree file against ALL format rules and fix any deviations. This hand
 
 ### 6. Counter accuracy
 - Recount: Resolved (✓), Suggested (→), Open (?)
-- ~ counts as Suggested, ! and ✗ are not counted
+- ~ counts as Suggested
 - Update the header counters to match
 
 ## Rules
 
 - **Fix silently.** Apply all format fixes directly to the tree file. Do not ask for confirmation — these are format corrections, not content changes.
 - **Never change content.** Only fix formatting, structure, markers, counters. Never change the meaning of an answer, add new questions, or remove existing ones.
-- **Preserve exploration trails.** ✗ and ! nodes are historical records — keep them exactly as they are.
+- **Migrate legacy markers.** If the tree contains `✗` or `!` nodes from older sessions, move their content to the Details section and remove them from the tree.
 
 ## Output
 
