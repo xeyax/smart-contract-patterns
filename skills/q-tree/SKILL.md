@@ -126,9 +126,12 @@ Rules:
 | "2 aave, 5 threshold" | Override specific, accept rest |
 | "details N" | Show reasoning from Details section |
 | "skip N" / "postpone N" | Keep current marker, skip for this round |
+| *answers some + "let's dig into N"* | Record given answers, postpone unanswered, deepen N |
 | *accepts part, rejects part* | Partial acceptance (see below) |
 | *asks a question / "tell me about N"* | Discussion (see below) |
 | *rejects answer, challenges, asks counter-questions* | Pushback — offer EXPLORE (see below) |
+
+**Write-first rule:** whenever the user's response contains answers (even partial), write them to the tree file immediately — before deepening discussion, asking follow-ups, or moving to the next step. Never hold confirmed answers in memory across exchanges.
 
 **Handling partial acceptance:**
 
@@ -177,6 +180,7 @@ When you detect pushback on a question:
    - After 3 exchanges without new ✗ or ! → suggest: `"Confirm what we have, postpone, or reframe?"`
 4. On resolution: winning variant becomes ✓, ✗ and ! stay as permanent record → CHECK
 5. Postpone → keep current marker → CHECK
+6. **On exit from deep-dive:** re-read the tree file to restore batch context. Do not rely on conversation memory for the state of other questions — the tree is the source of truth.
 
 After any discussion, show what you're about to record before writing:
 
