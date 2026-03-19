@@ -65,6 +65,18 @@ Check if a NEW answer (from the latest batch) conflicts with an EARLIER confirme
 
 Example: Round 1 confirmed "Oracle: Chainlink". Round 3 confirmed "Support long-tail tokens" — but Chainlink doesn't have feeds for most long-tail tokens. The oracle decision must be revisited.
 
+### 8. Domain model cross-validation (if {{DOMAIN_MODEL_FILE}} is provided)
+
+Read the domain model file and cross-check against the tree:
+
+- q-tree answers that contradict domain model flows (e.g., "async withdrawal" but domain model shows sync withdraw flow) → flag contradiction
+- q-tree has decisions about an aggregate or concept not in the domain model → flag gap
+- Domain model has invariants that conflict with q-tree decisions → flag conflict
+
+Present each as a standard issue with proposed fix (re-open the question, or note that domain model needs updating).
+
+If no domain model file is provided, skip this check.
+
 ## Output format
 
 ### Issues

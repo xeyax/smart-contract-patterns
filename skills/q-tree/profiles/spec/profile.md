@@ -50,11 +50,12 @@ Generated in dependency order (each uses prior artifacts as context):
 
 ## Summarizer
 
-ref: references/summarizer.md
+ref: profiles/spec/summarizer.md
 
 ## Review
 
 enabled: yes
+ref: profiles/spec/reviewer.md
 
 ## Pattern Library
 
