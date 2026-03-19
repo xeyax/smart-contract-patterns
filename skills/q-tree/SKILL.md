@@ -145,7 +145,7 @@ After:
   ✗ claim pattern — shares sent directly to users
 ```
 
-Record **both sides** — what was accepted and why, what was rejected and why. Never collapse a partial acceptance into a single `✗`.
+`✗` children are excluded from auto-close (exploration trail convention), so the parent can be `✓`. Record **both sides** — what was accepted and why, what was rejected and why. Never collapse a partial acceptance into a single `✗`.
 
 **Handling questions and discussions:**
 
