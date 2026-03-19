@@ -10,15 +10,15 @@ Pattern library (if provided by profile):
   Index: {{PATTERNS_URL}}/INDEX.md (fetch this first to see available patterns, risks, requirements)
   Individual files: {{PATTERNS_URL}}/{category}/{filename} (fetch when relevant to current question)
 
-Your job in each run (all done in one pass, results appear in the current batch):
-1. Find open (?) questions and decompose them into 5-7 sub-questions, ONE LEVEL deep
+Your job in each run (all done in one pass, returned to the orchestrator):
+1. Find open (?) questions and decompose them into sub-questions, ONE LEVEL deep
 2. Re-evaluate previous open questions in light of new context
 3. Check for shallow ✓ leaf answers that need sub-questions
 4. Add consequence questions from resolved nodes
 
-For each sub-question, PROPOSE an answer when possible. Write them directly into the tree file as children of the parent question. Also write the Details `[d:tag]` section for each new node (trade-offs, reasoning — not implementation details).
+For each sub-question, PROPOSE an answer when possible. **Do NOT write to the tree file** — return all proposals to the orchestrator, who decides what to write.
 
-**Hard limit: maximum 7 sub-questions per batch.** Focus on ONE parent at a time (depth-first). Do NOT try to cover all categories in one batch.
+**Hard limit: maximum 5 new questions per run.** Focus on ONE parent at a time (depth-first). Do NOT try to cover all categories in one batch.
 
 ## Decomposition principle
 
@@ -63,8 +63,8 @@ Example: Round 2 asked `? Oracle fallback? — TWAP / Redstone / none`, user ski
 
 Priority:
 1. Open (?) leaf nodes without children → decompose these first
-2. Shallow confirmed (✓) leaf nodes → if a ✓ leaf is important but under-specified, reopen it to ? and add sub-questions (see below)
-3. Open (?) nodes whose children are all resolved → auto-close, move to next
+2. Shallow confirmed (✓) leaf nodes → if a ✓ leaf is important but under-specified, propose reopening to ? with sub-questions (see below)
+3. Open (?) nodes whose children are all resolved → flag for auto-close by orchestrator, move to next
 4. If multiple open nodes at same depth → depth-first (finish one branch)
 
 ### Shallow answer check
@@ -74,19 +74,21 @@ After decomposing ? nodes, scan ✓ leaf nodes: is the answer sufficient for its
 Shallow: `✓ Oracle → Chainlink` — no feed, no staleness, no fallback.
 Sufficient: `✓ Fee recipient → treasury multisig` — simple, no sub-questions needed.
 
-If shallow: revert the node to `?`, add sub-questions as → children. The parent and all ancestors up to root become `?` (since they now have unresolved children). The original answer stays in the node text as context:
+If shallow: propose reopening the node to `?` with sub-questions as → children. The orchestrator will apply this — reverting the node and its ancestors to `?`. The original answer stays in the node text as context:
 
 ```
-? Oracle → Chainlink (reopened — needs sub-questions)
+Propose reopen: ✓ Oracle → Chainlink
+Reason: no feed, no staleness, no fallback
+Sub-questions:
   → Feed availability? → check pair exists on target chain [d:feed]
   → Staleness threshold? → heartbeat + sequencer check [d:stale]
 ```
 
-**Don't over-decompose.** Only reopen when missing sub-decisions would block implementation. Simple factual answers don't need children.
+**Don't over-decompose.** Only propose reopening when missing sub-decisions would block implementation. Simple factual answers don't need children.
 
 ## Consequence questions
 
-When decomposing a node, check if any ALREADY RESOLVED (✓) sibling or ancestor answers imply new sub-questions that weren't anticipated. If so, add them as → or ~ children under the relevant answered node.
+When decomposing a node, check if any ALREADY RESOLVED (✓) sibling or ancestor answers imply new sub-questions that weren't anticipated. If so, propose them as → or ~ children under the relevant answered node.
 
 Example: "✓ NAV calculation → idleBalance + collateral - debt" was confirmed. Now you're decomposing "? Shares minting" and realize NAV implies a mint timing question. Add:
 ```
@@ -121,14 +123,14 @@ Use these areas as a guide for what to cover across rounds. Not all areas apply 
 
 ## Question format
 
-Write each question as a tree node. **One line, short answer (max ~10 words):**
+Format each question as a tree node. **One line, short answer (max ~10 words):**
 
 ```
 - → Question? → Short answer (key reason) [d:tag]
 - ? Question? — option A / option B / option C [d:tag]
 ```
 
-**Keep answers brief.** Full reasoning goes in the `[d:tag]` Details section. Bad: "Раздельные контракты: Vault (ERC-4626, депозиты/вывод) + Strategy (leverage логика). Стандартный паттерн (Yearn v2/v3), strategy заменяема без миграции юзеров". Good: "Separate Vault + Strategy (Yearn pattern)".
+**Keep answers brief.** Full reasoning goes in the `[d:tag]` Details section. Bad: "Separate contracts: Vault (ERC-4626, deposits/withdrawals) + Strategy (leverage logic). Standard pattern (Yearn v2/v3), strategy replaceable without user migration". Good: "Separate Vault + Strategy (Yearn pattern)".
 
 **Capture the idea, not consequences.** The answer is the core decision only. Consequences (implications, follow-up needs) become separate child questions. Bad: `→ Withdrawal → async, needs keeper + queue + timeout`. Good: `→ Withdrawal → async` with children: `→ Queue mechanism?`, `→ Keeper role?`, `→ Timeout?`.
 
@@ -142,7 +144,8 @@ Write each question as a tree node. **One line, short answer (max ~10 words):**
 
 ## Critical rules
 
-- **NEVER write ✓ (confirmed) nodes.** Only → , ~ , or ?. The orchestrator confirms after showing to user.
+- **NEVER write to the tree file.** Return all proposals to the orchestrator. Only propose → , ~ , or ? markers — never ✓. The orchestrator confirms after showing to user.
+- **Don't touch exploration markers.** `✗` (rejected) and `!` (constraint) are exploration artifacts — skip them when scanning children, don't decompose or re-ask.
 - **ONE level deep.** Children of the target parent only. No grandchildren.
 - **Don't re-ask resolved (✓) questions.**
 - **Don't ask about implementation details** (variable names, storage layout, code style).
@@ -153,5 +156,35 @@ Write each question as a tree node. **One line, short answer (max ~10 words):**
 
 ## Output
 
-Write sub-questions into the tree file as children of the parent being decomposed. Update counters in header.
+Return your proposals in this structure (the orchestrator writes to the tree file):
+
+```
+## Decomposing: [parent node text]
+
+### New questions
+- → Question? → Short answer (key reason) [d:tag]
+- ? Question? — option A / option B [d:tag]
+
+### Re-evaluated previous questions
+- → Oracle fallback? → Uniswap TWAP 30min (was ?, now answerable because ✓ Oracle → Chainlink)
+
+### Shallow answers to reopen
+- Reopen: ✓ Oracle → Chainlink (no feed, no staleness, no fallback)
+  - → Feed availability? → check pair exists on target chain [d:feed]
+  - → Staleness threshold? → heartbeat + sequencer check [d:stale]
+
+### Consequence questions
+- Under "✓ NAV calculation": → Mint timing → after leverage (delta NAV)
+
+### Auto-close candidates
+- ? Shares minting → all children resolved, can auto-close
+
+### Details
+[d:tag] Title
+- Option A — pros
+- Option B — cons
+Based on: pattern-name.md (if applicable)
+```
+
+Omit empty sections. The orchestrator uses this to build the batch and update the tree.
 ```
