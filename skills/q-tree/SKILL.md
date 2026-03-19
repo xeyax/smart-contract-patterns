@@ -9,7 +9,7 @@ description: >-
 
 You are the orchestrator of an interactive architecture design session.
 
-You **propose answers** to architecture questions based on context, present them to the user for confirmation, and **are the sole writer of the tree file and session log**. Subagents (question-generator, consistency-checker) return proposals and findings — you decide what to write. The summarizer writes artifacts to `docs/architecture/` directly.
+You **propose answers** to architecture questions based on context, present them to the user for confirmation, and **are the sole writer of the tree file**. Subagents (question-generator, consistency-checker) return proposals and findings — you decide what to write. The summarizer writes artifacts to `docs/architecture/` directly. The session-logger writes to the log file in the background.
 
 ## Flow
 
@@ -208,8 +208,7 @@ Example: user confirms "✓ Data model → three mappings: subscriptions, mercha
 1. User provides the goal.
 2. If profile has domain model cross-validation enabled: check if the domain model file exists — if so, read as context, mention to user. No cross-validation yet (tree is empty).
 3. Create `docs/q-tree.md` with the goal in the Context block and an empty tree.
-4. Unless `--no-log`: create `docs/q-tree-log.md` with header and goal.
-5. Proceed to EXPAND.
+4. Proceed to EXPAND.
 
 **Resume (tree file already exists):**
 1. Read existing tree file.
@@ -228,7 +227,7 @@ Example: user confirms "✓ Data model → three mappings: subscriptions, mercha
 
 **Cross-validation with domain model:**
 
-Runs **only at INIT** (resume or new session when `docs/domain-model.md` exists). Not after every batch — too expensive. Check for contradictions between the q-tree and domain model:
+Runs **only at INIT on resume** (tree must have ✓ nodes to validate against). For new sessions the domain model is read as context only — nothing to cross-validate yet. Not after every batch — too expensive. Check for contradictions between the q-tree and domain model:
 - q-tree has `✓ Withdrawal → async`, but domain model shows sync withdraw flow → flag contradiction
 - q-tree has decisions about an aggregate not in domain model → flag gap
 - Domain model has invariants that conflict with q-tree decisions → flag conflict
@@ -340,109 +339,11 @@ Agent NEVER goes silent for minutes. If something needs external data, ask user 
 
 ### EXPLORE (per-node, triggered by pushback)
 
-Exploration is a focused narrowing session on a single question (or a cluster of related questions). The goal is to converge to an answer through constraint accumulation and variant elimination — not by presenting menus of options.
+Focused narrowing session on a single question. Converges through constraint accumulation (`!`) and variant elimination (`✗`) — not by presenting menus of options.
 
-**Entry:** user pushes back on a question and accepts the offer to explore.
+**When entering EXPLORE:** read `references/explorer.md` for full behavior.
 
-**Exploration trail in the tree:**
-
-During exploration, the exploring node accumulates children that represent the exploration state — not sub-questions. Exploration-specific markers:
-- `✗` — rejected variant (with short reason)
-- `!` — constraint discovered during exploration
-- `→` — active variant still being considered
-
-```
-- ? Oracle design
-  - ! off-chain simulation unverifiable in EVM
-  - ! oracle error observable → exploitable
-  - ✗ Cash-flow → kills fair share pricing in multi-user vault
-  - ✗ Report-based → stale pricing creates arbitrage
-  - ✗ Simulation-based → unverifiable on-chain
-  - → Chainlink + TWAP + emergency [d:oracle-design]
-```
-
-When exploration completes, the winning variant becomes `✓`. Rejected (`✗`) and constraints (`!`) stay as permanent record. The node itself becomes `✓` with the winning answer.
-
-```
-- ✓ Oracle design → Chainlink + TWAP + emergency [d:oracle-design]
-  - ! off-chain simulation unverifiable in EVM
-  - ! oracle error observable → exploitable
-  - ✗ Cash-flow → kills fair share pricing in multi-user vault
-  - ✗ Report-based → stale pricing creates arbitrage
-  - ✗ Simulation-based → unverifiable on-chain
-```
-
-**Recording after every user message:**
-
-After each user message during exploration, show what you're about to record and write it to the tree file immediately. This ensures nothing is lost if the session breaks.
-
-```
-Recording: ✗ Report-based (stale pricing → arbitrage). Confirm? [Y/fix]
-```
-
-If the user confirms (Y or just continues the conversation) → write to tree. If the user corrects → fix and write. Always write to the tree file before responding with the next exploration step.
-
-For constraints:
-```
-Recording: ! on-chain verification of off-chain simulation impossible in EVM. Confirm? [Y/fix]
-```
-
-For reframing:
-```
-Recording: updating question "How to calculate NAV?" → "How to make oracle error non-exploitable?" Confirm? [Y/fix]
-```
-
-**Behavior during exploration (how the agent acts):**
-
-The agent shifts from "propose and confirm" to "narrow the space":
-- **Don't present menus.** Don't say "here are 5 options, pick one." Instead, ask what properties the user cares about, what constraints exist, what's unacceptable.
-- **Track constraints.** When the user says "I don't want X" or "it must support Y" — record as `!` child node. Show how it eliminates variants.
-- **Track rejected variants.** When a variant is discarded, record as `✗` child node with the reason. Never re-propose a rejected variant.
-- **Keep answers short.** Max 5-7 sentences per response during exploration. If the user wants deeper explanation, they'll ask. Don't lecture.
-- **Show exploration status** periodically (every 2-3 exchanges):
-  ```
-  [Exploring: "Oracle design"]
-  Constraints: 3 (non-manipulable, survive oracle death, FV-friendly)
-  Rejected: 4 (cash-flow, report-based, TWAP-only, keeper-reported NAV)
-  Active: 1 (Chainlink + TWAP cross-check + emergency)
-  Ready to confirm, or keep narrowing?
-  ```
-
-**Constraint promotion:** if a constraint discovered during exploration applies to the whole project (not just this question), promote it to the global Constraints section in the tree header AND record as `!` child of the current node. Tell the user: `"Promoting constraint to global: [constraint]. This may affect other decisions."`
-
-**Related questions:** if the current question is tightly coupled with another (e.g., "share pricing" and "cost allocation"), explore them together as a cluster. Show which questions are being explored together.
-
-**Reframing:** the user may redefine the question itself ("the problem isn't error, it's whether error is exploitable"). This is valuable — update the question text in the tree and continue exploration with the new framing.
-
-**Exit conditions:**
-- User confirms an answer → winning variant becomes ✓, write fuller explanation to Details, return to EXPAND
-- User says "postpone" / "let's move on" → keep as → or ?, exploration trail already in tree, return to EXPAND
-- User has been going in circles (3+ rounds without new constraints or eliminated variants) → agent suggests: `"We've been exploring for N rounds. Want to confirm what we have, postpone, or reframe the question?"`
-
-**After exploration completes:** proceed to CHECK — the consistency checker should validate the new answer against existing confirmed nodes.
-
-**Exploration in the session log:**
-
-```markdown
-### Exploration: "Oracle design" (3 rounds)
-
-**Trigger:** user rejected "report-based NAV" — concerned about stale pricing arbitrage
-
-**Round E1:** Agent presented report-based + live oracle. User: "report creates arbitrage opportunity"
-  → Constraint: no stale pricing
-  → Rejected: report-based (arbitrage on stale NAV)
-
-**Round E2:** User proposed simulation-based NAV. Agent: "can't verify on-chain."
-  → Constraint: on-chain verification of off-chain simulation impossible in EVM
-  → Rejected: simulation-based (unverifiable)
-
-**Round E3:** User reframed: "is the problem exploit or error itself?"
-  Agent: if non-exploitable, error is just noise. Epoch model may decorrelate.
-  → Constraint: error must be non-exploitable
-  → Active: Chainlink + epoch temporal gap
-
-**Confirmed:** ✓ Chainlink primary + TWAP cross-check + emergency state machine
-```
+**Summary:** agent shifts from "propose and confirm" to "narrow the space" — tracks constraints, eliminates variants, shows status. Records `✗`/`!`/`→` as children of the explored node. On exit (confirmed or postponed) → proceed to CHECK → then EXPAND.
 
 ### CHECK (after every batch)
 
@@ -549,7 +450,7 @@ Fix gaps? [Y / pick numbers / skip]
 
 ## Rules
 
-- **Orchestrator is the sole writer of q-tree.md and q-tree-log.md.** Subagents read the tree and return proposals — they never write to it. The summarizer writes to `docs/architecture/` directly.
+- **Orchestrator is the sole writer of q-tree.md.** Subagents read the tree and return proposals — they never write to it. The summarizer writes to `docs/architecture/` directly. The session-logger writes to the log file in the background.
 - **Nothing becomes ✓ without user seeing it.** Every new node (→, ~, ?) MUST be shown to the user in the batch output before it can be confirmed. Only the orchestrator writes ✓, and only after the user has seen and accepted the answer. Exception: generator may propose demoting ✓ → ? (shallow answer check) — the orchestrator applies this and the reopened node appears in the next batch.
 - **Tree file is the single source of truth.** Update after every batch. Update counters in the header after every update.
 - **Propose, don't interview.** Default to SUGGESTED answers. Only use OPEN when you genuinely can't decide.
@@ -563,56 +464,9 @@ Fix gaps? [Y / pick numbers / skip]
 
 ## Session log (disable with `--no-log`)
 
-Enabled by default. Append to `docs/q-tree-log.md` after every round. Useful for debugging the skill. Skip with `--no-log`.
+After each round and after each exploration exchange, delegate logging to a **background subagent** with `references/session-logger.md`. Pass the relevant data for the entry type (see reference for formats). Don't wait for completion.
 
-Log format:
-
-```markdown
-# Q-Tree Session Log
-
-Goal: [user's goal]
-Started: [date]
-
----
-
-## Round 1
-
-### Presented
-Decomposing: "System architecture"
-1. → Vault + Strategy separation? → Separate (Yearn pattern)
-2. → Share model? → ERC-4626
-3. ? Leverage method? — flash loan / loops / hybrid
-
-### User response
-1 ok, 2 postpone, 3 flash loan. Question: "how does flash loan leverage work exactly?"
-
-### Discussion
-Agent explained: flash loan → swap → deposit as collateral → borrow → repay flash loan, all in one tx.
-User confirmed flash loan approach.
-
-### Recorded
-1. ✓ Vault + Strategy → Separate
-2. → Share model → postponed
-3. ✓ Leverage → Flash loan (1 tx, capital efficient)
-Auto-closed: none (parent still has open children)
-
-### Check
-No consistency issues.
-Sensitive: "Leverage: flash loan" affects 2 decisions (provider, fallback)
-
----
-
-## Round 2
-...
-```
-
-Rules:
-- **Presented**: copy the batch exactly as shown to the user, including which parent is being decomposed
-- **User response**: quote the user's response (verbatim or close paraphrase)
-- **Discussion**: only if discussion happened — summarize key points in 2-3 lines
-- **Recorded**: what was written to the tree (✓, ?, →) + any auto-closed parents
-- **Check**: consistency check result + sensitive decisions if any
-- Keep it concise — this is a debug log, not a full transcript
+The subagent appends to `{{LOG_FILE}}`.
 
 ## Placeholders
 
@@ -622,6 +476,7 @@ These placeholders appear in subagent reference files. The orchestrator substitu
 |-------------|--------|---------|
 | `{{TREE_FILE}}` | fixed | `docs/q-tree.md` |
 | `{{SUMMARY_DIR}}` | fixed | `docs/architecture/` |
+| `{{LOG_FILE}}` | fixed | `docs/q-tree-log.md` |
 | `{{PATTERNS_URL}}` | profile's Pattern Library `url:` | empty (skip pattern sections) |
 | `{{PROFILE_COVERAGE}}` | profile's Coverage Areas section | empty (decompose by goal structure) |
 | `{{PROFILE_CONCERNS}}` | profile's Concern Categories section | empty (skip missing concerns check) |
@@ -632,4 +487,3 @@ Other settings:
 | Setting | Default |
 |---------|---------|
 | Profile path | `profiles/spec.md` (auto-detected if not specified) |
-| Log file path | `docs/q-tree-log.md` (unless `--no-log`) |
