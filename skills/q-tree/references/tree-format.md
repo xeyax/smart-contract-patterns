@@ -44,19 +44,19 @@ Markers: ✓ confirmed | → suggested | ? open | ~ auto-derived
 - ~ Base asset → USDC (from goal)
 - ? Contract architecture
   - ✓ Decomposition → Vault + Strategy (Yearn pattern)
-  - → Share model → ERC-4626 (composable, audited) [d:shares]
+  - → Share model → ERC-4626 (composable, audited) [d:shares](#d:shares)
   - ? Value flows
     - ✓ Entry → user deposits USDC, mint shares
-    - ? Fee model — performance / management / both [d:fees]
+    - ? Fee model — performance / management / both [d:fees](#d:fees)
     - ~ Fee recipient → treasury multisig (from access control)
 
 ## Details
 
-### [d:shares] Share model
+### <a id="d:shares"></a>[d:shares] Share model
 - ERC-4626 (recommended) — composable, audited implementations
 - Custom (possible) — more flexibility but higher audit cost
 
-### [d:fees] Fee model
+### <a id="d:fees"></a>[d:fees] Fee model
 - Performance only (10%) — simple, aligned with users
 - Management (2% AUM) — predictable but hurts small depositors
 Agent note: MVP scope → performance only simplest
@@ -75,9 +75,10 @@ If a question becomes irrelevant, delete it from the tree and note the reason in
 
 ## Conventions
 
-- Every node is a markdown list item: `- marker question → answer [d:tag]`
+- Every node is a markdown list item: `- marker question → answer [d:tag](#d:tag)`
 - Tree depth = nested list indent (2 spaces + `- ` per level)
-- `[d:tag]` links to a Details section for complex questions
+- `[d:tag](#d:tag)` is a clickable link to the matching Details heading `### <a id="d:tag"></a>[d:tag] Title`
+- Subagents may return bare `[d:tag]` — the orchestrator adds the `(#d:tag)` link and `<a id>` anchor when writing to the tree file
 - Composite nodes (with children) auto-close to `✓` when all children (`?`, `→`, `~`) are resolved
 - Leaf nodes (no children) are resolved directly by the user
 - Counters in header updated after every batch
@@ -88,7 +89,7 @@ Details explain **why** (trade-offs, options, reasoning), not **how** (implement
 
 Good:
 ```
-### [d:strategy-sep] Strategy separation
+### <a id="d:strategy-sep"></a>[d:strategy-sep] Strategy separation
 - Separate contract (Yearn pattern) — strategy replaceable without user migration
 - Embedded in vault — simpler but locked to one strategy
 - Strategy only manages position; vault owns accounting and user-facing logic
@@ -96,7 +97,7 @@ Good:
 
 Bad (too detailed — function signatures, parameters, storage):
 ```
-### [d:strategy-functions] Strategy functions
+### <a id="d:strategy-functions"></a>[d:strategy-functions] Strategy functions
 | Function | Caller | What it does |
 | deploy(uint256 amount) | Vault | Pull from vault, build position |
 | rebalance() | Keeper | Adjust LTV to target |
@@ -109,7 +110,7 @@ Rule: if it looks like an interface definition or API spec, it's too detailed fo
 **Rejected variants and constraints** belong in Details, not in the tree. When the user rejects an option or discovers a constraint during discussion, record it in the Details section of that question:
 
 ```markdown
-### [d:oracle-design] Oracle design
+### <a id="d:oracle-design"></a>[d:oracle-design] Oracle design
 Chainlink primary + TWAP cross-check + emergency state machine.
 
 Why this approach:

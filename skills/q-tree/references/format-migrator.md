@@ -30,9 +30,10 @@ Compare the tree file against ALL format rules and fix any deviations. This hand
 ### 4. Auto-close correctness
 Verify auto-close rules from the format rules file. Fix any violations (parents marked ✓ with unresolved children, or parents marked ? with all children ✓).
 
-### 5. Details section
-- [d:tag] references in tree must have matching ### [d:tag] entries in Details
-- Details should explain WHY (trade-offs), not HOW (implementation)
+### 5. Details links
+- Tree references must be clickable links: `[d:tag](#d:tag)`. If bare `[d:tag]` without `(#d:tag)` → add the link.
+- Details headings must have anchors: `### <a id="d:tag"></a>[d:tag] Title`. If missing `<a id>` → add it.
+- Every `[d:tag]` in tree must have a matching Details heading, and vice versa.
 - Orphaned details (no tree reference) → leave as-is but note in report
 
 ### 6. Counter accuracy
