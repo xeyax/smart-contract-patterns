@@ -1,5 +1,9 @@
 # Profile: Smart Contract Specification
 
+## Output
+
+tree_file: docs/q-tree.md
+
 ## Coverage Areas
 
 1. **Protocol Goal** — what problem does this solve, for whom, what's the core value proposition

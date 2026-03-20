@@ -40,11 +40,13 @@ The user provides a goal (e.g., "leveraged vault on Aave v3").
 Optionally:
 - `--profile=path` — profile directory. Built-in profiles: `profiles/spec/` (smart contract architecture), `profiles/exploration/` (freeform exploration). Custom profiles: a directory with `profile.md` + optional subagent files. **If not specified:** auto-detect from the goal. `spec` = user wants to design a smart contract system end-to-end (architecture, contracts, flows). `exploration` = user wants to think through a specific question or aspect (even if about smart contracts). If ambiguous, ask in one line: `Profile: spec (full system architecture) or exploration (focused question)? [spec/explore]`
 - Path to existing docs (vision, requirements) or existing q-tree to resume.
+- `--output=path` — override tree file path (log file and summary dir derived automatically).
 - `--no-log` — disable session log.
 
 ### Profile
 
 At INIT, read `profile.md` from the profile directory. The profile defines:
+- **Output** — default paths for tree file, log file, summary dir
 - **Coverage Areas** — orientation for question generation
 - **Concern Categories** — what the consistency checker looks for
 - **Definition of Done** — when to suggest stopping
@@ -65,9 +67,11 @@ To create a custom profile, create a directory with `profile.md` inside. Use `pr
 
 ## Output
 
-- `docs/q-tree.md` — the question tree (updated after every batch)
-- Artifacts under `docs/architecture/` — if profile defines a summarizer (see SUMMARIZE)
-- `docs/q-tree-log.md` — session log (enabled by default; disable with `--no-log`)
+Output paths are resolved at INIT in this priority: `--output` flag > profile defaults.
+
+- **Tree file** — the question tree (updated after every batch)
+- **Log file** — session log (derived: `{tree_stem}-log.md`; disable with `--no-log`)
+- **Summary dir** — artifacts directory, if profile defines a summarizer (derived: `{tree_dir}/{tree_stem}/`)
 
 ## Algorithm
 
@@ -75,7 +79,13 @@ To create a custom profile, create a directory with `profile.md` inside. Use `pr
 
 Read profile from profile directory (default: `profiles/spec/`). If domain model cross-validation enabled, read domain model file as context.
 
-**New:** create `docs/q-tree.md` with goal + counters, empty tree → EXPAND.
+**Resolve output paths:**
+1. If `--output` provided → use it as tree file path.
+2. Otherwise → use profile's Output `tree_file:` default. If it contains `{slug}`, generate slug from goal (e.g. "oracle design for leveraged vaults" → `oracle-design-for-leveraged-vaults`).
+3. If profile has `resolve:` hint (e.g. "check for `research/` dir") → check and suggest to user: `Save to research/exploration-oracle-design.md? [Y / other path]`
+4. Derive log file: `{tree_stem}-log.md` in same directory. Derive summary dir: `{tree_dir}/{tree_stem}/`.
+
+**New:** create tree file with goal + counters, empty tree → EXPAND.
 
 **Resume:** read tree → **migrate format** → show status → EXPAND.
 
@@ -175,10 +185,10 @@ These placeholders appear in subagent reference files. The orchestrator substitu
 
 | Placeholder | Source | Default |
 |-------------|--------|---------|
-| `{{TREE_FILE}}` | fixed | `docs/q-tree.md` |
+| `{{TREE_FILE}}` | `--output` flag > profile Output `tree_file:` | profile-dependent |
 | `{{FORMAT_RULES_FILE}}` | fixed | `references/tree-format.md` (relative to skill root) |
-| `{{SUMMARY_DIR}}` | fixed | `docs/architecture/` |
-| `{{LOG_FILE}}` | fixed | `docs/q-tree-log.md` |
+| `{{SUMMARY_DIR}}` | derived from tree file | `{tree_dir}/{tree_stem}/` |
+| `{{LOG_FILE}}` | derived from tree file | `{tree_stem}-log.md` in same dir |
 | `{{PATTERNS_URL}}` | profile's Pattern Library `url:` | empty (skip pattern sections) |
 | `{{PROFILE_COVERAGE}}` | profile's Coverage Areas section | empty (decompose by goal structure) |
 | `{{PROFILE_CONCERNS}}` | profile's Concern Categories section | empty (skip missing concerns check) |

@@ -1,5 +1,10 @@
 # Profile: Freeform Exploration
 
+## Output
+
+tree_file: exploration-{slug}.md
+resolve: If a `research/` directory exists in the project root, suggest placing the file there instead.
+
 ## Coverage Areas
 
 (none — decompose based on goal structure)
