@@ -73,6 +73,8 @@ Agent note: MVP scope → performance only simplest
 
 If a question becomes irrelevant, delete it from the tree and note the reason in the parent's Details section.
 
+**One decision = one node.** If a question is dismissed as a consequence of another decision, merge into that decision's node and Details — don't create a separate "removed" node.
+
 ## Conventions
 
 - Every node is a markdown list item: `- marker question → answer [d:tag](#d:tag)`

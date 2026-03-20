@@ -65,7 +65,29 @@ Check if a NEW answer (from the latest batch) conflicts with an EARLIER confirme
 
 Example: Round 1 confirmed "Oracle: Chainlink". Round 3 confirmed "Support long-tail tokens" — but Chainlink doesn't have feeds for most long-tail tokens. The oracle decision must be revisited.
 
-### 8. Readiness assessment (if {{PROFILE_DOD}} is provided)
+### 8. Redundancy
+
+Two or more nodes express the same decision, or one node is a direct consequence of another with no independent information. Signals:
+
+- Two nodes say the same thing in different words (e.g., "fee shares minted to wrapper itself" and "wrapper mints fee shares to itself for bookkeeping")
+- A node's answer is "removed / not needed" as a consequence of another node's decision (e.g., "protocolFeeRecipient → removed, wrapper is its own recipient")
+- A node restates what's already captured in another node's Details section
+
+For each redundancy → propose merging into the more specific node. The dismissed/restated node is deleted, its content noted in the surviving node's Details.
+
+Example: "✓ Fee recipient → wrapper self-mints" and "✓ protocolFeeRecipient → removed, wrapper = recipient" → merge into the first node, note "protocolFeeRecipient field not needed (wrapper is its own recipient)" in Details.
+
+### 9. Tree structure
+
+Check that parent-child relationships are semantically correct:
+
+- **Child must be a sub-question of parent.** If a child node could exist independently (not needed to answer the parent), it's misplaced — propose moving it up or to the right parent.
+- **Siblings must be independent.** If sibling A is a sub-question of sibling B, propose making A a child of B.
+- **No orphaned subtrees.** A resolved branch that has no logical connection to its parent (e.g., placed under "Architecture" but is really about "Risk") — propose moving.
+
+Only flag clear structural issues. Don't nitpick borderline cases.
+
+### 10. Readiness assessment (if {{PROFILE_DOD}} is provided)
 
 Assess the tree against the Definition of Done from the profile:
 
@@ -80,7 +102,7 @@ Common signals to check (depending on what the profile defines):
 
 If no Definition of Done is provided, skip this check.
 
-### 9. Domain model cross-validation (if {{DOMAIN_MODEL_FILE}} is provided)
+### 11. Domain model cross-validation (if {{DOMAIN_MODEL_FILE}} is provided)
 
 Read the domain model file and cross-check against the tree:
 

@@ -39,6 +39,8 @@ Process items until ALL are resolved or skipped, then exit. On every user respon
 
 **Critical rule: if user answered K out of N items, only K are recorded. The other N-K are shown again.** Never assume silence = acceptance.
 
+**Dismissed items.** If an item resolves as "not needed / removed / follows from X" — don't create a new node. Merge the dismissal into the existing related node's answer and Details. One decision = one node.
+
 ## Log
 
 Every batch interaction is a loggable round. After items are resolved, dispatch session-logger (background) with:
