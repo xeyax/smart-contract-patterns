@@ -98,38 +98,31 @@ If the migrator applied fixes, mention it briefly: `Format updated to current ru
 Pass: tree file path, `{{PROFILE_COVERAGE}}`, `{{PROFILE_CONSTRAINTS}}`, `{{PATTERNS_URL}}`.
 Subagent returns proposals + a ready-to-present batch (see generator's Output section). You write accepted nodes to the tree.
 
-**Present batch** — take the batch from the generator's output (already ordered, limited to 5, formatted). Add the round header and accept prompt, then collect answers in a loop until all resolved or skipped → exit to CHECK.
+**Present and collect** — present the batch via batch protocol (`references/batch-protocol.md`), collect answers until all resolved or skipped → exit to CHECK. For EXPAND-specific rules (decomposition, partial acceptance, stall detection) — see `references/expand-rules.md`.
 
-For detailed rules on batch presentation, answer collection, decomposition triggers, partial acceptance, stall detection, and general rules — see `references/expand-rules.md`.
+### Batch protocol
 
-### Handling findings
+All phases present items to the user via the same protocol: present → collect → write confirmed → show remaining → loop until done. For the full protocol (presentation format, response parsing, partial response handling, logging) — see `references/batch-protocol.md`.
 
-CHECK, SUMMARIZE, and REVIEW all produce findings that may require tree updates. The orchestrator handles them uniformly by type:
+Each phase produces different **item types** which are formatted for presentation as follows:
 
-**Issues with fixes** — an existing answer has a problem. Present with proposed fix:
+**Issues with fixes** (CHECK) — an existing answer has a problem:
 ```
 Issue: [title] — [problem]
 Fix: → [action]. Accept? [Y/n/alt]
 ```
-If fix changes a ✓ answer → show as re-opened. User accepts → update tree. User overrides → record override. Re-run checker if fixes were significant.
+If fix changes a ✓ answer → show as re-opened. Re-run checker if fixes were significant.
 
-**Tree questions** — information missing from the tree. Sources: checker issues ("add question about Z"), summarizer `[GAP]`/`[CHOICE]` entries in gaps.md, reviewer tree gaps. Collect all pending questions from the current phase and present:
-```
-N questions from [phase]:
-1. ? [question]
-2. ? [question]
-Add to tree? [Y / pick numbers / skip]
-```
-Accepted → `?` nodes in tree → EXPAND. After resolution, resume from the phase that produced the questions.
+**Tree questions** (CHECK, SUMMARIZE, REVIEW) — information missing from the tree. Sources: checker issues, summarizer `[GAP]`/`[CHOICE]` in gaps.md, reviewer tree gaps. Accepted → `?` nodes in tree → EXPAND. After resolution, resume from the phase that produced the questions.
 
-**Informational** — sensitive decisions, notes. Show to user, no action needed.
+**Informational** (CHECK) — sensitive decisions, notes. Show to user, no action needed.
 
 ### CHECK
 
 Delegate to subagent (`references/consistency-checker.md`).
 Pass: tree file path, `{{PROFILE_CONCERNS}}`, `{{PROFILE_COVERAGE}}`, `{{PROFILE_DOD}}`, `{{PATTERNS_URL}}`, `{{DOMAIN_MODEL_FILE}}`.
 
-Handle issues, questions, and informational findings per "Handling findings".
+Present issues, questions, and informational findings via batch protocol.
 
 **Readiness** — the checker also returns a readiness assessment (if profile defines DoD). When READY → suggest summarize (or end session if no summarizer). Not ready → next EXPAND. User can always say "enough" to force summarize or "continue" after a readiness prompt.
 
@@ -144,7 +137,7 @@ The summarizer generates artifacts and marks:
 - `[GAP]` — information missing from tree, can't fill
 - `[CHOICE]` — tree is ambiguous, summarizer picked one interpretation
 
-Both are collected in `gaps.md` with suggested questions. Handle per "Handling findings".
+Both are collected in `gaps.md` with suggested questions. Present via batch protocol.
 
 If review enabled → REVIEW. Otherwise → present gaps (if any), then artifact list.
 
@@ -154,7 +147,7 @@ Only if profile has review enabled. Delegate to subagent (ref from profile, e.g.
 Pass: `{{SUMMARY_DIR}}`, `{{TREE_FILE}}`.
 
 - **Artifact issues** → re-run SUMMARIZE once with corrections. If issues persist → report to user.
-- **Tree gaps** → merge with gaps.md, handle per "Handling findings".
+- **Tree gaps** → merge with gaps.md, present via batch protocol.
 - **Clean** → present artifact list, done.
 
 **Cycle limit:** max 2 full SUMMARIZE→REVIEW cycles. After that → finalize with remaining gaps noted.
@@ -172,9 +165,9 @@ Pass: `{{SUMMARY_DIR}}`, `{{TREE_FILE}}`.
 
 ## Session log (disable with `--no-log`)
 
-After each round and after each exchange during pushback discussions, delegate logging to a **background subagent** with `references/session-logger.md`. Pass the relevant data for the entry type (see reference for formats). Don't wait for completion.
+After **every batch interaction** (EXPAND round, CHECK findings, SUMMARIZE gaps, REVIEW gaps, exploration exchange), delegate logging to a **background subagent** with `references/session-logger.md`. Don't wait for completion.
 
-The subagent appends to `{{LOG_FILE}}`.
+The subagent appends to `{{LOG_FILE}}`. Round numbering is sequential across all phases — CHECK findings after Round 5 become Round 6, etc.
 
 ## Placeholders
 

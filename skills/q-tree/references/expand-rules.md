@@ -1,31 +1,13 @@
 # Expand Rules
 
-Detailed rules for the orchestrator's EXPAND phase — how to present batches, collect answers, and handle user responses.
+EXPAND-specific extensions to the batch protocol (`references/batch-protocol.md`). The batch protocol handles presentation, response parsing, partial responses, and logging. This file adds EXPAND-specific routing: decomposition, partial acceptance, stall detection.
 
-## Present batch
+## EXPAND-specific routing
 
-Take the batch from the generator's output (already ordered, limited to 5, formatted). Add the round header and accept prompt:
+After parsing + writing per batch protocol, apply additional routing:
 
-```
-[Round 5] 5 questions (2 previous, 3 new — decomposing "Async withdraw"):
-
-[batch from generator]
-
-Accept all? [Y / numbers to change / "details N"]
-```
-
-Rule: **Show EVERY new node** (including `~` auto). Nothing becomes ✓ without the user seeing it first.
-
-## Collect answers — single loop with depth-first decomposition
-
-The loop processes unanswered questions until all are resolved or skipped, then exits to CHECK. On every user response:
-
-1. **Parse** the response as a whole. A single message may contain answers to some questions AND a request to dig into another.
-2. **Write immediately.** Every answer, override, or skip → write to tree file now. Never hold confirmed answers in memory across exchanges. Record rejected variants and discovered constraints in the Details section of the question, not as tree nodes.
-3. **Route:**
-   - All questions answered or skipped → exit to CHECK.
-   - User wants to dig into a question (details, question, pushback, "dig into N") → **decompose** that question into sub-questions, present them. If the user asks about multiple questions, dig into the **first** one mentioned — the rest wait.
-   - Otherwise (some answered, no dig-in request, remaining > 0) → show remaining unanswered.
+- User wants to dig into a question (details, question, pushback, "dig into N") → **decompose** that question into sub-questions, present them. If the user asks about multiple questions, dig into the **first** one mentioned — the rest wait.
+- Record rejected variants and discovered constraints in the Details section of the question, not as tree nodes.
 
 ## What triggers decomposition
 

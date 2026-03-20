@@ -1,6 +1,6 @@
 # Session Logger
 
-Appends entries to the session log. Run as a background subagent after each EXPAND round and after each exploration exchange.
+Appends entries to the session log. Run as a background subagent after **every batch interaction** — EXPAND rounds, CHECK findings, SUMMARIZE gaps, REVIEW gaps, and exploration exchanges. Every batch = a loggable round with sequential numbering.
 
 ```
 You are the session logger for a q-tree architecture design session.
