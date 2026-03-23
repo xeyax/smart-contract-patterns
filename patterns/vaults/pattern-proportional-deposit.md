@@ -188,6 +188,7 @@ Some vaults offer choice:
 
 ## Related Patterns
 
+- [ZapIn Proportional Deposit](./pattern-proportional-zapin.md) — adds periphery ZapIn for single-token UX on top of this pattern
 - [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — this pattern avoids the risk entirely
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — alternative that uses oracles
 - [Premium Buffer](./pattern-premium-buffer.md) — alternative mitigation for oracle-based vaults
