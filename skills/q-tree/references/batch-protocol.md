@@ -20,24 +20,35 @@ Source examples: "decomposing Access Control", "consistency check", "summarizer 
 
 Rule: **Show EVERY item before it can become ✓.** Nothing is confirmed without the user seeing it first.
 
-## Collect — parse, write, loop
+## Collect — write first, then discuss
 
-Process items until ALL are resolved or skipped, then exit. On every user response:
+Process items until ALL are resolved or skipped, then exit. On every user response, follow this order strictly:
 
-1. **Parse** the response as a whole. A single message may address some items and ignore others.
-2. **Match each part of the response to specific item numbers.** Only items explicitly addressed (accepted, overridden, skipped) are resolved. **Items not mentioned stay pending.**
-3. **Write immediately.** Every confirmed answer, override, or skip → write to tree file now. Never hold confirmed items in memory across exchanges.
-4. **Route:**
-   - All items resolved or skipped → exit.
-   - Remaining items > 0 → show remaining unanswered with a brief reminder:
-     ```
-     Recorded 1, 3. Remaining:
-     2. [item text]
-     Accept? [Y / override / skip]
-     ```
-   - Phase-specific routing (decomposition in EXPAND, etc.) — see phase rules.
+### Step 1: PARSE
 
-**Critical rule: if user answered K out of N items, only K are recorded. The other N-K are shown again.** Never assume silence = acceptance.
+Parse the response as a whole. A single message may contain answers, overrides, skips, AND follow-up questions or discussion. Separate them: what is decidable now vs what needs discussion.
+
+Only items explicitly addressed (accepted, overridden, skipped) are resolved. **Items not mentioned stay pending.** Never assume silence = acceptance.
+
+### Step 2: WRITE — before anything else
+
+**Write ALL confirmed/resolved items to tree file NOW.** Update counters. This happens before any discussion, follow-up, or next batch.
+
+Also write new `?` nodes when the user raises a design question not yet in the tree (e.g. "what if the oracle goes down?"). Factual questions ("what is TWAP?") → answer inline, no node. Design uncertainty → `?` node under the relevant parent.
+
+This step is non-negotiable. Even if one item needs discussion, all other confirmed items must be written first.
+
+### Step 3: RESPOND
+
+Only after writing, address the rest:
+- Remaining pending items > 0 → show them:
+  ```
+  Recorded 1, 3. Remaining:
+  2. [item text]
+  Accept? [Y / override / skip]
+  ```
+- User asked for details / wants to dig in → discuss (phase-specific routing, see expand-rules.md)
+- All items resolved or skipped → exit to next phase
 
 **Dismissed items.** If an item resolves as "not needed / removed / follows from X" — don't create a new node. Merge the dismissal into the existing related node's answer and Details. One decision = one node.
 

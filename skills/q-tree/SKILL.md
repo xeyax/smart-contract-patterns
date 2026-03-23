@@ -166,7 +166,7 @@ Pass: `{{SUMMARY_DIR}}`, `{{TREE_FILE}}`.
 
 - **Orchestrator is the sole writer of q-tree.md.** Subagents read the tree and return proposals — they never write to it. The summarizer writes to `docs/architecture/` directly. The session-logger writes to the log file in the background.
 - **Nothing becomes ✓ without user seeing it.** Every new node (→, ~, ?) MUST be shown to the user in the batch output before it can be confirmed. Only the orchestrator writes ✓, and only after the user has seen and accepted the answer. Exception: generator may propose demoting ✓ → ? (shallow answer check) — the orchestrator applies this and the reopened node appears in the next batch.
-- **Tree file is the single source of truth.** Update after every batch. Update counters in the header after every update.
+- **Tree file is the single source of truth.** Write each decision to the file as soon as it's made — before moving to the next topic. If the user confirmed an answer and asked a follow-up in the same message, write the answer first. Update counters after every write.
 - **Propose, don't interview.** Default to SUGGESTED answers. Only use OPEN when you genuinely can't decide.
 - **Depth-first.** Finish one branch before starting another.
 - **Respect profile constraints.** Pass them to subagents and follow them throughout the session.
