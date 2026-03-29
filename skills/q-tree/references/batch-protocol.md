@@ -38,6 +38,11 @@ Also write new `?` nodes when the user raises a design question not yet in the t
 
 This step is non-negotiable. Even if one item needs discussion, all other confirmed items must be written first.
 
+**Placement rule:** every new `?` node goes under its **natural parent** in the tree — never under a synthetic grouping node (e.g. "Summarizer choices", "Check issues"). Subagents provide a `parent` field (`[d:tag]` or `—`) for each item. Use it:
+- Parent tag exists in tree → place as child of that node.
+- Parent tag is `—` or not found in tree → ask the user: `Place under [closest candidate]? [Y / other]`.
+- Never create a new section just to group items from one phase.
+
 ### Step 3: RESPOND
 
 Only after writing, address the rest:

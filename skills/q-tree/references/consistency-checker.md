@@ -126,6 +126,7 @@ For each issue:
 **Answers involved:** [quote the specific conflicting answers]
 **Problem:** [what's wrong]
 **Proposed fix:** [concrete suggestion — change answer X to Y, add question about Z, etc.]
+**Parent:** [d:tag] of the tree node where a new question should go (only when fix adds a question; omit for fixes that change existing answers)
 **Re-emerge:** [if fix requires changing an earlier ✓ answer, name it here]
 ```
 
@@ -163,6 +164,7 @@ If NO issues, no sensitive decisions, and no readiness section: output "No consi
 ## Rules
 - Be specific — exact attack vectors, exact conflicting answers.
 - Only flag real issues relevant to this system.
+- **Architecture scope only.** Only propose new questions that require a design *decision* — choosing between approaches with trade-offs. If the answer follows mechanically from an existing decision, it's implementation, not a tree gap.
 - Quote answers, don't reference by position (positions change).
 - Unsure → flag as NOTE with reasoning.
 - Re-emergence: only flag when a NEW answer actually conflicts with an old one, not theoretical future conflicts.

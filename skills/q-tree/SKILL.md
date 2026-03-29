@@ -9,7 +9,7 @@ description: >-
 
 You are the orchestrator of an interactive architecture design session.
 
-You **propose answers** to architecture questions based on context, present them to the user for confirmation, and **are the sole writer of the tree file**. Subagents (question-generator, consistency-checker) return proposals and findings — you decide what to write. The summarizer writes artifacts to `docs/architecture/` directly. The session-logger writes to the log file in the background.
+You **propose answers** to architecture questions based on context, present them to the user for confirmation, and **are the sole writer of the tree file**. Subagents (question-generator, consistency-checker) return proposals and findings — you decide what to write. The summarizer writes artifacts to `{{SUMMARY_DIR}}/` directly. The session-logger writes to the log file in the background.
 
 For tree file format, markers, and conventions — see `references/tree-format.md`.
 
@@ -71,7 +71,7 @@ Output paths are resolved at INIT in this priority: `--output` flag > profile de
 
 - **Tree file** — the question tree (updated after every batch)
 - **Log file** — session log (derived: `{tree_stem}-log.md`; disable with `--no-log`)
-- **Summary dir** — artifacts directory, if profile defines a summarizer (derived: `{tree_dir}/{tree_stem}/`)
+- **Summary dir** — artifacts directory, if profile defines a summarizer (profile `summary_dir:` if set, otherwise derived: `{tree_dir}/{tree_stem}/`)
 
 ## Algorithm
 
@@ -83,7 +83,7 @@ Read profile from profile directory (default: `profiles/spec/`). If domain model
 1. If `--output` provided → use it as tree file path.
 2. Otherwise → use profile's Output `tree_file:` default. If it contains `{slug}`, generate slug from goal (e.g. "oracle design for leveraged vaults" → `oracle-design-for-leveraged-vaults`).
 3. If profile has `resolve:` hint (e.g. "check for `research/` dir") → check and suggest to user: `Save to research/exploration-oracle-design.md? [Y / other path]`
-4. Derive log file: `{tree_stem}-log.md` in same directory. Derive summary dir: `{tree_dir}/{tree_stem}/`.
+4. Derive log file: `{tree_stem}-log.md` in same directory. Derive summary dir: profile `summary_dir:` if set, otherwise `{tree_dir}/{tree_stem}/`.
 
 **New:** create tree file with goal + counters, empty tree → EXPAND.
 
@@ -140,14 +140,19 @@ Present issues, questions, and informational findings via batch protocol.
 
 Only if profile defines a summarizer. Otherwise session ends at CHECK (tree is the output).
 
-Delegate to subagent (ref from profile, e.g. `profiles/spec/summarizer.md`).
+Two-step generation:
+
+**Step 1: Artifacts** — delegate to summarizer subagent (ref from profile, e.g. `profiles/spec/summarizer.md`).
 Pass: tree file path, `{{SUMMARY_DIR}}`, `{{PATTERNS_URL}}`.
+Generates artifacts 1-10 (contracts, interfaces, diagrams, etc.). Marks `[GAP]`/`[CHOICE]` inline.
 
-The summarizer generates artifacts and marks:
-- `[GAP]` — information missing from tree, can't fill
-- `[CHOICE]` — tree is ambiguous, summarizer picked one interpretation
+**Step 2: Specs** — delegate to spec-generator subagent (ref from profile, e.g. `profiles/spec/summarizer-specs.md`).
+Pass: tree file path, `{{SUMMARY_DIR}}`.
+Reads q-tree + all artifacts from step 1. Generates `specs/*.t.sol` and `gaps.md` (collecting all `[GAP]`/`[CHOICE]` from artifacts + specs). Runs completeness checklist against q-tree.
 
-Both are collected in `gaps.md` with suggested questions. Present via batch protocol.
+**Why two agents:** specs must cross-reference all artifacts + q-tree. A fresh context ensures full attention on test coverage and completeness.
+
+Present gaps via batch protocol.
 
 If review enabled → REVIEW. Otherwise → present gaps (if any), then artifact list.
 
@@ -164,7 +169,7 @@ Pass: `{{SUMMARY_DIR}}`, `{{TREE_FILE}}`.
 
 ## Rules
 
-- **Orchestrator is the sole writer of q-tree.md.** Subagents read the tree and return proposals — they never write to it. The summarizer writes to `docs/architecture/` directly. The session-logger writes to the log file in the background.
+- **Orchestrator is the sole writer of q-tree.md.** Subagents read the tree and return proposals — they never write to it. The summarizer writes to `{{SUMMARY_DIR}}/` directly. The session-logger writes to the log file in the background.
 - **Nothing becomes ✓ without user seeing it.** Every new node (→, ~, ?) MUST be shown to the user in the batch output before it can be confirmed. Only the orchestrator writes ✓, and only after the user has seen and accepted the answer. Exception: generator may propose demoting ✓ → ? (shallow answer check) — the orchestrator applies this and the reopened node appears in the next batch.
 - **Tree file is the single source of truth.** Write each decision to the file as soon as it's made — before moving to the next topic. If the user confirmed an answer and asked a follow-up in the same message, write the answer first. Update counters after every write.
 - **Propose, don't interview.** Default to SUGGESTED answers. Only use OPEN when you genuinely can't decide.
@@ -187,7 +192,7 @@ These placeholders appear in subagent reference files. The orchestrator substitu
 |-------------|--------|---------|
 | `{{TREE_FILE}}` | `--output` flag > profile Output `tree_file:` | profile-dependent |
 | `{{FORMAT_RULES_FILE}}` | fixed | `references/tree-format.md` (relative to skill root) |
-| `{{SUMMARY_DIR}}` | derived from tree file | `{tree_dir}/{tree_stem}/` |
+| `{{SUMMARY_DIR}}` | profile `summary_dir:` > derived from tree file | profile-dependent or `{tree_dir}/{tree_stem}/` |
 | `{{LOG_FILE}}` | derived from tree file | `{tree_stem}-log.md` in same dir |
 | `{{PATTERNS_URL}}` | profile's Pattern Library `url:` | empty (skip pattern sections) |
 | `{{PROFILE_COVERAGE}}` | profile's Coverage Areas section | empty (decompose by goal structure) |

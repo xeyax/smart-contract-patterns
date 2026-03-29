@@ -3,6 +3,7 @@
 ## Output
 
 tree_file: docs/q-tree.md
+summary_dir: docs/architecture
 
 ## Coverage Areas
 
@@ -55,6 +56,10 @@ Generated in dependency order (each uses prior artifacts as context):
 ## Summarizer
 
 ref: profiles/spec/summarizer.md
+
+## Spec Generator
+
+ref: profiles/spec/summarizer-specs.md
 
 ## Review
 

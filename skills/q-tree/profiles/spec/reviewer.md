@@ -88,7 +88,29 @@ contracts.md defines responsibility boundaries between contracts. Verify that NO
 
 Any violation → `[GAP]: boundary violation — [artifact]: [detail]. contracts.md assigns [responsibility] to [contract]. Should [contract] expose a higher-level operation instead?`
 
-### 7. Traceability completeness
+### 7. Decision coverage (q-tree → specs)
+
+For every ✓ node in the q-tree, check: is this decision **fully covered** by spec functions? Evaluate coverage depth:
+
+- **Happy path** — does a `check_*` test the normal case?
+- **Edge cases** — are boundary conditions tested (zero supply, max values, dust amounts)?
+- **Side-effects** — if the function has internal calls (shown in call-diagrams as compound operations), are ALL side-effects checked, not just the return value?
+- **State-crossed** — if the function works in multiple states, is it tested in each?
+- **Guards** — every guard (onlyOwner, nonReentrant, bounds, input validation) has a `testFail_*`?
+
+One node often requires multiple tests. Run these 5 checks against q-tree Details:
+
+1. **Formulas** — every formula in Details → `assertEq` with exact computation. If spec only uses `assertGt`/`assertLt` where a formula exists → gap.
+2. **Guards** — every guard mechanism → `testFail_*`. Includes nonReentrant, not just access control.
+3. **Recovery** — nodes about behavior after adverse conditions (drawdown, pause, zero supply) → end-to-end scenario.
+4. **Equivalence** — multiple entry points for same operation → test output equality + verify simple path doesn't trigger rich path side-effects.
+5. **Balance deltas** — token-moving functions → both sender AND receiver balances checked with exact amounts.
+
+For each ✓ node with no spec → flag as `[GAP]`. If the decision is also missing from artifacts, note it as artifact issue. If in artifact but no test → spec gap.
+
+For each ✓ node with partial coverage → flag the specific missing aspect (formula/guard/recovery/equivalence/balance).
+
+### 8. Traceability completeness (artifacts → specs)
 
 Verify every spec file's traceability matrix. For each contract, scan:
 - `call-diagrams.md`: every `POST:` for this contract → must have a `check_*` function
@@ -96,6 +118,8 @@ Verify every spec file's traceability matrix. For each contract, scan:
 - `access-control.md`: every restricted function → must have a `testFail_*` function
 - `state-machines.md`: every valid transition → `check_*`, every invalid transition → `testFail_*`
 - `risks.md`: every COVERED risk with mitigation in this contract → spec that verifies it (if expressible)
+
+This check catches items that artifacts generated independently (general risks, derived invariants) — not tied to a specific ✓ node.
 
 Missing spec → `[GAP]` in the traceability matrix.
 
@@ -124,8 +148,10 @@ Examples: no decision about who calls a function, missing concern area, paramete
 
 For each:
 ```
-G1: [check name] — [description] — suggested question: ? [question text]
+G1: [check name] — [description] — parent: [d:tag] — suggested question: ? [question text]
 ```
+
+**parent** = `[d:tag]` of the nearest existing node where this question belongs. If no existing node is a natural parent, use `—`.
 
 ### Verdict
 
@@ -140,6 +166,8 @@ CLEAN: yes/no
 
 - Be specific — exact artifact, exact line, exact mismatch.
 - Only flag real issues. Don't flag style preferences.
+- **Architecture scope only.** A tree gap must require a design *decision* — choosing between approaches with trade-offs. If the answer follows mechanically from an existing decision (input validation, guard details, approval patterns, wiring), it's implementation — skip or note as informational, don't present as a gap.
 - Quote the conflicting text from both artifacts when reporting mismatches.
 - If unsure whether something is an artifact issue or tree gap — default to tree gap (safer to ask the user than to silently fix).
+- **Check formatting compliance.** Read rules from `references/artifact-formats/` (same files the summarizer uses). Formatting violations are artifact issues (fixable by regeneration).
 ```
