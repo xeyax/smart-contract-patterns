@@ -1,0 +1,109 @@
+# Batch Protocol
+
+Universal rules for presenting items to the user and collecting responses. Applies to both PROPOSE batches and VALIDATE issues.
+
+## Present
+
+Show items as a numbered list with a round header:
+
+```
+[Round N] K items from [source]:
+
+1. [item]
+2. [item]
+3. [item]
+
+Accept all? [Y / numbers to edit / skip N]
+```
+
+Source examples: "proposer (goal decomposition)", "validator (quality check)", "validator (completeness)".
+
+Rule: **Show EVERY item before it can become ✓.** Nothing is confirmed without the user seeing it first.
+
+### Proposed Items Format
+
+Show as readable text, not yaml. Group related items visually:
+
+```
+N. → [TYPE] Title or short text
+   Priority: Must | Group: Core Vault
+   Rationale: why this is needed
+   Acceptance:
+   - criterion 1
+   - criterion 2
+   Risks: R-NNN (if applicable)
+```
+
+For risks:
+```
+N. → [R] Risk title
+   Priority: Must
+   Mitigation: how to mitigate (or "accepted")
+   Mitigated by: FR-NNN
+```
+
+### Validation Issues Format (in merged list)
+
+Issues appear at the top of the batch, before new proposals. Include full requirement text:
+
+```
+── Fixes ──
+
+N. ⚠ FR-003: "System charges fee on yield accrued since last collection"
+   → "yield accrued since last collection" is HOW
+   → Rewrite: "Fee charged only on net positive gains"
+   Fix? [Y/skip/edit]
+
+── New proposals ──
+
+M. → [FR] ...
+```
+
+Icons: ✗ = ERROR, ⚠ = WARNING, ℹ = INFO.
+
+## Collect — write first, then discuss
+
+Process items until ALL are resolved or skipped, then exit. On every user response:
+
+### Step 1: PARSE
+
+Parse the response. A single message may contain accepts, edits, skips, AND discussion. Separate decidable from discussion.
+
+Only explicitly addressed items are resolved. **Items not mentioned stay pending.** Never assume silence = acceptance.
+
+### Step 2: WRITE — before anything else
+
+**Write ALL confirmed items to data file NOW.** Update counters.
+
+For proposed items: user accepts → change `→` to `✓`, write to file.
+For validation fixes: user accepts fix → apply change to existing item.
+For suggested new items from validator: user accepts → write as `✓`.
+
+**Placement:** each item has a `placement` field from the proposer/validator:
+- `placement.after: ID` → insert after that item in the file
+- `placement.group: "name"` → append to that group
+- `placement.parent: "d:tag"` → insert as child (tree format only)
+- No placement → append at end (items format) or ask user (tree format)
+
+This step is non-negotiable. Even if one item needs discussion, all other confirmed items must be written first.
+
+### Step 3: RESPOND
+
+Only after writing:
+- Remaining pending items > 0 → show them
+- User wants to discuss/edit → handle inline
+- All resolved or skipped → exit to next phase (VALIDATE after PROPOSE, PROPOSE after VALIDATE)
+
+**Edits.** If user says "change 3 to [new text]" and provides exact text → write to file with `✓`.
+
+**Rewrites.** If user gives feedback that requires reformulation ("make it more high-level", "rewrite as risk", "remove HOW details") → show the rewritten version and wait for confirmation before writing. Never rewrite + record in one step.
+
+**Skips.** Skipped items are not written. They may reappear in future rounds if the proposer/validator still considers them relevant.
+
+## Log
+
+Every batch interaction is a loggable round. After items are resolved, dispatch session-logger (background) with:
+- Round number (sequential across all PROPOSE and VALIDATE rounds)
+- What was presented (numbered list)
+- User response (verbatim or close paraphrase)
+- What was recorded (items written / issues fixed)

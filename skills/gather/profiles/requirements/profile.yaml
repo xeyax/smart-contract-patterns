@@ -1,0 +1,36 @@
+# Profile: Requirements Gathering
+# Used with: /gather --profile requirements
+
+format: items
+
+output:
+  data_file: docs/requirements.md
+  log_file: docs/requirements-log.md
+
+# Proposer subagent
+proposer:
+  ref: propose-requirements/SKILL.md    # path to subagent SKILL.md (resolved from skills/)
+  count: 5                              # default items per batch
+
+# Validator subagent
+validator:
+  ref: validate-requirements/SKILL.md   # path to subagent SKILL.md
+  after_batch: [quality]                         # quick: per-item quality only
+  before_done: [quality, completeness, smart-contract]  # full: quality + set coverage + domain
+
+# Definition of Done
+dod:
+  - "No ERROR issues from validator"
+  - "All item types present (FR, NFR, C, R)"
+  - "Purpose and scope defined"
+  - "Proposer returns no new items for 2 consecutive rounds"
+
+# On completion — optional skill to run when done
+on_ready: null
+
+# Domain constraints passed to proposer and validator
+constraints: |
+  Requirements describe WHAT, not HOW.
+  No formulas, mechanism names, function signatures.
+  Test: "could this be implemented differently?" If yes — it's WHAT.
+  Each requirement must be singular, verifiable, and have acceptance criteria.

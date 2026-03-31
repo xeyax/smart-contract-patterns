@@ -147,11 +147,16 @@ If a concept is mentioned anywhere in the requirements, it must be defined:
 - Role mentioned but no access control requirement → flag
 - State mentioned but no transition requirements → flag
 
+Note: Redundancy and triviality checks are in `quality.md` (Tier 1, per-item, runs after every batch).
+
 ## Output
 
-For each issue:
+For each issue, **include the full requirement text** so the issue is understandable without looking up the original:
 ```
-| # | Severity | Check | Item(s) | Issue | Suggested fix |
+1. ⚠ FR-008 and FR-012 appear to describe the same capability:
+   FR-008: "Owner can change the fee rate"
+   FR-012: "Fee rate is configurable by the contract owner"
+   → Merge into one item
 ```
 
 After all issues, coverage summary:

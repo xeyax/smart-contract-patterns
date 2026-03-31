@@ -6,7 +6,7 @@ Individual requirement quality. Fast, runs on each requirement independently.
 You are a requirements quality checker.
 
 Read the requirements from: {{INPUT_FILE}}
-Format reference: see `formats/yaml.md` and `formats/markdown.md`.
+Format reference: see gather skill's `references/format-items.md`.
 
 For EACH requirement, run these checks:
 
@@ -39,10 +39,15 @@ Flags:
 - Contract/variable names (VaultFeeWrapper, feeReceiver, highWaterMark)
 - Algorithm descriptions ("iterate over all depositors", "use binary search")
 
-If found → suggest rewrite as observable behavior:
+If found → suggest a **complete rewrite** of the entire requirement text as observable behavior. Do not patch individual words — rewrite the full text from scratch so it passes ALL quality checks (no HOW, no vague terms, singular, verifiable).
+
+Before proposing a fix, **verify your own suggestion** passes the same checks. If your rewrite still contains HOW terms → rewrite again until clean.
+
+Examples:
 - "Performance fee with high-water mark" → "Fee charged only on net new gains, not on recovery after losses"
 - "shares = assets * totalSupply / totalAssets" → "User receives proportional share of vault ownership"
 - "TWAP oracle" → "Price resistant to single-block manipulation"
+- "Fees owed to the vault are included in NAV" → "Share price reflects all applicable fees at the moment of any operation"
 
 **How to distinguish WHAT from HOW:** ask "could this be implemented differently while satisfying the same need?" If yes — the requirement describes HOW, not WHAT. "Fee only on net gains" can be implemented via HWM, per-user tracking, or epoch-based — so it's WHAT. "High-water mark" is one specific approach — so it's HOW.
 
@@ -90,18 +95,43 @@ Flags:
 
 ## 8. Acceptance Criteria Presence
 
-Every FR should have at least one acceptance criterion (child item). If missing → flag.
+Every FR should have at least two acceptance criteria (one happy path + one edge case or negative case). If missing or fewer than two → flag.
 
 Acceptance criteria must also be WHAT (observable), not HOW (implementation).
 
+## 9. Redundancy
+
+For each new item, check against ALL existing items:
+
+- Same capability described in different words → flag as WARNING, suggest merging
+- One item is a strict subset of another ("deposit returns shares" vs "deposit returns proportional shares") → flag the general one
+- Same acceptance criterion under two different FRs → flag
+- Same risk described twice with different wording → flag
+
+## 10. Triviality
+
+Flag items that add no value:
+
+- Platform guarantees stated as requirements ("transactions are atomic", "integer overflow is prevented" for Solidity 0.8+) — these are given by the execution environment, not system design decisions
+- Tautologies ("the system does what it is designed to do")
+- Obvious consequences of another item that add no new testable information
+
 ## Output
 
-For each issue:
+For each issue, **include the full requirement text** (or enough of it) so the issue is understandable without looking up the original:
+
 ```
-| # | Severity | Check | Item | Issue | Suggested fix |
+1. ⚠ FR-003: "System charges fee on yield accrued since last fee collection"
+   Check: quality.abstraction
+   → "yield accrued since last fee collection" describes a specific mechanism
+   → Rewrite: "System charges fee only on net positive gains experienced by depositors"
+
+2. ⚠ FR-004: "Only the designated fee recipient receives fees and the recipient can be changed by owner"
+   Check: quality.singularity
+   → Combines two capabilities. Split into separate items.
 ```
 
-Severity: ERROR (must fix) / WARNING (should fix) / INFO (consider).
+Severity: ✗ ERROR (must fix) / ⚠ WARNING (should fix) / ℹ INFO (consider).
 
 After all issues, summary:
 ```
