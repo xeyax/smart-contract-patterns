@@ -6,9 +6,10 @@ Method: Dimension matrix + persona sweep + analogical transfer — find what all
 You are a requirements proposer doing final gap analysis.
 
 Read the current items from: {{INPUT_FILE}}
+Read the completeness criteria from: validate-requirements/rules/completeness-criteria.md
 Propose up to {{COUNT}} NEW items not already present.
 
-This phase runs after all others. Focus on systematic gaps, not obvious items.
+This phase runs after all others. Use completeness-criteria.md as your checklist — find gaps that other phases missed.
 
 ## Method
 

@@ -6,9 +6,9 @@ Domain-specific checks for smart contract requirements. Based on Hacken 15 categ
 You are a smart contract requirements domain checker.
 
 Read the requirements from: {{INPUT_FILE}}
-Format reference: see `formats/yaml.md` and `formats/markdown.md`.
+Read the threat categories from: rules/smart-contract-threats.md
 
-For each category below, check: is there at least one requirement addressing it? If the category is relevant to this project but not addressed → flag. If clearly not relevant → skip.
+For each category in smart-contract-threats.md, check: is there at least one requirement addressing it? If the category is relevant to this project but not addressed → flag. If clearly not relevant → skip.
 
 ## 1. Access Control
 

@@ -122,59 +122,13 @@ When the gather engine delegates to you:
 - Do NOT write to the data file — the orchestrator handles that
 - Do NOT present to user — the orchestrator handles presentation via batch protocol
 
-## Quality Rules (apply to every proposed item)
+## Quality Rules & Self-Check
 
-These rules match what the validator checks. Follow them to produce items that pass validation immediately.
+Read `validate-requirements/rules/quality-rules.md` before generating. Apply ALL 11 rules to every proposed item.
 
-**WHAT, not HOW:**
-- Describe the **desired outcome or constraint**, not the implementation mechanism
-- Test: "could this be implemented differently while satisfying the same need?" If yes → it's WHAT, keep it. If the text names a specific approach → rewrite.
-- Forbidden: formulas, mechanism names (HWM, TWAP, share dilution, merkle tree, commit-reveal), function signatures, variable/contract names, **specific ordering of operations** ("X before Y" when alternative orderings could also achieve the goal), **specific technical mechanisms** ("emit event", "use oracle", "call function Z")
-- Instead of ordering: describe the **invariant** that must hold ("withdrawal must not expose remaining depositors to increased risk")
-- Instead of mechanism: describe the **outcome** ("system provides observable signal when drift exceeds threshold" — not "emit event")
-- Instead of technical mitigation: describe **what must not be possible** ("system must not be exploitable via single-transaction price manipulation" — not "must not rely on spot AMM price")
-- OK: standard names as compliance targets ("ERC-4626 compliant" is WHAT — it's a compliance target, not a mechanism)
+After generating items, re-read EACH item against all rules. Fix failures before returning. This prevents round-trips where validator catches issues that proposer should have avoided.
 
-Examples (bad → good):
-- "BTC debt closed before GM returned" → "Withdrawal must not increase liquidation risk for remaining depositors"
-- "Vault emits event when drift exceeds threshold" → "System provides observable signal when position drift exceeds configured threshold"
-- "Must not use spot AMM price" → "System must not be exploitable via single-transaction price manipulation"
-- "Rebalance calls Dolomite repay then borrow" → "Rebalance restores hedge ratio to within configured threshold"
-
-**No vague terms:**
-- Never use: flexible, easy, adequate, sufficient, fast, reliable, scalable, intuitive, user-friendly, safe, robust, efficient, seamless, appropriate, reasonable, minimal, optimal, modern, simple, clean
-- Always quantify: "fast" → "< 200k gas", "minimal" → "< 0.1% deviation"
-
-**Singular:**
-- One item = one requirement. No "and" combining two different capabilities.
-- OK: "deposit assets and receive shares" (one action with its result)
-- Not OK: "deposit assets and track referrals" (two separate capabilities → split)
-
-**Acceptance criteria (for every FR):**
-- At least 2 criteria per FR: one happy path + one edge case or negative case
-- Criteria describe observable outcomes, not internal mechanics
-- Include: happy path, edge cases (zero, first, max), negative cases (→ reverts)
-- Example good: "Full redeem → user share balance becomes zero"
-- Example bad: "shares = assets * totalSupply / totalAssets" (formula = HOW)
-
-**Verifiable:**
-- Every item must be testable. If you can't imagine a pass/fail test → the item is underspecified.
-- Performance/constraint items must have numbers, not adjectives.
-
-## Self-Check (before returning)
-
-After generating items, re-read EACH proposed item and verify:
-1. **No HOW:** does the text contain any mechanism name, formula, function name, variable name, specific operation ordering, or technical mechanism ("emit event", "call X before Y", "use oracle")? → rewrite as desired outcome or invariant
-2. **No vague terms:** scan for: flexible, easy, adequate, sufficient, fast, reliable, scalable, minimal, optimal, modern, simple, clean → replace with specific measurable criteria
-3. **Singular:** does the item combine two separate capabilities with "and"? → split into two items
-4. **Acceptance criteria:** does each FR have ≥2 criteria including at least one edge case or negative case? → add missing
-5. **Verifiable:** can you imagine a concrete pass/fail test? If not → make more specific
-6. **Not redundant:** does this item say something already covered by an existing item? Check text AND acceptance criteria against all existing items. If duplicate or subset → drop it.
-7. **Not trivial:** is this a platform guarantee (EVM atomicity, Solidity overflow protection), a tautology, or an obvious consequence of another item? → drop it. Every item must add new testable information.
-8. **Self-contained:** requirement understandable without reading heading or surrounding context. No pronouns without antecedent, no "the above", no "as mentioned".
-9. **Conditions explicit:** no "when appropriate", "if needed", "under normal conditions" — conditions must be stated explicitly.
-
-Fix any failures before returning. This prevents round-trips where validator catches issues that proposer should have avoided.
+These are the **same rules** the validator uses. If you follow them, your items pass validation immediately.
 
 ## General Rules
 

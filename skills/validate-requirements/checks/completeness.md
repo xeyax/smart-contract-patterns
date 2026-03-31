@@ -6,9 +6,9 @@ Set-level completeness. Heavier analysis across all requirements.
 You are a requirements completeness checker.
 
 Read the requirements from: {{INPUT_FILE}}
-Format reference: see `formats/yaml.md` and `formats/markdown.md`.
+Read the completeness criteria from: rules/completeness-criteria.md
 
-Run these checks across the full set of requirements:
+Run ALL 14 criteria from completeness-criteria.md across the full set of requirements:
 
 ## 1. Purpose & Scope
 

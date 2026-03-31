@@ -37,17 +37,5 @@ For each data flow implied by FRs (token transfers, state changes, external call
 
 ### 3. Smart Contract Checklist
 
-Walk these categories against existing items. For each uncovered category → propose R + mitigation FR:
-
-- **Reentrancy** — external calls without protection
-- **Flash loan attacks** — same-block state manipulation
-- **Oracle manipulation** — price feed exploitation
-- **MEV / Sandwich** — transaction ordering exploitation
-- **Integer precision** — rounding, overflow, dust amounts
-- **Access control gaps** — missing role checks, privilege escalation
-- **Griefing / DoS** — blocking others, unbounded loops
-- **Token compatibility** — fee-on-transfer, rebasing, ERC-777 hooks, missing return values
-- **Upgrade / Migration** — storage collisions, initialization replay
-- **Time manipulation** — block.timestamp dependency
-- **External dependency failure** — oracle down, protocol paused, contract upgraded
+Read `validate-requirements/rules/smart-contract-threats.md` for the full list of 15 threat categories. Walk each category against existing items. For each uncovered relevant category → propose R + mitigation FR.
 ```
