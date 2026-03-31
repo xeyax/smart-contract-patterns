@@ -1,0 +1,42 @@
+# Profile: Architecture Design
+# Used with: /gather --profile architecture
+
+format: tree
+
+output:
+  data_file: docs/architecture-tree.md
+  log_file: docs/architecture-log.md
+
+# Input: requirements file (mandatory for architecture)
+input:
+  requirements: docs/requirements.md
+
+# Proposer subagent
+proposer:
+  ref: propose-architecture/SKILL.md
+  count: 5
+
+# Validator subagent
+validator:
+  ref: validate-architecture/SKILL.md
+  after_batch: [quality]
+  before_done: [quality, completeness, anti-patterns]
+
+# Definition of Done
+dod:
+  - "No ERROR issues from validator"
+  - "All FR/NFR addressed by ≥1 architecture decision"
+  - "All component interfaces defined"
+  - "Proposer returns no new decisions"
+
+on_ready: null    # could be /generate-spec-artifacts in the future
+
+# Anti-patterns catalog URL (fetched by validator)
+antipatterns_url: https://raw.githubusercontent.com/xeyax/smart-contract-patterns/master/ANTIPATTERNS.md
+
+constraints: |
+  Architecture decisions describe HOW (mechanism, pattern, approach), not WHAT (requirement).
+  Every decision traces to ≥1 requirement.
+  Every decision has ≥2 alternatives with rejection reasons.
+  Every decision has consequences (positive + negative).
+  Use detail files for full reasoning (ADR-style sections).
