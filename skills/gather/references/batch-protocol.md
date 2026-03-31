@@ -100,6 +100,13 @@ Only after writing:
 
 **Skips.** Skipped items are not written. They may reappear in future rounds if the proposer/validator still considers them relevant.
 
+**User reasoning on rejected/skipped items.** When user rejects or skips an item BUT provides reasoning ("I think X because Y", "not sure, depends on Z", "maybe we need epoch-based approach instead"), this reasoning is valuable context. Record it:
+- **Override with alternative:** record as the user's version (show for re-approval), with the original proposal as a rejected alternative in details.
+- **Partial accept with uncertainty:** record the decision with the uncertainty noted in Assumptions section of details ("Dolomite oracle may not provide needed prices — TBD").
+- **Conditional skip with reasoning:** record as `?` (open question) with the user's reasoning as context. Don't lose the reasoning — it feeds future decisions.
+
+Never discard user reasoning. Even skipped items with reasoning → write as `?` node with context.
+
 ## Log
 
 Every batch interaction is a loggable round. After items are resolved, dispatch session-logger (background) with:
