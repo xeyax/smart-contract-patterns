@@ -105,7 +105,11 @@ Only after writing:
 - **Partial accept with uncertainty:** record the decision with the uncertainty noted in Assumptions section of details ("Dolomite oracle may not provide needed prices — TBD").
 - **Conditional skip with reasoning:** record as `?` (open question) with the user's reasoning as context. Don't lose the reasoning — it feeds future decisions.
 
-Never discard user reasoning. Even skipped items with reasoning → write as `?` node with context.
+Never discard user reasoning. Even skipped items with reasoning → write as `?` item with context.
+
+**Format per data type:**
+- **Tree:** `?` node with reasoning in Details under Assumptions/Context section.
+- **Items:** `?` status item with `**Deferred:**` field containing user's reasoning and dependency if any. Item stays in the list — proposer sees it and won't re-propose. Validator can flag: "FR-012 deferred since Round 1, blocking decision AD-005 now resolved — revisit?"
 
 ## Log
 
