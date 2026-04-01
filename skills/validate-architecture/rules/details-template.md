@@ -57,17 +57,16 @@ Traceability: which requirements this decision satisfies.
 
 ## Naming
 
-- Detail file: `details/d:{slug}.md` (e.g., `details/d:fee-model.md`)
-- Tag in tree: `[d:{slug}]` links to detail
-- Decision ID in tree: `AD-NNN` (sequential)
+- Detail file: `details/AD-NNN-slug.md` (e.g., `details/AD-003-fee-model.md`)
+- Decision ID: `AD-NNN` (sequential, stable — never renumbered)
 
 ## Tree Node Format
 
-In the tree file, a decision node looks like:
+In the tree file, a decision node with clickable link to detail:
 ```
-- ✓ AD-003: Fee only on net positive gains [d:fee-model]
-  - ✓ AD-004: Fee peak immutable [d:fee-reset]
-  - ✓ AD-005: Fee collection as share dilution [d:fee-collection]
+- ✓ AD-001: Vault + Strategy Two-Contract Split [[details]](details/AD-001-contract-split.md)
+  - ✓ AD-002: Global HWM with Share Dilution [[details]](details/AD-002-fee-hwm.md)
+  - ✓ AD-003: Fee peak immutable [[details]](details/AD-003-fee-reset.md)
 ```
 
-Short answer inline. Full reasoning in detail file.
+Short answer inline. Full reasoning in detail file. Link is relative to tree file.

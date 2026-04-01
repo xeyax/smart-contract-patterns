@@ -130,6 +130,10 @@ Accept all / fix issues? [Y / numbers to edit / skip N]
 
 Collect responses. Write confirmed items to data file. Each confirmed item changes `→` to `✓`.
 
+**Detail files (tree format only).** When writing a confirmed decision:
+1. Write the tree node with a **clickable link**: `[[details]](details/AD-NNN-slug.md)` — relative to tree file.
+2. Create the detail file at `details/AD-NNN-slug.md` (e.g. `details/AD-001-contract-split.md`) using the template from `validate-architecture/rules/details-template.md`. Include at minimum: Context (which requirements), Decision (one paragraph), Alternatives (≥2 with rejection reasons). Add Consequences, Assumptions, Formula, Edge Cases when provided by proposer or user.
+
 **Placement:** proposer provides `placement` for each item:
 - Items format: `placement.after: FR-003` → insert after that ID. `placement.group: "Performance Fee"` → append to group.
 - Tree format: `placement.parent: "d:fee-formula"` → insert as child of that node.

@@ -49,7 +49,7 @@ output collected (trimmed to count)
 
 ## Output
 
-Each proposed decision as readable text:
+Each proposed decision as readable text. Include enough detail for the orchestrator to create detail files — at minimum Context, Alternatives, Consequences:
 
 ```
 Proposed decisions (5 items, Phase 1-2):
