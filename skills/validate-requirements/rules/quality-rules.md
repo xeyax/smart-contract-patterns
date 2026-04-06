@@ -38,6 +38,10 @@ One item = one requirement. No "and" combining two different capabilities.
 - OK: "deposit assets and receive shares" (one action with its result)
 - Not OK: "deposit assets and track referrals" (two capabilities → split)
 
+Split test: "could these parts be decided independently?" If they always happen together as one user flow → keep together. Only split if they can exist or change independently.
+- "Cancel raffle and refund participants" → keep together if refund ALWAYS follows cancellation
+- "Deposit and track referrals" → split, because deposit works without referrals
+
 ## 4. Acceptance Criteria
 
 Every FR must have ≥2 acceptance criteria: one happy path + one edge case or negative case.
@@ -90,4 +94,12 @@ No TBD/TBR/TBS terms — resolve or flag.
 
 ## Validator: Suggest Complete Rewrites
 
-When flagging an issue, suggest a **complete rewrite** of the full item text — not a word patch. Verify your own suggestion passes ALL rules above before proposing it.
+When flagging an issue, suggest a **complete rewrite** of the full item text (title + body + acceptance criteria) — never a word-level patch ("change X to Y"). The rewrite must be final: if it were accepted as-is, the same validator running again must NOT flag it again.
+
+Before proposing a rewrite:
+1. Write the full replacement text
+2. Re-check it against ALL 11 rules above
+3. If it fails any rule → rewrite again
+4. Only propose when the text passes all rules
+
+If an item was flagged in a previous round and the fix didn't stick → the previous rewrite was insufficient. Write a completely new version from scratch based on the original intent, not from the failed rewrite.

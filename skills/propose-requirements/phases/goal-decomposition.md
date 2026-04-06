@@ -10,9 +10,13 @@ Propose up to {{COUNT}} NEW items not already present.
 
 ## Method
 
-1. **Extract goals** from the project vision/purpose. If purpose item exists, use it. If free text, parse into goals.
+1. **Purpose & Scope first.** Before any FR/NFR/R:
+   - If purpose is clear from input → propose Purpose item as first in batch.
+   - If purpose is NOT clear → do NOT guess. Ask the user: "I can't determine the system's core purpose from the input. Please describe in 1-2 sentences: what does this system do, for whom, on which chain?"
+   - Propose Scope (in/out) and Glossary alongside Purpose.
+   - Purpose + Scope MUST be in the first batch, before any other items.
 
-2. **Decompose each goal** into sub-goals (AND/OR):
+2. **Extract goals** from the confirmed purpose. Decompose into sub-goals (AND/OR):
    - AND: all sub-goals needed to achieve parent
    - OR: alternative ways to achieve parent (pick one or note as open question)
 
