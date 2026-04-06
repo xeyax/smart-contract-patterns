@@ -44,13 +44,16 @@ Split test: "could these parts be decided independently?" If they always happen 
 
 ## 4. Acceptance Criteria
 
-Every FR must have ≥2 acceptance criteria: one happy path + one edge case or negative case.
+Every FR should have ≥2 acceptance criteria when the requirement has meaningful edge cases or failure modes: happy path + edge case or negative case.
+
+For simple invariant-style items (NFR, C, or FR where one criterion fully covers the behavior) — one clear pass/fail criterion is sufficient. Don't invent artificial criteria to hit a number.
 
 Criteria describe observable outcomes, not internal mechanics.
 - Good: "Full redeem → user share balance becomes zero"
+- Good: "After any operation → all allowances == 0" (one criterion, fully covers it)
 - Bad: "shares = assets * totalSupply / totalAssets" (formula = HOW)
 
-Include: happy path, edge cases (zero, first, max), negative cases (→ reverts).
+For complex FR: include happy path, edge cases (zero, first, max), negative cases (→ reverts).
 
 ## 5. Verifiable
 
