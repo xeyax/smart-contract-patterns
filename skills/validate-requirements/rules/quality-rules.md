@@ -77,6 +77,8 @@ No duplicates or subsets of existing items. Check text AND acceptance criteria a
 
 Same risk described twice with different wording → merge.
 
+Severity: WARNING (not INFO). Duplicates diverge on edit and cause confusion.
+
 ## 9. Not Trivial
 
 No platform guarantees stated as requirements ("transactions are atomic", "integer overflow prevented" for Solidity 0.8+).

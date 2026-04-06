@@ -23,3 +23,13 @@ For each category: if relevant to this project but not addressed → proposer ge
 15. **Documentation-code alignment** — requirements clear enough to detect implementation mismatch
 
 Skip categories clearly not relevant to the project.
+
+## Severity for financial systems (vaults, lending, DEX)
+
+ERROR if missing:
+- #3 Arithmetic & precision — rounding direction MUST be specified for any system handling share calculations or fee calculations
+- #6 Economic attacks — deposit/withdrawal MEV protection
+- #8 Asset & balance safety — accounting invariants
+- #12 External interaction risks — non-standard token handling if system accepts external tokens
+
+WARNING if missing: all other relevant categories.
