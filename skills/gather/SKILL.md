@@ -15,10 +15,8 @@ You **present proposals** to the user, **write confirmed items** to the data fil
 ```
 INIT       Load profile. New: create data file | Resume: read file, show status
 
-ROUND      Run proposer + validator in parallel
-           1. Show fixes (from validator) → user resolves
-           2. Show proposals (from proposer) → user confirms/edits/skips
-           3. Write confirmed items to data file
+ROUND      1. Run validator → show fixes → user resolves → write to file
+           2. Run proposer (on updated file) → show proposals → user confirms → write to file
 
            Loop until:
            - Proposer returns nothing new AND validator returns no issues
@@ -103,10 +101,10 @@ The subagent reads the data file, runs its phases, and returns proposed items as
 
 You do NOT read the proposer's phase files or generate items yourself. The subagent handles all of that internally.
 
-**Fixes first, proposals second — never mixed.** Run proposer and validator in parallel, but present results sequentially:
+**Fixes first, proposals second — sequential, not parallel.**
 
-1. **If validator found issues** → show fixes first. User resolves them.
-2. **After fixes resolved** (or no fixes) → show new proposals (already ready from parallel proposer run).
+1. Run validator on current file. **If issues found** → show fixes. User resolves. Write to file.
+2. Run proposer on **updated** file (after fixes applied). Show proposals. User confirms. Write to file.
 
 This keeps batches focused: one task at a time.
 

@@ -92,15 +92,15 @@ Check that non-functional requirements cover these categories (flag missing rele
 
 Not all categories apply to every project. Only flag categories that are clearly relevant but missing.
 
-## 7. Risk ↔ FR Mapping
+## 7. Risk Mitigation
 
 For each identified risk:
-- Is there at least one FR or constraint that mitigates it?
+- Does it have a mitigation statement within the R item itself? (WHAT-level constraint)
 - Or is there an explicit "accepted" decision?
 
-Unmitigated risk without acceptance → flag as ERROR.
+A separate mitigating FR is NOT required — the mitigation in R IS the requirement. Only flag if risk has neither mitigation nor "accepted" status.
 
-Also: are there FRs that seem to address a risk but no risk is explicitly stated? → suggest adding the risk explicitly.
+Risk without mitigation and without "accepted" → flag as ERROR.
 
 ## 8. Failure Modes
 
