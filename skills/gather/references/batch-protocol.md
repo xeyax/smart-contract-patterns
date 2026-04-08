@@ -40,25 +40,19 @@ For risks:
 ```
 N. → [R] Risk title
    Priority: Must
-   Mitigation: how to mitigate (or "accepted")
-   Mitigated by: FR-NNN
+   Mitigation: what system must prevent (or "accepted")
 ```
 
-### Validation Issues Format (in merged list)
+### Validation Issues Format
 
-Issues appear at the top of the batch, before new proposals. Include full requirement text:
+Fixes are shown as a separate batch before proposals. Include full requirement text:
 
 ```
-── Fixes ──
+[Round N — fixes]
 
-N. ⚠ FR-003: "System charges fee on yield accrued since last collection"
-   → "yield accrued since last collection" is HOW
+1. ⚠ FR-003: "System charges fee on yield accrued since last collection"
    → Rewrite: "Fee charged only on net positive gains"
    Fix? [Y/skip/edit]
-
-── New proposals ──
-
-M. → [FR] ...
 ```
 
 Icons: ✗ = ERROR, ⚠ = WARNING, ℹ = INFO.
