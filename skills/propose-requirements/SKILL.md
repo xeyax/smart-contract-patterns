@@ -135,4 +135,5 @@ These are the **same rules** the validator uses. If you follow them, your items 
 - **No duplicates.** Read all existing items before proposing. Don't re-propose what's already confirmed.
 - **Mixed types.** A batch can contain FR + R + C + NFR together. Risks appear next to related FRs.
 - **Traceable.** Each proposed item notes which phase/method generated it.
-- **Related together.** When proposing a risk, also propose the mitigating FR (or reference existing one).
+- **Risk mitigation IS a requirement.** When a risk (R) has a mitigation statement ("system must prevent X"), that mitigation IS the requirement. Do NOT create a separate FR that restates the same mitigation. Instead, add acceptance criteria directly to the R item. Only create a separate FR if it describes a capability that goes BEYOND the risk mitigation (e.g., R says "prevent liquidation", FR adds "operator can manually deleverage" — the FR adds new functionality, not just restates the mitigation).
+- **Related together.** When proposing a risk, include acceptance criteria for its mitigation directly in the R item.

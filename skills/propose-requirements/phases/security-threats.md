@@ -16,7 +16,7 @@ Three complementary techniques. Run all, collect unique items.
 
 For each existing FR:
 1. **Invert:** "How could an attacker exploit this?"
-2. **Propose countermeasure:** new FR or note on existing FR
+2. **Propose countermeasure:** add mitigation + acceptance criteria to the R item. Only create separate FR if it adds new capability beyond the mitigation.
 3. **Iterate:** "Can the attacker defeat the countermeasure?"
 
 Example:
@@ -37,5 +37,5 @@ For each data flow implied by FRs (token transfers, state changes, external call
 
 ### 3. Smart Contract Checklist
 
-Read `validate-requirements/rules/smart-contract-threats.md` for the full list of 15 threat categories. Walk each category against existing items. For each uncovered relevant category → propose R + mitigation FR.
+Read `validate-requirements/rules/smart-contract-threats.md` for the full list of 15 threat categories. Walk each category against existing items. For each uncovered relevant category → propose R item with mitigation and acceptance criteria. Only propose a separate FR if it adds new capability beyond the risk mitigation itself.
 ```

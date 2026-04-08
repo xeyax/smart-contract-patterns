@@ -30,7 +30,7 @@ Propose up to {{COUNT}} NEW items not already present.
 4. **Obstacle analysis** — for each goal:
    - "What could prevent achieving this goal?"
    - Each obstacle → R (risk) item
-   - Each obstacle countermeasure → FR item (with `risks: [R-xxx]` reference)
+   - Each obstacle → R item with mitigation + acceptance criteria. Only create separate FR if it adds new capability beyond the mitigation.
 
 5. **Foundation items** — if not yet present, propose:
    - Purpose item (what the system is)
