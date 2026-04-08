@@ -2,16 +2,19 @@
 
 Apply to every individual requirement. Used by proposer (as generation guide) and validator (as check).
 
-## 0. Plain Language
+## 0. Plain Language, Essential Only
 
-Write for humans, not for parsers. If a sentence needs to be re-read to understand — simplify.
+Write for humans, not for parsers. Focus on what matters — the core capability or constraint. Drop secondary details (access control, timing, conditions) to architecture.
+
+- Bad: "Authorized operator can trigger emergency deleveraging when health factor drops below threshold, executable even when paused, only operator role"
+- Good: "System can unwind leveraged position in emergency to protect depositor funds"
 
 - Bad: "No withdrawal may increase loss exposure per unit of remaining depositors' ownership"
 - Good: "When someone withdraws, remaining depositors don't lose value"
-- Bad: "Depositor's share allocation is determined by prices at the moment of deposit initiation, not at completion"
-- Good: "Depositor gets shares based on prices at the time they deposit, not when the transaction completes"
 
-Test: could a non-technical stakeholder understand this in one read? If not → rewrite simpler. Precision matters, but clarity comes first.
+Tests:
+- Could a non-technical stakeholder understand this in one read? If not → simplify.
+- Remove every word that isn't essential to understanding WHY this requirement exists. If the sentence still makes sense → the removed words were details for architecture.
 
 ## 1. WHAT not HOW
 
@@ -27,10 +30,12 @@ Forbidden:
 - Contract decomposition details ("handlers have zero state", "all state lives in X")
 - Data structures ("internal enum IDs", "hardcoded allowlist")
 - Library/framework names ("OpenZeppelin", "ReentrancyGuard", "AccessControl")
+- Specific role names when the role model is not yet decided ("operator can...", "keeper triggers..."). Use "authorized role" or "the system" instead. WHO can do it = architecture. WHAT can be done = requirement.
 
 Instead of ordering → describe invariant ("must not expose remaining depositors to risk")
 Instead of mechanism → describe outcome ("provides observable signal")
 Instead of technical mitigation → describe what must not be possible ("not exploitable via single-tx price manipulation")
+Instead of specific role → describe capability and access level ("restricted operation that reduces leverage" not "operator triggers deleveraging")
 
 OK: standard names as compliance targets ("ERC-4626 compliant" is WHAT — compliance target, not mechanism)
 
