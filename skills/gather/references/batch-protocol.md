@@ -100,14 +100,16 @@ Only after writing:
 
 **Rewrites.** If user gives feedback that requires reformulation ("make it more high-level", "rewrite as risk", "remove HOW details") → show the rewritten version and wait for confirmation before writing. Never rewrite + record in one step.
 
-**Skips.** Skipped items are not written. They may reappear in future rounds if the proposer/validator still considers them relevant.
+**Skips.** Two types:
+- **Skip without reasoning** ("skip 3") → not written. May reappear in future rounds.
+- **Skip with reasoning** ("skip 3, not sure if needed because depends on epoch design") → written as `?` (deferred) with the reasoning. See below.
 
-**User reasoning on rejected/skipped items.** When user rejects or skips an item BUT provides reasoning ("I think X because Y", "not sure, depends on Z", "maybe we need epoch-based approach instead"), this reasoning is valuable context. Record it:
+**User reasoning on rejected/skipped items.** When user rejects or skips an item AND provides reasoning, this reasoning is valuable context. Record it:
 - **Override with alternative:** record as the user's version (show for re-approval), with the original proposal as a rejected alternative in details.
 - **Partial accept with uncertainty:** record the decision with the uncertainty noted in Assumptions section of details ("Dolomite oracle may not provide needed prices — TBD").
 - **Conditional skip with reasoning:** record as `?` (open question) with the user's reasoning as context. Don't lose the reasoning — it feeds future decisions.
 
-Never discard user reasoning. Even skipped items with reasoning → write as `?` item with context.
+Never discard user reasoning. Skip with reasoning = deferred item, not a silent drop.
 
 **Format per data type:**
 - **Tree:** `?` node with reasoning in Details under Assumptions/Context section.
