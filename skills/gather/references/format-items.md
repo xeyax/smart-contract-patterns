@@ -37,8 +37,9 @@ Requirement text. One sentence, WHAT not HOW.
 
 ### R-001: Risk title [Must] ✓
 Risk description.
-**Mitigation:** How mitigated or "accepted".
-**Mitigated by:** FR-012
+**Mitigation:** What system must prevent — or "accepted" with reasoning.
+**Acceptance criteria:** (optional, for testable mitigations)
+- criterion
 
 ### C-001: Constraint title [Must] ✓
 Constraint text.

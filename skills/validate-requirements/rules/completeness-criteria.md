@@ -56,9 +56,9 @@ Gap: category clearly relevant but no NFR for it.
 
 ## 7. Risk ↔ FR Mapping
 
-Criterion: every risk has ≥1 mitigating FR or explicit "accepted" decision.
+Criterion: every risk has a mitigation statement (WHAT-level constraint within the R item itself) or explicit "accepted" decision. A separate mitigating FR is NOT required — the mitigation in R IS the requirement. A separate FR is only expected if it adds new capability beyond the risk mitigation.
 
-Gap: unmitigated risk without acceptance.
+Gap: risk without mitigation and without "accepted" status.
 
 ## 8. Failure Modes
 
@@ -132,7 +132,7 @@ Use ERROR (not WARNING) for gaps that are critical for the system type:
 
 **For any system:**
 - Contradictions between items → ERROR
-- Unmitigated risk without acceptance → ERROR
+- Risk without mitigation statement and without "accepted" status → ERROR
 - Actor with no requirements → WARNING
 - Missing NFR category → WARNING
 - Undefined state×action pair → WARNING per cell
