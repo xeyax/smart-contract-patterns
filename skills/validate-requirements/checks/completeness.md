@@ -165,7 +165,7 @@ After all issues, coverage summary:
 Actors: 3/3 covered (user, owner, keeper)
 States: 2/3 covered (normal ✓, paused ✓, emergency ✗)
 NFR categories: 4/6 covered (security ✓, performance ✓, compatibility ✓, upgradeability ✓, observability ✗, reliability ✗)
-Risks: 4/4 mapped
+Risks: 4/4 mitigated or accepted
 Failure modes: 2/5 covered
 Overall: 78% coverage
 ```
