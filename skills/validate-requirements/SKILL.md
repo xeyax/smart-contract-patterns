@@ -84,6 +84,7 @@ When the gather engine delegates to you:
 - Return issues as **readable text** — numbered list with severity icons, descriptions, suggestions
 - Do NOT write to the data file — the orchestrator handles that
 - Do NOT present interactively — the orchestrator handles presentation
+- **Free text not supported in subagent mode.** The file must be structured markdown. If it's not → return error: "File is not structured markdown. Run standalone to extract requirements first."
 
 Your output should look like:
 ```
