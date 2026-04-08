@@ -104,10 +104,10 @@ The subagent reads the data file, runs its phases, and returns proposed items as
 
 You do NOT read the proposer's phase files or generate items yourself. The subagent handles all of that internally.
 
-**Fixes first, proposals second — never mixed.** After proposer returns and validator runs:
+**Fixes first, proposals second — never mixed.** Run proposer and validator in parallel, but present results sequentially:
 
-1. **If validator found issues** → show ONLY fixes. No new proposals in this batch. User resolves fixes first.
-2. **After fixes resolved** (or no fixes) → show new proposals.
+1. **If validator found issues** → show fixes first. User resolves them.
+2. **After fixes resolved** (or no fixes) → show new proposals (already ready from parallel proposer run).
 
 This keeps batches focused: one task at a time.
 
