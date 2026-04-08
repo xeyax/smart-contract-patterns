@@ -76,11 +76,11 @@ Accept all? [Y / numbers to edit / skip N]
 
 Architecture tree file is **markdown** with tree structure. When writing:
 ```markdown
-- ✓ AD-001: Vault as ERC-4626 meta-vault [d:vault-architecture]
-  - ✓ AD-002: Global fee peak via share dilution [d:fee-model]
+- ✓ AD-001: Vault as ERC-4626 meta-vault [[details]](details/AD-001-vault-architecture.md)
+  - ✓ AD-002: Global fee peak via share dilution [[details]](details/AD-002-fee-model.md)
 ```
 
-Detail files written to `details/d:{tag}.md` using template from `validate-architecture/rules/details-template.md`.
+Detail files written to `details/AD-NNN-slug.md` using template from `validate-architecture/rules/details-template.md`.
 
 ## When Called as Subagent
 

@@ -19,15 +19,15 @@ Default: quality + completeness checks.
 
 ## Format
 
-Architecture tree: markdown with indented decision nodes, status markers (✓/→/?), IDs (AD-NNN), and detail tags [d:tag].
+Architecture tree: markdown with indented decision nodes, status markers (✓/→/?), IDs (AD-NNN), and clickable links to detail files.
 
 ```
-- ✓ AD-001: Vault accepts deposits via ERC-4626 [d:deposit-flow]
-  - ✓ AD-002: Share pricing based on base vault NAV [d:share-pricing]
-  - → AD-003: Fee only on net positive gains [d:fee-model]
+- ✓ AD-001: Vault accepts deposits via ERC-4626 [[details]](details/AD-001-deposit-flow.md)
+  - ✓ AD-002: Share pricing based on base vault NAV [[details]](details/AD-002-share-pricing.md)
+  - → AD-003: Fee only on net positive gains [[details]](details/AD-003-fee-model.md)
 ```
 
-Detail files: `details/d:{tag}.md` with ADR-style sections (see `rules/details-template.md`).
+Detail files: `details/AD-NNN-slug.md` with ADR-style sections (see `rules/details-template.md`).
 
 ## Algorithm
 

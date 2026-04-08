@@ -15,18 +15,17 @@ You **present proposals** to the user, **write confirmed items** to the data fil
 ```
 INIT       Load profile. New: create data file | Resume: read file, show status
 
-PROPOSE    Dispatch proposer skill → receive proposed items
-           Present batch via batch protocol → user confirms/edits/skips
-           Write confirmed items to data file
+ROUND      Run proposer + validator in parallel
+           1. Show fixes (from validator) → user resolves
+           2. Show proposals (from proposer) → user confirms/edits/skips
+           3. Write confirmed items to data file
 
-VALIDATE   Dispatch validator skill → receive issues
-           Present issues → user fixes/skips
-           If DoD met → suggest finish (or on_ready)
-           If issues remain → next PROPOSE
-
-           Loop PROPOSE → VALIDATE until:
+           Loop until:
            - Proposer returns nothing new AND validator returns no issues
            - OR user says "enough"
+
+DONE       Run before_done validation → final fixes
+           If DoD met → suggest finish (or on_ready)
 ```
 
 ## Input
@@ -161,7 +160,7 @@ The subagent reads the data file, runs checks, and returns issues as **readable 
 
 You do NOT read the validator's check files or run checks yourself. The subagent handles all of that internally.
 
-**`after_batch` issues are merged into the next PROPOSE batch** (fixes section at top, new proposals below). Not shown separately — one list, one "Accept all?".
+**`after_batch` issues are shown as fixes batch** — separate from proposals. Fixes first, user resolves, then proposals shown.
 
 **`before_done` issues are shown standalone** (no more proposals to merge with):
 ```
@@ -210,7 +209,7 @@ If profile defines `on_ready` and user chooses to run it:
 
 ## Session Log
 
-After every batch interaction, dispatch session-logger (background) with round data. Sequential numbering across all PROPOSE and VALIDATE rounds.
+After every batch interaction, log round data: what was proposed/fixed, what user confirmed/skipped. Sequential round numbering.
 
 ## Placeholders
 

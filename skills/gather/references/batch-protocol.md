@@ -84,7 +84,7 @@ For suggested new items from validator: user accepts → write as `✓`.
 **Placement:** each item has a `placement` field from the proposer/validator:
 - `placement.after: ID` → insert after that item in the file
 - `placement.group: "name"` → append to that group
-- `placement.parent: "d:tag"` → insert as child (tree format only)
+- `placement.parent: "AD-NNN"` → insert as child (tree format only)
 - No placement → append at end (items format) or ask user (tree format)
 
 This step is non-negotiable. Even if one item needs discussion, all other confirmed items must be written first.

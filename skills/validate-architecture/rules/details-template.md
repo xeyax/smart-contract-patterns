@@ -1,15 +1,15 @@
 # Architecture Decision Detail Template
 
-Standard sections for detail files. Each decision node in the tree links to a detail file via `[d:tag]`.
+Standard sections for detail files. Each decision node in the tree links to a detail file via `[[details]](details/AD-NNN-slug.md)`.
 
-File: `details/d:{tag}.md`
+File: `details/AD-NNN-slug.md`
 
 ## Sections
 
 All sections optional — use what's relevant. But Context, Decision, and Alternatives are expected for every non-trivial decision.
 
 ```markdown
-# d:{tag} — {Decision title}
+# {Decision title}
 
 ## Context
 Why this decision is needed. Which requirements drive it (FR-NNN, NFR-NNN, R-NNN).
