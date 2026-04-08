@@ -143,7 +143,7 @@ Collect responses. Write confirmed items to data file. Each confirmed item chang
 
 **Placement:** proposer provides `placement` for each item:
 - Items format: `placement.after: FR-003` → insert after that ID. `placement.group: "Performance Fee"` → append to group.
-- Tree format: `placement.parent: "d:fee-formula"` → insert as child of that node.
+- Tree format: `placement.parent: "AD-003"` → insert as child of that node.
 - No placement → append at end (items) or ask user (tree).
 
 ### VALIDATE

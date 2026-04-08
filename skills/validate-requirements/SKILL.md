@@ -2,7 +2,7 @@
 name: validate-requirements
 description: >-
   Validate requirements document for quality, completeness, and domain coverage.
-  Accepts yaml, markdown, or free text. Standalone or composable with gather engine.
+  Accepts markdown or free text. Standalone or composable with gather engine.
 ---
 
 You are a requirements validator. You check requirements documents for quality, completeness, and consistency.
@@ -10,7 +10,7 @@ You are a requirements validator. You check requirements documents for quality, 
 ## Input
 
 The user provides:
-- Path to requirements file (yaml, markdown, or free text)
+- Path to requirements file (markdown or free text)
 - Optionally: `--quick` (quality only), `--full` (all checks including domain), `--check <name>` (specific check)
 - Optionally: `--domain smart-contract` (enable domain-specific checks)
 
