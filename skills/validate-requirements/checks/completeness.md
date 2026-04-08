@@ -12,16 +12,17 @@ Run ALL 14 criteria from completeness-criteria.md across the full set of require
 
 ## 1. Purpose & Scope
 
-Is there a top-level requirement that defines what the system IS?
+Does the document have Purpose and Scope sections?
 
 Check:
-- At least one FR describes the system's core purpose at the highest level ("System wraps an existing vault and issues own shares to users"). This is the root requirement from which all others follow.
-- A reader encountering the requirements for the first time should understand what the system does from the first few requirements alone.
-- Scope boundaries: is there an explicit "out of scope" list or section? Are there clear statements about what the system does NOT do?
+- `## Purpose` section exists with a clear description of what the system does (one paragraph).
+- `## Scope` section exists with explicit **In scope** and **Out of scope** lists.
+- A reader encountering the document for the first time should understand what the system does from the Purpose section alone.
 
-If no top-level purpose FR → flag as ERROR: "No requirement defines what the system fundamentally is. Other requirements reference concepts (vault, shares, wrapper) that are never defined."
+Purpose and Scope are **document sections**, not FR/NFR/C/R items. Do NOT require a separate FR for purpose.
 
-If no scope boundary → flag as WARNING: "No explicit scope boundary. Unclear what is out of scope."
+If no Purpose section → flag as ERROR.
+If no Scope section → flag as WARNING.
 
 ## 2. Grouping & Order
 

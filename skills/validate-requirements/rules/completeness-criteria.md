@@ -6,9 +6,9 @@ For each criterion: if gap found → proposer generates item, validator flags is
 
 ## 1. Purpose & Scope
 
-Criterion: at least one item defines what the system IS. Explicit in-scope and out-of-scope lists exist.
+Criterion: document has `## Purpose` section (what the system does) and `## Scope` section (in-scope / out-of-scope). These are document sections, not FR/NFR/C/R items.
 
-Gap: no top-level purpose → reader can't understand what the system does.
+Gap: no Purpose section or no Scope section.
 
 ## 2. Grouping & Order
 
