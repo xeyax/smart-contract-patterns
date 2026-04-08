@@ -104,27 +104,37 @@ The subagent reads the data file, runs its phases, and returns proposed items as
 
 You do NOT read the proposer's phase files or generate items yourself. The subagent handles all of that internally.
 
-**After proposer returns and validator runs on the current file**, merge their outputs into a **single batch**: validation fixes first, then new proposals. For full protocol details, see `references/batch-protocol.md`.
+**Fixes first, proposals second — never mixed.** After proposer returns and validator runs:
 
-Example merged batch:
+1. **If validator found issues** → show ONLY fixes. No new proposals in this batch. User resolves fixes first.
+2. **After fixes resolved** (or no fixes) → show new proposals.
 
+This keeps batches focused: one task at a time.
+
+Example fix batch:
 ```
-[Round 2] 5 items (fixes + new proposals):
+[Round 2 — fixes] 3 issues:
 
-── Fixes ──
 1. ⚠ FR-003: "System charges fee on yield accrued since last fee collection"
    → Rewrite: "System charges fee only on net positive gains experienced by depositors"
    Fix? [Y/skip/edit]
 
-── New proposals ──
-2. → [FR] Fee is accrued before any deposit or redeem operation executes
-   Priority: Must | Group: Fees
-   Acceptance:
-   - Pending gains recognized before deposit shares calculated
-   - Pending gains recognized before redeem assets calculated
-
-Accept all / fix issues? [Y / numbers to edit / skip N]
+2. ⚠ FR-004: describes mechanism (HOW)
+   → Rewrite: "..."
+   Fix? [Y/skip/edit]
 ```
+
+After fixes confirmed → show proposals:
+```
+[Round 2 — proposals] 5 new items:
+
+1. → [FR] Fee is accrued before any deposit or redeem operation executes
+   ...
+
+Accept all? [Y / numbers to edit / skip N]
+```
+
+For full protocol details, see `references/batch-protocol.md`.
 
 **Data file is markdown** (not yaml). When writing confirmed items, use the markdown format from `references/format-items.md`. The file should be human-readable and editable.
 

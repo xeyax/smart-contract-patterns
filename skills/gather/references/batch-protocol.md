@@ -20,6 +20,8 @@ Source examples: "proposer (goal decomposition)", "validator (quality check)", "
 
 Rule: **Show EVERY item before it can become ✓.** Nothing is confirmed without the user seeing it first.
 
+Rule: **Fixes and proposals are separate batches.** If validator found issues → show fixes first, resolve them. Only then show new proposals. Never mix fixes and proposals in one batch.
+
 ### Proposed Items Format
 
 Show as readable text, not yaml. Group related items visually:
