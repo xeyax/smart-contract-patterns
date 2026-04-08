@@ -2,17 +2,31 @@
 
 Apply to every individual requirement. Used by proposer (as generation guide) and validator (as check).
 
+## 0. Plain Language
+
+Write for humans, not for parsers. If a sentence needs to be re-read to understand — simplify.
+
+- Bad: "No withdrawal may increase loss exposure per unit of remaining depositors' ownership"
+- Good: "When someone withdraws, remaining depositors don't lose value"
+- Bad: "Depositor's share allocation is determined by prices at the moment of deposit initiation, not at completion"
+- Good: "Depositor gets shares based on prices at the time they deposit, not when the transaction completes"
+
+Test: could a non-technical stakeholder understand this in one read? If not → rewrite simpler. Precision matters, but clarity comes first.
+
 ## 1. WHAT not HOW
 
 Test: "could this be implemented differently while satisfying the same need?" If yes → it's WHAT (keep). If text names a specific approach → rewrite.
 
 Forbidden:
 - Formulas (`shares = assets * totalSupply / totalAssets`)
-- Mechanism/pattern names: HWM, TWAP, share dilution, merkle tree, commit-reveal
+- Mechanism/pattern names: HWM, TWAP, share dilution, merkle tree, commit-reveal, snapshot
 - Function signatures (`deposit(uint256)`)
-- Contract/variable names (`feeReceiver`, `highWaterMark`)
+- Contract/variable names (`feeReceiver`, `highWaterMark`, `VaultCore`, `ReentrancyGuard`)
 - Specific ordering ("X before Y" when alternatives exist)
 - Technical mechanisms ("emit event", "use oracle", "call function Z")
+- Contract decomposition details ("handlers have zero state", "all state lives in X")
+- Data structures ("internal enum IDs", "hardcoded allowlist")
+- Library/framework names ("OpenZeppelin", "ReentrancyGuard", "AccessControl")
 
 Instead of ordering → describe invariant ("must not expose remaining depositors to risk")
 Instead of mechanism → describe outcome ("provides observable signal")
@@ -25,6 +39,11 @@ Examples (bad → good):
 - "Vault emits event when drift exceeds threshold" → "System provides observable signal when position drift exceeds configured threshold"
 - "Must not use spot AMM price" → "System must not be exploitable via single-transaction price manipulation"
 - "Fees owed to the vault are included in NAV" → "Share price reflects all applicable fees at the moment of any operation"
+- "Handler contracts have zero mutable state, all state in VaultCore" → "System state is centralized and consistent" (contract decomposition = architecture)
+- "Hardcoded swap routes only" → "System uses only predefined, audited token conversion paths" (implementation detail)
+- "Share calculation uses pre-deposit snapshot" → "Depositor's share allocation not affected by price changes between initiation and completion" (specific mechanism)
+- "ReentrancyGuard on all handlers" → "System prevents reentrancy on all state-changing entry points" (library name)
+- "Shares frozen on VaultCore" → "Shares in pending withdrawal cannot be transferred or used" (contract name + mechanism)
 
 ## 2. No Vague Terms
 
