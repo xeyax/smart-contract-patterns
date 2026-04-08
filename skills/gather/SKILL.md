@@ -82,7 +82,7 @@ constraints: |
 
 1. Read profile.
 2. Resolve output path: `--output` flag > profile default.
-3. **New:** create data file with goal/purpose → first PROPOSE.
+3. **New:** create data file with Purpose and Scope sections → first PROPOSE. Validator is NOT called until after the first propose round (file must be structured markdown before validation).
 4. **Resume:** read existing data file, show status:
    ```
    Resuming: 15 confirmed, 3 proposed, 0 open.

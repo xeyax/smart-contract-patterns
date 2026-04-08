@@ -67,7 +67,7 @@ Checks: quality, completeness
 ✓ Actor coverage: user (8 FR), owner (4 FR), keeper (2 FR)
 ⚠ State coverage: no requirements for "emergency" state
 ⚠ NFR gap: no observability/monitoring requirements
-✓ Risk→FR mapping: all 4 risks have mitigating FR
+✓ Risk mitigation: all 4 risks have mitigation or "accepted"
 ⚠ Missing failure modes: no requirement for oracle downtime behavior
 
 ── Summary ───────────────────────────────────
