@@ -99,10 +99,7 @@ Proposed requirements (5 items, Phase 1-2):
    Acceptance:
    - Assets proportional to share of total supply
 
-Add to requirements file? [Y/edit/skip per item]
 ```
-
-When writing to file, use **markdown format**. File must be human-readable and editable.
 
 ## --from-gaps Mode
 

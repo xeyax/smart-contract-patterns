@@ -79,7 +79,6 @@ Proposed decisions (5 items, Phase 1-2):
    - Direct asset transfer — rejected: requires liquid reserves
    Consequences: late depositor free-ride accepted
 
-Accept all? [Y / numbers to edit / skip N]
 ```
 
 Architecture tree file is **markdown** with tree structure. When writing:

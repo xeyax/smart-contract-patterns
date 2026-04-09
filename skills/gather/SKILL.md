@@ -41,40 +41,7 @@ Optionally:
 
 At INIT, read `profile.yaml` from the profile directory. The profile defines:
 
-```yaml
-# Data format
-format: items                    # items | tree
-
-# Output paths
-output:
-  data_file: docs/requirements.md
-  log_file: docs/requirements-log.md
-
-# Proposer skill
-proposer:
-  ref: propose-requirements      # skill name
-  count: 5                       # default batch size
-
-# Validator skill
-validator:
-  ref: validate-requirements     # skill name
-  after_batch: [quality]         # checks to run after each batch
-  before_done: [quality, completeness]  # checks to run before declaring done
-
-# Definition of Done
-dod:
-  - "No ERROR issues from validator"
-  - "All item types present (FR, NFR, C, R)"
-  - "Proposer returns no new items"
-
-# On completion
-on_ready: null                   # optional: skill to run when done (e.g., /generate-artifacts)
-
-# Domain constraints
-constraints: |
-  Requirements describe WHAT, not HOW.
-  No formulas, mechanism names, function signatures.
-```
+See `profiles/requirements/profile.yaml` or `profiles/architecture/profile.yaml` for full examples.
 
 ## Algorithm
 
