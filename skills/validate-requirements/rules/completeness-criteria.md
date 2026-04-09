@@ -16,25 +16,31 @@ Criterion: items grouped by domain/flow. Order: core → extensions → operatio
 
 Gap: items randomly ordered, related items far apart → cognitive load.
 
-## 3. Actor Coverage
+## 3. Participant Coverage
 
-Criterion: every actor mentioned or implied has ≥1 FR.
+Criterion: every participant category mentioned or implied has ≥1 item.
 
-Common actors: user, owner, admin, keeper, operator, external protocol, system/time.
+Participant categories (abstract, not specific role names):
+- Depositors / users (unprivileged)
+- Privileged roles (restricted operations — configuration, emergency, rebalance)
+- Permissionless callers (if any operations are open to anyone)
+- External dependencies (protocols, oracles)
 
-Gap: actor mentioned but no FR describes their interaction.
+Do NOT require specific role names (owner, keeper, operator, admin) — those are architecture decisions. Check that each category of participant has items, not specific roles.
+
+Gap: participant category implied but no item describes their interaction.
 
 ## 4. Action Coverage
 
-Criterion: for each actor, all expected actions have FRs.
+Criterion: for each participant category, all expected actions have items.
 
-Common actions per actor:
-- User: deposit, withdraw/redeem, claim, approve
-- Admin/Owner: configure parameters, pause, set roles
-- Keeper: rebalance, harvest, liquidate, execute queued ops
-- External: callback, price update
+Common actions per participant category:
+- Depositors/users: deposit, withdraw/redeem, claim
+- Privileged roles: configure parameters, pause, emergency actions
+- Permissionless: trigger time-sensitive operations, liquidations
+- External: price updates, callbacks, protocol interactions
 
-Gap: expected action for an actor has no FR.
+Gap: expected action for a participant category has no item.
 
 ## 5. State Coverage
 
@@ -100,17 +106,7 @@ Check: entity, role, state mentioned but no requirement about it.
 
 Gap: concept used but never defined.
 
-## 13. Redundancy
-
-Criterion: no items express the same requirement differently, no item is strict subset of another.
-
-Gap: duplicate or subset items → merge.
-
-## 14. Triviality
-
-Criterion: every item adds new testable information.
-
-Gap: platform guarantee, tautology, or obvious consequence stated as requirement.
+Note: Redundancy and triviality are per-item checks in quality-rules.md (rules 8-9), not set-level completeness criteria.
 
 ## Context-Aware Validation
 
@@ -133,7 +129,7 @@ Use ERROR (not WARNING) for gaps that are critical for the system type:
 **For any system:**
 - Contradictions between items → ERROR
 - Risk without mitigation statement and without "accepted" status → ERROR
-- Actor with no requirements → WARNING
+- Participant category with no requirements → WARNING
 - Missing NFR category → WARNING
 - Undefined state×action pair → WARNING per cell
 - Redundancy → WARNING
