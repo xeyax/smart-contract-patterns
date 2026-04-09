@@ -82,7 +82,18 @@ constraints: |
 
 1. Read profile.
 2. Resolve output path: `--output` flag > profile default.
-3. **New:** create data file with Purpose and Scope sections → first PROPOSE. Validator is NOT called until after the first propose round (file must be structured markdown before validation).
+3. **New:** create data file with header only (`# [profile title]: [project]`).
+   - If profile has `init_sections` → for each section, launch a subagent with the section's `prompt` (substituting `{{GOAL}}` with user's goal), then show the draft to user:
+     ```
+     Here's a draft Purpose based on your goal:
+     
+     "[draft text]"
+     
+     Accept? [Y / edit]   (skip not allowed for init sections)
+     ```
+     User confirms or edits. Write confirmed section to file. Repeat for each init_section. **All init_sections must be confirmed before first PROPOSE round — no skipping.**
+   - After init_sections confirmed (or if profile has none) → first PROPOSE round.
+   - Validator is NOT called until after the first propose round.
 4. **Resume:** read existing data file, show status:
    ```
    Resuming: 15 confirmed, 3 proposed, 0 open.
@@ -109,7 +120,7 @@ You do NOT read the proposer's phase files or generate items yourself. The subag
 
 For presentation format, interaction rules, skip/rewrite/deferred handling — see `references/batch-protocol.md`.
 
-**Data file is markdown.** When writing confirmed items, use the format from `references/format-items.md`. Confirmed items change `→` to `✓`.
+**Data file is markdown.** When writing confirmed items, use the format from `references/format-items.md`. Confirmed items change `→` to `✓`. Purpose, Scope, and Glossary are written as document sections (`## Purpose`, `## Scope`, `## Glossary`), not as FR/NFR items.
 
 **Detail files (tree format only).** When writing a confirmed decision:
 1. Write the tree node with a **clickable link**: `[[details]](details/AD-NNN-slug.md)` — relative to tree file.

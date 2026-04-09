@@ -26,6 +26,14 @@ dod:
 # On completion — optional skill to run when done
 on_ready: null
 
+# Sections to fill at INIT (before first propose round)
+# Gather launches a subagent with each prompt (substituting {{GOAL}}), shows draft to user for confirmation/editing
+init_sections:
+  - name: Purpose
+    prompt: "Based on the user's goal: {{GOAL}} — write a one-paragraph Purpose describing what the system does and for whom. WHAT, not HOW. Plain language."
+  - name: Scope
+    prompt: "Based on the user's goal: {{GOAL}} — write In scope (bullet list of what's included) and Out of scope (what's explicitly excluded). Be specific."
+
 # Domain constraints passed to proposer and validator
 constraints: |
   Requirements describe WHAT, not HOW.

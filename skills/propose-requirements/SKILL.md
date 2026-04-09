@@ -90,15 +90,14 @@ Proposed requirements (5 items, Phase 1-2):
 3. → [R] Dust griefing — many tiny deposits bloat storage
    Priority: Must | Group: Core Vault
    Mitigation: system rejects economically insignificant deposits
+   Acceptance:
+   - Deposit below meaningful threshold → reverts
+   - Threshold is configurable
 
 4. → [FR] Users can redeem shares and receive proportional underlying assets
    Priority: Must | Group: Core Vault
    Acceptance:
    - Assets proportional to share of total supply
-
-5. → [FR] System enforces minimum deposit amount
-   Priority: Must | Group: Core Vault
-   Rationale: mitigates dust griefing (R above)
 
 Add to requirements file? [Y/edit/skip per item]
 ```

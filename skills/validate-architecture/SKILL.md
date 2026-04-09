@@ -22,9 +22,9 @@ Default: quality + completeness checks.
 Architecture tree: markdown with indented decision nodes, status markers (✓/→/?), IDs (AD-NNN), and clickable links to detail files.
 
 ```
-- ✓ AD-001: Vault accepts deposits via ERC-4626 [[details]](details/AD-001-deposit-flow.md)
-  - ✓ AD-002: Share pricing based on base vault NAV [[details]](details/AD-002-share-pricing.md)
-  - → AD-003: Fee only on net positive gains [[details]](details/AD-003-fee-model.md)
+- ✓ AD-001: ERC-4626 wrapper over base vault [[details]](details/AD-001-vault-wrapper.md)
+  - ✓ AD-002: Live NAV from base vault convertToAssets [[details]](details/AD-002-nav-pricing.md)
+  - → AD-003: Global fee peak via single PPS watermark [[details]](details/AD-003-fee-peak.md)
 ```
 
 Detail files: `details/AD-NNN-slug.md` with ADR-style sections (see `rules/details-template.md`).

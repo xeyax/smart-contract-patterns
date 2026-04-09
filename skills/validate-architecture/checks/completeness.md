@@ -30,10 +30,10 @@ FR-007 (fee receiver) → ???  ← GAP
 Include requirement text for traceability gaps:
 
 ```
-1. ✗ FR-007: "Owner can change the fee receiver address"
+1. ✗ FR-007: "Fee receiver address is changeable by authorized role"
    Check: completeness.requirement_coverage
    → No architecture decision addresses fee receiver management.
-   → Suggest: add decision about fee receiver mutability, validation, accrual-before-change.
+   → Suggest: add decision about fee receiver mutability and validation.
 
 2. ⚠ Missing error handling for Dolomite interaction
    Check: completeness.error_handling
