@@ -107,45 +107,15 @@ You do NOT read the proposer's phase files or generate items yourself. The subag
 1. Run validator on current file. **If issues found** → show fixes. User resolves. Write to file.
 2. Run proposer on **updated** file (after fixes applied). Show proposals. User confirms. Write to file.
 
-This keeps batches focused: one task at a time.
+For presentation format, interaction rules, skip/rewrite/deferred handling — see `references/batch-protocol.md`.
 
-Example fix batch:
-```
-[Round 2 — fixes] 3 issues:
-
-1. ⚠ FR-003: "System charges fee on yield accrued since last fee collection"
-   → Rewrite: "System charges fee only on net positive gains experienced by depositors"
-   Fix? [Y/skip/edit]
-
-2. ⚠ FR-004: describes mechanism (HOW)
-   → Rewrite: "..."
-   Fix? [Y/skip/edit]
-```
-
-After fixes confirmed → show proposals:
-```
-[Round 2 — proposals] 5 new items:
-
-1. → [FR] Fee is accrued before any deposit or redeem operation executes
-   ...
-
-Accept all? [Y / numbers to edit / skip N]
-```
-
-For full protocol details, see `references/batch-protocol.md`.
-
-**Data file is markdown** (not yaml). When writing confirmed items, use the markdown format from `references/format-items.md`. The file should be human-readable and editable.
-
-Collect responses. Write confirmed items to data file. Each confirmed item changes `→` to `✓`.
+**Data file is markdown.** When writing confirmed items, use the format from `references/format-items.md`. Confirmed items change `→` to `✓`.
 
 **Detail files (tree format only).** When writing a confirmed decision:
 1. Write the tree node with a **clickable link**: `[[details]](details/AD-NNN-slug.md)` — relative to tree file.
 2. Create the detail file at `details/AD-NNN-slug.md` (e.g. `details/AD-001-contract-split.md`) using the template from `validate-architecture/rules/details-template.md`. Include at minimum: Context (which requirements), Decision (one paragraph), Alternatives (≥2 with rejection reasons). Add Consequences, Assumptions, Formula, Edge Cases when provided by proposer or user.
 
-**Placement:** proposer provides `placement` for each item:
-- Items format: `placement.after: FR-003` → insert after that ID. `placement.group: "Performance Fee"` → append to group.
-- Tree format: `placement.parent: "AD-003"` → insert as child of that node.
-- No placement → append at end (items) or ask user (tree).
+**Placement:** when writing items to file, place them near related items (same group, same topic). For tree format, place child decisions under their parent. Use context from proposer's output to determine where each item belongs.
 
 ### VALIDATE
 

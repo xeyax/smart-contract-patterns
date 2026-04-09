@@ -24,9 +24,7 @@ validator:
 
 # Definition of Done
 dod:
-  - "No ERROR issues from validator"
-  - "All FR/NFR addressed by ≥1 architecture decision"
-  - "All component interfaces defined"
+  - "No ERROR issues from before_done validation"
   - "Proposer returns no new decisions"
 
 on_ready: null    # could be /generate-spec-artifacts in the future

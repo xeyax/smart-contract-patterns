@@ -4,7 +4,7 @@ Apply to every individual requirement. Used by proposer (as generation guide) an
 
 ## 0. Plain Language, Essential Only
 
-Write for humans, not for parsers. Focus on what matters — the core capability or constraint. Drop secondary details (access control, timing, conditions) to architecture.
+Write for humans, not for parsers. Focus on what matters — the core capability or constraint.
 
 - Bad: "Authorized operator can trigger emergency deleveraging when health factor drops below threshold, executable even when paused, only operator role"
 - Good: "System can unwind leveraged position in emergency to protect depositor funds"
@@ -12,9 +12,13 @@ Write for humans, not for parsers. Focus on what matters — the core capability
 - Bad: "No withdrawal may increase loss exposure per unit of remaining depositors' ownership"
 - Good: "When someone withdraws, remaining depositors don't lose value"
 
-Tests:
-- Could a non-technical stakeholder understand this in one read? If not → simplify.
-- Remove every word that isn't essential to understanding WHY this requirement exists. If the sentence still makes sense → the removed words were details for architecture.
+**What to keep vs what to drop:**
+- Keep **triggers** described as observable outcomes: "in emergency", "when position is at risk"
+- Drop **mechanisms**: specific thresholds ("health factor < 1.2"), specific roles ("operator"), specific timing ("within 60 seconds")
+- Keep **conditions** that define WHEN the requirement applies, stated as outcomes not mechanisms
+- Drop **conditions** that describe HOW to detect the trigger
+
+Test: could a non-technical stakeholder understand this in one read? If not → simplify.
 
 ## 1. WHAT not HOW
 
@@ -93,7 +97,12 @@ No pronouns without antecedent, no "the above", no "as mentioned".
 
 ## 7. Conditions Explicit
 
-No "when appropriate", "if needed", "under normal conditions" — conditions must be stated explicitly.
+No "when appropriate", "if needed", "under normal conditions" — conditions must be stated as observable triggers.
+
+- Good: "in emergency" (observable state)
+- Good: "when position is at risk of external liquidation" (observable outcome)
+- Bad: "when health factor < 1.2" (specific threshold = architecture)
+- Bad: "when appropriate" (undefined)
 
 ## 8. Not Redundant
 

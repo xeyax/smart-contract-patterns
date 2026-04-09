@@ -6,7 +6,7 @@ File: `details/AD-NNN-slug.md`
 
 ## Sections
 
-All sections optional — use what's relevant. But Context, Decision, and Alternatives are expected for every non-trivial decision.
+**Required:** Context, Decision, Alternatives — every decision must have these. **Optional:** Consequences, Formula, Assumptions, Edge Cases, Requirements — use what's relevant.
 
 ```markdown
 # {Decision title}

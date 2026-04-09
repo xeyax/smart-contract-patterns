@@ -62,13 +62,21 @@ Proposed decisions (5 items, Phase 1-2):
    - Custom interface — rejected: breaks aggregator compatibility
    Consequences: inherits ERC-4626 constraints (no custom deposit logic without override)
 
-2. → AD-002: Global fee peak via share dilution
+2. → AD-002: Global fee peak (single vault-wide reference price)
    Parent: AD-001 | Group: Fee Model
-   Context: FR-003 (fee on net gains), FR-004 (fee collection)
+   Context: FR-003 (fee on net gains)
    Alternatives:
-   - Global peak + dilution — chosen: simple, one state var, standard (Yearn)
+   - Global peak — chosen: one state var, standard (Yearn, Enzyme)
    - Per-user tracking — rejected: O(n) gas per transfer
-   - Epoch-based — rejected: complexity, timing issues
+   - Epoch-based snapshots — rejected: timing arbitrage
+
+3. → AD-003: Fee collection as share dilution
+   Parent: AD-002 | Group: Fee Model
+   Context: FR-004 (fee collection)
+   Alternatives:
+   - Share dilution — chosen: no liquid assets needed, composable
+   - NAV haircut — rejected: accounting complexity
+   - Direct asset transfer — rejected: requires liquid reserves
    Consequences: late depositor free-ride accepted
 
 Accept all? [Y / numbers to edit / skip N]
@@ -77,7 +85,8 @@ Accept all? [Y / numbers to edit / skip N]
 Architecture tree file is **markdown** with tree structure. When writing:
 ```markdown
 - ✓ AD-001: Vault as ERC-4626 meta-vault [[details]](details/AD-001-vault-architecture.md)
-  - ✓ AD-002: Global fee peak via share dilution [[details]](details/AD-002-fee-model.md)
+  - ✓ AD-002: Global fee peak [[details]](details/AD-002-fee-peak.md)
+  - ✓ AD-003: Fee collection as share dilution [[details]](details/AD-003-fee-collection.md)
 ```
 
 Detail files written to `details/AD-NNN-slug.md` using template from `validate-architecture/rules/details-template.md`.

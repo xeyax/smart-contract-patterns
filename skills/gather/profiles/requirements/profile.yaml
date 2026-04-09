@@ -20,10 +20,8 @@ validator:
 
 # Definition of Done
 dod:
-  - "No ERROR issues from validator"
-  - "All item types present (FR, NFR, C, R)"
-  - "Purpose and scope defined"
-  - "Proposer returns no new items for 2 consecutive rounds"
+  - "No ERROR issues from before_done validation"
+  - "Proposer returns no new items"
 
 # On completion — optional skill to run when done
 on_ready: null
