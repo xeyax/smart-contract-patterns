@@ -96,6 +96,7 @@ constraints: |
 Delegate to proposer subagent. Read the proposer SKILL.md from the path in profile `proposer.ref`. Launch subagent with:
 - The proposer's SKILL.md as prompt
 - Pass: data file path, count, constraints from profile
+- If profile has `input` section (e.g. `input.requirements`) → pass those file paths to the subagent as well
 
 The subagent reads the data file, runs its phases, and returns proposed items as **readable text** (numbered list with types, priorities, acceptance criteria).
 
@@ -151,6 +152,7 @@ Collect responses. Write confirmed items to data file. Each confirmed item chang
 Delegate to validator subagent. Read the validator SKILL.md from the path in profile `validator.ref`. Launch subagent with:
 - The validator's SKILL.md as prompt
 - Pass: data file path, which checks to run (from profile: `after_batch` or `before_done`)
+- If profile has `input` section (e.g. `input.requirements`) → pass those file paths to the subagent as well
 
 Run `after_batch` checks after every PROPOSE round. Run `before_done` checks when proposer returns nothing new.
 
@@ -218,3 +220,4 @@ After every batch interaction, log round data: what was proposed/fixed, what use
 | `{{COUNT}}` | `--count` > profile proposer.count | 5 |
 | `{{CHECKS}}` | profile validator.after_batch or before_done | [] |
 | `{{CONSTRAINTS}}` | profile constraints | empty |
+| `{{REQUIREMENTS_FILE}}` | profile input.requirements | empty (not all profiles need it) |
