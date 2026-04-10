@@ -73,6 +73,7 @@ See `profiles/requirements/profile.yaml` or `profiles/architecture/profile.yaml`
 
 Delegate to proposer subagent. Read the proposer SKILL.md from the path in profile `proposer.ref`. Launch subagent with:
 - The proposer's SKILL.md as prompt
+- Model: **opus** (use the most capable model for proposal generation)
 - Pass: data file path, count, constraints from profile
 - If profile has `input` section (e.g. `input.requirements`) → pass those file paths to the subagent as well
 
@@ -99,6 +100,7 @@ For presentation format, interaction rules, skip/rewrite/deferred handling — s
 
 Delegate to validator subagent. Read the validator SKILL.md from the path in profile `validator.ref`. Launch subagent with:
 - The validator's SKILL.md as prompt
+- Model: **opus** (use the most capable model for validation)
 - Pass: data file path, which checks to run (from profile: `after_batch` or `before_done`)
 - If profile has `input` section (e.g. `input.requirements`) → pass those file paths to the subagent as well
 
