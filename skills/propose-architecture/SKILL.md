@@ -79,12 +79,17 @@ Proposed decisions (5 items, Phase 1-2):
    - Direct asset transfer — rejected: requires liquid reserves
    Consequences: late depositor free-ride accepted
 
+4. → [R] Late depositors free-ride on fee peak set by earlier yield
+   Parent: AD-002 | Risk specific to global peak decision
+   Mitigation: accepted — standard tradeoff (Yearn, Enzyme). Per-user tracking alternative rejected for gas cost.
+
 ```
 
 Architecture tree file is **markdown** with tree structure. When writing:
 ```markdown
 - ✓ AD-001: Vault as ERC-4626 meta-vault [[details]](details/AD-001-vault-architecture.md)
   - ✓ AD-002: Global fee peak [[details]](details/AD-002-fee-peak.md)
+    - ✓ R: Late depositor free-ride — accepted
   - ✓ AD-003: Fee collection as share dilution [[details]](details/AD-003-fee-collection.md)
 ```
 
@@ -117,5 +122,11 @@ Fix failures before returning.
 
 - **Requirements-driven.** Every decision traces to ≥1 requirement. Don't propose decisions for things not in requirements.
 - **Decomposition.** Complex decisions break into sub-decisions (parent → child in tree).
-- **Mixed concerns.** A batch can contain component, interface, pattern, and error-handling decisions together.
+- **Architecture-specific risks.** When proposing an AD, also propose risks that arise from this specific decision as R child nodes. These are different from requirements-level risks (which are generic). Architecture risks are specific to the chosen approach.
+  - AD uses external protocol → R: "protocol may pause/upgrade/liquidate"
+  - AD chooses single contract → R: "may exceed 24KB bytecode limit"
+  - AD relies on oracle → R: "oracle specific to this protocol may have unique failure modes"
+  - Each R child has: description (technical) + mitigation or "accepted" with reasoning
+  - **No duplicates with requirements risks.** Read requirements file — if a generic risk already exists there, don't re-propose it. Only propose risks specific to this architecture decision.
+- **Mixed concerns.** A batch can contain AD + R nodes together. Risk next to the AD it relates to.
 - **Traceable.** Each decision notes which phase generated it and which requirements it addresses.

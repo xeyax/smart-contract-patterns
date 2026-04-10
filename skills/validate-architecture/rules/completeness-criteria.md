@@ -59,11 +59,15 @@ Criterion: every constraint (C items) from requirements is reflected in architec
 
 Gap: C says "Ethereum mainnet" but decisions reference L2-specific features.
 
-## 10. Risk Mitigation
+## 10. Risk Coverage
 
-Criterion: every risk with mitigation (not "accepted") has a concrete architectural mechanism.
+Two checks:
 
-Gap: R says "reentrancy protection needed" but no decision about which pattern to use.
+**a) Requirements risks:** every R from requirements must be addressed in architecture — either mitigated by an AD or explicitly "accepted" with reasoning. Unresolved R from requirements → ERROR.
+
+**b) Architecture-specific risks:** every AD that introduces external dependencies, assumptions, or tradeoffs should have R child nodes in the tree. These R children must also be resolved (mitigated by AD or "accepted").
+
+Gap: R-002 from requirements has no AD addressing it. AD-007 integrates with Dolomite but no R child about Dolomite pause/upgrade.
 
 ## 11. Decision Dependencies
 

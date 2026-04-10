@@ -24,7 +24,7 @@ Propose up to {{COUNT}} NEW items not already present.
 3. **Obstacle analysis** — for each goal:
    - "What could prevent achieving this goal?"
    - Each obstacle → R (risk) item
-   - Each obstacle → R item with mitigation + acceptance criteria. Only create separate FR if it adds new capability beyond the mitigation.
+   - Each obstacle → R item with threat description (no mitigation — architecture handles that).
 
 4. **Core constraints** — if not yet present, propose:
    - Chain, standards, external dependencies as C items

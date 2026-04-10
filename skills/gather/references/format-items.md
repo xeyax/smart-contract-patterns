@@ -30,10 +30,7 @@ Requirement text. One sentence, WHAT not HOW.
 - Negative case (→ reverts)
 
 ### R-001: Risk title [Must] ✓
-Risk description.
-**Mitigation:** What system must prevent — or "accepted" with reasoning.
-**Acceptance criteria:** (optional, for testable mitigations)
-- criterion
+Risk description. May include technical details about the threat vector.
 
 ### C-001: Constraint title [Must] ✓
 Constraint text.
@@ -49,7 +46,7 @@ Non-functional requirement text.
 - `## Section` = group (Core Flows, Performance Fee, Constraints, etc.)
 - `### ID: Title [Priority] Status` = item. ID prefix = type (FR-, NFR-, C-, R-).
 - First paragraph after heading = item text
-- `**Field:**` = metadata (Rationale, Source, Risks, Mitigation, Mitigated by)
+- `**Field:**` = metadata (Rationale, Source, Risks)
 - `**Acceptance criteria:**` + bullet list = children
 - Status: ✓ (confirmed), → (proposed), ? (open)
 - Priority: [Must], [Should], [Could]

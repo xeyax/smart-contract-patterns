@@ -62,11 +62,11 @@ Categories: security, performance, compatibility, upgradeability, observability,
 
 Gap: category clearly relevant but no NFR for it.
 
-## 7. Risk ↔ FR Mapping
+## 7. Risk Identification
 
-Criterion: every risk has a mitigation statement (WHAT-level constraint within the R item itself) or explicit "accepted" decision. A separate mitigating FR is NOT required — the mitigation in R IS the requirement. A separate FR is only expected if it adds new capability beyond the risk mitigation.
+Criterion: risks relevant to the system are identified. In requirements, R items are threat descriptions only — no mitigation, no "accepted" status. Architecture phase is responsible for addressing each risk.
 
-Gap: risk without mitigation and without "accepted" status.
+At requirements level, check: are there obvious risks NOT listed? Missing risk for a known threat category → gap.
 
 ## 8. Failure Modes
 
@@ -130,7 +130,7 @@ Use ERROR (not WARNING) for gaps that are critical for the system type:
 
 **For any system:**
 - Contradictions between items → ERROR
-- Risk without mitigation statement and without "accepted" status → ERROR
+- Obvious risk not identified → WARNING
 - Participant category with no requirements → WARNING
 - Missing NFR category → WARNING
 - Undefined state×action pair → WARNING per cell

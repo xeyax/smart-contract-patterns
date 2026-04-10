@@ -16,11 +16,11 @@ Three complementary techniques. Run all, collect unique items.
 
 For each existing FR:
 1. **Invert:** "How could an attacker exploit this?"
-2. **Propose countermeasure:** add mitigation + acceptance criteria to the R item. Only create separate FR if it adds new capability beyond the mitigation.
+2. **Propose risk:** create R item with threat description. No mitigation — that's architecture's job.
 3. **Iterate:** "Can the attacker defeat the countermeasure?"
 
 Example:
-- FR: "Users can deposit assets" → Attacker: "deposit dust to grief storage" → R: dust griefing → FR: minimum deposit
+- FR: "Users can deposit assets" → Attacker: "deposit dust to grief storage" → R: "Dust griefing — many tiny deposits bloat storage or degrade accounting precision"
 
 ### 2. STRIDE per Data Flow
 
@@ -37,5 +37,5 @@ For each data flow implied by FRs (token transfers, state changes, external call
 
 ### 3. Smart Contract Checklist
 
-Read `validate-requirements/rules/smart-contract-threats.md` for the full list of 15 threat categories. Walk each category against existing items. For each uncovered relevant category → propose R item with mitigation and acceptance criteria. Only propose a separate FR if it adds new capability beyond the risk mitigation itself.
+Read `validate-requirements/rules/smart-contract-threats.md` for the full list of 15 threat categories. Walk each category against existing items. For each uncovered relevant category → propose R item with threat description only (no mitigation — architecture handles that).
 ```

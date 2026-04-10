@@ -87,12 +87,8 @@ Proposed requirements (5 items, Phase 1-2):
 2. → [C] System deploys on Ethereum mainnet
    Priority: Must | Group: Constraints
 
-3. → [R] Dust griefing — many tiny deposits bloat storage
+3. → [R] Dust griefing — many tiny deposits bloat storage or degrade accounting precision
    Priority: Must | Group: Core Vault
-   Mitigation: system rejects economically insignificant deposits
-   Acceptance:
-   - Deposit below meaningful threshold → reverts
-   - Threshold is configurable
 
 4. → [FR] Users can redeem shares and receive proportional underlying assets
    Priority: Must | Group: Core Vault
@@ -131,5 +127,5 @@ These are the **same rules** the validator uses. If you follow them, your items 
 - **No duplicates.** Read all existing items before proposing. Don't re-propose what's already confirmed.
 - **Mixed types.** A batch can contain FR + R + C + NFR together. Risks appear next to related FRs.
 - **Traceable.** Each proposed item notes which phase/method generated it.
-- **R items are self-contained.** A risk (R) includes its own mitigation statement ("system must prevent X") and optional acceptance criteria. Do NOT create a separate FR that restates the same mitigation — that's duplication. Only create a separate FR if it adds a NEW CAPABILITY beyond the risk mitigation (e.g., R says "prevent liquidation", FR adds "operator can manually deleverage" — the FR adds new functionality). FR = capabilities, R = risks with mitigations. Both are requirements, different types.
-- **Related together.** When proposing a risk, include acceptance criteria for its mitigation directly in the R item.
+- **R items = threat description only.** No mitigation, no acceptance criteria, no "accepted" status in requirements. Risks just describe what can go wrong — may include technical details. Architecture phase is responsible for addressing each risk (mitigate or accept).
+- **Related together.** Propose risks near related FRs for context.

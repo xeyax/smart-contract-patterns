@@ -41,7 +41,7 @@ For risks:
 ```
 N. → [R] Risk title
    Priority: Must
-   Mitigation: what system must prevent (or "accepted")
+   (threat description — no mitigation in requirements, architecture handles that)
 ```
 
 ### Validation Issues Format

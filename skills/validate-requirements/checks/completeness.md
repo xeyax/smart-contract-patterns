@@ -21,6 +21,6 @@ Coverage summary:
 Participants: X/Y covered
 States: X/Y covered
 NFR categories: X/Y covered
-Risks: X/Y mitigated or accepted
+Risks: X identified, relevant categories covered
 Failure modes: X/Y covered
 ```

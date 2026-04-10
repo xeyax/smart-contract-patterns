@@ -13,8 +13,8 @@ Propose up to {{COUNT}} NEW decisions not already present.
 ## Method
 
 1. **Requirements traceability:**
-   - For each FR/NFR/R in requirements → does an AD exist?
-   - Uncovered requirement → propose AD
+   - For each FR/NFR in requirements → does an AD exist? Uncovered → propose AD.
+   - For each R in requirements → is it resolved? Either propose AD that mitigates it, or propose marking it "accepted" with reasoning. Every R must be addressed.
 
 2. **Completeness criteria sweep:**
    - Walk all 12 criteria from completeness-criteria.md

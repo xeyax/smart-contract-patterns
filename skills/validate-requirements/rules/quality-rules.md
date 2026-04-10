@@ -20,9 +20,18 @@ Write for humans, not for parsers. Focus on what matters — the core capability
 
 Test: could a non-technical stakeholder understand this in one read? If not → simplify.
 
+**Exception for risks (R items):** Risk descriptions MAY use technical details to describe the threat vector — "external call during transfer re-enters deposit and double-mints shares" is acceptable because the threat IS technical. R items in requirements are threat descriptions only — no mitigation, no acceptance criteria.
+
 ## 1. WHAT not HOW
 
 Test: "could this be implemented differently while satisfying the same need?" If yes → it's WHAT (keep). If text names a specific approach → rewrite.
+
+**OK in requirements (not HOW):**
+- Domain terms that name product concepts: "base pool", "bonus pool", "king pool", "referral level" — these define the product, not the implementation
+- Business parameters that define the product: "45% to base pool", "max fee 30%", "10 block cooldown" — these are decisions about WHAT the product does, not HOW to implement it
+- Standard names as compliance targets: "ERC-4626 compliant", "ERC-20 compatible"
+
+Test for domain terms: "is this a name the product team would use, or a name only a developer would use?" Product terms → OK. Developer terms → HOW.
 
 Forbidden:
 - Formulas (`shares = assets * totalSupply / totalAssets`)

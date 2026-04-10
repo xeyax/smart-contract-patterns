@@ -4,7 +4,9 @@ Domain-specific categories for blockchain systems. Used by proposer (to discover
 
 For each category: if relevant to this project but not addressed → proposer generates R item (with WHAT-level mitigation), validator flags gap.
 
-IMPORTANT: categories describe WHAT must be protected, not HOW. Do not require specific mechanisms (timelock, TWAP, ReentrancyGuard) in requirements — those are architecture decisions.
+IMPORTANT: 
+- Categories describe WHAT must be protected, not HOW. Do not require specific mechanisms (timelock, TWAP, ReentrancyGuard) in requirements — those are architecture decisions.
+- Requirements-level risks are GENERIC (apply regardless of architecture choice). Architecture-specific risks (e.g., "Dolomite may liquidate", "bytecode exceeds 24KB") belong in the architecture tree, not here.
 
 ## Categories
 

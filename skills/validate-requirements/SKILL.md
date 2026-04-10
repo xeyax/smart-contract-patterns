@@ -67,7 +67,7 @@ Checks: quality, completeness
 ✓ Participant coverage: users (8 FR), privileged roles (4 FR), external deps (2 FR)
 ⚠ State coverage: no requirements for "emergency" state
 ⚠ NFR gap: no observability/monitoring requirements
-✓ Risk mitigation: all 4 risks have mitigation or "accepted"
+✓ Risks identified: 4 risks listed, relevant categories covered
 ⚠ Missing failure modes: no requirement for oracle downtime behavior
 
 ── Summary ───────────────────────────────────
