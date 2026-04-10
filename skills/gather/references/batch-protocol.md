@@ -14,6 +14,7 @@ Show items as a numbered list with a round header:
 3. [item]
 
 Accept all? [Y / numbers to edit / skip N]
+You can also: ask questions, suggest changes, add details, or say "out of scope".
 ```
 
 Source examples: "proposer (goal decomposition)", "validator (quality check)", "validator (completeness)".
@@ -108,6 +109,14 @@ Never discard user reasoning. Skip with reasoning = deferred item, not a silent 
 **Format per data type:**
 - **Tree:** `?` node with reasoning in Details under Assumptions/Context section.
 - **Items:** `?` status item with `**Deferred:**` field containing user's reasoning and dependency if any. Item stays in the list — proposer sees it and won't re-propose. Validator can flag: "FR-012 deferred since Round 1, blocking decision AD-005 now resolved — revisit?"
+
+**User questions and additions.** User may respond with new questions or additions alongside accepts/skips:
+
+- **New question** ("what if oracle goes down?") → create `?` item/node.
+  - Items format: new `?` item near related item.
+  - Tree format: new `?` child node under the relevant AD.
+- **Addition to existing item** ("FR-003 also needs edge case X") → add criterion to item, show for confirm before writing.
+- **Factual question** ("what is TWAP?") → answer inline, don't create item.
 
 ## Log
 

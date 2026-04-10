@@ -73,6 +73,6 @@ Gap: AD-005 assumes AD-003 but doesn't reference it.
 
 ## 12. Scope Alignment
 
-Criterion: no decisions about things explicitly out of scope. All in-scope areas have decisions.
+Criterion: no decisions about things not covered by requirements. All requirements have decisions.
 
-Gap: decision about "off-chain indexer" when scope says "out of scope: off-chain components".
+Gap: decision about "off-chain indexer" when no requirement mentions it (or it's deferred as out of scope in requirements).

@@ -11,12 +11,6 @@ Requirements and other items are stored as markdown. Human-readable, editable, p
 
 What the system is — one paragraph.
 
-## Scope
-
-**In scope:** list of what's included.
-
-**Out of scope:** list of what's explicitly excluded.
-
 ## Glossary
 
 - **Term** — definition used in this document.
@@ -66,4 +60,4 @@ Non-functional requirement text.
 - Related items together (risk next to the FR it relates to).
 - Requirements describe WHAT, not HOW.
 - Each FR should have acceptance criteria.
-- Purpose and scope at the top, before any items.
+- Purpose at the top, before any items. Out-of-scope items live in Deferred section.

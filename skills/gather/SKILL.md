@@ -87,7 +87,7 @@ You do NOT read the proposer's phase files or generate items yourself. The subag
 
 For presentation format, interaction rules, skip/rewrite/deferred handling — see `references/batch-protocol.md`.
 
-**Data file is markdown.** When writing confirmed items, use the format from `references/format-items.md`. Confirmed items change `→` to `✓`. Purpose, Scope, and Glossary are written as document sections (`## Purpose`, `## Scope`, `## Glossary`), not as FR/NFR items.
+**Data file is markdown.** When writing confirmed items, use the format from `references/format-items.md`. Confirmed items change `→` to `✓`. Purpose and Glossary are written as document sections (`## Purpose`, `## Glossary`), not as FR/NFR items.
 
 **Detail files (tree format only).** When writing a confirmed decision:
 1. Write the tree node with a **clickable link**: `[[details]](details/AD-NNN-slug.md)` — relative to tree file.

@@ -4,11 +4,13 @@ Set-level checks. Used by proposer (to find what to generate) and validator (to 
 
 For each criterion: if gap found → proposer generates item, validator flags issue.
 
-## 1. Purpose & Scope
+## 1. Purpose
 
-Criterion: document has `## Purpose` section (what the system does) and `## Scope` section (in-scope / out-of-scope). These are document sections, not FR/NFR/C/R items.
+Criterion: document has `## Purpose` section (what the system does, for whom). This is a document section, not an FR/NFR/C/R item.
 
-Gap: no Purpose section or no Scope section.
+Out-of-scope items are captured as deferred items with "out of scope" reasoning — no separate Scope section needed.
+
+Gap: no Purpose section.
 
 ## 2. Grouping & Order
 

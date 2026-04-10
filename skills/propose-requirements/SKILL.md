@@ -61,7 +61,7 @@ No explicit skip logic — phases self-regulate based on what exists.
 
 | Phase | File | Method | Primary output |
 |-------|------|--------|---------------|
-| 1 | `phases/goal-decomposition.md` | KAOS goal decomposition + obstacles | FR, C, R, purpose, scope, glossary |
+| 1 | `phases/goal-decomposition.md` | KAOS goal decomposition + obstacles | FR, C, R |
 | 2 | `phases/domain-events.md` | Event Storming | FR (process/flow) |
 | 3 | `phases/nfr-sweep.md` | FURPS+ category sweep | NFR |
 | 4 | `phases/security-threats.md` | Misuse cases + STRIDE + SC checklist | R, security FR |

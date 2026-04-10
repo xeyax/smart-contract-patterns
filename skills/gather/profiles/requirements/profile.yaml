@@ -31,8 +31,6 @@ on_ready: null
 init_sections:
   - name: Purpose
     prompt: "Based on the user's goal: {{GOAL}} — write a one-paragraph Purpose describing what the system does and for whom. WHAT, not HOW. Plain language."
-  - name: Scope
-    prompt: "Based on the user's goal: {{GOAL}} — write In scope (bullet list of what's included) and Out of scope (what's explicitly excluded). Be specific."
 
 # Domain constraints passed to proposer and validator
 constraints: |
