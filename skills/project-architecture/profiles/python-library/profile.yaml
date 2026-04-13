@@ -1,0 +1,53 @@
+# Profile: Python library (sync)
+# Python library with optional CLI. Sync-only for now.
+
+name: python-library
+description: Python synchronous library — public API stability, pytest specs, optional CLI
+
+pipeline:
+  stage_1_sequential:
+    - gen: overview
+      writes: overview.md
+    - gen: public-api
+      writes: public-api.md
+    - gen: components
+      writes: components.md
+    - gen: interfaces
+      writes: interfaces/*.py
+    - gen: call-diagrams
+      writes: call-diagrams.md
+  stage_2_parallel:
+    - gen: data-flows
+      writes: data-flows.md
+    - gen: error-taxonomy
+      writes: error-taxonomy.md
+    - gen: state-machines
+      writes: state-machines.md
+      optional: true
+    - gen: risks
+      writes: risks.md
+    - gen: plan
+      writes: plan.md
+    # - gen: cli-commands      # enable when CLI is added
+    #   writes: cli-commands.md
+  stage_3_sequential:
+    - gen: invariants
+      writes: invariants.md
+  stage_4_sequential:
+    - gen: specs
+      writes: specs/*.py
+  stage_5_final:
+    - gen: gaps
+      writes: gaps.md
+
+# Library-specific risk taxonomy; no external anti-patterns URL by default
+antipatterns_url: null
+
+domain:
+  language: python
+  style: synchronous
+  test_framework: pytest
+  interface_style: "typing.Protocol (preferred) or abc.ABC"
+  interface_extension: .py
+  spec_extension: .py
+  package_layout: src-layout recommended (`src/<pkg>/__init__.py`)

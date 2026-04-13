@@ -195,8 +195,17 @@ After `before_done` validation:
 ### GENERATE (on_ready)
 
 If profile defines `on_ready` and user chooses to run it:
-- Dispatch the referenced skill with `{{DATA_FILE}}`
-- If it returns gaps → present via batch protocol, feed back into PROPOSE
+- Dispatch the referenced skill (`on_ready.ref`) as a subagent with:
+  - `{{DATA_FILE}}` (the tree or data file)
+  - `{{REQUIREMENTS_FILE}}` (if profile has `input.requirements`)
+  - `{{ANTIPATTERNS_URL}}` (if profile defines it)
+  - `{{PROFILE}}` = `on_ready.profile` (if set — used by on_ready skills that support multiple domains, e.g. `project-architecture` with `solidity` / `python-library`)
+  - Any other fields from the `on_ready:` block as placeholders for the on_ready skill
+  - The orchestrator of the on_ready skill handles its own internal subagent dispatch — gather does not manage individual stages.
+- The on_ready skill returns a list of proposed items in the data file's current format (the same format a proposer would use). The meaning of these items is profile-specific — e.g. for architecture profiles they are `?` tree gaps, for requirements profiles they could be additional open questions.
+- Present the list via batch protocol (same as PROPOSE).
+- User confirms/skips each item. Confirmed items → written to the data file → PROPOSE continues with them.
+- If user is done after GENERATE and nothing returned → finish.
 
 ## Rules
 

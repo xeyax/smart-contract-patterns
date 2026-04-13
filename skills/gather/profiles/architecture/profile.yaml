@@ -33,7 +33,10 @@ dod:
   - "No ERROR issues from checkpoint validation"
   - "Proposer returns no new decisions"
 
-on_ready: null
+on_ready:
+  ref: project-architecture/SKILL.md
+  profile: solidity
+  prompt: "Generate artifacts and run cross-artifact review"
 
 # Anti-patterns catalog URL (fetched by validator)
 antipatterns_url: https://raw.githubusercontent.com/xeyax/smart-contract-patterns/master/ANTIPATTERNS.md

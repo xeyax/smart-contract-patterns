@@ -1,0 +1,53 @@
+# Profile: Architecture Design — Python library (sync)
+# Used with: /gather --profile architecture-python-library
+
+format: tree
+
+output:
+  data_file: docs/architecture-tree.md
+  log_file: docs/architecture-log.md
+
+# Input: requirements file
+input:
+  requirements: docs/requirements.md
+
+# Proposer subagent (same as generic architecture — ambiguity-driven)
+proposer:
+  ref: propose-architecture/SKILL.md
+  count: 5
+
+# Validator checks
+validator:
+  checks:
+    - file: validate-architecture/checks/quality.md
+      rules: [validate-architecture/rules/decision-quality.md]
+      when: after_batch
+    - file: validate-architecture/checks/completeness.md
+      rules: [validate-architecture/rules/completeness-criteria.md]
+      when: before_done
+
+# Definition of Done
+dod:
+  - "No ERROR issues from checkpoint validation"
+  - "Proposer returns no new decisions"
+
+# Artifact generation + cross-artifact review at DoD
+on_ready:
+  ref: project-architecture/SKILL.md
+  profile: python-library
+  prompt: "Generate Python library artifacts and run cross-artifact review"
+
+constraints: |
+  This is a Python library (synchronous) design. Architecture decisions describe HOW (module layout, patterns, approach), not WHAT (requirement).
+  Every decision traces to ≥1 requirement.
+  Every decision has ≥2 alternatives with rejection reasons.
+  Every decision has consequences (positive + negative).
+  Use detail files for full reasoning (ADR-style).
+
+  Domain-specific constraints for Python libraries:
+  - Public API stability MUST be an explicit decision per symbol (stable / experimental / internal).
+  - Exception model MUST be typed: single root exception, meaningful subclasses, no bare Exception.
+  - Thread safety MUST be explicit for any module with mutable state (thread-safe / single-threaded only).
+  - External resource handling (files, sockets, subprocesses) MUST specify lifecycle ownership (context manager, explicit close, finalizer).
+  - Dependencies: decide explicitly which runtime deps are acceptable; document each.
+  - Extension points (plugins, hooks) expressed as Protocol/ABC, not subclass inheritance unless isinstance is required.

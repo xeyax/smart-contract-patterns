@@ -1,0 +1,48 @@
+# Profile: Solidity smart contracts
+# Describes which artifacts to generate and in what order.
+
+name: solidity
+description: Smart contract architecture — contracts, interfaces (.sol), specs (.t.sol)
+
+# Pipeline. Each stage's items run in parallel; stages run sequentially.
+pipeline:
+  stage_1_sequential:
+    - gen: overview
+      writes: overview.md
+    - gen: components
+      writes: components.md
+    - gen: interfaces
+      writes: interfaces/*.sol
+    - gen: call-diagrams
+      writes: call-diagrams.md
+  stage_2_parallel:
+    - gen: data-flows
+      writes: data-flows.md
+    - gen: access-control
+      writes: access-control.md
+    - gen: state-machines
+      writes: state-machines.md
+      optional: true
+    - gen: risks
+      writes: risks.md
+    - gen: plan
+      writes: plan.md
+  stage_3_sequential:
+    - gen: invariants
+      writes: invariants.md
+  stage_4_sequential:
+    - gen: specs
+      writes: specs/*.t.sol
+  stage_5_final:
+    - gen: gaps
+      writes: gaps.md
+
+# Optional antipatterns URL for risks generation
+antipatterns_url: https://raw.githubusercontent.com/xeyax/smart-contract-patterns/master/ANTIPATTERNS.md
+
+# Domain hints embedded in subagent prompts
+domain:
+  language: solidity
+  test_framework: foundry
+  interface_extension: .sol
+  spec_extension: .t.sol
