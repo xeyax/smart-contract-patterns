@@ -9,30 +9,34 @@ output:
 
 # Proposer subagent
 proposer:
-  ref: propose-requirements/SKILL.md    # path to subagent SKILL.md (resolved from skills/)
-  count: 5                              # default items per batch
+  ref: propose-requirements/SKILL.md
+  count: 5
 
-# Validator subagent
+# Validator checks (each launched as separate subagent by gather)
 validator:
-  ref: validate-requirements/SKILL.md   # path to subagent SKILL.md
-  after_batch: [quality]                         # quick: per-item quality only
-  before_done: [quality, completeness, smart-contract]  # full: quality + set coverage + domain
+  checks:
+    - file: validate-requirements/checks/quality.md
+      rules: [validate-requirements/rules/quality-rules.md]
+      when: after_batch
+    - file: validate-requirements/checks/completeness.md
+      rules: [validate-requirements/rules/completeness-criteria.md]
+      when: before_done
+    - file: validate-requirements/checks/smart-contract.md
+      rules: [validate-requirements/rules/smart-contract-threats.md]
+      when: before_done
 
 # Definition of Done
 dod:
-  - "No ERROR issues from before_done validation"
+  - "No ERROR issues from checkpoint validation"
   - "Proposer returns no new items"
 
-# On completion — optional skill to run when done
 on_ready: null
 
 # Sections to fill at INIT (before first propose round)
-# Gather launches a subagent with each prompt (substituting {{GOAL}}), shows draft to user for confirmation/editing
 init_sections:
   - name: Purpose
     prompt: "Based on the user's goal: {{GOAL}} — write a one-paragraph Purpose describing what the system does and for whom. WHAT, not HOW. Plain language."
 
-# Domain constraints passed to proposer and validator
 constraints: |
   Requirements describe WHAT, not HOW.
   No formulas, mechanism names, function signatures.

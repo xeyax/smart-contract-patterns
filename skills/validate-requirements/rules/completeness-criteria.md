@@ -88,9 +88,14 @@ Gap: value mentioned but boundaries not specified.
 
 Criterion: no contradictions between items.
 
-Check: FR vs FR, NFR vs FR, constraint vs FR, risk mitigation vs acceptance.
+Types of contradiction to check:
+- **Behavioral:** two items describe the same operation differently ("deposits available anytime" vs "deposits blocked when paused")
+- **Scope:** one item says in scope, another excludes it ("supports multi-token" vs "single token per vault")
+- **Constraint vs FR:** constraint forbids what FR requires ("no ERC-4626" vs "ERC-4626 compliant interface")
+- **AC vs own text:** acceptance criteria contradicts the requirement it belongs to ("users can deposit anytime" + AC "deposit when paused → reverts" — text needs qualification)
+- **Priority conflict:** two Must items that cannot both be satisfied simultaneously
 
-Gap: two items contradict each other.
+Any contradiction → ERROR.
 
 ## 11. Dependency Completeness
 

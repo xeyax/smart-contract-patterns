@@ -3,28 +3,29 @@ name: gather
 description: >-
   Interactive gathering engine. Propose → confirm → validate loop.
   Works with any data format (items, tree) via profiles.
-  Proposer and validator are pluggable external skills.
+  Proposer and validator checks are pluggable via profiles.
 ---
 
-You are the orchestrator of an interactive gathering session. You coordinate proposers and validators to help the user build a complete, consistent specification.
+You are the orchestrator of an interactive gathering session. You coordinate proposer and validation checks to help the user build a complete, consistent specification.
 
-You **present proposals** to the user, **write confirmed items** to the data file, and **run validators** at checkpoints. Proposers and validators are **subagents** — you delegate to them and present their results. You never generate items or run checks yourself.
+You **present proposals** to the user, **write confirmed items** to the data file, and **run validation checks** at checkpoints. Proposer and each validation check run as **separate subagents** — you delegate to them and present their results. You never generate items or run checks yourself.
 
 ## Flow
 
 ```
-INIT       Load profile. New: create data file | Resume: read file, show status
+INIT       Load profile. New: create data file + init_sections | Resume: read file, show status
 
-ROUND      1. Run validator → show fixes → user resolves → write to file
-           2. THEN run proposer (on updated file) → show proposals → user confirms → write
+ROUND      1. Quality check → show ERROR + WARNING → user fixes → write
+           2. THEN proposer (on updated file) → proposed items → user confirms → write
            (never parallel — proposer needs updated file after fixes)
 
            Loop until:
-           - Proposer returns nothing new AND validator returns no issues
-           - OR user says "enough"
+           - Proposer returns nothing new
+           - OR user says "enough" / "validate"
 
-DONE       Run before_done validation → final fixes
+CHECKPOINT All checks in parallel → sorted by severity → user fixes
            If DoD met → suggest finish (or on_ready)
+           If not → continue rounds
 ```
 
 ## Input
@@ -61,12 +62,10 @@ See `profiles/requirements/profile.yaml` or `profiles/architecture/profile.yaml`
      ```
      User confirms or edits. Write confirmed section to file. Repeat for each init_section. **All init_sections must be confirmed before first PROPOSE round — no skipping.**
    - After init_sections confirmed (or if profile has none) → first PROPOSE round.
-   - Validator is NOT called until after the first propose round.
+   - Validation checks are NOT called until after the first propose round.
 4. **Resume:** read existing data file, show status:
    ```
-   Resuming: 15 confirmed, 3 proposed, 0 open.
-   Types: 8 FR, 3 NFR, 2 C, 2 R
-   Last phase: security-threats
+   Resuming: 15 confirmed, 0 open.
    Continuing...
    ```
 
@@ -78,13 +77,13 @@ Delegate to proposer subagent. Read the proposer SKILL.md from the path in profi
 - Pass: data file path, count, constraints from profile
 - If profile has `input` section (e.g. `input.requirements`) → pass those file paths to the subagent as well
 
-The subagent reads the data file, runs its phases, and returns proposed items as **readable text** (numbered list with types, priorities, acceptance criteria).
+The subagent returns proposed items as **readable text**.
 
-You do NOT read the proposer's phase files or generate items yourself. The subagent handles all of that internally.
+You do NOT generate items yourself.
 
-**NEVER run proposer and validator in parallel. Always sequential:**
+**NEVER run proposer and validation checks in parallel. Always sequential:**
 
-1. Run validator FIRST. Wait for it to finish. Show fixes to user. User resolves. Write fixes to file.
+1. Run validation checks FIRST. Wait to finish. Show fixes to user. User resolves. Write fixes to file.
 2. ONLY THEN run proposer on the **updated** file (after fixes written). Show proposals. User confirms. Write to file.
 
 Why: proposer must read the file AFTER fixes are applied. If run in parallel, proposer reads stale data and may propose items that conflict with just-applied fixes.
@@ -101,35 +100,35 @@ For presentation format, interaction rules, skip/rewrite/deferred handling — s
 
 ### VALIDATE
 
-Delegate to validator subagent. Read the validator SKILL.md from the path in profile `validator.ref`. Launch subagent with:
-- The validator's SKILL.md as prompt
-- Model: **opus** (use the most capable model for validation)
-- Pass: data file path, which checks to run (from profile: `after_batch` or `before_done`)
-- If profile has `input` section (e.g. `input.requirements`) → pass those file paths to the subagent as well
+Launch validator check subagents directly. Profile lists checks with their rule files and when to run.
 
-Run `after_batch` checks after every PROPOSE round. Run `before_done` checks when proposer returns nothing new.
+**after_batch** (every round):
+- Launch each `when: after_batch` check as a separate subagent (check file + rules files + data file)
+- Model: **opus**
+- If profile has `input` section → pass those file paths too
+- **Show ERROR and WARNING** to user. INFO → accumulate silently for before_done.
+- If no ERROR/WARNING → skip fixes, go straight to proposer.
 
-The subagent reads the data file, runs checks, and returns issues as **readable text** (numbered list with severity icons, descriptions, suggestions).
+**before_done** (checkpoint — when proposer exhausted or user triggers):
+- Launch ALL checks as **parallel** subagents
+- Collect all results
+- Show sorted by severity: ERROR first, then WARNING, then INFO
+- Issues must include full item text for context
 
-You do NOT read the validator's check files or run checks yourself. The subagent handles all of that internally.
-
-**`after_batch` issues are shown as fixes batch** — separate from proposals. Fixes first, user resolves, then proposals shown.
-
-**`before_done` issues are shown standalone** (no more proposals to merge with):
 ```
-[Final validation] 2 issues:
+[Checkpoint validation] 5 issues:
 
-1. ⚠ FR-003: "System charges fee on yield accrued since last collection"
-   → "yield accrued since last collection" is HOW
+1. ✗ FR-003: "System charges fee on yield accrued since last collection"
    → Rewrite: "Fee charged only on net positive gains"
    Fix? [Y/skip/edit]
 
 2. ⚠ Missing: no requirements for emergency state
    → Add requirement for emergency shutdown behavior
    Add? [Y/skip]
-```
 
-**Issues must include the full requirement text** (or enough context) so the user understands the problem without looking up the original item.
+3. ℹ Grouping: related items far apart
+   → Reorder? [Y/skip]
+```
 
 ### DoD Evaluation
 
@@ -137,7 +136,7 @@ After `before_done` validation:
 - Check DoD criteria from profile
 - If all met → suggest finish:
   ```
-  DoD met: no errors, all types present, proposer exhausted.
+  DoD met. No errors, proposer exhausted.
   Finish? [Y / continue / run on_ready]
   ```
 - If not → show what's missing, continue PROPOSE
@@ -150,14 +149,14 @@ If profile defines `on_ready` and user chooses to run it:
 
 ## Rules
 
-- **Orchestrator writes the data file.** Proposers and validators read it and return suggestions — they never write directly.
+- **Orchestrator writes the data file.** Proposer and check subagents read it and return suggestions — they never write directly.
 - **Nothing confirmed without user seeing it.** Every item must be presented and accepted before `✓`.
 - **Never write before user responds.** Show the batch, wait for user's answer, THEN write confirmed items. Proposed items exist only in the conversation until user confirms.
 - **Rewrites require re-approval.** If user gives feedback that changes the text of an item (e.g. "reformulate X as risk", "rewrite without HOW"), show the rewritten version first and wait for explicit confirmation. Do NOT rewrite and record in one step — the user must see the final text before it's written. Even if the user's intent is clear, the rewritten formulation may not match what they expected.
-- **Track repeat issues.** If validator flags the same item in consecutive rounds, report it to the user: "FR-010 was flagged again — previous fix was insufficient." This should be rare since validator is instructed to provide clean complete rewrites, but if it happens, user should know.
+- **Track repeat issues.** If a check flags the same item in consecutive rounds, report it to the user: "FR-010 was flagged again — previous fix was insufficient."
 - **Write before discuss.** Same as q-tree batch protocol: write confirmed items before addressing follow-ups.
-- **Propose, don't interview.** Proposer generates concrete items, not open questions.
-- **Respect profile constraints.** Pass constraints to proposer and validator.
+- **Propose, don't interview.** Proposer returns concrete items, not open-ended questions. User confirms, edits, or skips.
+- **Respect profile constraints.** Pass constraints to proposer and check subagents.
 - **Log progress:** `[Round N] Confirmed: X | Proposed: Y` after each batch.
 
 ## Session Log
@@ -169,8 +168,9 @@ After every batch interaction, log round data: what was proposed/fixed, what use
 | Placeholder | Source | Default |
 |-------------|--------|---------|
 | `{{DATA_FILE}}` | `--output` > profile output.data_file | profile-dependent |
+| `{{INPUT_FILE}}` | same as `{{DATA_FILE}}` — used by check files | profile-dependent |
 | `{{LOG_FILE}}` | derived from data file | `{stem}-log.md` |
 | `{{COUNT}}` | `--count` > profile proposer.count | 5 |
-| `{{CHECKS}}` | profile validator.after_batch or before_done | [] |
 | `{{CONSTRAINTS}}` | profile constraints | empty |
 | `{{REQUIREMENTS_FILE}}` | profile input.requirements | empty (not all profiles need it) |
+| `{{ANTIPATTERNS_URL}}` | profile antipatterns_url | empty (skip anti-pattern fetch) |

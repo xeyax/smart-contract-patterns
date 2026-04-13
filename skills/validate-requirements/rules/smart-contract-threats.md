@@ -2,7 +2,7 @@
 
 Domain-specific categories for blockchain systems. Used by proposer (to discover risks) and validator (to check coverage).
 
-For each category: if relevant to this project but not addressed → proposer generates R item (with WHAT-level mitigation), validator flags gap.
+For each category: if relevant to this project but not addressed → proposer generates R item (threat description only, no mitigation), validator flags gap.
 
 IMPORTANT: 
 - Categories describe WHAT must be protected, not HOW. Do not require specific mechanisms (timelock, TWAP, ReentrancyGuard) in requirements — those are architecture decisions.
