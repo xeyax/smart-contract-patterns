@@ -36,8 +36,59 @@ Optionally:
 - `--profile=path` — profile directory. Built-in: `profiles/requirements/`.
 - Path to existing data file to resume.
 - `--output=path` — override data file path.
+- `--input-requirements=path` — override `input.requirements` from profile (used by architecture profile and any profile that consumes a requirements file).
 - `--no-log` — disable session log.
 - `--count=N` — items per propose batch (default 5).
+
+### Path resolution
+
+1. **Requirements input** (profiles that consume requirements): `--input-requirements` > `profile.input.requirements`.
+2. **Output path:**
+   - If `--output` set → use it.
+   - Else if profile has `input.requirements` (resolved in step 1) → derive output as `<dirname(requirements)>/<basename from profile.output.data_file>`. This makes architecture live next to its requirements automatically.
+   - Else → use `profile.output.data_file` as-is.
+3. **Detail files** (tree format): always written to `<dirname(output)>/details/AD-NNN-slug.md` — so details follow the tree automatically.
+4. **Log file:** `<dirname(output)>/<basename from profile.output.log_file>`.
+
+This means for a component you only need to point one path — the rest follows:
+
+```
+# Requirements for a component — explicit --output:
+/gather --profile requirements \
+  --output docs/components/fee-wrapper/requirements.md \
+  "fee wrapper over base ERC-4626 vault"
+
+# Architecture for same component — only --input-requirements needed,
+# architecture-tree.md and details/ auto-derived into the same folder:
+/gather --profile architecture \
+  --input-requirements docs/components/fee-wrapper/requirements.md
+```
+
+### File layout
+
+Default layout for a whole system (all defaults from built-in profiles):
+```
+docs/
+  requirements.md              # /gather --profile requirements ...
+  architecture-tree.md         # /gather --profile architecture ...
+  details/AD-NNN-slug.md
+```
+
+For a **component of a larger system**, point requirements into a component folder; architecture auto-follows (see Path resolution above):
+```
+docs/
+  components/
+    fee-wrapper/
+      requirements.md          # --output docs/components/fee-wrapper/requirements.md
+      architecture-tree.md     # --input-requirements <same path>, output auto-derived
+      details/AD-NNN-slug.md   # auto-derived
+    emergency-exit/
+      requirements.md
+      architecture-tree.md
+      details/
+```
+
+When designing a component, describe in Purpose that it is part of a larger system and name its external dependencies — see the Purpose init_section prompt in `profiles/requirements/profile.yaml`.
 
 ### Profile
 
@@ -50,7 +101,7 @@ See `profiles/requirements/profile.yaml` or `profiles/architecture/profile.yaml`
 ### INIT
 
 1. Read profile.
-2. Resolve output path: `--output` flag > profile default.
+2. Resolve paths per **Path resolution** (Input section): input.requirements (if any) → output (derived from requirements dir if `--output` not given) → details dir → log file.
 3. **New:** create data file with header only (`# [profile title]: [project]`).
    - If profile has `init_sections` → for each section, launch a subagent with the section's `prompt` (substituting `{{GOAL}}` with user's goal), then show the draft to user:
      ```
@@ -167,10 +218,10 @@ After every batch interaction, log round data: what was proposed/fixed, what use
 
 | Placeholder | Source | Default |
 |-------------|--------|---------|
-| `{{DATA_FILE}}` | `--output` > profile output.data_file | profile-dependent |
+| `{{DATA_FILE}}` | `--output` > derived from requirements dir > profile output.data_file | profile-dependent |
 | `{{INPUT_FILE}}` | same as `{{DATA_FILE}}` — used by check files | profile-dependent |
-| `{{LOG_FILE}}` | derived from data file | `{stem}-log.md` |
+| `{{LOG_FILE}}` | `<dirname({{DATA_FILE}})>/<basename from profile.output.log_file>` | profile-dependent |
 | `{{COUNT}}` | `--count` > profile proposer.count | 5 |
 | `{{CONSTRAINTS}}` | profile constraints | empty |
-| `{{REQUIREMENTS_FILE}}` | profile input.requirements | empty (not all profiles need it) |
+| `{{REQUIREMENTS_FILE}}` | `--input-requirements` > profile input.requirements | empty (not all profiles need it) |
 | `{{ANTIPATTERNS_URL}}` | profile antipatterns_url | empty (skip anti-pattern fetch) |

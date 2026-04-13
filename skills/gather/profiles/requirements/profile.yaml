@@ -35,7 +35,14 @@ on_ready: null
 # Sections to fill at INIT (before first propose round)
 init_sections:
   - name: Purpose
-    prompt: "Based on the user's goal: {{GOAL}} — write a one-paragraph Purpose describing what the system does and for whom. WHAT, not HOW. Plain language."
+    prompt: |
+      Based on the user's goal: {{GOAL}} — write a Purpose section covering:
+      1. What the system/component does (one sentence).
+      2. For whom (users, calling contracts, other components).
+      3. Context: is it a standalone system, or part of a larger system?
+         If part of a larger system — name the larger system and the component's role in it,
+         and list external dependencies it interacts with (base protocols, oracles, sibling components).
+      WHAT, not HOW. Plain language. Keep it short — 1–2 short paragraphs.
 
 constraints: |
   Requirements describe WHAT, not HOW.

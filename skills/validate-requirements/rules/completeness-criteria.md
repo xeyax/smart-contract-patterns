@@ -6,11 +6,23 @@ For each criterion: if gap found → proposer generates item, validator flags is
 
 ## 1. Purpose
 
-Criterion: document has `## Purpose` section (what the system does, for whom). This is a document section, not an FR/NFR/C/R item.
+Criterion: document has `## Purpose` section covering (a) what the system/component does, (b) for whom, (c) context — standalone system or part of a larger system. If part of a larger system, the larger system and external dependencies (base protocols, oracles, sibling components) are named.
 
 Out-of-scope items are captured as deferred items with "out of scope" reasoning — no separate Scope section needed.
 
-Gap: no Purpose section.
+Gap: no Purpose section, or context/external dependencies missing when the system is clearly a component of a larger system.
+
+## 1a. Boundary Coverage
+
+Criterion: the system's boundary is explicit.
+
+- Every external dependency mentioned in Purpose has a matching **Constraint (C)** item describing what the external system must provide or guarantee (e.g., "base vault MUST implement ERC-4626", "oracle MUST provide price within N seconds").
+- No FR describes the **behavior of an external system**. Behavior of external systems → C. FR describes only behavior of the system under design.
+  - Bad FR: "Oracle updates price every 10 blocks" (external behavior)
+  - Good C: "System depends on an oracle that updates price at least every 10 blocks"
+  - Good FR: "System rejects operations when oracle price is older than the configured freshness window"
+
+Gap: external dependency in Purpose with no matching C; or FR requires behavior from an external system.
 
 ## 2. Grouping & Order
 

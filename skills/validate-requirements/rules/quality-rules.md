@@ -52,6 +52,13 @@ Instead of specific role → describe capability and access level ("restricted o
 
 OK: standard names as compliance targets ("ERC-4626 compliant" is WHAT — compliance target, not mechanism)
 
+**Boundary rule: FR describes own behavior, not external systems.**
+An FR must describe what the system under design does. Behavior or guarantees of external systems (base protocols, oracles, sibling components) → Constraint (C), not FR.
+
+- Bad FR: "Oracle updates price every 10 blocks" (external behavior)
+- Good C: "System depends on an oracle that updates price at least every 10 blocks"
+- Good FR: "System rejects operations when oracle price is older than the configured freshness window" (own behavior triggered by external state)
+
 Examples (bad → good):
 - "BTC debt closed before GM returned" → "Withdrawal must not increase liquidation risk for remaining depositors"
 - "Vault emits event when drift exceeds threshold" → "System provides observable signal when position drift exceeds configured threshold"
