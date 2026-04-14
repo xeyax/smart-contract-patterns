@@ -1,0 +1,55 @@
+# Profile: Requirements gathering — Python library (sync)
+# Used with: /gather --profile requirements-python-library
+
+format: items
+
+output:
+  data_file: docs/requirements.md
+  log_file: docs/requirements-log.md
+
+proposer:
+  ref: propose-requirements/SKILL.md
+  count: 5
+
+validator:
+  checks:
+    - file: validate-requirements/checks/quality.md
+      rules: [validate-requirements/rules/quality-rules.md]
+      when: after_batch
+    - file: validate-requirements/checks/completeness.md
+      rules: [validate-requirements/rules/completeness-criteria.md]
+      when: before_done
+
+dod:
+  - "No ERROR issues from checkpoint validation"
+  - "Proposer returns no new items"
+
+on_ready:
+  ref: project-requirements/SKILL.md
+  profile: python-library
+  prompt: "Generate Python library requirements artifacts and run cross-artifact review"
+
+init_sections:
+  - name: Purpose
+    prompt: |
+      Based on the user's goal: {{GOAL}} — write a Purpose section covering:
+      1. What the library does (one sentence).
+      2. For whom (developers integrating it, end users via CLI, etc.).
+      3. Context: standalone library, or part of a larger ecosystem?
+         If part of an ecosystem — name it and the library's role.
+      4. Mode: synchronous (default), async, or mixed.
+      5. External resources it touches (filesystem, network, subprocess, environment).
+      WHAT, not HOW. Plain language. Keep it short — 1–2 short paragraphs.
+
+constraints: |
+  This is a Python library (synchronous) requirements set. Requirements describe WHAT, not HOW.
+  No formulas, mechanism names (lock, weakref), specific module names.
+  Test: "could this be implemented differently?" If yes — it's WHAT.
+
+  Domain-specific constraints for Python libraries:
+  - Public API stability MUST be addressable (a Constraint or NFR exists).
+  - Exception model MUST be typed (a Constraint or FR specifies typed exceptions, no bare Exception).
+  - Thread safety MUST be explicit for any module with mutable state.
+  - External resources (files, sockets, subprocesses) MUST specify lifecycle ownership.
+  - Dependencies: which runtime deps are acceptable; documented as Constraints.
+  - Extension points (plugins, hooks) expressed as a capability the library MUST support — "library accepts user-provided implementations of <kind> through a documented extension contract." Do NOT name Protocol, ABC, subclass, or any specific mechanism — that's architecture.

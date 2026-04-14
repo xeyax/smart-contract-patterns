@@ -30,7 +30,10 @@ dod:
   - "No ERROR issues from checkpoint validation"
   - "Proposer returns no new items"
 
-on_ready: null
+on_ready:
+  ref: project-requirements/SKILL.md
+  profile: solidity
+  prompt: "Generate requirements artifacts and run cross-artifact review"
 
 # Sections to fill at INIT (before first propose round)
 init_sections:

@@ -1,0 +1,42 @@
+# Profile: Generic requirements (no domain assumptions)
+
+name: generic
+description: Generic requirements review — applicable to any system class
+
+pipeline:
+  stage_1_sequential:
+    - gen: overview
+      writes: overview.md
+    - gen: glossary
+      writes: glossary.md
+
+  stage_2_parallel:
+    - gen: participant-matrix
+      writes: participant-matrix.md
+    - gen: state-action-matrix
+      writes: state-action-matrix.md
+      optional: true
+    - gen: boundary-map
+      writes: boundary-map.md
+    - gen: dependency-graph
+      writes: dependency-graph.md
+
+  stage_3_parallel:
+    - gen: nfr-coverage
+      writes: nfr-coverage.md
+    - gen: threat-coverage
+      writes: threat-coverage.md
+    - gen: consistency-report
+      writes: consistency-report.md
+    - gen: ambiguity-report
+      writes: ambiguity-report.md
+
+  stage_4_final:
+    - gen: gaps
+      writes: gaps.md
+
+domain:
+  system_class: generic
+  participant_categories: "Users, Privileged roles, Permissionless callers, External systems"
+  state_categories: "Normal, Paused, Emergency, Uninitialized"
+  nfr_categories: "Security, Performance, Compatibility, Upgradeability, Observability, Reliability"

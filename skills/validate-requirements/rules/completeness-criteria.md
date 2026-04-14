@@ -127,6 +127,10 @@ Gap: concept used but never defined.
 
 Note: Redundancy and triviality are per-item checks in quality-rules.md (rules 8-9), not set-level completeness criteria.
 
+## Validated Items — Skip Criterion
+
+Before flagging a gap that references a specific item, check if that item has a `**Validated:**` annotation. **Match semantically by the concern described**, not by exact string. If the annotation's reasoning clearly addresses the same completeness concern you are about to flag — skip. The user has already reviewed and rejected the flag. Other criteria still apply.
+
 ## Context-Aware Validation
 
 Before flagging a missing protection or risk:

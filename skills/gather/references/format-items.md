@@ -41,12 +41,39 @@ Non-functional requirement text.
 - Measurable criterion
 ```
 
+## Special Fields
+
+### `**Deferred:**`
+
+Item skipped with reasoning. Status `?`. Contains user's reasoning and dependency. Proposer sees it and won't re-propose. Validator can suggest revisit if conditions change.
+
+### `**Validated:**`
+
+User reviewed a specific validator concern and rejected the flag — the item text is intentionally as-is. One line per rejected concern:
+
+```markdown
+**Validated:** "output metrics define the product interface, not implementation" — WHAT/HOW concern rejected (Round 2)
+**Validated:** "'efficiency' is a named metric category, quantified in AC" — vague terms concern rejected (Round 4)
+```
+
+Structure: `**Validated:** "<reasoning>" — <concern description> rejected (Round N)`
+
+- **Reasoning** (in quotes) — WHY the user considers the text correct despite the validator flag. Must clearly describe the concern being addressed. "User confirmed" alone is not enough — the reasoning must explain why the item is correct.
+- **Concern description** — human-readable description of what was flagged (e.g. "WHAT/HOW concern", "vague terms concern", "boundary coverage concern", "missing failure mode"). No numeric IDs needed — validator matches semantically.
+- **Round** — when rejected.
+
+Validator behavior: match by the **concern described in the annotation**, not by exact string. If the annotation's reasoning and concern description clearly address the same issue your rule checks — skip. Example: annotation says "WHAT/HOW concern" and you are checking the WHAT-not-HOW rule → match, skip. Other rules still apply.
+
+When writing the annotation, gather MUST include a meaningful concern description. Bad: "user says it's fine" (no concern identified). Good: "output metrics are product interface — WHAT/HOW concern" (concern is clear).
+
+Lifecycle: if item **title, body text, OR acceptance criteria** are changed, ALL `**Validated:**` annotations are removed (changed content = new validation needed). Only pure metadata changes (priority, group, source, rationale) preserve annotations.
+
 ## Parsing Rules
 
 - `## Section` = group (Core Flows, Performance Fee, Constraints, etc.)
 - `### ID: Title [Priority] Status` = item. ID prefix = type (FR-, NFR-, C-, R-).
 - First paragraph after heading = item text
-- `**Field:**` = metadata (Rationale, Source, Risks)
+- `**Field:**` = metadata (Rationale, Source, Risks, Deferred, Validated)
 - `**Acceptance criteria:**` + bullet list = children
 - Status: ✓ (confirmed), → (proposed), ? (open)
 - Priority: [Must], [Should], [Could]

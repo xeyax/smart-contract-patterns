@@ -73,7 +73,7 @@ Only explicitly addressed items are resolved. **Items not mentioned stay pending
 **Write ALL confirmed items to data file NOW.** Update counters.
 
 For proposed items: user accepts → change `→` to `✓`, write to file.
-For validation fixes: user accepts fix → apply change to existing item.
+For validation fixes: user accepts fix → apply change to existing item. **If the fix changes title, body, or acceptance criteria, remove all `**Validated:**` annotations on that item** (changed content = new validation).
 For suggested new items from validator: user accepts → write as `✓`.
 
 **Placement:** each item has a `placement` field from the proposer/validator:
@@ -91,20 +91,27 @@ Only after writing:
 - User wants to discuss/edit → handle inline
 - All resolved or skipped → exit to next phase (VALIDATE after PROPOSE, PROPOSE after VALIDATE)
 
-**Edits.** If user says "change 3 to [new text]" and provides exact text → write to file with `✓`.
+**Edits.** If user says "change 3 to [new text]" and provides exact text → write to file with `✓`. **If the edit changes title, body, or acceptance criteria, remove all `**Validated:**` annotations on that item.**
 
-**Rewrites.** If user gives feedback that requires reformulation ("make it more high-level", "rewrite as risk", "remove HOW details") → show the rewritten version and wait for confirmation before writing. Never rewrite + record in one step.
+**Rewrites.** If user gives feedback that requires reformulation ("make it more high-level", "rewrite as risk", "remove HOW details") → show the rewritten version and wait for confirmation before writing. Never rewrite + record in one step. **Any accepted rewrite that changes title, body, or acceptance criteria MUST remove all `**Validated:**` annotations before writing** — changed content needs fresh validation.
 
 **Skips.** Two types:
 - **Skip without reasoning** ("skip 3") → not written. May reappear in future rounds.
 - **Skip with reasoning** ("skip 3, not sure if needed because depends on epoch design") → written as `?` (deferred) with the reasoning. See below.
 
+**Rejected validator fix.** User says the flag is wrong — the item is correct as-is ("this is a product metric, not HOW", "these are named industry metrics", "I intentionally wrote it this way"):
+- Add `**Validated:**` annotation to the item in the data file with: user's reasoning (in quotes), human-readable concern description, round number. See `format-items.md` for format. The concern description must be meaningful enough for a validator to semantically match it to the rule — e.g. "WHAT/HOW concern", "vague terms concern", "boundary coverage concern".
+- Do NOT rewrite the item. Do NOT show it again in future validation rounds for this specific rule.
+- Other rules still apply to the item — only the named concern is suppressed.
+- If title, body, or acceptance criteria later change (user edits or accepts a rewrite), remove ALL `**Validated:**` annotations — changed content needs fresh validation.
+
 **User reasoning on rejected/skipped items.** When user rejects or skips an item AND provides reasoning, this reasoning is valuable context. Record it:
 - **Override with alternative:** record as the user's version (show for re-approval), with the original proposal as a rejected alternative in details.
 - **Partial accept with uncertainty:** record the decision with the uncertainty noted in Assumptions section of details ("Dolomite oracle may not provide needed prices — TBD").
 - **Conditional skip with reasoning:** record as `?` (open question) with the user's reasoning as context. Don't lose the reasoning — it feeds future decisions.
+- **Rejected validator fix:** record as `**Validated:**` annotation (see above).
 
-Never discard user reasoning. Skip with reasoning = deferred item, not a silent drop.
+Never discard user reasoning. Skip with reasoning = deferred item; rejected fix = validated annotation.
 
 **Format per data type:**
 - **Tree:** `?` node with reasoning in Details under Assumptions/Context section.

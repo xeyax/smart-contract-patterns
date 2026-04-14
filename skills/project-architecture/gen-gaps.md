@@ -35,8 +35,17 @@ Merge into one table:
 - **Do not invent gaps.** Only surface what is already marked in artifacts or specs.
 - **Deduplicate** identical markers (same description, same parent) — keep one entry.
 - **Preserve ordering** roughly by artifact generation order (overview → components → ... → specs) so reviewers can trace the origin easily.
-- If no `[GAP]` / `[CHOICE]` anywhere, still write the file with an empty table and the line `No gaps — all decisions are covered by existing artifacts.` Return `written: {{OUTPUT}} (empty)`.
+- If no `[GAP]` / `[CHOICE]` anywhere, still write the file with the header and the line `No gaps — all decisions are covered by existing artifacts.` (table omitted or kept empty). The file always exists; emptiness is expressed by content, not by the return shape.
 
 ## Return
 
-`written: {{OUTPUT}}` with count (`M gaps`) or `written: {{OUTPUT}} (empty)`.
+Return exactly this, two lines:
+
+```
+written: {{OUTPUT}}
+gaps: N
+```
+
+Where `N` is the number of rows in the table. Do NOT embed the count inside the `written:` line — the orchestrator parses `written:` strictly against accepted shapes (`written: {{OUTPUT}}` / `written: {{OUTPUT}} (none)` / `fatal: <reason>`).
+
+Use `fatal: <reason>` as a single line only if the subagent cannot run at all.

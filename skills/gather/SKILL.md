@@ -202,10 +202,12 @@ If profile defines `on_ready` and user chooses to run it:
   - `{{PROFILE}}` = `on_ready.profile` (if set — used by on_ready skills that support multiple domains, e.g. `project-architecture` with `solidity` / `python-library`)
   - Any other fields from the `on_ready:` block as placeholders for the on_ready skill
   - The orchestrator of the on_ready skill handles its own internal subagent dispatch — gather does not manage individual stages.
-- The on_ready skill returns a list of proposed items in the data file's current format (the same format a proposer would use). The meaning of these items is profile-specific — e.g. for architecture profiles they are `?` tree gaps, for requirements profiles they could be additional open questions.
-- Present the list via batch protocol (same as PROPOSE).
-- User confirms/skips each item. Confirmed items → written to the data file → PROPOSE continues with them.
-- If user is done after GENERATE and nothing returned → finish.
+- The on_ready skill returns two sections:
+  - **Proposed items** — in the data file's current format (the same format a proposer would use). The meaning of these items is profile-specific — e.g. for architecture profiles they are `?` tree gaps, for requirements profiles they could be additional FR/NFR/C/R items.
+  - **Notes** (optional) — informational observations the user should see but that do NOT enter the batch. Shown after proposed items for context.
+- Present **only proposed items** via batch protocol (same as PROPOSE). Notes are displayed to the user as informational context — not added to the batch, not written to the data file.
+- User confirms/skips each proposed item. Confirmed items → written to the data file → PROPOSE continues with them.
+- If on_ready returns no proposed items (only notes or empty) → display notes if any, then finish.
 
 ## Rules
 
@@ -213,7 +215,7 @@ If profile defines `on_ready` and user chooses to run it:
 - **Nothing confirmed without user seeing it.** Every item must be presented and accepted before `✓`.
 - **Never write before user responds.** Show the batch, wait for user's answer, THEN write confirmed items. Proposed items exist only in the conversation until user confirms.
 - **Rewrites require re-approval.** If user gives feedback that changes the text of an item (e.g. "reformulate X as risk", "rewrite without HOW"), show the rewritten version first and wait for explicit confirmation. Do NOT rewrite and record in one step — the user must see the final text before it's written. Even if the user's intent is clear, the rewritten formulation may not match what they expected.
-- **Track repeat issues.** If a check flags the same item in consecutive rounds, report it to the user: "FR-010 was flagged again — previous fix was insufficient."
+- **Track repeat issues.** Skipping Validated items is the **validator's** responsibility (see quality-rules.md / completeness-criteria.md "Validated Items — Skip Rule"). Gather does NOT duplicate this logic. If a validator re-raises a flag on an item that has an existing Validated annotation that appears related to the same concern (no precise matching needed — just check if the item has any Validated annotation that looks like it covers the flagged issue), report to the user: "FR-010 was flagged again despite existing Validated annotation — validator may have missed it. Options: keep existing validation / accept the fix / edit the annotation." If user rejects → update or add `**Validated:**` annotation per `batch-protocol.md`. Gather's role: (1) record annotations when user rejects a flag, (2) remove annotations when item content changes (title/body/AC), (3) surface repeat flags to user.
 - **Write before discuss.** Same as q-tree batch protocol: write confirmed items before addressing follow-ups.
 - **Propose, don't interview.** Proposer returns concrete items, not open-ended questions. User confirms, edits, or skips.
 - **Respect profile constraints.** Pass constraints to proposer and check subagents.

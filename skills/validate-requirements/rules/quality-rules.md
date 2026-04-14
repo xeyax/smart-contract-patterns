@@ -52,6 +52,15 @@ Instead of specific role → describe capability and access level ("restricted o
 
 OK: standard names as compliance targets ("ERC-4626 compliant" is WHAT — compliance target, not mechanism)
 
+**Output / interface specifications are WHAT, not HOW.**
+Named metrics, output fields, return structures, and format names that define WHAT the system provides to the caller are product decisions, not implementation. "Returns Sharpe ratio" = WHAT (product feature). "Sharpe = (mean - rf) / std" = HOW (formula). Test: "would a product owner include this in a feature spec?" If yes → WHAT.
+
+Examples:
+- OK: "System returns Sharpe ratio, max drawdown, and total return" (named industry metrics = product interface)
+- OK: "Output includes equity curve as a time series" (output structure = product definition)
+- HOW: "Sharpe = annualized_mean / annualized_std" (formula = implementation)
+- HOW: "Use pandas DataFrame for output" (library name = implementation)
+
 **Boundary rule: FR describes own behavior, not external systems.**
 An FR must describe what the system under design does. Behavior or guarantees of external systems (base protocols, oracles, sibling components) → Constraint (C), not FR.
 
@@ -145,6 +154,12 @@ Performance and constraint requirements must have specific numbers.
 Every item has: status (✓/→/?), priority (Must/Should/Could), type (FR/NFR/C/R).
 
 No TBD/TBR/TBS terms — resolve or flag.
+
+## Validated Items — Skip Rule
+
+Before flagging an item, check if it has a `**Validated:**` annotation. **Match semantically by the concern described**, not by exact string or rule number. If the annotation's reasoning and concern description clearly address the same issue your rule checks — **skip this item for this rule**. The user has reviewed the concern and consciously decided the text is correct. Other rules still apply.
+
+Example: item has `**Validated:** "output metrics are product interface" — WHAT/HOW concern rejected (Round 2)`. You are checking the WHAT-not-HOW rule → the annotation clearly addresses this concern → skip. You are checking vague terms → no matching annotation → check normally.
 
 ## Validator: Suggest Complete Rewrites
 

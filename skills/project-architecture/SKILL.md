@@ -66,7 +66,7 @@ For each `gen: X` entry:
     - `gen: components` → `{{COMPONENTS_OUTPUT}}`
     - `gen: call-diagrams` → `{{CALL_DIAGRAMS_OUTPUT}}`
     - `gen: interfaces` → `{{INTERFACES_OUTPUT}}` (glob pattern of interface files)
-    - `gen: state-machines` → `{{STATE_MACHINES_OUTPUT}}` (optional; empty string if skipped)
+    - `gen: state-machines` → `{{STATE_MACHINES_OUTPUT}}` (optional; file still written with `(none)` note, placeholder carries the path normally)
   Later generators reference prior outputs ONLY through these named placeholders when specifying reads or writes.
 - Dispatch as a subagent with **opus** model, fresh context.
 
@@ -146,7 +146,7 @@ When called by gather via `on_ready`, gather picks up this list and runs the bat
 - **Parallelize where profile allows.** Stages marked `_parallel` run as a single message with multiple Agent calls.
 - **Always regenerate from scratch.** Do not preserve partial outputs between cycles.
 - **Respect `[GAP]` / `[CHOICE]`.** Do not ask subagents to invent missing info.
-- **Max 2 SUMMARIZE→REVIEW cycles.** After that, return with remaining issues noted.
+- **Max 2 GENERATE→REVIEW cycles.** After that, return with remaining issues noted.
 
 ## Standalone invocation
 
@@ -167,4 +167,4 @@ When called by gather via `on_ready`, gather picks up this list and runs the bat
 | `{{ANTIPATTERNS_URL}}` | flag > profile.antipatterns_url | optional |
 | `{{DOMAIN}}` | from profile.domain (rendered as a short paragraph) | empty |
 | `{{OUTPUT}}` | current entry's `writes:`, prefixed with `{{ARTIFACTS_DIR}}/` | required per entry |
-| `{{<GEN_NAME>_OUTPUT}}` | prior pipeline entry's `writes:`, prefixed with `{{ARTIFACTS_DIR}}/`. Name: uppercase with `-` → `_` (e.g. `COMPONENTS_OUTPUT`, `CALL_DIAGRAMS_OUTPUT`) | empty string if that entry was skipped (optional stage) |
+| `{{<GEN_NAME>_OUTPUT}}` | prior pipeline entry's `writes:`, prefixed with `{{ARTIFACTS_DIR}}/`. Name: uppercase with `-` → `_` (e.g. `COMPONENTS_OUTPUT`, `CALL_DIAGRAMS_OUTPUT`) | empty string ONLY if the profile declared `optional_output: absent` and the file is absent. For `optional: true` entries that returned `(none)`, the file still exists with a one-line note, and the placeholder carries its path normally. |
