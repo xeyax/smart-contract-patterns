@@ -66,3 +66,20 @@ If a decision includes a formula → it must be complete (all variables defined)
 ## 10. ID Assigned
 
 Every decision has a unique ID: AD-NNN (Architecture Decision). Sequential numbering.
+
+## 11. Title = Topic → Choice
+
+Decision title must contain BOTH the **topic** (what problem/question is being decided) AND the **choice** (what was chosen). The reader should understand the decision from the title alone, without opening the detail file.
+
+Format: `AD-NNN: <topic> → <choice>` or `AD-NNN: <topic> — <choice>`.
+
+- Good: `AD-004: Parallel execution → multiprocessing.Pool (not threading — GIL)`
+  - Topic: "parallel execution" — what is being decided
+  - Choice: "multiprocessing.Pool" — what was chosen, with hint why
+- Good: `AD-009: Cost model contract → Protocol-based pluggable interface`
+- Good: `AD-011: Survivorship bias → out of scope, R-002 accepted`
+- Bad: `AD-004: Multiprocessing Pool for Parallel Strategy Runs` — only the choice, no topic
+- Bad: `AD-009: Cost Model Interface` — only the topic, no choice
+- Bad: `AD-004: How to parallelize` — only the topic as a question
+
+The title is a **compressed ADR**: topic is the "what question", choice is the "what we decided". Together they let a reviewer scan the tree and understand all decisions without clicking through.

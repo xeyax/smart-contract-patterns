@@ -112,9 +112,11 @@ For complex FR: include happy path, edge cases (zero, first, max), negative case
 
 ## 5. Verifiable
 
-Every item must be testable. If you can't imagine a concrete pass/fail test → underspecified.
+Every FR/NFR/C must be testable. If you can't imagine a concrete pass/fail test → underspecified.
 
 Performance/constraint items must have numbers, not adjectives.
+
+**R items (risks) are NOT verifiable as pass/fail behavior.** They are threat descriptions. Do NOT flag R items as "not testable". An R item is well-formed if it describes a plausible, scoped threat — verifiability for risks means "is this threat realistic and specific enough to reason about mitigation in architecture?", not "can I write a test for it".
 
 ## 6. Self-Contained
 

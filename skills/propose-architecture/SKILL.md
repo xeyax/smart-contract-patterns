@@ -41,7 +41,7 @@ Readable text. Each item shows the ambiguity and includes enough detail for orch
 ```
 Proposed decisions (5 items):
 
-1. → AD-001: ERC-4626 wrapper over base vault
+1. → AD-001: Vault interface standard → ERC-4626 wrapper over base vault
    Parent: root | Group: Core Architecture
    Ambiguity: FR-001 (deposit) and FR-002 (redeem) need a vault interface — which standard?
    Context: FR-001, FR-002, NFR-001
@@ -50,7 +50,7 @@ Proposed decisions (5 items):
    - Custom interface — rejected: breaks aggregator compatibility
    Consequences: inherits ERC-4626 constraints
 
-2. → AD-002: Global fee peak (single vault-wide reference price)
+2. → AD-002: Fee gain tracking → global fee peak (single vault-wide reference price)
    Parent: AD-001 | Group: Fee Model
    Ambiguity: FR-003 (fee on net gains) — how to track "gains"?
    Context: FR-003
@@ -65,6 +65,8 @@ Proposed decisions (5 items):
    Mitigation: accepted — standard tradeoff (Yearn, Enzyme).
 ```
 
+Title format: `AD-NNN: <topic> → <choice>`. The reader should understand the decision from the title alone. See `validate-architecture/rules/decision-quality.md` Rule 11.
+
 ## When Called as Subagent
 
 - Receive: requirements file + tree file + count + constraints
@@ -74,14 +76,7 @@ Proposed decisions (5 items):
 
 ## Quality Rules
 
-Read `validate-architecture/rules/decision-quality.md`. Apply ALL rules:
-1. Decision is HOW — names a concrete approach
-2. ≥2 alternatives with rejection reasons
-3. Consequences — positive and negative
-4. Context — links to requirement(s)
-5. Not redundant
-6. Assumptions explicit
-7. ID assigned — AD-NNN
+Read `validate-architecture/rules/decision-quality.md`. Apply every rule in the file. The rules file is the single source of truth.
 
 Architecture-specific risks:
 - When proposing AD with external deps/tradeoffs → also propose R child

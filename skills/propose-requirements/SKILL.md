@@ -79,18 +79,12 @@ Proposed requirements (5 items):
 
 ## Quality Rules
 
-Read `validate-requirements/rules/quality-rules.md`. Apply ALL rules to every proposed item.
+Read `validate-requirements/rules/quality-rules.md`. Apply every rule in the file to every proposed item. The rules file is the single source of truth.
 
-Self-check each item before returning:
-1. WHAT not HOW — no mechanisms, formulas, role names
-2. No vague terms — quantify where needed
-3. Singular — one capability per item
-4. Acceptance criteria — for complex FRs (≥2: happy + edge/negative)
-5. Verifiable — can write a pass/fail test
-6. R items = threat description only — no mitigation (architecture handles that)
-7. Domain terms and business parameters OK — they define the product
-8. Not redundant — doesn't duplicate existing item
-9. Plain language — readable in one pass
+Key R-item constraints (reinforced because they are frequently violated):
+- **R items do NOT get acceptance criteria** — they are pure threat descriptions.
+- **R items are not testable as pass/fail behavior** — they describe threats, not observable outcomes.
+- **R items have no mitigation** — architecture handles that.
 
 ## Exhaustion
 

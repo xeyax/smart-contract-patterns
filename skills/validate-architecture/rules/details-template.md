@@ -6,7 +6,7 @@ File: `details/AD-NNN-slug.md`
 
 ## Sections
 
-**Required:** Context, Decision, Alternatives — every decision must have these. **Optional:** Consequences, Formula, Assumptions, Edge Cases, Requirements — use what's relevant.
+**Required:** Context, Decision, Alternatives, Consequences — every decision must have these (Consequences must include both positive and negative per decision-quality Rule 3). **Optional:** Formula, Assumptions, Edge Cases, Requirements — use what's relevant.
 
 ```markdown
 # {Decision title}
@@ -62,11 +62,13 @@ Traceability: which requirements this decision satisfies.
 
 ## Tree Node Format
 
+Title format: `AD-NNN: <topic> → <choice>` — the reader should understand the decision from the title alone without opening the detail file. Topic = what question is being decided. Choice = what was chosen.
+
 In the tree file, a decision node with clickable link to detail:
 ```
-- ✓ AD-001: Vault + Strategy Two-Contract Split [[details]](details/AD-001-contract-split.md)
-  - ✓ AD-002: Global HWM with Share Dilution [[details]](details/AD-002-fee-hwm.md)
-  - ✓ AD-003: Fee peak immutable [[details]](details/AD-003-fee-reset.md)
+- ✓ AD-001: Contract decomposition → Vault + Strategy two-contract split [[details]](details/AD-001-contract-split.md)
+  - ✓ AD-002: Fee gain tracking → global HWM with share dilution [[details]](details/AD-002-fee-hwm.md)
+  - ✓ AD-003: Fee peak lifecycle → immutable (never reset) [[details]](details/AD-003-fee-reset.md)
 ```
 
-Short answer inline. Full reasoning in detail file. Link is relative to tree file.
+Full reasoning in detail file. Link is relative to tree file.
