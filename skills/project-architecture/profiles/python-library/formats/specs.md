@@ -1,6 +1,6 @@
 # specs/*.py Formatting Rules (pytest)
 
-One abstract test class per component under `artifacts/specs/`. The developer subclasses and supplies concrete fixtures; the base class asserts the contract.
+One abstract test class per component under the specs output directory (path determined by `{{OUTPUT}}`). The developer subclasses and supplies concrete fixtures; the base class asserts the contract.
 
 ## File naming
 

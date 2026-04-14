@@ -72,6 +72,18 @@ docs/
   requirements.md              # /gather --profile requirements ...
   architecture-tree.md         # /gather --profile architecture ...
   details/AD-NNN-slug.md
+  artifacts/
+    requirements/              # on_ready from requirements profile
+      overview.md
+      participant-matrix.md
+      gaps.md
+      ...
+    architecture/              # on_ready from architecture profile
+      components.md
+      interfaces/
+      specs/
+      gaps.md
+      ...
 ```
 
 For a **component of a larger system**, point requirements into a component folder; architecture auto-follows (see Path resolution above):
@@ -82,10 +94,16 @@ docs/
       requirements.md          # --output docs/components/fee-wrapper/requirements.md
       architecture-tree.md     # --input-requirements <same path>, output auto-derived
       details/AD-NNN-slug.md   # auto-derived
+      artifacts/
+        requirements/          # auto-derived
+        architecture/          # auto-derived
     emergency-exit/
       requirements.md
       architecture-tree.md
       details/
+      artifacts/
+        requirements/
+        architecture/
 ```
 
 When designing a component, describe in Purpose that it is part of a larger system and name its external dependencies — see the Purpose init_section prompt in `profiles/requirements/profile.yaml`.

@@ -101,6 +101,8 @@ Every FR should have ≥2 acceptance criteria when the requirement has meaningfu
 
 For simple invariant-style items (NFR, C, or FR where one criterion fully covers the behavior) — one clear pass/fail criterion is sufficient. Don't invent artificial criteria to hit a number.
 
+**R items (risks) do NOT have acceptance criteria.** R items are threat descriptions only — no mitigation, no AC. Do NOT flag R items for missing acceptance criteria. This is stated in Rule 0 and is non-negotiable.
+
 Criteria describe observable outcomes, not internal mechanics.
 - Good: "Full redeem → user share balance becomes zero"
 - Good: "After any operation → all allowances == 0" (one criterion, fully covers it)

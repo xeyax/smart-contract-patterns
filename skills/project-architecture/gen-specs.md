@@ -17,9 +17,9 @@ Spec format and test framework conventions are specified in the domain block abo
 
 ## Write
 
-`{{OUTPUT}}` — a glob pattern (e.g. `artifacts/specs/*.py`). Write one abstract test file per component under the directory of the pattern.
+`{{OUTPUT}}` — a glob pattern. Write one abstract test file per component under the directory portion of the pattern. The concrete path comes from the profile's `writes:` field via the orchestrator — do not assume a specific directory prefix.
 
-**Zero-item case:** if no component has any checkable claim to spec (no invariants, no postconditions, no guards — extremely rare), write a sentinel file `<glob-dir>/.none` (e.g. `artifacts/specs/.none`) containing a one-line explanation, and return `written: {{OUTPUT}} (none)`.
+**Zero-item case:** if no component has any checkable claim to spec (extremely rare), write a sentinel file `<glob-dir>/.none` in the directory portion of `{{OUTPUT}}`, containing a one-line explanation, and return `written: {{OUTPUT}} (none)`.
 
 ## Why this artifact exists
 

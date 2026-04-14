@@ -16,7 +16,7 @@ You are the orchestrator of artifact generation and cross-artifact review. Every
 - `{{PROFILE}}` — profile name (e.g. `solidity`, `python-library`). Default: `solidity`.
 - `{{ANTIPATTERNS_URL}}` — optional, overrides profile default.
 
-Output directory: `<dirname(tree file)>/artifacts/`.
+Output directory: `<dirname(tree file)>/artifacts/architecture/`.
 Detail files: `<dirname(tree file)>/details/`.
 Profile directory: `skills/project-architecture/profiles/{{PROFILE}}/` — contains `profile.yaml` + `formats/*.md`.
 
@@ -162,7 +162,7 @@ When called by gather via `on_ready`, gather picks up this list and runs the bat
 | `{{REQUIREMENTS_FILE}}` | arg 2 or gather pass-through | optional |
 | `{{PROFILE}}` | `--profile` flag or gather's `on_ready.profile` | `solidity` |
 | `{{PROFILE_DIR}}` | derived: `skills/project-architecture/profiles/{{PROFILE}}/` | — |
-| `{{ARTIFACTS_DIR}}` | derived: `<dirname(tree)>/artifacts/` | — |
+| `{{ARTIFACTS_DIR}}` | derived: `<dirname(tree)>/artifacts/architecture/` | — |
 | `{{DETAILS_DIR}}` | derived: `<dirname(tree)>/details/` | — |
 | `{{ANTIPATTERNS_URL}}` | flag > profile.antipatterns_url | optional |
 | `{{DOMAIN}}` | from profile.domain (rendered as a short paragraph) | empty |

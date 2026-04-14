@@ -17,9 +17,9 @@ Use the language, interface style, and file extension specified in the domain bl
 
 ## Write
 
-`{{OUTPUT}}` — a glob pattern (e.g. `artifacts/interfaces/*.py` or `artifacts/interfaces/*.sol`). Write one file per component into the directory portion of the pattern; filenames follow the formatting rules for this language.
+`{{OUTPUT}}` — a glob pattern. Write one file per component into the directory portion of the pattern; filenames follow the formatting rules for this language. The concrete path comes from the profile's `writes:` field via the orchestrator — do not assume a specific directory prefix.
 
-**Zero-item case:** if no component in the tree exposes an interface worth generating (very small systems, or all components are purely internal), write a sentinel file `<glob-dir>/.none` (e.g. `artifacts/interfaces/.none`) containing a one-line explanation, and return `written: {{OUTPUT}} (none)`.
+**Zero-item case:** if no component exposes an interface worth generating, write a sentinel file `<glob-dir>/.none` in the directory portion of `{{OUTPUT}}`, containing a one-line explanation, and return `written: {{OUTPUT}} (none)`.
 
 ## Task
 

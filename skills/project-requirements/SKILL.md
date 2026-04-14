@@ -16,7 +16,7 @@ You are the orchestrator of artifact generation and cross-artifact review for re
 - `{{DATA_FILE}}` — path to `requirements.md`. Mandatory.
 - `{{PROFILE}}` — profile name (`generic`, `solidity`, `python-library`). Default: `generic`.
 
-Output directory: `<dirname(requirements file)>/artifacts/`.
+Output directory: `<dirname(requirements file)>/artifacts/requirements/`.
 Profile directory: `skills/project-requirements/profiles/{{PROFILE}}/` — contains `profile.yaml` + `formats/*.md`.
 
 ## Flow
@@ -159,7 +159,7 @@ If the reviewer returns no GAPS, the orchestrator returns an empty proposed list
 | `{{DATA_FILE}}` | arg 1 or gather pass-through | required |
 | `{{PROFILE}}` | `--profile` flag or gather's `on_ready.profile` | `generic` |
 | `{{PROFILE_DIR}}` | `skills/project-requirements/profiles/{{PROFILE}}/` | — |
-| `{{ARTIFACTS_DIR}}` | `<dirname(requirements)>/artifacts/` | — |
+| `{{ARTIFACTS_DIR}}` | `<dirname(requirements)>/artifacts/requirements/` | — |
 | `{{OUTPUT}}` | current entry's `writes:`, prefixed with `{{ARTIFACTS_DIR}}/` | required per entry |
 | `{{<GEN_NAME>_OUTPUT}}` | prior entry's `writes:`, prefixed; uppercase, `-` → `_` | empty string ONLY if the profile declared `optional_output: absent` and the file is absent. For `optional: true` entries that returned `(none)`, the file still exists with a one-line note, and the placeholder carries its path normally. |
 | `{{DOMAIN}}` | rendered from profile.domain | empty |
