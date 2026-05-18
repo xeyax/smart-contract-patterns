@@ -29,6 +29,12 @@ Internal implementation details exposed through contract interfaces.
 **Symptoms:** Callers need to know internal state layout, function parameters expose internal concepts.
 **Fix:** Interface describes WHAT not HOW. Hide internal mechanics.
 
+### Prose-Only Security Guardrail
+Documentation, deployment scripts, or comments describe a security limit that the contract never enforces.
+**Symptoms:** README says withdrawals are capped, minimums apply, or unsafe amounts are rejected, but no runtime check or invariant test exists.
+**Risk:** Operators, users, and auditors rely on a nonexistent control; later code changes preserve the prose while behavior remains unsafe.
+**Fix:** Encode the guard in contract logic or tests, or explicitly mark it as an operational policy outside the trust-minimized path.
+
 ## Access Control
 
 ### Unrestricted Admin
@@ -43,6 +49,12 @@ Setter validates an old stored value or unrelated state instead of the proposed 
 **Risk:** A critical parameter can be set outside intended bounds even though the setter appears guarded.
 **Fix:** Validate proposed inputs directly, test failing over-limit proposals from both valid and invalid current states, and emit old/new values.
 
+### Fixed-Window Revocation Blind Spot
+Permission revocation scans only a small recent window of a linked list or append-only log.
+**Symptoms:** Helper revokes "all" permissions but stops after N entries, or older approvals are unreachable without manual iteration.
+**Risk:** Stale authority remains active after users or operators believe it was revoked.
+**Fix:** Store indexed permission state, expose cursor-based revocation, or require callers to revoke exact entries while making incomplete revocation visible.
+
 ### Missing Pause
 No emergency stop mechanism. If exploit found, no way to stop bleeding.
 **Symptoms:** No pause function, or pause doesn't cover all entry points.
@@ -52,7 +64,7 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 Pause blocks ALL operations including withdrawals.
 **Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
 
 ## Oracle & Price
 
@@ -74,7 +86,7 @@ Using instantaneously manipulable price (DEX spot, single-block read) for value-
 Loop over user-controlled or growing data structure without gas limit.
 **Symptoms:** Array that grows with users/deposits, loop in core operation.
 **Risk:** Gas DoS — operation becomes too expensive as data grows.
-**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives. If users can append entries to another account's array, require a minimum economic size, owner-only append semantics, or pagination so attackers cannot gas-DoS a victim's aggregate views or withdrawals.
+**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives. If users can append entries to another account's array, require a minimum economic size, owner-only append semantics, or pagination so attackers cannot gas-DoS a victim's aggregate views or withdrawals. Relay-style view aggregators over operators, keys, vaults, or validator sets can be acceptable for off-chain indexing, but should not become on-chain dependencies without pagination or hard caps.
 
 ### Fee-on-Transfer Blindness
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
@@ -150,7 +162,13 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation.
+
+### Unkeyed Transient Execution Context
+Transient scratch storage or per-transaction context is shared across callers, wallets, or operations without a key.
+**Symptoms:** Action A writes a scratch value that action B can read, or nested recipe/flash-loan execution reuses global transient slots.
+**Risk:** A malicious module can poison later steps, read another operation's context, or bypass assumptions about one-frame isolation.
+**Fix:** Key transient state by caller, wallet, operation id, or execution frame, and clear or settle it at the end of the frame. Transient storage is acceptable when state is keyed and invariants prove no unsettled delta crosses the operation boundary.
 
 ### Account Role Confusion
 Code validates a set of same-type accounts but later reads or writes one role using another role's variable.
@@ -182,7 +200,7 @@ Vault strategy locks all funds in external protocols, no reserved liquidity buff
 Withdrawal or migration escrow lets only an owner or operator release user funds without user-specific entitlement or queue semantics.
 **Symptoms:** Owner-only escrow withdrawal, no recorded beneficiary balance, or migration custody that relies on social process.
 **Risk:** Users cannot independently claim assets and must trust the operator not to delay, reorder, or redirect exits.
-**Fix:** Record user entitlements, queue order, and claim conditions on-chain. If permissioned custody is temporary for migration, publish the migration boundary, operator trust assumptions, and final user claim path.
+**Fix:** Record user entitlements, queue order, and claim conditions on-chain. Beneficiary-specific pending redemptions improve traceability, but they do not remove custody risk if only an operator can execute or cancel and there is no timeout, queue, or user claim path. If permissioned custody is temporary for migration, publish the migration boundary, operator trust assumptions, and final user claim path.
 
 ### Rebasing Token Accounting
 Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot model.
@@ -220,7 +238,7 @@ Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if t
 Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
 **Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
 **Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
-**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, and replay boundary.
 
 ## Governance
 

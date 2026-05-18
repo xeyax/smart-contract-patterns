@@ -21,6 +21,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Different use cases have different freshness needs (lending vs. display)
 - Stale data can enable arbitrage or cause incorrect liquidations
 - Wrapper feeds must expose the oldest underlying source timestamp, not a synthetic current timestamp
+- Bridged rate providers must expose source-chain freshness separately from destination-chain relay execution time
 
 ### Violations
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — using outdated price data
@@ -123,6 +124,7 @@ When evaluating an oracle integration, verify:
 | R3 | Can this price be manipulated within a single block/transaction? |
 | R4 | What happens if the oracle is unavailable? |
 | Wrappers | Does the feed preserve source freshness and round semantics? |
+| Bridged Rates | Is the source update timestamp checked separately from the message receive timestamp? |
 
 ---
 

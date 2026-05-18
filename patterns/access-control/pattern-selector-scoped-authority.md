@@ -73,11 +73,27 @@ require(allowedSelector[target][selector], "selector");
 
 A denylist of known-bad selectors is weaker than an allowlist because new target functions or proxy upgrades can create fresh bypasses.
 
+### Merkle Permission Manifest Variant
+
+For large operational permission sets, store a Merkle root of allowed calls and require each forwarded call to prove membership in the manifest:
+
+```solidity
+function manage(address target, bytes calldata data, bytes32[] calldata proof) external {
+    bytes4 selector = bytes4(data);
+    bytes32 leaf = keccak256(abi.encode(target, selector, _sensitiveArgs(data)));
+    require(MerkleProof.verify(proof, permissionRoot, leaf), "permission");
+    target.call(data);
+}
+```
+
+The leaf should include decoded sensitive arguments such as token, spender, protocol, amount cap, or recipient when the same selector can perform materially different actions.
+
 ## Key Points
 
 - Scope permissions by both target and selector; selector-only roles are too broad across contracts.
 - Treat functions that accept arbitrary targets, calldata, or implementation addresses as high-risk even if selector-scoped.
 - Store and review a generated permission manifest in CI or deployment artifacts.
+- For Merkle manifests, include sensitive decoded arguments in the leaf when selector-level approval is too broad.
 - Prefer timelocks for selectors that change assets, upgrade code, alter fees, or pause exits.
 - Keep emergency selectors separate from routine maintenance selectors.
 - For call forwarders, scope by user, target, and selector; do not rely on selector blacklists.
@@ -87,6 +103,7 @@ A denylist of known-bad selectors is weaker than an allowlist because new target
 - Spiko checks target and selector masks before allowing protected calls and tests config-driven function requirements.
 - Cap stores selector-scoped access rules and includes deployment checks that emit an observed access manifest.
 - Ether.fi migrated call forwarding toward allowlisted user, target, and selector checks after identifying bypassable blacklist behavior.
+- Veda uses a Merkle permission manifest for manager calls and includes target, selector, and decoded argument constraints for sensitive operations.
 
 ## Related Patterns
 

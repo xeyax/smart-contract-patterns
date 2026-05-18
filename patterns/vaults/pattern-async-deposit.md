@@ -152,6 +152,24 @@ ERC-7540-style asynchronous vaults need a claim ledger, not only a pending queue
 
 For RWA flows that assign off-chain or manager prices, bind every request to a durable request id and a specific price id before claim. A later user-controlled claim can be safe only if it consumes the fixed entitlement from the assigned price id instead of recalculating at claim time.
 
+### Solver-Filled Withdrawal Queue
+
+A withdrawal queue can let external solvers fill mature requests when the vault has configured capacity:
+
+```text
+request exit
+  -> shares/assets escrowed
+  -> maturity and deadline recorded
+  -> solver fills within user terms
+  -> user claims fixed entitlement
+```
+
+This is useful when vault assets are illiquid or bridged, but the request must snapshot user protection terms such as max loss, deadline, receiver, and payout asset. Active requests should be excluded from generic rescue or sweep functions.
+
+### Pending-Exit Parameter Drift
+
+If pending exits reference mutable global terms, governance can unintentionally or maliciously change the user's deal after request time. Snapshot fallback assets, max loss, deadline, fee, and queue priority per request, or require all affected pending requests to be cancelled or removed before the global parameter changes.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
@@ -275,6 +293,9 @@ Async withdrawals need additional liveness and accounting checks:
 - Escrowed redemption flows can transfer shares/tokens into a redemption contract, let an operator execute and burn them, and allow public timeout refunds if execution stalls.
 - Cooldown escrow exits should fix the claim basis before the user can choose a later claim time.
 - Partial queue processing must document whether each processed slice or the whole queue receives one exchange rate.
+- Solver-filled queues need request-time entitlement, maturity, deadline, capacity, and rescue exclusions.
+- Liquid-staking FIFO batches should fix each batch's entitlement and keep claims available through deposit or staking pauses when solvent.
+- Relay and restaking systems must align async settlement cadence with vault slashing, epoch finality, and validator-set capture windows.
 
 ## ERC-7540: Async Vault Standard
 
@@ -300,9 +321,12 @@ interface IERC7540 {
 - [Renzo](https://github.com/Renzo-Protocol/contracts-public) — withdrawal deficits are refilled before new assets are delegated
 - [Reserve Index DTF](https://github.com/reserve-protocol/reserve-index-dtf) — delayed unstaking burns shares, creates claim locks, and allows cancellation
 - [Symbiotic](https://github.com/symbioticfi/core) — pending withdrawals remain slashable until epoch finality
+- Symbiotic Relay — relay epoch duration and settlement cadence must remain compatible with vault slashing windows and validator-set capture assumptions
 - [Ethena](https://github.com/ethena-labs) — cooldown exits escrow user claims before delayed withdrawal
 - [Maple Finance](https://github.com/maple-labs/maple-core-v2) — withdrawal queues show partial FIFO pricing and manual redemption timing caveats
 - [Centrifuge](https://github.com/centrifuge/liquidity-pools) — ERC-7540 request, fulfill, cancel, and claim flows with shared escrow accounting
+- Veda Plasma vaults — solver-filled withdrawal queues combine request-time terms, maturity, deadlines, capacity limits, and active-request rescue exclusions
+- Stader BNBx — bounded FIFO withdrawal batches fix batch entitlement and support pause-safe claiming
 - Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 

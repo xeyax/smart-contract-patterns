@@ -16,9 +16,21 @@
 | pattern-participant-permission-bitmap.md | Encode participant eligibility as compact policy bits so deposits, borrows, transfers, and exits can enforce both account-level and pool-level access. | A pool has private, public, pool-level, or function-level participation modes |
 | pattern-pda-scoped-protocol-authority.md | Derive Solana protocol authorities and custody accounts from canonical PDA seeds, then verify every account against the stored authority graph. | A Solana program owns token vaults, mints, obligations, or market authority through PDAs |
 | pattern-selector-scoped-authority.md | Grant operators permission to call specific function selectors on specific targets instead of granting broad owner or admin authority. | Operators need to run recurring maintenance or risk-management calls |
+| pattern-self-authenticated-key-registry.md | Let operators register protocol keys only after proving control of the key, then snapshot key history for epoch-scoped verification. | Operators need off-chain signing, consensus, or relay keys distinct from owner accounts |
 | pattern-solana-account-cohort-validation.md | Validate every passed Solana account as part of the expected account cohort before trusting its data, authority, or balance. | A Solana instruction receives many accounts from the caller |
 | pattern-timelocked-spell-authority.md | Grant authority to scheduled action contracts only after a delay, with cancelability and separate emergency pause controls. | A system is immutable or proxyless but still needs controlled authority changes |
 | pattern-two-step-authority-handoff.md | Stage critical authority or withdrawal-address changes and require confirmation by the new address before activation. | A privileged role controls upgrades, pausing, treasury movement, or withdrawal addresses |
+| pattern-wallet-native-automation-auth-adapter.md | Execute automation through each user's wallet-native permission model instead of asking wallets to trust one global executor shape. | Automation must act through user-owned wallets or proxies |
+
+## automation
+
+### Patterns
+
+| File | Description | Use When |
+|------|-------------|----------|
+| pattern-changeable-trigger-gate.md | Require every strategy trigger to pass, then atomically update only the selected mutable trigger state during execution. | Automated strategies depend on multiple trigger conditions |
+| pattern-hash-anchored-strategy-subscription.md | Store only a wallet-bound strategy hash on-chain while bots supply the full strategy data and must match the committed hash before execution. | Automation strategies contain large trigger and action structs; Users or wallets subscribe to immutable strategy terms |
+| pattern-registry-routed-wallet-recipes.md | Execute user-wallet recipes by resolving stateless action modules from a registry and piping typed outputs between steps. | Users execute multi-step DeFi operations through their own wallet or proxy |
 
 ## cross-chain
 
@@ -68,7 +80,27 @@
 | File | Description | Use When |
 |------|-------------|----------|
 | pattern-bounded-token-inflation.md | Constrain privileged token minting with explicit rate, amount, recipient, and delay bounds so governance cannot silently create unlimited supply. | Governance or a rewards controller can mint protocol tokens; Inflation is expected but should be predictable |
+| pattern-composable-voting-power-calculator.md | Compute voting power from normalized token, vault, price, and weight components behind explicit calculator modules. | Voting power depends on several tokens, vault shares, or restaked positions |
+| pattern-condition-gated-deadlock-tiebreaker.md | Grant a narrow committee recovery powers only after objective deadlock conditions and timeouts prove normal governance cannot progress. | Governance can become blocked by an exit, pause, or veto state |
+| pattern-epoch-committed-validator-set-header.md | Commit each epoch's validator-set root, quorum rule, key tag, and capture timestamp before verifying epoch-scoped messages. | A relay or settlement layer verifies messages against changing validator sets |
 | pattern-global-settlement-state-machine.md | Shut down a protocol through explicit phases that freeze new risk, snapshot prices, process positions, compute redemption rates, and let claimants redeem. | A system needs a credible emergency shutdown path; Liabilities must be redeemed against remaining collateral |
+| pattern-local-settlement-rage-quit-escrow.md | Resolve a governance dispute by moving locked stakeholder claims into an immutable local exit escrow while the main system continues with a fresh signaling escrow. | A veto or dispute mechanism must offer an exit without globally shutting down the protocol |
+| pattern-proposal-embedded-execution-guards.md | Include guard calls inside executable governance proposals so final dynamic conditions are checked atomically at execution time. | Proposal validity depends on dynamic state at execution time |
+| pattern-stakeholder-extensible-governance-timelock.md | Let economically exposed stakeholders lock claims into a signaling escrow that extends proposal delay and can escalate to an exit path. | Token governance can execute actions that affect another stakeholder class |
+
+### Risks
+
+| File | Triggered When |
+|------|---------------|
+| risk-exit-dependent-governance-deadlock.md | Veto, rage-quit, or emergency governance depends on users exiting before proposals proceed |
+| risk-supply-referenced-veto-support-drift.md | Veto support is measured as a percentage of token supply, shares, or withdrawal claims |
+| risk-uncapped-chain-voting-power-concentration.md | Validator-set power is aggregated from multiple chains or subnetworks |
+
+### Requirements
+
+| File | Applies To |
+|------|-----------|
+| req-veto-governance-liveness-and-exit-safety.md | R1: Proposal Scheduling Remains Bounded, R2: Exit Escalation Has One Clear Active Cohort, R3: Exit Processing Is Public And Bounded, R4: Deadlock Recovery Is Objective |
 
 ## lending
 
@@ -158,6 +190,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-operation-cadence-liveness-agent.md | Monitor keeper-dependent operations against expected cadence, amounts, and state movement so delayed maintenance is detected before users are stuck. | Protocol liveness depends on bots, keepers, or operators |
 | pattern-public-slot-reader-lens.md | Expose efficient public reads for packed or singleton storage through typed slot-reader functions and libraries. | Core state is packed, nested, or keyed in a singleton contract |
 | pattern-read-only-protocol-health-checker.md | Package production and fork invariant checks into read-only contracts or scripts that return structured health results without mutating protocol state. | A protocol has many deployed pools, strategies, managers, or upgradeable instances |
 | pattern-read-only-signer-proposal-validator.md | Expose non-mutating validation for proposed off-chain signer payloads before threshold signers produce irreversible signatures. | Off-chain signers must approve custody-moving payloads |
@@ -177,6 +210,7 @@
 | pattern-multi-source-validation.md | Cross-check prices from multiple oracle sources to detect anomalies and identify which source is malfunctioning. | High-value operations depend on oracle price; Need to distinguish between oracle types of failures |
 | pattern-multihop-price.md | Derive token price in USD through an intermediate base asset when no direct token/stable pool exists. | Token has no direct pool against stablecoins; Token has liquidity against major assets (WETH, WBTC) |
 | pattern-peg-ratio-monitor.md | Track normalized market-price and fair-value ratios for pegged or redeemable assets so operators can detect depeg before it becomes bad debt. | An asset should trade near a peg, redemption value, or exchange-rate value |
+| pattern-permissionless-bridged-source-rate-relay.md | Let anyone relay a deterministic source-chain exchange rate through an authenticated bridge while keeping freshness and deviation checks explicit. | A destination chain needs a source-chain staking or vault exchange rate |
 | pattern-threshold-reporter-consensus.md | Require a quorum of permissioned reporters to submit the same oracle payload before mutating accepted protocol state. | A protocol has a trusted reporter set for off-chain observations |
 | pattern-twap-oracle.md | Time-Weighted Average Price from DEX pools — manipulation-resistant on-chain price discovery. | Need manipulation-resistant on-chain price; Asset has sufficient DEX liquidity |
 
@@ -216,6 +250,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-registry-gated-exchange-fallback.md | Try an allowlisted aggregator route first, then fall back to an allowlisted on-chain wrapper while enforcing final balance-delta slippage. | Off-chain routing can find better prices but cannot be fully trusted |
 | pattern-stateless-callback-validated-swap-router.md | Route swaps through compact path data and callback validation while keeping user slippage, deadline, and payer rules at the router boundary. | Swaps may traverse one or more canonical AMM pools; Pool settlement happens through callbacks |
 | pattern-stateless-prepaid-amm-router.md | Route AMM swaps by pre-paying the first pair, forwarding intermediate outputs pair-to-pair, and enforcing user slippage at the router boundary. | Pools infer swap input from received token balances; The router should not hold balances after the transaction |
 
@@ -235,6 +270,7 @@
 | File | Description | Use When |
 |------|-------------|----------|
 | pattern-principal-reward-split-derivative.md | Represent a staking position with one token for principal and a separate token for accrued rewards. | Principal should remain close to 1:1 with deposited assets |
+| pattern-timeboxed-idempotency-key-ledger.md | Record operation keys for a bounded retention window so retried mints, burns, transfers, or redemptions execute at most once. | Off-chain operations can be retried after network or operator failures |
 
 ## upgrades
 
@@ -245,6 +281,7 @@
 | pattern-bytecode-split-extension-delegate.md | Split oversized contract code into a primary contract and an extension delegate that serves selected functions through fallback `delegatecall`. | A contract approaches bytecode size limits; Extension functions need access to the same storage layout |
 | pattern-namespaced-storage-accessor.md | Isolate upgradeable contract state behind explicit namespace slots and typed accessor libraries. | Contracts are upgradeable and use inheritance or libraries; Multiple modules need independent storage layouts |
 | pattern-selector-routed-module-proxy.md | Dispatch proxy fallback calls through a selector-to-implementation registry with reverse selector manifests and collision checks. | A system needs many modules behind one stable address; Function selectors can be assigned to focused implementations |
+| pattern-timelocked-address-registry.md | Resolve module addresses by registry IDs while staging each address change behind a per-entry wait period. | Executors or routers resolve modules, actions, wrappers, or adapters by ID |
 | pattern-version-gated-upgrade-registry.md | Authorize proxy upgrades only to implementation versions that a registry has approved and not deprecated. | Many proxy instances should share a vetted implementation catalog |
 
 ### Risks
@@ -263,10 +300,13 @@
 | pattern-bounded-rebalance-auction.md | Let managers rebalance basket vaults through auctions while constraining assets, weights, prices, duration, and later parameter changes. | A vault holds a managed basket or index of multiple assets |
 | pattern-circuit-breaker.md | Pause deposits/withdrawals when oracle price deviates significantly from a reference price, closing the attack window during suspicious conditions. | Vault relies on oracle for NAV calculation; Assets are volatile or oracle is known to have latency |
 | pattern-clone-factory.md | Mass deployment of parameterized vault instances via minimal proxy clones — ~45K gas per vault instead of ~2M. | Many vaults with identical logic but different parameters (fee tiers, recipients, names) |
+| pattern-curated-validator-operator-registry.md | Maintain an operator registry that separates validator membership from preferred deposit and withdrawal routing. | Liquid staking depends on a curated validator set; Deposit and withdrawal operations need different preferred operators |
 | pattern-delta-nav.md | Calculate vault shares based on proportional change in Net Asset Value. | Single-asset vault (one underlying token) |
 | pattern-dynamic-premium.md | Entry/exit fee that varies based on oracle volatility, providing adaptive protection against oracle arbitrage during high-risk periods. | Vault has varying risk levels over time; Fixed premium would be too high during normal conditions |
+| pattern-exchange-rate-preserving-lst-cutover.md | Migrate a liquid-staking token to a successor manager by moving backing assets without minting and asserting exchange-rate continuity. | A liquid-staking system must migrate manager contracts without changing token claims |
 | pattern-high-water-mark-fee.md | Charge performance fee only on new profit above the previous peak, paid via share dilution. | Vault generates yield and protocol needs to capture a share of profits |
 | pattern-locked-profit-smoothing.md | Exclude newly harvested profit from strategy value for a fixed window, then release it linearly to prevent timing extraction around harvests. | Strategy profit is realized in discrete harvest transactions; Deposits can occur immediately before or after harvest |
+| pattern-operator-routed-liquid-staking-share.md | Mint a non-rebasing liquid-staking share while routing deposits to selected validators or operators behind an exchange-rate ledger. | Users need a transferable non-rebasing claim on delegated stake |
 | pattern-premium-buffer.md | Charge a fee on deposits/withdrawals that covers potential oracle price deviation, eliminating arbitrage profitability. | Vault uses oracle prices for NAV calculation; Need simple, synchronous deposit/withdraw flow |
 | pattern-proportional-deposit.md | Users deposit and withdraw all vault assets proportionally, eliminating the need for oracle-based NAV calculation. | Multi-asset vault/pool with known composition; Want to avoid oracle dependency entirely |
 | pattern-proportional-zapin.md | External periphery contract converts single-token input into a proportional multi-token deposit, pushing swap slippage to the depositor and eliminating slippage socialisation in managed vaults. | Multi-token vault where a manager rebalances after single-token deposits (slippage socialised across holders) |
@@ -290,3 +330,18 @@
 |------|-----------|
 | req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata |
 | req-vault-fairness.md | R1: No Value Extraction, R2: Fair Share Price, R3: Cost Attribution, R4: No Timing Advantage |
+
+## zero-knowledge
+
+### Patterns
+
+| File | Description | Use When |
+|------|-------------|----------|
+| pattern-bounded-merkle-root-history.md | Keep a fixed-size ring of recent Merkle roots so asynchronous zk proofs can verify membership without accepting unbounded stale state. | Users generate proofs against roots that may be a few blocks old |
+| pattern-circuit-bound-external-settlement-hash.md | Hash settlement fields outside the circuit, constrain the hash as a public input, and verify the same hash on-chain before moving tokens. | A zk proof controls public token deposits or withdrawals |
+
+### Requirements
+
+| File | Applies To |
+|------|-----------|
+| req-shielded-pool-accounting-invariants.md | R1: Known Root Membership, R2: Nullifiers Are Unique, R3: Public Amounts Conserve Value, R4: External Settlement Is Bound |

@@ -37,6 +37,7 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - A wrapper updates `updatedAt` every call while the underlying redemption path is impaired.
 - A protocol caps upward movement but ignores downside depeg.
 - A metapool treats base-pool LP virtual price as fair value while secondary market liquidity is thin or cached.
+- A liquid-staking token's internal exchange rate is fresh and bounded, but withdrawals are delayed or market buyers discount the token.
 
 ## Mitigations
 
@@ -45,11 +46,13 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Monitor both fair-value ratio and market ratio.
 - Pause new borrowing or reduce caps when market price diverges from exchange rate.
 - Document whether liquidations assume redemption value or market-sale value.
+- For LSTs, separately monitor total supply, delegated backing, exchange-rate drops, and withdrawal queue liveness.
 
 ## Source Evidence
 
 - SparkLend Advanced includes exchange-rate style valuation components for stable, LST, LRT, and ERC4626-style assets, which surfaced the need to distinguish freshness from realizable market value.
 - Curve metapools cache and read base-pool LP virtual prices, which are useful fair-value accounting inputs but are not market-clearing prices.
+- Stader BNBx derives a fresh internal LST exchange rate from delegated backing and token supply, which is useful for mint/redeem accounting but still distinct from market-clearing collateral value.
 
 ## Related Patterns
 

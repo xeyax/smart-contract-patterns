@@ -29,6 +29,7 @@
 - Destination finalization fails closed instead of minting into invalid mappings.
 - Refund messages are replay-safe and authenticated by the bridge.
 - Refunds remain callable while new deposits are paused.
+- Sending failed settlement funds to an admin or multisig is not a user refund path unless on-chain entitlement and claim semantics define how users recover funds.
 
 ## R3: Migration Accounts For In-Flight Messages
 
@@ -67,6 +68,7 @@
 - Arbitrum native USDC migration tests check pending deposits before burn and role transfer.
 - Optimism Bedrock uses scoped pause identifiers with expiry, but paused portal proof and finalization paths remain liveness exceptions that need operational justification.
 - tBTC v2 redemptions include timeout paths that restore balances or keep timed-out redemptions honor-able, and optimistic mint pauses do not block standard proof-based minting.
+- Tornado Nova's failed external settlement path shows why admin recovery of funds should not be treated as equivalent to user-claimable bridge refund semantics.
 
 ## Related Patterns
 

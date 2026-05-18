@@ -63,11 +63,23 @@ require(hasPermission(pool, from, SEND_BIT), "sender not allowed");
 require(hasPermission(pool, to, RECEIVE_BIT), "receiver not allowed");
 ```
 
+### Registry Or Role-Backed Variant
+
+Eligibility can also be delegated to a permission manager that stores named roles instead of compact bits:
+
+```solidity
+require(permissionManager.hasRole(WHITELISTED_ROLE, from), "from");
+require(permissionManager.hasRole(WHITELISTED_ROLE, to), "to");
+```
+
+This is easier to inspect for regulated tokens, but it still needs the same endpoint coverage and admin controls. Role changes should be evented, and role admins are part of the transfer-policy trust boundary.
+
 ## Key Points
 
 - Name every bit and keep a policy table in docs or deployment artifacts.
 - Check both sides of transfers when secondary market eligibility matters.
 - Distinguish pool-level allowlists from function-level permissions.
+- If roles or registries replace bitmaps, keep the same sender, receiver, delegated-spender, and redemption-contract coverage.
 - Emit events for bit changes so off-chain compliance and monitoring can reconstruct state.
 - Fuzz policy combinations, not only the happy-path private/public modes.
 - For regulated or permissioned shares, check the delegated transfer initiator as well as `from` and `to`; a non-eligible spender should not move eligible users' tokens through `transferFrom`.
@@ -78,6 +90,7 @@ require(hasPermission(pool, to, RECEIVE_BIT), "receiver not allowed");
 - Maple uses participant permission modes and pool/lender bitmaps, with tests covering private, function-level, pool-level, public, and transfer eligibility checks.
 - Centrifuge liquidity pools use time-bounded membership, freeze state, sender/receiver checks, endorsed escrow/router paths, and authorized settlement transfers for permissioned tranche tokens.
 - An Ondo audit-contest snapshot checks KYC/sanctions status for `from`, `to`, and delegated transfer initiator on regulated rebasing share transfers.
+- Spiko's Stellar token delegates mint, transfer, redeem, and redemption-contract eligibility to a permission manager with admin-controlled whitelist roles.
 
 ## Related Patterns
 

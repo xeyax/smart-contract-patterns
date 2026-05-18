@@ -63,6 +63,17 @@ function consume(address consumer, uint256 amount) external onlyAuthorizedConsum
 
 Consumers can share a bucket intentionally, but that grouping should be an explicit risk decision.
 
+### Pairwise Bridge Route Variant
+
+For cross-chain bridges, the consumer key may need to include both source and destination route:
+
+```solidity
+bytes32 bucketId = keccak256(abi.encode(srcChainId, dstChainId, asset, direction));
+_consume(bucketId, amount);
+```
+
+This prevents inbound liquidity for one route from consuming outbound capacity for another route unless the shared bucket is intentional.
+
 ## Key Points
 
 - Authorize both the caller and the consumer bucket.
@@ -70,10 +81,12 @@ Consumers can share a bucket intentionally, but that grouping should be an expli
 - Test independent buckets, shared buckets, refill boundaries, and over-capacity attempts.
 - Do not let untrusted users create unlimited consumers to bypass the limit.
 - Pair with a break-glass role that can lower or zero a compromised consumer's bucket.
+- For bridges, distinguish inbound/outbound direction and source/destination pair in the bucket key when route isolation matters.
 
 ## Source Evidence
 
 - Ether.fi uses bucket ids plus consumer allowlists to isolate rate-limited usage and tests independent bucket accounting and consumer isolation.
+- Veda's LayerZero teller path applies pairwise inbound and outbound rate limits so bridge capacity is isolated by route.
 
 ## Related Patterns
 

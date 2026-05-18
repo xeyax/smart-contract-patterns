@@ -17,6 +17,13 @@ Oracle prices become stale when the data source hasn't been updated recently. Th
 - Incorrect liquidations (too early or too late)
 - Unfair pricing for deposits/withdrawals
 
+## Applies When
+
+- Price or rate data has a heartbeat, deviation threshold, relay delay, or manual update cadence
+- Contracts accept Chainlink-compatible wrappers, bridged rates, or internal exchange-rate feeds
+- Value-bearing actions do not reject stale or synthetic timestamps
+- Oracle downtime can affect deposits, withdrawals, borrowing, liquidation, or voting power
+
 ## Requirements Violated
 
 This risk violates [Oracle Reliability Requirements](./req-oracle-reliability.md):
@@ -109,6 +116,11 @@ Treat wrappers as new oracle implementations:
 - Propagate the oldest underlying timestamp through `updatedAt`.
 - Reject `latestAnswer()` integrations for value-bearing operations because they cannot check freshness.
 - Do not rely on off-chain monitoring as the only guard for on-chain state changes.
+- For bridged rate providers, distinguish source update time from destination relay time; `block.timestamp` on the destination proves only when the message executed.
+
+### Conservative Zeroing Can Still Be Liveness Risk
+
+Some voting-power or validator-set calculators fail closed by returning zero when a price is stale or unavailable. This is safer than overvaluing assets for solvency, but it can still distort quorum, validator-set fairness, or chain representation if one component unexpectedly drops to zero.
 
 ## Conditions That Increase Risk
 
@@ -142,6 +154,7 @@ Example (1% deviation threshold):
 | Premium Buffer | Fee covers potential staleness | Cost to users |
 | Source Timestamp Propagation | Prevents wrappers from hiding stale inputs | Requires wrapper-specific integration |
 | L2 Action Sentinel | Blocks borrow/liquidation paths during sequencer downtime or grace period | Can delay liquidations unless a severe-risk exception exists |
+| Conservative Zeroing | Avoids overvaluing stale-priced components | Can change quorum or validator-set composition abruptly |
 
 ### Implementation: Staleness Check
 
@@ -202,12 +215,14 @@ function isPriceStale() public view returns (bool) {
 - Alert when `updatedAt` exceeds threshold
 - Monitor deviation between Chainlink and DEX prices
 - Track sequencer status on L2s
+- For voting-power calculators, alert when stale or missing feeds zero a component that contributes to quorum.
 
 ## Real-World Incidents
 
 - **Venus Protocol (2021)** — stale price for XVS allowed borrowing at wrong rate
 - **Compound (2020)** — DAI oracle manipulation during flash crash
 - **Arbitrum Sequencer Outage** — multiple protocols affected by stale prices
+- Rocket Pool's Polygon rate relay and Symbiotic Relay's voting-power calculators show wrapper-specific freshness hazards: the former can confuse source and destination timestamps, while the latter can zero voting power on stale prices.
 
 ## Related Patterns
 

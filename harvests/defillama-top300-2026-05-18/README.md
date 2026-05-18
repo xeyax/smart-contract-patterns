@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories analyzed so far: 46 repositories across 6 batches.
+- Source repositories analyzed so far: 54 repositories across 7 batches.
 
 ## First Batch Repositories
 
@@ -83,6 +83,19 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Optimism Bridge | `ethereum-optimism/optimism` | Canonical Bridge |
 | tBTC v2 | `threshold-network/tbtc-v2` | Bridge |
 
+## Seventh Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Lido Dual Governance | `lidofinance/dual-governance` | Governance |
+| Spiko Stellar | `spiko-tech/stellar-contracts` | RWA |
+| Veda Plasma | `Veda-Labs/boring-vault-plasma` | Onchain Capital Allocator |
+| Rocket Pool Polygon Oracle | `rocket-pool/rocketpool-polygon-oracle` | Liquid Staking Oracle |
+| Tornado Nova | `tornadocash/tornado-nova` | Privacy Pool |
+| Symbiotic Relay | `symbioticfi/relay-contracts` | Restaking Relay |
+| Stader BNBx | `stader-labs/bnbX` | Liquid Staking |
+| Defi Saver V3 | `defisaver/defisaver-v3-contracts` | Automation |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -92,6 +105,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-04-findings.md` — accepted and deferred catalog updates from the next 7 dry-run analyses.
 - `batch-05-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
 - `batch-06-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
+- `batch-07-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 
 ## Notes
 

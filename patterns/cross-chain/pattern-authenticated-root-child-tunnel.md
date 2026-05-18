@@ -48,6 +48,7 @@ For exits back to root, the root tunnel verifies a proven message log from the c
 - Configure peers on both sides and reject zero or unknown peers.
 - Authenticate bridge caller, remote sender, and event signature or message selector.
 - Keep payload decoding separate from peer authentication.
+- If the tunnel dispatches payloads with `address(this).call(data)`, every externally callable target selector must be self-only, selector-bounded, or independently authorized.
 - Test replay, wrong peer, wrong bridge caller, and malformed payload cases.
 - Treat tunnel upgrades as cross-chain security changes, not ordinary parameter changes.
 
@@ -56,6 +57,7 @@ For exits back to root, the root tunnel verifies a proven message log from the c
 - Polygon PoS `BaseChildTunnel.onStateReceive` accepts only the state-sync path and configured root sender.
 - `BaseRootTunnel._validateAndExtractMessage` validates proven child-tunnel logs before returning the payload.
 - Tunnel tests cover replay and wrong-message behavior.
+- Rocket Pool's Polygon oracle uses a self-dispatched child payload, which makes target selector authorization part of the tunnel safety boundary.
 
 ## Related Patterns
 

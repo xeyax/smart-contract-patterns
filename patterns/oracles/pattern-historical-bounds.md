@@ -223,6 +223,20 @@ function validateReporterUpdate(uint256 reporterPrice, uint256 anchorPrice) inte
 
 This reduces the chance that a reporter can move accepted state too far from a reference source in one update window. The anchor can be a TWAP, median, or prior accepted state, but it must have its own freshness and manipulation-resistance checks.
 
+### LST Exchange-Rate Accepted State
+
+For liquid-staking exchange rates, accepted-state bounds should cap changes to internal accounting while preserving the distinction between internal backing and market value:
+
+```solidity
+function acceptExchangeRate(uint256 newRate) external {
+    require(newRate >= minRate, "below floor");
+    require(_withinDelta(newRate, lastRate, maxRateMoveBps), "rate move");
+    lastRate = newRate;
+}
+```
+
+Fees should be charged only on positive stake growth, and off-chain monitoring should still watch for market depeg, supply mismatch, and redemption impairment.
+
 ### External-Anchor Accepted State
 
 For RWA or NAV-style feeds, accepted-state updates can require both a fresh external reference and a bounded move from the previous accepted value:
@@ -272,6 +286,7 @@ This is safer than forcing the price to a constant peg because it does not hide 
 - For bridged prices, authenticate the remote sender and reject stale, future-dated, or non-monotonic timestamps
 - For stable or pegged collateral, prefer one-sided caps that limit upward overvaluation without masking downside depeg
 - Do not treat out-of-gas, empty-return, or unexpected-revert fallback paths as valid default prices
+- For LSTs, exchange-rate bounds constrain accepted internal accounting but do not prove market liquidity or redemption value.
 
 ## Limitations
 
@@ -333,6 +348,7 @@ contract CircuitBreakerWithBounds {
 - [Chainlink Circuit Breakers](https://blog.chain.link/circuit-breakers-and-client-diversity-within-the-chainlink-network/) — built-in bounds checking
 - SparkLend Advanced uses one-sided capped stablecoin-style oracle logic so upward overvaluation is limited without hiding downside depeg.
 - An Ondo audit-contest snapshot combines fresh Chainlink round checks, daily cadence, absolute bounds, and anchor-delta bounds before accepting RWA oracle state.
+- Stader BNBx constrains accepted LST exchange-rate movement and uses monitoring around exchange-rate drops, supply mismatch, and operation cadence.
 
 ## Related Patterns
 
