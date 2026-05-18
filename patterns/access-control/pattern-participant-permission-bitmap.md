@@ -74,6 +74,10 @@ require(permissionManager.hasRole(WHITELISTED_ROLE, to), "to");
 
 This is easier to inspect for regulated tokens, but it still needs the same endpoint coverage and admin controls. Role changes should be evented, and role admins are part of the transfer-policy trust boundary.
 
+### Regulated Vault Share Variant
+
+For redeemable or claim-bearing vault shares, endpoint checks must cover the caller, owner/from account, receiver/to account, and any delegated spender. If a holder is frozen or blocklisted, rescue paths should move specific share balances or claim-ledger entries, emit the affected periods and amounts, and document who can redirect custody.
+
 ## Key Points
 
 - Name every bit and keep a policy table in docs or deployment artifacts.
@@ -85,6 +89,7 @@ This is easier to inspect for regulated tokens, but it still needs the same endp
 - For regulated or permissioned shares, check the delegated transfer initiator as well as `from` and `to`; a non-eligible spender should not move eligible users' tokens through `transferFrom`.
 - If transfer rights intentionally inherit from the `from` account through normal ERC20 approval, document that delegation as a business requirement and test approved spenders explicitly.
 - Permission bits may include expiry timestamps, freeze bits, and endorsed system escrow/router bypasses, but bypasses should be narrow and documented.
+- For regulated vault shares, rescue frozen accounts through specific entitlements rather than broad operator custody.
 
 ## Source Evidence
 
@@ -93,8 +98,10 @@ This is easier to inspect for regulated tokens, but it still needs the same endp
 - An Ondo audit-contest snapshot checks KYC/sanctions status for `from`, `to`, and delegated transfer initiator on regulated rebasing share transfers.
 - Spiko's Stellar token delegates mint, transfer, redeem, and redemption-contract eligibility to a permission manager with admin-controlled whitelist roles.
 - Karpatkey's KPK token intentionally lets an allowlisted sender delegate transfers through ERC20 approval, illustrating that delegated-spender checks are policy-dependent and must be explicit.
+- Firelight's regulated vault-share flow checks transfer endpoints and includes frozen-account rescue mechanics for claim-ledger periods and amounts.
 
 ## Related Patterns
 
 - [Selector-Scoped Authority](./pattern-selector-scoped-authority.md)
 - [Unvalidated External Contract](../../ANTIPATTERNS.md#unvalidated-external-contract)
+- [Permissioned Exit Custody](../../ANTIPATTERNS.md#permissioned-exit-custody)

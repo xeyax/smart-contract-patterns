@@ -175,6 +175,10 @@ If pending exits reference mutable global terms, governance can unintentionally 
 
 Synchronous deposits and redeems can coexist with async queues only when the current NAV has an explicit validity window and valuation updates cannot change NAV during that window. If the vault cannot preserve that invariant, switch to async-only mode for value-changing entry and exit.
 
+### Epoch Calendar Changes
+
+If claimability depends on period numbers or epoch calendars, period-duration changes are value-affecting. Stage them at future boundaries, allow only one pending calendar config at a time, and make historical lookup use the config active at the queried timestamp.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
@@ -302,6 +306,8 @@ Async withdrawals need additional liveness and accounting checks:
 - Liquid-staking FIFO batches should fix each batch's entitlement and keep claims available through deposit or staking pauses when solvent.
 - Relay and restaking systems must align async settlement cadence with vault slashing, epoch finality, and validator-set capture windows.
 - ERC-7540 claim ledgers should snapshot conversion terms at settlement time so user-controlled claims do not recalculate against later fees, supply, or NAV.
+- Fixed-entitlement delayed withdrawals can reserve pending assets outside `totalAssets()`, but request-time pricing does not by itself remove timing advantage.
+- Epoch calendar changes for pending exits need future-boundary staging and historical lookup by active config.
 
 ## ERC-7540: Async Vault Standard
 
@@ -334,6 +340,7 @@ interface IERC7540 {
 - Veda Plasma vaults — solver-filled withdrawal queues combine request-time terms, maturity, deadlines, capacity limits, and active-request rescue exclusions
 - Stader BNBx — bounded FIFO withdrawal batches fix batch entitlement and support pause-safe claiming
 - Lagoon ERC-7540 vaults — settlement snapshots assets, supply, and fee terms by request/settlement id; sync paths are gated by NAV validity and can be disabled into async-only mode
+- Firelight vaults — delayed withdrawals burn shares, record fixed per-period assets and shares, exclude pending withdrawal assets from `totalAssets()`, and expose epoch-calendar update caveats
 - Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 

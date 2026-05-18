@@ -251,6 +251,12 @@
 | pattern-queued-reward-streaming.md | Queue reward tokens from permissioned distributors, carry leftovers forward, and stream rewards over a fixed duration. | Rewards arrive in discrete deposits but should accrue smoothly; Only approved distributors should fund reward streams |
 | pattern-range-liquidity-reward-index.md | Accrue rewards only to concentrated-liquidity positions whose tick ranges are active, using tick-level reward-growth snapshots. | Rewards should incentivize active AMM liquidity, not out-of-range inventory; LP positions have lower and upper ticks |
 
+### Risks
+
+| File | Triggered When |
+|------|---------------|
+| risk-reward-token-accrual-dos.md | Deposit, withdraw, transfer, or claim updates all registered reward tokens |
+
 ## routing
 
 ### Patterns

@@ -64,11 +64,13 @@ function harvestAndQueue() external {
 - Carry leftover undistributed rewards forward.
 - Bound reward duration changes through governance or timelock.
 - Fee splits should happen before queuing so streamed accounting matches token balance.
+- Treat instant distribution as flash-deposit sensitive unless stake duration, caller eligibility, or trigger design prevents same-transaction entry and claim.
 
 ## Source Evidence
 
 - Convex uses permissioned reward distributors and carries leftover rewards into new reward rates when streams are refilled before period end.
 - Convex proxy harvest flows claim external rewards and split fees through registry-configured recipients.
+- Reserve staking audit material warns that instant payout modes are vulnerable to flash deposits when reward funding is externally triggerable.
 
 ## Related Patterns
 
