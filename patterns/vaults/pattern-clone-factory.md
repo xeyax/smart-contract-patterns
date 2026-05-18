@@ -147,6 +147,7 @@ contract FeeVaultFactory {
 - **Events as registry.** `VaultCreated` events provide a complete on-chain history of all vaults. Subgraph or indexer can build a dashboard from events alone — no need to query `deployedVaults[]` array on-chain.
 - **`initialize()` is one-shot.** OpenZeppelin's `initializer` modifier prevents re-initialization. Even if someone calls `initialize()` on a clone, it reverts after first call.
 - **Implementation contract must not be usable directly.** Call `_disableInitializers()` in implementation's constructor to prevent direct initialization of the template.
+- **Deactivation should affect future creation, not existing clones.** If a product line is deprecated, disable new clone deployment while leaving existing user-owned clones able to withdraw or migrate.
 
 ## Variations
 
@@ -197,6 +198,7 @@ Safer beacon variants reduce blast radius:
 ## Related Patterns
 
 - [Vault Wrapper](./pattern-vault-wrapper.md) — the vault being cloned by this factory
+- [User-Owned Proxy Vault](./pattern-user-owned-proxy-vault.md) — per-user clone custody boundary
 - [Vault Composability Risk](./risk-vault-composability.md) — risks of many wrappers sharing one base vault
 
 ## References

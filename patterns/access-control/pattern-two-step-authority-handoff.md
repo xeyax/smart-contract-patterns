@@ -50,11 +50,13 @@ For withdrawal addresses, keep the old address active until the new address conf
 - Let the current authority cancel a pending handoff.
 - Use a timelock for high-impact role changes if the current authority remains able to stage malicious changes.
 - For withdrawal addresses, distinguish "current address approved" from "new address confirmed".
+- Disable or constrain `renounceOwnership()` when the system requires continuing authority for minting, burning, pausing, or upgrades.
 
 ## Source Evidence
 
 - Rocket Pool stages guardian transfer and requires confirmation by the pending guardian.
 - Rocket Pool node withdrawal addresses can be set through a pending confirmation path and reject confirmations from unrelated addresses.
+- WBTC disables ownership renounce paths where continuing controller authority is required.
 
 ## Related Anti-Patterns
 

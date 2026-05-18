@@ -79,6 +79,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Store confirmations by request hash, not by nonce alone.
 - Validate the destination chain before irreversible actions such as burning.
 - Pair request-hash replay protection with source-chain finality rules.
+- Historical custodial wrappers may store local request hashes for auditability, but modern cross-chain bridges should bind the full operation and chain domain.
 
 ## Common Pitfalls
 
@@ -93,6 +94,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 
 - FBTC hashes bridge requests with operation, nonce, source chain, destination chain, participants, amount, fee, and extra data.
 - FBTC records cross-chain confirmations by request hash and tests duplicate confirmation rejection.
+- WBTC stores request hashes for mint/burn request auditability, but its trusted-custodian model is not a substitute for chain-bound replay protection.
 
 ## Related Patterns
 

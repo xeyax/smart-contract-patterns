@@ -148,6 +148,21 @@ function instantWithdrawalFee(uint256 amount) public view returns (uint256 feeBp
 
 This variant charges more as the buffer approaches its drawdown floor, discouraging users from draining scarce instant liquidity while keeping slower queued withdrawals available.
 
+### Allocation Imbalance Premium
+
+For basket vaults, scale mint/burn fees by how far the operation moves the basket from target allocation:
+
+```solidity
+function imbalanceFeeBps(int256 beforeImbalance, int256 afterImbalance) public view returns (uint256) {
+    if (abs(afterImbalance) <= abs(beforeImbalance)) return minFeeBps;
+
+    uint256 excess = abs(afterImbalance) - abs(beforeImbalance);
+    return minFeeBps + _kinkedSlope(excess);
+}
+```
+
+This variant charges more when a mint or burn worsens allocation health and can charge less when the user helps rebalance the basket. Pair it with user slippage/deadline bounds because the premium is part of the execution price.
+
 ### Time-Decaying Premium
 
 Higher premium right after large price moves:

@@ -130,6 +130,7 @@ Interface compatibility is not the same as Chainlink freshness or round semantic
 - Prefer `latestRoundData()` over `latestAnswer()` so the caller can validate timestamp and round completeness.
 - If the wrapper composes multiple sources, propagate the oldest underlying timestamp.
 - Reject wrappers that return a fresh timestamp while the underlying source has no freshness signal.
+- For primary/backup adapters, validate freshness on the selected feed and fail closed if both feeds are stale.
 - Normalize decimals after reading the feed, and reject negative or zero answers.
 
 ### With Fallback Oracle
@@ -208,6 +209,8 @@ contract L2ChainlinkOracle {
 | **Negative price** | `price` | `require(price > 0)` |
 | **Fresh-timestamp shim** | wrapper source | Do not trust `updatedAt = block.timestamp` unless the underlying source is fresh |
 | **`latestAnswer()` only** | missing timestamp | Use `latestRoundData()`; off-chain monitoring is not an on-chain guard |
+| **Missing previous round** | `roundId - 1` reads | Check historical depth before adjacent-round or interpolation logic |
+| **Interpolation divide-by-zero** | timestamps | Require strictly increasing round timestamps |
 
 ## Real-World Examples
 

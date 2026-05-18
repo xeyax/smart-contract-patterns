@@ -27,9 +27,22 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Rocket Pool | `rocket-pool/rocketpool` | Liquid Staking |
 | Function FBTC | `fbtc-xyz/fbtc-contract` | Bridge |
 
+## Second Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| WBTC | `WrappedBTC/bitcoin-token-smart-contracts` | Bridge |
+| JustLend | `justlend/justlend-protocol` | Lending |
+| Portal | `wormhole-foundation/wormhole-ntt-contracts` | Bridge |
+| Spiko | `spiko-tech/contracts` | RWA |
+| Convex Finance | `convex-eth/frax-cvx-platform` | Yield |
+| cap | `cap-labs-dev/cap-contracts` | Lending |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
+- `batch-01-findings.md` — accepted and deferred catalog updates from the first 12 dry-run analyses.
+- `batch-02-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
 
 ## Notes
 

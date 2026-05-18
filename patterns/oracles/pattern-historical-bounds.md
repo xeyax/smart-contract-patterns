@@ -209,6 +209,20 @@ function acceptReport(uint256 newValue, uint256 reportTime) external {
 
 This variant is useful for reporter-quorum systems and cross-chain price relays where each accepted update becomes protocol state. Reject zero values, undercollateralized rates, non-monotonic timestamps, excessive deltas, stale reports, and future-dated reports before minting, borrowing, or accepting deposits against the value.
 
+### Anchor-Capped Accepted State
+
+For reporter-fed prices, cap updates against an anchor over a fixed period:
+
+```solidity
+function validateReporterUpdate(uint256 reporterPrice, uint256 anchorPrice) internal view {
+    uint256 deviation = _deviationBps(reporterPrice, anchorPrice);
+    require(deviation <= maxSwingBps, "anchor deviation");
+    require(block.number >= lastAnchorBlock + anchorPeriod, "anchor period active");
+}
+```
+
+This reduces the chance that a reporter can move accepted state too far from a reference source in one update window. The anchor can be a TWAP, median, or prior accepted state, but it must have its own freshness and manipulation-resistance checks.
+
 ## Calibration
 
 | Asset Type | Suggested Max Deviation | Rationale |

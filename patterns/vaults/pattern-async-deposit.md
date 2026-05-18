@@ -238,6 +238,7 @@ Async withdrawals need additional liveness and accounting checks:
 - Public settlement should accept a max count or explicit id range and stop cleanly when capacity is exhausted.
 - If assets are scarce, refill a [Withdrawal Liquidity Buffer](./pattern-withdrawal-liquidity-buffer.md) before deploying surplus capital.
 - Delayed unstaking can burn shares immediately, escrow assets in a manager, and allow claim after a delay; cancellation rules must be explicit and value-neutral.
+- Escrowed redemption flows can transfer shares/tokens into a redemption contract, let an operator execute and burn them, and allow public timeout refunds if execution stalls.
 
 ## ERC-7540: Async Vault Standard
 

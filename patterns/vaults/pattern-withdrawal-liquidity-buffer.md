@@ -69,6 +69,8 @@ function handleIncomingAssets(uint256 amount) internal {
 - Buffer target and drawdown floor should be explicit risk parameters.
 - Instant withdrawals can charge a utilization-based fee as the buffer approaches the floor.
 - Queued withdrawals still need gas-bounded finalization and claim paths.
+- Surplus above the buffer can be invested, but recall paths must handle ERC4626 rounding, strategy losses, and forced withdrawal failure.
+- Invariant tests should cover reserve target, invested surplus, recall amount, and user redemption liveness.
 
 ## Source Evidence
 

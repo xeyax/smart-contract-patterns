@@ -219,6 +219,7 @@ See [Vault Composability Risk](./risk-vault-composability.md) for comprehensive 
 - [High-Water Mark Performance Fee](./pattern-high-water-mark-fee.md) — fee accounting logic reused in wrapper
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base vault's share calculation that wrapper delegates to
 - [Clone Factory](./pattern-clone-factory.md) — mass deployment of parameterized wrappers
+- [Balance Delta Transfer Accounting](../token-integration/pattern-balance-delta-transfer-accounting.md) — actual-received token accounting
 - [Vault Composability Risk](./risk-vault-composability.md) — risks introduced by layered composition
 
 ## References

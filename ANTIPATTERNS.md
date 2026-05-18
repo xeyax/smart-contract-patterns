@@ -86,7 +86,7 @@ Value-bearing operation (swap, deposit, mint) without user-specified bounds on a
 Share price manipulable via direct token transfer to contract.
 **Symptoms:** `totalAssets()` reads token balance directly, no virtual offset or internal accounting.
 **Risk:** Attacker donates tokens → inflates share price → first depositor gets ~0 shares.
-**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance. Also check lifecycle predicates that depend on zero token balance; donations can grief removal or cleanup flows even without share inflation.
+**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance. Also check lifecycle predicates that depend on zero token balance; donations can grief removal or cleanup flows even without share inflation. For 1:1 wrappers, surplus accounting plus a controlled skim receiver can neutralize donations.
 
 ## State & Lifecycle
 
@@ -95,6 +95,12 @@ Upgradeable proxy without initializer protection.
 **Symptoms:** `initialize()` without `initializer` modifier, or no initialization check.
 **Risk:** Attacker calls initialize on implementation, takes ownership.
 **Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor.
+
+### Latched Invalid Initialization
+One-shot initializer records partial or invalid configuration before validating all required fields.
+**Symptoms:** `initialized = true` or equivalent latch can be set while required addresses, chain ids, or limits are zero.
+**Risk:** Contract becomes permanently bricked or deploys peers with unusable configuration.
+**Fix:** Validate all required fields before setting irreversible initialization state; test zero/partial configs.
 
 ### Missing Migration Path
 Immutable contract with no plan for upgrade/migration.
@@ -190,7 +196,7 @@ Governance token = voting token, no snapshot, no minimum holding period.
 
 ### Governance as Arbitrary Execution
 Governor contract executes arbitrary calldata against any target.
-**Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism.
+**Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism. Operator or receiver contract can hold funds and execute arbitrary calldata.
 **Risk:** Passed proposal becomes unrestricted execution primitive. Can drain treasury, brick protocol.
 **Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role.
 
@@ -200,7 +206,7 @@ Governor contract executes arbitrary calldata against any target.
 Lending protocol allows illiquid collateral, fixed liquidation bonus, no circuit breaker.
 **Symptoms:** No liquidity-aware parameters, no cascading liquidation protection, no bad-debt backstop.
 **Risk:** Liquidations push prices down → more liquidations → bad debt. Aave V2: $1.7M bad CRV debt.
-**Fix:** Liquidity-aware listing, graduated liquidation, bad-debt backstop, halt beyond LTV threshold.
+**Fix:** Liquidity-aware listing, graduated liquidation, bad-debt backstop, halt beyond LTV threshold. Avoid broad liquidation/seize pauses unless there is a separate bad-debt containment plan.
 
 ### Correlated Collateral Basket
 Multiple collateral types are highly correlated but treated as independent.
@@ -234,7 +240,7 @@ Many instances share single Beacon, Beacon owner is EOA or low-threshold multisi
 Upgradeable contracts without namespaced storage, no layout diffing in CI.
 **Symptoms:** No EIP-7201, variables inserted between existing ones, multiple inheritance.
 **Risk:** Storage collision corrupts critical state (owner, balances). Silently catastrophic.
-**Fix:** EIP-7201 namespaced storage, layout compatibility checks in CI, append-only with gap slots.
+**Fix:** EIP-7201 namespaced storage, typed storage accessors, layout compatibility checks in CI, append-only with gap slots.
 
 ## Cross-Chain
 
