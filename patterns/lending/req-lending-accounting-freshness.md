@@ -33,6 +33,7 @@ accrualBlock == block.number
 - Single-market actions can require same-block accrual.
 - Cross-market liquidity may intentionally use stored balances for gas reasons.
 - Audits and tests must distinguish local market freshness from account-wide risk freshness.
+- View helpers should make clear whether they return raw stored state or expected accrued state.
 
 ## R3: Stale Actions Fail Closed
 
@@ -56,8 +57,12 @@ accrualBlock == block.number
 
 - JustLend accrues interest before mint, borrow, redeem, and liquidation paths and checks same-block freshness before state transitions.
 - Its comptroller liquidity checks use stored snapshots for cross-market calculations, showing why freshness scope must be explicit.
+- Morpho Blue accrues before supply, withdraw, borrow, repay, and liquidate paths, and its formal specs compare explicit pre-accrual with expected accrued state.
+- Aave V3 updates reserve state before value-changing reserve actions and represents user balances through indexes that depend on current reserve accounting.
 
 ## Related Patterns
 
 - [Lazy Borrow Index](./pattern-lazy-borrow-index.md)
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
+- [Scaled Balance Token Accounting](./pattern-scaled-balance-token-accounting.md)
+- [Share-Denominated Lending Accounting](./pattern-share-denominated-lending-accounting.md)

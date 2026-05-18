@@ -64,6 +64,18 @@ function executeReport(uint256 epoch) external {
 }
 ```
 
+### Serialized Downstream Execution
+
+If accepted reports drive later protocol actions, the oracle should prevent a newer report from superseding a pending one before downstream execution is handled:
+
+```solidity
+require(!hasUnhandledReport, "previous report pending");
+pendingReport = report;
+hasUnhandledReport = true;
+```
+
+The executor can then enforce slot, block, wait-period, or rate-limit checks before finalizing the state transition.
+
 ## Key Points
 
 - Key duplicate submissions by reporter and report id.
@@ -71,6 +83,7 @@ function executeReport(uint256 epoch) external {
 - Apply freshness, cadence, and deviation bounds before updating accepted state.
 - Allow public execution after quorum to avoid keeper monopoly.
 - Treat reporter membership and threshold changes as critical governance actions.
+- Serialize accepted reports when downstream execution must process them in order.
 
 ## Common Pitfalls
 
@@ -80,11 +93,13 @@ function executeReport(uint256 epoch) external {
 | Quorum without bounds | Reporters can move state too far in one update | Combine with historical or rate limits |
 | Single operator controls reporters | Quorum is only cosmetic | Monitor independence and threshold assumptions |
 | No duplicate key | One reporter can satisfy quorum repeatedly | Track submissions by reporter and epoch |
+| Overwritten pending report | Downstream actions skip an accepted state | Block new accepted reports until the previous one is handled |
 
 ## Source Evidence
 
 - Rocket Pool requires trusted node submissions, rejects duplicate submissions, and accepts network balance/price updates only after matching submissions reach threshold.
 - Once enough reports match, execution can be called publicly, preserving liveness if the original reporters do not execute.
+- Ether.fi uses same-hash reporter quorum, blocks new reports while a prior report is unhandled, and gates downstream execution by consensus, block/slot timing, wait periods, and APR caps.
 
 ## Related Patterns
 

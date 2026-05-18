@@ -57,4 +57,5 @@ custody_balance >= wrapped_token_total_supply
 ## Related Patterns
 
 - [Custodian-Attested Mint/Burn](./pattern-custodian-attested-mint-burn.md)
+- [Signed Custody-Routed Mint](./pattern-signed-custody-routed-mint.md)
 - [Bridge Custodian Concentration](../../ANTIPATTERNS.md#bridge-custodian-concentration)

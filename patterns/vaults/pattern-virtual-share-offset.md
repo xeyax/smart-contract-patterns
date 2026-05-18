@@ -104,6 +104,7 @@ contract VirtualOffsetVault {
 ## Related Patterns
 
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base share accounting pattern this hardens
+- [Share-Denominated Lending Accounting](../lending/pattern-share-denominated-lending-accounting.md) — lending-market variant of share conversion math
 - [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — separate NAV pricing risk
 - [Async Deposit/Withdrawal](./pattern-async-deposit.md) — timing mitigation, not a replacement for offset math
 

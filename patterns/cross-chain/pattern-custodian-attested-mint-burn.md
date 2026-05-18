@@ -80,5 +80,6 @@ function recordSettlement(uint256 id, string calldata settlementTxId) external o
 ## Related Patterns
 
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md) - trustless bridge replay domain pattern
+- [Signed Custody-Routed Mint](./pattern-signed-custody-routed-mint.md) - typed signed order flow for routed custody settlement
 - [Custodial Reserve Backing](./req-custodial-reserve-backing.md)
 - [Bridge Custodian Concentration](../../ANTIPATTERNS.md#bridge-custodian-concentration)

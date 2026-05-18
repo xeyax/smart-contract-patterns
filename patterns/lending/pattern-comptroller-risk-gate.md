@@ -66,4 +66,5 @@ require(liquidity >= 0, "insufficient liquidity");
 ## Related Patterns
 
 - [Lending Accounting Freshness Requirements](./req-lending-accounting-freshness.md)
+- [Isolated Permissionless Market](./pattern-isolated-permissionless-market.md)
 - [Toxic Liquidation Spiral](../../ANTIPATTERNS.md#toxic-liquidation-spiral)

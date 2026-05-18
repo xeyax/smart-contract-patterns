@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- First cloned source batch: 12 repositories.
+- Source repositories analyzed so far: 24 repositories across 3 batches.
 
 ## First Batch Repositories
 
@@ -38,11 +38,23 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Convex Finance | `convex-eth/frax-cvx-platform` | Yield |
 | cap | `cap-labs-dev/cap-contracts` | Lending |
 
+## Third Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Aave | `aave-dao/aave-v3-origin` | Lending |
+| Morpho Blue | `morpho-org/morpho-blue` | Lending |
+| SparkLend | `sparkdotfi/sparklend-advanced` | Lending |
+| ether.fi | `etherfi-protocol/smart-contracts` | Liquid Restaking |
+| Ethena | `ethena-labs/bbp-public-assets` | Stablecoin |
+| Maple Finance | `maple-labs/maple-core-v2` | Lending |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
 - `batch-01-findings.md` — accepted and deferred catalog updates from the first 12 dry-run analyses.
 - `batch-02-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
+- `batch-03-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
 
 ## Notes
 

@@ -44,6 +44,22 @@ if (utilization <= kink) {
 }
 ```
 
+### Benchmark-Targeted Variant
+
+Some markets target an external benchmark plus a spread below the kink, then use a steeper utilization component near exhaustion:
+
+```solidity
+targetRate = benchmarkRate + spread;
+
+if (utilization <= kink) {
+    rate = targetRate * utilization / kink;
+} else {
+    rate = targetRate + (utilization - kink) * jumpMultiplier;
+}
+```
+
+The benchmark source needs the same freshness and fallback scrutiny as an oracle.
+
 ## Key Points
 
 - Define utilization denominator carefully when reserves are present.
@@ -51,12 +67,15 @@ if (utilization <= kink) {
 - Set the kink below the point where withdrawals become unreliable.
 - Rate-model updates should be timelocked or otherwise governed.
 - Test behavior at zero cash, full utilization, and exactly the kink.
+- If the curve uses an external benchmark, validate the benchmark through a bounded rate-source adapter.
 
 ## Source Evidence
 
 - JustLend computes utilization from cash, borrows, and reserves, then applies a normal slope before the kink and a jump slope above it.
+- SparkLend Advanced uses benchmark-targeted rate-model variants that combine external APR-style inputs, spreads, and kink utilization behavior.
 
 ## Related Patterns
 
 - [Lazy Borrow Index](./pattern-lazy-borrow-index.md)
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
+- [Bounded Rate Source Adapter](./pattern-bounded-rate-source-adapter.md)

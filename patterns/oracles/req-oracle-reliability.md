@@ -46,6 +46,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Deviation threshold depends on asset volatility and use case
 - Larger deviations create larger arbitrage opportunities
 - Accepted state updates should be bounded by both value delta and update cadence
+- Lending collateral oracles should preserve enough liquidation buffer that an allowed oracle jump cannot instantly push healthy accounts below the intended liquidation threshold.
 
 ### Violations
 - Large deviation thresholds (e.g., 1% for Chainlink)
@@ -57,6 +58,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - [TWAP Oracle](./pattern-twap-oracle.md) — smooth out short-term noise
 - [Historical Bounds](./pattern-historical-bounds.md) — reject excessive, stale, non-monotonic, or future-dated accepted-state updates
 - Circuit breakers during high deviation
+- Listing-time inequalities that compare maximum oracle jumps against LLTV, liquidation incentive, and collateral liquidity
 
 ---
 
@@ -134,6 +136,7 @@ Different patterns satisfy different combinations:
 | [TWAP Oracle](./pattern-twap-oracle.md) | ✅ | ✅ | ✅ | ⚠️ |
 | [Multi-Source Validation](./pattern-multi-source-validation.md) | ✅ | ✅ | ✅ | ✅ |
 | [Threshold Reporter Consensus](./pattern-threshold-reporter-consensus.md) | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
+| [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md) | ⚠️ | ⚠️ | ⚠️ | ❌ |
 | [DEX Spot Price](./pattern-dex-spot-price.md) | ✅ | ✅ | ❌ | ✅ |
 
 Legend: ✅ = satisfies, ⚠️ = partially satisfies, ❌ = does not satisfy
@@ -150,9 +153,11 @@ Legend: ✅ = satisfies, ⚠️ = partially satisfies, ❌ = does not satisfy
 - [DEX Spot Price](./pattern-dex-spot-price.md) — current pool price
 - [Historical Bounds](./pattern-historical-bounds.md) — sanity check against history
 - [Threshold Reporter Consensus](./pattern-threshold-reporter-consensus.md) — quorum-gated accepted state
+- [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md) — monitor market/fair-value divergence
 
 ### Risks (Violations)
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — violates R1
 - [Price Manipulation Risk](./risk-price-manipulation.md) — violates R3
 - [Oracle Frontrunning Risk](./risk-oracle-frontrunning.md) — violates R1, R2
 - [Oracle Centralization Risk](./risk-oracle-centralization.md) — violates R4
+- [Exchange-Rate Valuation Risk](./risk-exchange-rate-valuation.md) — affects R2, R3

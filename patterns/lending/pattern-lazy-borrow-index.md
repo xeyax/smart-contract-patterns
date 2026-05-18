@@ -52,6 +52,7 @@ On borrow or repay, write the borrower's new principal and current index.
 - Define rounding direction consistently; tiny residual debt can become stuck.
 - Include reserves in global accrual so accounting stays balanced.
 - Pair with [Lending Accounting Freshness Requirements](./req-lending-accounting-freshness.md).
+- If debt is represented by tokens, consider [Scaled Balance Token Accounting](./pattern-scaled-balance-token-accounting.md) so token balances derive from the same index.
 
 ## Source Evidence
 
@@ -62,3 +63,4 @@ On borrow or repay, write the borrower's new principal and current index.
 
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
 - [Kinked Utilization Rate Model](./pattern-kinked-utilization-rate-model.md)
+- [Scaled Balance Token Accounting](./pattern-scaled-balance-token-accounting.md)

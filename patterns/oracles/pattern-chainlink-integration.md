@@ -187,6 +187,27 @@ contract L2ChainlinkOracle {
 }
 ```
 
+### Lending Action Sentinel
+
+For lending markets on L2s, sequencer checks can be applied at the action level instead of only inside a price read. A sentinel can block borrows and liquidations while the sequencer is down or inside the post-recovery grace period:
+
+```solidity
+function borrow(uint256 amount) external {
+    require(oracleSentinel.isBorrowAllowed(), "sequencer grace");
+    _borrow(amount);
+}
+
+function liquidate(address account) external {
+    require(
+        oracleSentinel.isLiquidationAllowed() || _isSeverelyUnhealthy(account),
+        "sequencer grace"
+    );
+    _liquidate(account);
+}
+```
+
+The severe-health-factor exception is a policy choice: it can contain obvious bad debt, but it must be documented because it allows some liquidations while the sentinel blocks normal ones.
+
 ## Staleness Configuration
 
 | Asset Type | Heartbeat | Deviation | Suggested maxStaleness |
@@ -211,6 +232,7 @@ contract L2ChainlinkOracle {
 | **`latestAnswer()` only** | missing timestamp | Use `latestRoundData()`; off-chain monitoring is not an on-chain guard |
 | **Missing previous round** | `roundId - 1` reads | Check historical depth before adjacent-round or interpolation logic |
 | **Interpolation divide-by-zero** | timestamps | Require strictly increasing round timestamps |
+| **Sequencer grace ignored by lending actions** | L2 sentinel | Gate borrow/liquidation paths, not only raw oracle reads |
 
 ## Real-World Examples
 

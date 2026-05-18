@@ -71,11 +71,15 @@ function handleIncomingAssets(uint256 amount) internal {
 - Queued withdrawals still need gas-bounded finalization and claim paths.
 - Surplus above the buffer can be invested, but recall paths must handle ERC4626 rounding, strategy losses, and forced withdrawal failure.
 - Invariant tests should cover reserve target, invested surplus, recall amount, and user redemption liveness.
+- Parallel exit paths must share the same reserve predicate. Instant withdrawals, priority queues, NFT exits, and normal queues should subtract each other's locked claims before treating liquidity as free.
+- Admin rescue or surplus-withdrawal functions must prove the amount is above all withdrawal locks, low-watermark buffers, and claim reserves.
 
 ## Source Evidence
 
 - Renzo subtracts claim reserves from available withdrawal liquidity, computes withdrawal deficits from buffer and queue state, and routes deposits into deficits before delegating surplus assets.
 - Renzo's instant withdrawal path blocks withdrawals when the buffer is insufficient and scales fees by remaining buffer capacity.
+- Ether.fi excludes normal and priority withdrawal locks plus a low watermark before instant redemption, and tests queued exits through rebases and slashing.
+- Ethena's surplus rescue design highlights that admin withdrawals must be limited to assets above user claims and buffer requirements.
 
 ## Related Patterns
 

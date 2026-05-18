@@ -94,7 +94,7 @@ Share price manipulable via direct token transfer to contract.
 Upgradeable proxy without initializer protection.
 **Symptoms:** `initialize()` without `initializer` modifier, or no initialization check.
 **Risk:** Attacker calls initialize on implementation, takes ownership.
-**Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor.
+**Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor. For reinitializers, gate each revision once and test that repeated or skipped revision initializers cannot overwrite authority, storage namespaces, or version state.
 
 ### Latched Invalid Initialization
 One-shot initializer records partial or invalid configuration before validating all required fields.
@@ -126,7 +126,7 @@ External call to untrusted contract before state is finalized.
 External call without checking return value or handling revert.
 **Symptoms:** `token.transfer()` without return value check, `externalContract.call()` without success check.
 **Risk:** Silent failure, incorrect accounting.
-**Fix:** Use SafeERC20, check return values, handle reverts explicitly.
+**Fix:** Use SafeERC20, check return values, handle reverts explicitly. Fallback adapters must not treat out-of-gas, empty returndata, unexpected selectors, or arbitrary reverts as valid default values unless the default is explicitly conservative and monitored.
 
 ### Composability Assumption
 Architecture assumes external protocol behavior that may change.
@@ -138,7 +138,7 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback.
 
 ### Unvalidated External Contract
 Protocol integrates with external contracts passed as parameters, validates token addresses but not the contract itself.
@@ -158,7 +158,7 @@ ERC-4626 vault with no virtual offset, totalAssets reads balance directly, no mi
 Vault strategy locks all funds in external protocols, no reserved liquidity buffer.
 **Symptoms:** No liquidity reserve, FIFO withdrawal queue, no forced unwind trigger.
 **Risk:** During stress, liquid reserves depleted. Late withdrawers stuck indefinitely. Bank-run dynamics.
-**Fix:** Liquidity buffer (10-20% TVL always liquid), pro-rata withdrawal during stress, forced unwind triggers.
+**Fix:** Liquidity buffer (10-20% TVL always liquid), pro-rata withdrawal during stress, forced unwind triggers. Queue processing must be gas-bounded and mass exits must not brick finalization. Manual pull redemptions should fix entitlement or enforce queue order so users cannot wait for a favorable later price while others exit.
 
 ### Rebasing Token Accounting
 Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot model.
@@ -185,6 +185,12 @@ Protocol requests unlimited approval, approved spender contracts are upgradeable
 **Symptoms:** `type(uint256).max` approval, no permit2, no session-scoped approvals.
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
 **Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance.
+
+### Permit Front-run Griefing
+Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if the permit nonce was already consumed.
+**Symptoms:** `permit()` is called first, then deposit/withdraw/repay assumes the permit succeeded.
+**Risk:** An observer front-runs the same permit, consumes the nonce, and makes the user's bundled action revert or miss a deadline.
+**Fix:** Treat permit failure as non-fatal when allowance is already sufficient for the action. Check final allowance before proceeding, and still enforce amount and deadline bounds.
 
 ## Governance
 
@@ -262,7 +268,7 @@ Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.
 Multiple independent pools/strategies share single token vault.
 **Symptoms:** One vault contract holds funds for all strategies, one set of access controls.
 **Risk:** Single vulnerability drains all connected pools. Balancer V2: $128M across all chains.
-**Fix:** Isolate funds per pool/strategy, per-pool withdrawal caps, independent access control.
+**Fix:** Isolate funds per pool/strategy, per-pool withdrawal caps, independent access control. A singleton can be acceptable only when market accounting is keyed by immutable market id and formal or invariant tests prove one market cannot drain another.
 
 ### Unguarded Batch Composition
 Contract exposes multicall/batch that chains arbitrary internal calls without restriction.
@@ -274,4 +280,4 @@ Contract exposes multicall/batch that chains arbitrary internal calls without re
 Anyone can create pools/markets with arbitrary tokens and parameters.
 **Symptoms:** No parameter bounds, no curation, no risk isolation for new markets.
 **Risk:** Malicious token pool drains paired assets. Euler V1: $197M.
-**Fix:** Parameter bounds at protocol level, curated allowlists or risk tiers, isolated risk for permissionless pools.
+**Fix:** Parameter bounds at protocol level, curated allowlists or risk tiers, isolated risk for permissionless pools. Permissionless markets are safer when oracle, LLTV, and rate-model classes are enabled separately and market assets/debt/bad debt are isolated by market id.

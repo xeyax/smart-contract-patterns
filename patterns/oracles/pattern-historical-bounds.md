@@ -223,6 +223,19 @@ function validateReporterUpdate(uint256 reporterPrice, uint256 anchorPrice) inte
 
 This reduces the chance that a reporter can move accepted state too far from a reference source in one update window. The anchor can be a TWAP, median, or prior accepted state, but it must have its own freshness and manipulation-resistance checks.
 
+### One-Sided Stablecoin Cap
+
+For assets intended not to exceed a peg, a one-sided cap can preserve downside depeg while preventing upward overvaluation:
+
+```solidity
+function cappedPrice() external view returns (uint256) {
+    uint256 price = source.price();
+    return price > maxPegPrice ? maxPegPrice : price;
+}
+```
+
+This is safer than forcing the price to a constant peg because it does not hide downside moves. It should be used only when upward premium should not increase borrowing power, mint value, or collateral value.
+
 ## Calibration
 
 | Asset Type | Suggested Max Deviation | Rationale |
@@ -237,6 +250,8 @@ This reduces the chance that a reporter can move accepted state too far from a r
 - Consider asset-specific volatility patterns
 - Bound both value movement and update cadence for accepted-state oracles
 - For bridged prices, authenticate the remote sender and reject stale, future-dated, or non-monotonic timestamps
+- For stable or pegged collateral, prefer one-sided caps that limit upward overvaluation without masking downside depeg
+- Do not treat out-of-gas, empty-return, or unexpected-revert fallback paths as valid default prices
 
 ## Limitations
 
@@ -296,12 +311,14 @@ contract CircuitBreakerWithBounds {
 
 - [MakerDAO OSM](https://docs.makerdao.com/smart-contract-modules/oracle-module/oracle-security-module-osm-detailed-documentation) — price bounds with delay
 - [Chainlink Circuit Breakers](https://blog.chain.link/circuit-breakers-and-client-diversity-within-the-chainlink-network/) — built-in bounds checking
+- SparkLend Advanced uses one-sided capped stablecoin-style oracle logic so upward overvaluation is limited without hiding downside depeg.
 
 ## Related Patterns
 
 - [Multi-Source Validation](./pattern-multi-source-validation.md) — combine bounds with source validation
 - [Chainlink Integration](./pattern-chainlink-integration.md) — primary oracle to validate
 - [TWAP Oracle](./pattern-twap-oracle.md) — reference for bounds
+- [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md) — monitor market/fair-value divergence
 
 ## References
 

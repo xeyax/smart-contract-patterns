@@ -68,17 +68,42 @@ contract VersionedProxyAdmin {
 }
 ```
 
+### Path-Specific Migrator Variant
+
+Some systems need explicit upgrade paths instead of allowing every approved implementation to upgrade to every later version:
+
+```solidity
+mapping(bytes32 => mapping(bytes32 => address)) public migratorForPath;
+
+function registerPath(bytes32 fromVersion, bytes32 toVersion, address migrator) external onlyGovernance {
+    require(implementationOf[toVersion] != address(0), "unknown target");
+    migratorForPath[fromVersion][toVersion] = migrator;
+}
+
+function upgrade(bytes32 toVersion, bytes calldata data) external onlyInstanceOwner {
+    bytes32 fromVersion = currentVersion[msg.sender];
+    address migrator = migratorForPath[fromVersion][toVersion];
+    require(migrator != address(0), "path not approved");
+    _delegateMigrate(migrator, data);
+    currentVersion[msg.sender] = toVersion;
+}
+```
+
+This separates implementation approval from per-path migration logic and prevents an instance from skipping required initializer or storage migration steps.
+
 ## Key Points
 
 - Register code only after audit, bytecode verification, and storage layout checks.
 - Deprecation should block new upgrades to a version without silently changing existing proxies.
 - Instance owners must still be monitored; they can lag on critical upgrades.
 - Emit version metadata that off-chain systems can map to source code and audit reports.
+- For stateful upgrades, approve explicit `fromVersion -> toVersion` paths with path-specific migrators or initializers.
 
 ## Source Evidence
 
 - Reserve Index DTF gates proxy upgrades through a version registry and rejects unregistered or deprecated versions before upgrading.
 - Tests cover registered upgrades and reject unregistered, deprecated, non-owner, and direct-admin paths.
+- Maple uses version registries with explicit upgrade paths and path-specific migration/initializer logic, separating implementation approval from per-instance execution.
 
 ## Related Anti-Patterns
 

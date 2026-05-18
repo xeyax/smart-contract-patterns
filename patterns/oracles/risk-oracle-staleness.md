@@ -97,6 +97,7 @@ On L2s (Arbitrum, Optimism):
 - Sequencer goes offline
 - No transactions processed, including oracle updates
 - When sequencer restarts, prices are stale
+- Lending protocols may need action-level sentinels that block borrows and liquidations during the downtime and post-restart grace period.
 
 ### Chainlink-Compatible Shims
 
@@ -140,6 +141,7 @@ Example (1% deviation threshold):
 | Staleness Check | Reject stale prices | May block operations |
 | Premium Buffer | Fee covers potential staleness | Cost to users |
 | Source Timestamp Propagation | Prevents wrappers from hiding stale inputs | Requires wrapper-specific integration |
+| L2 Action Sentinel | Blocks borrow/liquidation paths during sequencer downtime or grace period | Can delay liquidations unless a severe-risk exception exists |
 
 ### Implementation: Staleness Check
 
@@ -176,6 +178,12 @@ function getL2Price() internal view returns (uint256) {
 
     return getChainlinkPrice();
 }
+```
+
+For lending, also gate the value-changing action:
+
+```solidity
+require(oracleSentinel.isBorrowAllowed(), "sequencer grace");
 ```
 
 ## Detection

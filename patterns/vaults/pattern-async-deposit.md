@@ -118,6 +118,28 @@ Requests are accumulated in a queue and processed as an explicit batch:
 
 **Why it works:** Users in the same processed batch cannot choose a favorable pricing moment. The manager can net flows and prepare liquidity, but must not be able to cherry-pick only favorable users without a documented bypass rule.
 
+### Approach 5: Cooldown Escrow Exit
+
+Shares or assets can be moved into an escrow during a cooldown period:
+
+```
+1. User requests exit
+   -> shares are burned or escrowed
+   -> claim amount or claim basis is recorded
+
+2. Cooldown elapses
+   -> user claims assets from the escrow path
+   -> protocol cannot redeploy the reserved amount as free liquidity
+```
+
+This works only if the claim basis is fixed or the later pricing moment is not user-selectable. A simple cooldown followed by a discretionary user claim can preserve timing optionality if the user can wait for a favorable exchange rate.
+
+### Queue Pricing Caveats
+
+Partial FIFO processing can produce different exchange rates for users in the same queue if each processed slice reads a new NAV. That may be acceptable when the queue explicitly prices each processed batch independently, but it is not the same as one epoch-wide clearing price.
+
+Manual pull redemptions also need a rule for timing optionality. If users can choose when to pull after becoming claimable, either fix their entitlement at processing time or enforce queue order so a user cannot wait for a better claim price while others exit.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
@@ -239,6 +261,8 @@ Async withdrawals need additional liveness and accounting checks:
 - If assets are scarce, refill a [Withdrawal Liquidity Buffer](./pattern-withdrawal-liquidity-buffer.md) before deploying surplus capital.
 - Delayed unstaking can burn shares immediately, escrow assets in a manager, and allow claim after a delay; cancellation rules must be explicit and value-neutral.
 - Escrowed redemption flows can transfer shares/tokens into a redemption contract, let an operator execute and burn them, and allow public timeout refunds if execution stalls.
+- Cooldown escrow exits should fix the claim basis before the user can choose a later claim time.
+- Partial queue processing must document whether each processed slice or the whole queue receives one exchange rate.
 
 ## ERC-7540: Async Vault Standard
 
@@ -264,6 +288,8 @@ interface IERC7540 {
 - [Renzo](https://github.com/Renzo-Protocol/contracts-public) — withdrawal deficits are refilled before new assets are delegated
 - [Reserve Index DTF](https://github.com/reserve-protocol/reserve-index-dtf) — delayed unstaking burns shares, creates claim locks, and allows cancellation
 - [Symbiotic](https://github.com/symbioticfi/core) — pending withdrawals remain slashable until epoch finality
+- [Ethena](https://github.com/ethena-labs) — cooldown exits escrow user claims before delayed withdrawal
+- [Maple Finance](https://github.com/maple-labs/maple-core-v2) — withdrawal queues show partial FIFO pricing and manual redemption timing caveats
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns

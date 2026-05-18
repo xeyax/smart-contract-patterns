@@ -61,6 +61,18 @@ Vault.setFeeRecipient      -> timelock
 Oracle.setBackupOracle     -> governance
 ```
 
+### Call-Forwarding Variant
+
+Selector scoping is especially important when a manager forwards calls on behalf of users or nodes. The forwarder should bind all three dimensions:
+
+```solidity
+require(allowedUser[user], "user");
+require(allowedTarget[target], "target");
+require(allowedSelector[target][selector], "selector");
+```
+
+A denylist of known-bad selectors is weaker than an allowlist because new target functions or proxy upgrades can create fresh bypasses.
+
 ## Key Points
 
 - Scope permissions by both target and selector; selector-only roles are too broad across contracts.
@@ -68,11 +80,13 @@ Oracle.setBackupOracle     -> governance
 - Store and review a generated permission manifest in CI or deployment artifacts.
 - Prefer timelocks for selectors that change assets, upgrade code, alter fees, or pause exits.
 - Keep emergency selectors separate from routine maintenance selectors.
+- For call forwarders, scope by user, target, and selector; do not rely on selector blacklists.
 
 ## Source Evidence
 
 - Spiko checks target and selector masks before allowing protected calls and tests config-driven function requirements.
 - Cap stores selector-scoped access rules and includes deployment checks that emit an observed access manifest.
+- Ether.fi migrated call forwarding toward allowlisted user, target, and selector checks after identifying bypassable blacklist behavior.
 
 ## Related Patterns
 

@@ -130,6 +130,7 @@ Example:
 | [Multi-Source Validation](./pattern-multi-source-validation.md) | Requires manipulating multiple sources | Higher gas |
 | [Chainlink Integration](./pattern-chainlink-integration.md) | Off-chain aggregation | Centralization, staleness |
 | Liquidity Requirements | Reject prices from low-liquidity pools | May exclude valid tokens |
+| Liquidation Buffer Inequality | Ensure oracle jumps cannot exceed LLTV and liquidation incentive assumptions | Requires asset-specific calibration |
 
 ### Implementation: TWAP Protection
 
@@ -161,6 +162,16 @@ function validatePrice(uint256 oraclePrice) internal view returns (bool) {
     return deviation <= MAX_DEVIATION_BPS;
 }
 ```
+
+### Implementation: Lending Oracle-Jump Buffer
+
+For lending collateral, require listing parameters to tolerate the maximum expected oracle jump:
+
+```solidity
+require(maxOracleJumpBps < liquidationBufferBps, "unsafe oracle jump");
+```
+
+The exact formula depends on LLTV, liquidation incentive, close factor, and market liquidity. The important design rule is that oracle behavior and liquidation economics must be calibrated together.
 
 ## Detection
 
@@ -206,4 +217,3 @@ function isSpotManipulated() public view returns (bool) {
 - [Flash Loan Attacks](https://blog.chain.link/flash-loans/)
 - [DeFi Oracle Manipulation](https://samczsun.com/so-you-want-to-use-a-price-oracle/)
 - [MEV and Sandwich Attacks](https://writings.flashbots.net/)
-

@@ -59,6 +59,18 @@ function balanceOfStrategy() public view returns (uint256) {
 }
 ```
 
+### ERC4626 Reward Vesting Variant
+
+For vaults that receive discrete reward deposits, `totalAssets()` can exclude the unvested portion and release it over time:
+
+```solidity
+function totalAssets() public view returns (uint256) {
+    return rawAssets() - unvestedRewards();
+}
+```
+
+This has the same fairness goal as strategy locked profit: new depositors should not capture rewards that were earned by earlier holders. The vault must still expose enough information for integrators to understand that `totalAssets()` intentionally lags raw token balance during the vesting window.
+
 ## Key Points
 
 - Lock only profit, not principal.
@@ -66,11 +78,13 @@ function balanceOfStrategy() public view returns (uint256) {
 - Release linearly unless a different curve has a clear economic reason.
 - Define loss behavior explicitly: losses should not be hidden by locked profit accounting.
 - Use with actual-received deposit accounting; it does not fix fee-on-transfer tokens.
+- For ERC4626 reward vesting, make sure preview functions use the same vested-asset view as deposits and redemptions.
 
 ## Source Evidence
 
 - Beefy strategies set locked profit during harvest, linearly decay it over `lockDuration`, and subtract it from strategy `balanceOf()`.
 - Beefy tests verify a later depositor cannot capture freshly harvested profit and that locked profit unlocks after the duration.
+- Ethena-style ERC4626 reward vaults exclude unvested rewards from `totalAssets()` and release them over time so incoming users do not receive already-earned rewards.
 
 ## Related Patterns
 

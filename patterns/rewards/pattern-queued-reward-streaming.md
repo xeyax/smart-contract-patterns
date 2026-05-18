@@ -74,3 +74,5 @@ function harvestAndQueue() external {
 
 - [High-Water Mark Fee](../vaults/pattern-high-water-mark-fee.md) - NAV-denominated performance fee
 - [Dynamic Premium](../vaults/pattern-dynamic-premium.md) - user operation fees
+- [Lazy Reward Index](./pattern-lazy-reward-index.md) - per-user reward accrual without iteration
+- [Delayed Cumulative Merkle Claims](./pattern-delayed-cumulative-merkle-claims.md) - off-chain reward allocation with delayed root activation
