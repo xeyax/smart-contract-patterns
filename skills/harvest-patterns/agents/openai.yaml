@@ -1,0 +1,4 @@
+interface:
+  display_name: "Harvest Patterns"
+  short_description: "Extract reusable smart-contract patterns, risks, and decisions from repos into the catalog."
+  default_prompt: "Harvest reusable smart-contract knowledge from a target repo and update this catalog with evidence-backed pattern, risk, and requirement docs."
