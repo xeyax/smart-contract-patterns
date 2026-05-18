@@ -30,6 +30,7 @@
 - Refund messages are replay-safe and authenticated by the bridge.
 - Refunds remain callable while new deposits are paused.
 - Sending failed settlement funds to an admin or multisig is not a user refund path unless on-chain entitlement and claim semantics define how users recover funds.
+- Split value-transfer/routing-metadata flows need recovery when value is attested or delivered but the metadata sidecar is delayed, malformed, missing, or unpaired.
 
 ## R3: Migration Accounts For In-Flight Messages
 
@@ -69,6 +70,7 @@
 - Optimism Bedrock uses scoped pause identifiers with expiry, but paused portal proof and finalization paths remain liveness exceptions that need operational justification.
 - tBTC v2 redemptions include timeout paths that restore balances or keep timed-out redemptions honor-able, and optimistic mint pauses do not block standard proof-based minting.
 - Tornado Nova's failed external settlement path shows why admin recovery of funds should not be treated as equivalent to user-claimable bridge refund semantics.
+- Noble's CCTP metadata wrapper shows a split value-transfer and routing-metadata flow where liveness depends on pairing the sidecar metadata with the canonical value message.
 
 ## Related Patterns
 

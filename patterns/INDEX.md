@@ -130,6 +130,7 @@
 | pattern-share-denominated-lending-accounting.md | Track supply and borrow positions as market shares against total assets so interest and losses are allocated proportionally. | A lending market needs proportional supply or borrow accounting |
 | pattern-single-borrow-asset-market.md | Build each lending market around one borrowable base asset with separate collateral assets, reducing cross-asset borrow complexity. | The protocol wants one borrow asset per market |
 | pattern-solana-instruction-paired-flash-loan.md | On Solana, validate flash-loan borrow and repay instructions as a matched pair inside the same transaction. | A Solana lending program offers atomic flash loans; The transaction can include both borrow and repay instructions |
+| pattern-yield-preserving-collateral-wrapper.md | Wrap yield-bearing strategy shares into a non-transferable collateral token that mirrors rewards while the position is pledged in a lending market. | Users want to borrow against yield-bearing vault or strategy shares |
 
 ### Requirements
 
@@ -161,6 +162,7 @@
 | pattern-shared-liquidity-kernel.md | Centralize custody and interest accounting in a restricted liquidity core while user-facing fTokens, vaults, and DEX modules act as adapters. | Multiple protocol modules need to draw from the same supplied liquidity |
 | pattern-singleton-flash-accounting-pool-manager.md | Keep many AMM pools in one manager and settle all per-currency deltas to zero at the end of an unlocked operation. | Many pools share the same execution environment and benefit from lower transfer overhead |
 | pattern-verified-callback-settlement.md | Let AMM pools optimistically call external payers during mint, swap, or flash operations, then verify post-callback balances before finalizing. | The pool needs optimistic settlement for swaps, mints, or flash loans |
+| pattern-volatility-accumulator-dynamic-fee.md | Increase AMM swap fees from a decaying accumulator of recent price movement and trade clustering instead of only inventory imbalance. | A pool wants fees to rise during rapid price movement or clustered trading |
 
 ### Risks
 
@@ -208,6 +210,7 @@
 |------|-------------|----------|
 | pattern-action-scoped-bounded-lending-prices.md | Use conservative bounded prices for borrowing-power checks while using liquidation-specific prices for liquidation eligibility. | A lending protocol wants to resist oracle pumps that create new borrow capacity |
 | pattern-chainlink-integration.md | Integrate Chainlink price feeds for reliable off-chain oracle data with built-in manipulation resistance. | Need manipulation-resistant price for major assets; Asset has Chainlink feed available |
+| pattern-conservative-amm-lp-collateral-oracle.md | Price AMM LP collateral with conservative pool-internal pricing plus fresh external feed hops, while preserving exchange-rate and reentrancy caveats. | A lending market accepts curated AMM LP tokens as collateral |
 | pattern-dex-spot-price.md | Read current price directly from DEX pool — real-time but manipulation-vulnerable. | Need real-time price for display purposes; Combined with other validation (not used alone for value transfer) |
 | pattern-historical-bounds.md | Validate price against historical min/max to detect anomalies and extreme deviations. | Need sanity check for oracle prices; Want to detect extreme price movements |
 | pattern-multi-source-validation.md | Cross-check prices from multiple oracle sources to detect anomalies and identify which source is malfunctioning. | High-value operations depend on oracle price; Need to distinguish between oracle types of failures |
@@ -239,6 +242,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-checkpointed-epoch-reward-buckets.md | Allocate newly received rewards into time buckets and let users claim against historical balance checkpoints for each epoch. | Reward entitlement depends on balances held at epoch boundaries |
 | pattern-delayed-cumulative-merkle-claims.md | Stage Merkle reward roots behind a delay and let users claim only the cumulative delta above what they have already received. | Rewards are computed off-chain and published periodically |
 | pattern-index-to-distributor-reward-routing.md | Route rewards for disabled or restricted accounts from a lazy reward index into a distributor checkpoint, then claim them through a separate proof path. | Most users should accrue through a lazy reward index; Some accounts are not allowed to receive rewards directly |
 | pattern-indexed-merkle-airdrop.md | Distribute a fixed reward set with an indexed Merkle root and bitmap claim tracking so each allocation can be claimed exactly once. | A fixed off-chain allocation should be claimable on-chain; The root will not be updated cumulatively over time |
@@ -265,6 +269,7 @@
 |------|-------------|----------|
 | pattern-adapter-isolated-core-ledger.md | Keep the core accounting ledger free of token calls and route every token-specific behavior through small audited adapters. | A protocol accepts multiple collateral or asset types |
 | pattern-balance-delta-transfer-accounting.md | Account for the actual token amount received by measuring balance changes around transfers. | The protocol accepts arbitrary or curated ERC20 collateral |
+| pattern-extension-gated-transfer-fee-normalization.md | Support deterministic token-program transfer fees by reading canonical extension state, normalizing included/excluded amounts, and rejecting unsupported extensions. | The token program exposes canonical, inspectable transfer-fee extension state |
 
 ## tokens
 
@@ -314,6 +319,7 @@
 | pattern-premium-buffer.md | Charge a fee on deposits/withdrawals that covers potential oracle price deviation, eliminating arbitrage profitability. | Vault uses oracle prices for NAV calculation; Need simple, synchronous deposit/withdraw flow |
 | pattern-proportional-deposit.md | Users deposit and withdraw all vault assets proportionally, eliminating the need for oracle-based NAV calculation. | Multi-asset vault/pool with known composition; Want to avoid oracle dependency entirely |
 | pattern-proportional-zapin.md | External periphery contract converts single-token input into a proportional multi-token deposit, pushing swap slippage to the depositor and eliminating slippage socialisation in managed vaults. | Multi-token vault where a manager rebalances after single-token deposits (slippage socialised across holders) |
+| pattern-rate-bounded-nav-report.md | Accept manual or off-chain NAV reports only after the current NAV expires and only within annualized share-price movement guardrails. | Vault NAV is reported by an off-chain manager, accountant, or security council |
 | pattern-timelock-shares.md | Shares are issued immediately but cannot be transferred or redeemed for a specified period, preventing instant arbitrage profit extraction. | Want instant share issuance (better UX than async); Need to prevent flash loan attacks |
 | pattern-user-owned-proxy-vault.md | Deploy one vault/proxy per user so protocol integrations can be automated while custody and position ownership remain isolated. | Users need individualized positions in an external protocol |
 | pattern-vault-wrapper.md | Thin ERC4626 vault that wraps a base strategy vault, adding fee/access layers without duplicating strategy logic. | Multiple fee tiers needed over a single strategy (e.g. 0%, 10%, 15%) |
@@ -333,6 +339,7 @@
 | File | Applies To |
 |------|-----------|
 | req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata |
+| req-tiered-loss-waterfall.md | R1: Loss Priority Is Explicit, R2: Tier Capacity Is Measurable, R3: Junior Risk Is Opt-In, R4: Waterfall Execution Preserves Solvency |
 | req-vault-fairness.md | R1: No Value Extraction, R2: Fair Share Price, R3: Cost Attribution, R4: No Timing Advantage |
 
 ## zero-knowledge

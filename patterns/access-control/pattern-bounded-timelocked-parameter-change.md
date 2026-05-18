@@ -44,6 +44,20 @@ function applyFee() external {
 
 For continuous changes such as AMM amplification ramps, also bound the maximum rate of change and minimum ramp duration.
 
+### Delay-Reduction Guardrail
+
+If the delay itself is configurable, reductions must be staged under the currently active delay:
+
+```solidity
+function commitDelay(uint256 newDelay) external onlyGovernance {
+    require(newDelay >= MIN_DELAY, "too short");
+    pendingDelay = newDelay;
+    delayApplyAfter = block.timestamp + delay; // current delay, not newDelay
+}
+```
+
+Any config queued while a shorter delay is pending should still use the active delay. Otherwise governance can queue a zero-delay reduction and immediately queue sensitive changes under the pending shorter value.
+
 ## Key Points
 
 - Enforce hard bounds in the commit function.
@@ -51,6 +65,7 @@ For continuous changes such as AMM amplification ramps, also bound the maximum r
 - Treat delay reductions as critical changes.
 - Make cancellation rules explicit.
 - Test edge values, early apply attempts, and maximum-change constraints.
+- Test that reducing the delay cannot shorten already queued or same-block follow-on changes.
 - Test that bounds are applied to the proposed new value, not accidentally to the current stored value or another stale state variable.
 - Ensure numeric bounds are economically meaningful; a fee cap just below 100 percent may still be a confiscatory admin power.
 - Treat trust-list changes, vault enablement, maintainer admission, and bridge allowlists as critical parameter changes even when the value is boolean.
@@ -63,6 +78,7 @@ For continuous changes such as AMM amplification ramps, also bound the maximum r
 - StakeWise V2 audit material flagged a protocol-fee bound just below 100 percent as economically weak despite being numerically bounded.
 - tBTC v2 shows that immediate trust-list changes depend on the outer owner or governance path when no internal delay is present.
 - Fluid uses cooldown-bounded rate authorization for some changes; this is useful risk reduction but weaker than public commit-and-delay semantics.
+- Stake DAO's UniversalBoostRegistry tests delay-reduction bypass attempts by queuing delay changes under the current delay before allowing shorter-delay config changes.
 
 ## Related Patterns
 

@@ -47,16 +47,19 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Pause new borrowing or reduce caps when market price diverges from exchange rate.
 - Document whether liquidations assume redemption value or market-sale value.
 - For LSTs, separately monitor total supply, delegated backing, exchange-rate drops, and withdrawal queue liveness.
+- For AMM LP collateral, combine virtual-price or invariant value with conservative constituent pricing and explicit read-only reentrancy and sequencer checks.
 
 ## Source Evidence
 
 - SparkLend Advanced includes exchange-rate style valuation components for stable, LST, LRT, and ERC4626-style assets, which surfaced the need to distinguish freshness from realizable market value.
 - Curve metapools cache and read base-pool LP virtual prices, which are useful fair-value accounting inputs but are not market-clearing prices.
 - Stader BNBx derives a fresh internal LST exchange rate from delegated backing and token supply, which is useful for mint/redeem accounting but still distinct from market-clearing collateral value.
+- Stake DAO's Curve LP collateral oracle documents conservative stableswap pricing while preserving read-only reentrancy, sequencer, and market-value caveats.
 
 ## Related Patterns
 
 - [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md)
 - [Historical Bounds](./pattern-historical-bounds.md)
+- [Conservative AMM LP Collateral Oracle](./pattern-conservative-amm-lp-collateral-oracle.md)
 - [LP Virtual Price Monotonicity Requirements](../liquidity/req-lp-virtual-price-monotonicity.md)
 - [Price Manipulation Risk](./risk-price-manipulation.md)

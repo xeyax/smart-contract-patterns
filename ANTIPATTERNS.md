@@ -86,7 +86,7 @@ Using instantaneously manipulable price (DEX spot, single-block read) for value-
 Loop over user-controlled or growing data structure without gas limit.
 **Symptoms:** Array that grows with users/deposits, loop in core operation.
 **Risk:** Gas DoS — operation becomes too expensive as data grows.
-**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives. If users can append entries to another account's array, require a minimum economic size, owner-only append semantics, or pagination so attackers cannot gas-DoS a victim's aggregate views or withdrawals. Relay-style view aggregators over operators, keys, vaults, or validator sets can be acceptable for off-chain indexing, but should not become on-chain dependencies without pagination or hard caps.
+**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives. If users can append entries to another account's array, require a minimum economic size, owner-only append semantics, or pagination so attackers cannot gas-DoS a victim's aggregate views or withdrawals. Relay-style view aggregators over operators, keys, vaults, or validator sets can be acceptable for off-chain indexing, but should not become on-chain dependencies without pagination or hard caps. Loop-limit helpers must bound the actual loop cardinality; checking half of a later full-length loop is a false guard.
 
 ### Fee-on-Transfer Blindness
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
@@ -220,7 +220,7 @@ Assumes token transfer delivers exact amount requested.
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
 **Symptoms:** No per-token decimal normalization, share math doesn't account for decimal differences.
 **Risk:** USDC (6 decimals) valued as 1e12× correct amount. Common in multi-token vaults.
-**Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals. If the system only supports 18-decimal accounting, reject non-18-decimal tokens and feeds at every onboarding path.
+**Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals. If the system only supports 18-decimal accounting, reject non-18-decimal tokens and feeds at every onboarding path. Oracle adapters that compute `10 ** (18 - decimals)` need an explicit `decimals <= 18` guard or onboarding rejection.
 
 ### Approval Persistence
 Protocol requests unlimited approval, approved spender contracts are upgradeable.

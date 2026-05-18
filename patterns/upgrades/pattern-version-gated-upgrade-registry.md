@@ -91,6 +91,29 @@ function upgrade(bytes32 toVersion, bytes calldata data) external onlyInstanceOw
 
 This separates implementation approval from per-path migration logic and prevents an instance from skipping required initializer or storage migration steps.
 
+### Per-Instance Timelocked Opt-In Variant
+
+When each proxy has its own owner, combine registry approval with a per-instance staged upgrade:
+
+```solidity
+function stageUpgrade(address proxy, address implementation) external onlyProxyOwner(proxy) {
+    require(registry.canUseLogic(implementation), "unapproved");
+    pending[proxy] = PendingUpgrade({
+        implementation: implementation,
+        applyAfter: block.timestamp + upgradeDelay
+    });
+}
+
+function applyUpgrade(address proxy, address implementation) external {
+    PendingUpgrade memory p = pending[proxy];
+    require(p.implementation == implementation, "changed");
+    require(block.timestamp >= p.applyAfter, "delay");
+    _upgrade(proxy, implementation);
+}
+```
+
+The exact implementation match prevents a different implementation from being substituted after the delay.
+
 ## Key Points
 
 - Register code only after audit, bytecode verification, and storage layout checks.
@@ -98,12 +121,14 @@ This separates implementation approval from per-path migration logic and prevent
 - Instance owners must still be monitored; they can lag on critical upgrades.
 - Emit version metadata that off-chain systems can map to source code and audit reports.
 - For stateful upgrades, approve explicit `fromVersion -> toVersion` paths with path-specific migrators or initializers.
+- If the registry can fail open after ownership is renounced or disabled, document that it no longer provides approved-implementation security.
 
 ## Source Evidence
 
 - Reserve Index DTF gates proxy upgrades through a version registry and rejects unregistered or deprecated versions before upgrading.
 - Tests cover registered upgrades and reject unregistered, deprecated, non-owner, and direct-admin paths.
 - Maple uses version registries with explicit upgrade paths and path-specific migration/initializer logic, separating implementation approval from per-instance execution.
+- Lagoon combines registry-approved logic with per-instance delayed proxy upgrades and exact pending-implementation checks; its fail-open registry mode should be treated as a deliberate de-scoping of upgrade gating.
 
 ## Related Anti-Patterns
 

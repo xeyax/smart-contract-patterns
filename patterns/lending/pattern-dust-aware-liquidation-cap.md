@@ -38,6 +38,20 @@ require(!_leavesDust(positionDebt - debtToLiquidate), "dust remainder");
 
 If a partial liquidation would leave a dust position or create an auction too small to clear, fail closed or require a full liquidation after capacity is freed.
 
+### Full-Account Dust Healing Variant
+
+Some lending systems route accounts below a minimum debt or collateral threshold away from ordinary close-factor liquidation into full-account liquidation or healing:
+
+```solidity
+if (_belowDustThreshold(account)) {
+    _liquidateOrHealEntireAccount(account);
+} else {
+    _ordinaryCloseFactorLiquidation(account);
+}
+```
+
+This prevents tiny remnants from surviving repeated partial liquidations. If the full-account path realizes protocol loss, pair it with explicit bad-debt accounting.
+
 ## Key Points
 
 - Cap both global and per-asset in-flight liquidation exposure where needed.
@@ -45,13 +59,16 @@ If a partial liquidation would leave a dust position or create an auction too sm
 - Make cap increases governance-controlled and monitored.
 - Ensure cap exhaustion does not permanently block liquidation progress.
 - Test full, partial, cap-full, dust-remainder, and null-auction cases.
+- Route below-threshold accounts through a full-account or bad-debt-healing path rather than leaving uneconomic remnants.
 
 ## Source Evidence
 
 - Sky/Maker DSS liquidation modules bound global and per-collateral active liquidation debt and reject partial liquidations that would create dusty remnants or invalid auctions.
+- Girin/Doppler-style comptroller code routes below-threshold accounts away from ordinary close-factor liquidation into full-account liquidation or healing.
 
 ## Related Patterns
 
 - [Reserve Exposure Caps](./pattern-reserve-exposure-caps.md)
 - [Resettable Dutch Liquidation Auction](./pattern-resettable-dutch-liquidation-auction.md)
+- [Explicit Bad Debt Realization](./pattern-explicit-bad-debt-realization.md)
 - [Toxic Liquidation Spiral](../../ANTIPATTERNS.md#toxic-liquidation-spiral)

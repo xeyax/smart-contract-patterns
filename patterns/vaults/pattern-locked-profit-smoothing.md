@@ -71,6 +71,18 @@ function totalAssets() public view returns (uint256) {
 
 This has the same fairness goal as strategy locked profit: new depositors should not capture rewards that were earned by earlier holders. The vault must still expose enough information for integrators to understand that `totalAssets()` intentionally lags raw token balance during the vesting window.
 
+### Fixed-Maturity Value Smoothing Variant
+
+For principal tokens or fixed-maturity positions, NAV can otherwise jump as the position approaches deterministic maturity value. Instead of waiting for a maturity cliff, value the position at a conservative discounted maturity amount and release the remaining yield linearly until maturity:
+
+```solidity
+function assets() public view returns (uint256) {
+    return discountedMaturityValue() - remainingYieldToMaturity();
+}
+```
+
+Recompute the accrual rate whenever the principal-token balance changes. This is not generic continuous-yield smoothing; it is for known maturity payoff curves with explicit early-exit and loss behavior.
+
 ## Key Points
 
 - Lock only profit, not principal.
@@ -79,12 +91,14 @@ This has the same fairness goal as strategy locked profit: new depositors should
 - Define loss behavior explicitly: losses should not be hidden by locked profit accounting.
 - Use with actual-received deposit accounting; it does not fix fee-on-transfer tokens.
 - For ERC4626 reward vesting, make sure preview functions use the same vested-asset view as deposits and redemptions.
+- For fixed-maturity positions, use conservative maturity assumptions and update smoothing state whenever principal balance changes.
 
 ## Source Evidence
 
 - Beefy strategies set locked profit during harvest, linearly decay it over `lockDuration`, and subtract it from strategy `balanceOf()`.
 - Beefy tests verify a later depositor cannot capture freshly harvested profit and that locked profit unlocks after the duration.
 - Ethena-style ERC4626 reward vaults exclude unvested rewards from `totalAssets()` and release them over time so incoming users do not receive already-earned rewards.
+- infiniFi's Pendle farm values principal tokens at discounted maturity value, subtracts remaining yield, and releases that yield over time to avoid a deterministic maturity NAV cliff.
 
 ## Related Patterns
 

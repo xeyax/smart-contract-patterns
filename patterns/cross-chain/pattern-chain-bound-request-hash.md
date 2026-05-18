@@ -82,6 +82,23 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Historical custodial wrappers may store local request hashes for auditability, but modern cross-chain bridges should bind the full operation and chain domain.
 - Proof-based exits may use a source transaction or log-location nullifier instead of an application request hash only when the checkpoint manager fixes the source domain, the destination contract fixes the peer/emitter, and equivalent proof encodings are normalized before hashing.
 
+### Sidecar Metadata Beside Canonical Value Messages
+
+When a canonical bridge transfer cannot carry application routing data directly, a companion metadata message can be used only if it commits to the canonical value-transfer identity:
+
+```solidity
+metadataHash = keccak256(abi.encode(
+    canonicalMessageNonce,
+    sourceSender,
+    destinationDomain,
+    destinationRecipient,
+    routeFields,
+    schemaVersion
+));
+```
+
+The sidecar must not mint, unlock, or release value independently. Destination logic should reject unpaired metadata and treat missing or malformed metadata as a liveness/recovery case, not as proof of value settlement.
+
 ## Common Pitfalls
 
 | Pitfall | Impact | Solution |
@@ -90,6 +107,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 | Destination checked after burn | User can burn into an unsupported path | Check destination allowlist before burn |
 | Confirmation without finality | Mint/unlock can happen for a reorged source event | Require finality depth or canonical bridge proof |
 | Mutable hash schema | Pending messages become unconfirmable after upgrade | Version request encodings explicitly |
+| Unpaired metadata sidecar | Value settles without route data or route data applies to wrong transfer | Commit sidecar to canonical message id and schema |
 
 ## Source Evidence
 
@@ -97,6 +115,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - FBTC records cross-chain confirmations by request hash and tests duplicate confirmation rejection.
 - WBTC stores request hashes for mint/burn request auditability, but its trusted-custodian model is not a substitute for chain-bound replay protection.
 - Polygon PoS exits derive spent-exit nullifiers from proven source log location and normalized proof data while relying on checkpoint and child-emitter validation for the chain and peer domain.
+- Noble's CCTP metadata wrapper pairs an EVM-side metadata message with a canonical CCTP burn nonce, showing why sidecar route data should reference the value-transfer identity rather than replace it.
 
 ## Related Patterns
 

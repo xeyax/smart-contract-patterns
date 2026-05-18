@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories analyzed so far: 62 repositories across 8 batches.
+- Source repositories analyzed so far: 70 repositories across 9 batches.
 
 ## First Batch Repositories
 
@@ -109,6 +109,19 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | OnRe | `onre-finance/jup-onyc-integration` | RWA |
 | KPK | `karpatkey/kpk-token` | Risk Curators |
 
+## Ninth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Dolomite | `dolomite-exchange/harvest-strategy-arbitrum` | Lending |
+| Noble Chain | `noble-assets/cctp-contracts` | Bridge |
+| Stake DAO | `stake-dao/contracts-monorepo` | Yield |
+| Doppler Finance | `girin-app/contracts` | CeDeFi |
+| Lagoon | `hopperlabsxyz/lagoon-v0` | Onchain Capital Allocator |
+| Railgun | `Railgun-Community/curve25519-scalarmult-wasm` | Privacy candidate |
+| Loopscale | `LoopscaleLabs/damm-v2` | Lending candidate |
+| infiniFi | `InfiniFi-Labs/infinifi-protocol` | Yield |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -120,6 +133,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-06-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 - `batch-07-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 - `batch-08-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
+- `batch-09-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 
 ## Notes
 

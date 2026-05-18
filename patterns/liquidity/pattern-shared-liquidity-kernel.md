@@ -46,6 +46,20 @@ function operate(
 
 Adapters implement fTokens, vaults, DEX positions, or liquidations while the core remains the single accounting owner.
 
+### Leveraged Router Callback Variant
+
+A user-facing router can compose borrow withdrawals, a transformer callback, and redeposit into the shared core in one operation:
+
+```text
+operate:
+  withdraw borrowed assets
+  call transformer
+  verify receipt token
+  deposit produced collateral
+```
+
+This remains a controlled shared-liquidity exception only if the callback is restricted to the margin core, the callback sender is bound to the expected router, produced receipt tokens match the staking pool or market, and user slippage/deadline constraints are enforced by the transformer data.
+
 ## Key Points
 
 - Keep the core's writer set small and protocol-scoped.
@@ -53,10 +67,12 @@ Adapters implement fTokens, vaults, DEX positions, or liquidations while the cor
 - Use callback or balance-delta settlement when adapters source tokens externally.
 - Provide official resolvers so users do not depend on raw packed storage.
 - Frame this as a controlled exception to generic shared mutable state warnings.
+- For leveraged router flows, authenticate core callback caller and router sender, then verify produced collateral before redepositing it.
 
 ## Source Evidence
 
 - Fluid uses a shared liquidity layer for custody and accounting, while fTokens, vaults, and DEX modules route user actions through protocol-scoped liquidity operations.
+- Dolomite's Harvest strategy integration composes leveraged farming actions through a shared margin core with callback restrictions and receipt-token checks; the reusable lesson is the authenticated callback boundary, not the specific farming route.
 
 ## Related Patterns
 

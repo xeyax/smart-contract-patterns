@@ -48,15 +48,19 @@ Call `updateUser` before changing the user's stake and before claiming.
 
 - Update the global index before changing total stake if new rewards are available.
 - Update the user index before mint, burn, transfer, borrow, repay, or claim changes their earning base.
+- If the earning base lives in an external lending or margin ledger, checkpoint indexes inside authorized callbacks before applying liquidation or delegated balance deltas.
 - Define behavior when total stake is zero.
 - Keep reward-token balance accounting separate from emitted reward accounting.
 - If a user has zero earning balance, advance their user index cursor to the latest index so future stake cannot backfill historical rewards.
+- Terminal emission cursors should cap accrual at the configured final block or timestamp; setters must reject past cutoffs and avoid silently extending an expired distributor.
 - Test multiple users entering, exiting, and claiming across emission updates.
 
 ## Source Evidence
 
 - Aave V3 rewards accrue incentives through asset-level indexes and update users lazily when balances change or rewards are claimed.
 - StakeWise V2 audit material highlights the need to checkpoint zero-balance users so later stake does not claim rewards from before the user entered.
+- Dolomite's leveraged pot pool updates reward indexes before router-driven stake changes and liquidation balance deltas in an external margin ledger.
+- Girin/Doppler-style reward distributors show terminal emission cursors that cap accrual at a final block and need guarded cutoff changes.
 
 ## Related Patterns
 

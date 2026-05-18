@@ -146,6 +146,7 @@ ERC-7540-style asynchronous vaults need a claim ledger, not only a pending queue
 
 - Escrow assets or shares at request time.
 - Fulfillment fixes the claimable entitlement before the user-controlled claim call.
+- Settlement snapshots `totalAssets`, `totalSupply`, fees, and other mutable conversion terms by request or settlement id before claims.
 - Cancellation is a separate pending or claimable state, not an implicit return path.
 - Partial fills need weighted execution prices and must preserve solvency across the shared escrow.
 - Claim rounding must not let early claimants drain dust needed by later claimants.
@@ -169,6 +170,10 @@ This is useful when vault assets are illiquid or bridged, but the request must s
 ### Pending-Exit Parameter Drift
 
 If pending exits reference mutable global terms, governance can unintentionally or maliciously change the user's deal after request time. Snapshot fallback assets, max loss, deadline, fee, and queue priority per request, or require all affected pending requests to be cancelled or removed before the global parameter changes.
+
+### Hybrid Sync/Async Mode
+
+Synchronous deposits and redeems can coexist with async queues only when the current NAV has an explicit validity window and valuation updates cannot change NAV during that window. If the vault cannot preserve that invariant, switch to async-only mode for value-changing entry and exit.
 
 ### Public Gas-Bounded Settlement
 
@@ -296,6 +301,7 @@ Async withdrawals need additional liveness and accounting checks:
 - Solver-filled queues need request-time entitlement, maturity, deadline, capacity, and rescue exclusions.
 - Liquid-staking FIFO batches should fix each batch's entitlement and keep claims available through deposit or staking pauses when solvent.
 - Relay and restaking systems must align async settlement cadence with vault slashing, epoch finality, and validator-set capture windows.
+- ERC-7540 claim ledgers should snapshot conversion terms at settlement time so user-controlled claims do not recalculate against later fees, supply, or NAV.
 
 ## ERC-7540: Async Vault Standard
 
@@ -327,6 +333,7 @@ interface IERC7540 {
 - [Centrifuge](https://github.com/centrifuge/liquidity-pools) — ERC-7540 request, fulfill, cancel, and claim flows with shared escrow accounting
 - Veda Plasma vaults — solver-filled withdrawal queues combine request-time terms, maturity, deadlines, capacity limits, and active-request rescue exclusions
 - Stader BNBx — bounded FIFO withdrawal batches fix batch entitlement and support pause-safe claiming
+- Lagoon ERC-7540 vaults — settlement snapshots assets, supply, and fee terms by request/settlement id; sync paths are gated by NAV validity and can be disabled into async-only mode
 - Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
