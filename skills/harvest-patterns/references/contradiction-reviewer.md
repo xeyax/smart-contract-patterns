@@ -12,6 +12,7 @@ Find contradictions, duplicate claims, stale links, and requirement mismatches.
 - Candidate report or draft diff.
 - Target source evidence.
 - Relevant existing pattern/risk/req docs.
+- `ANTIPATTERNS.md` when the change concerns hazards, mitigations, or "never do this" guidance.
 - `patterns/INDEX.md` if docs were already regenerated.
 
 ## Checks
@@ -24,6 +25,7 @@ Find contradictions, duplicate claims, stale links, and requirement mismatches.
 6. **Evidence integrity** — does every new claim trace to source evidence or a clearly labeled inference?
 7. **Link integrity** — are relative links valid and related docs linked both ways when appropriate?
 8. **Generated index consistency** — does `patterns/INDEX.md` reflect source docs after regeneration?
+9. **Anti-pattern consistency** — does a pattern recommend behavior that `ANTIPATTERNS.md` warns against without naming the required guardrail?
 
 ## Output
 
