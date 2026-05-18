@@ -45,6 +45,16 @@ accrualBlock == block.number
 - Oracle failures in exchange-rate or liquidity checks block the action.
 - Liquidations do not use stale collateral or debt accounting.
 
+## R4: Parameter Changes Accrue First
+
+**Rate, index, and accumulator parameters should only change after the affected accumulator is current.**
+
+### What This Means
+
+- Governance cannot change a rate parameter and retroactively apply it over stale time.
+- Joining or configuring a market fails closed if required accumulators are stale.
+- Tests cover parameter changes before and after accrual.
+
 ## Verification Checklist
 
 | Requirement | Question |
@@ -52,6 +62,7 @@ accrualBlock == block.number
 | R1 | Does every mint/borrow/redeem/repay/liquidate path accrue first? |
 | R2 | Are stored snapshot reads clearly documented? |
 | R3 | Can stale accrual be bypassed through a secondary entry point? |
+| R4 | Do rate/index parameter changes force current accrual first? |
 
 ## Source Evidence
 
@@ -59,6 +70,7 @@ accrualBlock == block.number
 - Its comptroller liquidity checks use stored snapshots for cross-market calculations, showing why freshness scope must be explicit.
 - Morpho Blue accrues before supply, withdraw, borrow, repay, and liquidate paths, and its formal specs compare explicit pre-accrual with expected accrued state.
 - Aave V3 updates reserve state before value-changing reserve actions and represents user balances through indexes that depend on current reserve accounting.
+- Sky/Maker DSS rate accumulator modules require current accumulators before changing duty or savings rates and test stale-parameter-change failures.
 
 ## Related Patterns
 

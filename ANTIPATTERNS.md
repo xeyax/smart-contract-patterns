@@ -46,7 +46,7 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 Pause blocks ALL operations including withdrawals.
 **Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused.
 
 ## Oracle & Price
 
@@ -68,7 +68,7 @@ Using instantaneously manipulable price (DEX spot, single-block read) for value-
 Loop over user-controlled or growing data structure without gas limit.
 **Symptoms:** Array that grows with users/deposits, loop in core operation.
 **Risk:** Gas DoS — operation becomes too expensive as data grows.
-**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives.
+**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives. If users can append entries to another account's array, require a minimum economic size, owner-only append semantics, or pagination so attackers cannot gas-DoS a victim's aggregate views or withdrawals.
 
 ### Fee-on-Transfer Blindness
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
@@ -86,7 +86,7 @@ Value-bearing operation (swap, deposit, mint) without user-specified bounds on a
 Share price manipulable via direct token transfer to contract.
 **Symptoms:** `totalAssets()` reads token balance directly, no virtual offset or internal accounting.
 **Risk:** Attacker donates tokens → inflates share price → first depositor gets ~0 shares.
-**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance. Also check lifecycle predicates that depend on zero token balance; donations can grief removal or cleanup flows even without share inflation. For 1:1 wrappers, surplus accounting plus a controlled skim receiver can neutralize donations.
+**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance. Also check lifecycle predicates that depend on zero token balance; donations can grief removal or cleanup flows even without share inflation. For 1:1 wrappers, surplus accounting plus a controlled skim receiver can neutralize donations. Donation recovery sweeps should be capped to proven excess and ordered before syncing internal cash to the external balance.
 
 ## State & Lifecycle
 
@@ -204,7 +204,7 @@ Governance token = voting token, no snapshot, no minimum holding period.
 Governor contract executes arbitrary calldata against any target.
 **Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism. Operator or receiver contract can hold funds and execute arbitrary calldata.
 **Risk:** Passed proposal becomes unrestricted execution primitive. Can drain treasury, brick protocol.
-**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role.
+**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift.
 
 ## Lending / Borrowing
 
@@ -242,6 +242,12 @@ Many instances share single Beacon, Beacon owner is EOA or low-threshold multisi
 **Risk:** Compromising Beacon owner upgrades ALL instances simultaneously.
 **Fix:** Timelock + high-threshold multisig, per-cohort beacons, upgrade monitoring with auto-pause. Consider instance-owned delegates, rollback paths, or version-gated upgrade registries when blast-radius control matters.
 
+### Delegatecall Context Confusion
+A contract can be called through `delegatecall` even though its logic assumes `address(this)` is the original deployed contract.
+**Symptoms:** Functions rely on immutables, self-address checks, pool identity, or storage context, but can be reached through arbitrary proxies.
+**Risk:** Code executes against unexpected storage or caller context, bypassing assumptions about pool identity or contract state.
+**Fix:** Add no-delegatecall guards to functions that depend on original contract context, or make delegatecall support explicit with shared storage-layout tests.
+
 ### Storage Layout Drift
 Upgradeable contracts without namespaced storage, no layout diffing in CI.
 **Symptoms:** No EIP-7201, variables inserted between existing ones, multiple inheritance.
@@ -272,9 +278,9 @@ Multiple independent pools/strategies share single token vault.
 
 ### Unguarded Batch Composition
 Contract exposes multicall/batch that chains arbitrary internal calls without restriction.
-**Symptoms:** `multicall()` or `cook()` with no whitelist on composable actions.
+**Symptoms:** `multicall()` or `cook()` with no whitelist on composable actions, or payable delegatecall batching where the same `msg.value` is visible to multiple subcalls.
 **Risk:** Individually valid calls composed to break invariants. Abracadabra `cook()` exploit.
-**Fix:** Whitelist composable actions, re-validate invariants after entire batch, disallow dangerous combinations.
+**Fix:** Whitelist composable actions, re-validate invariants after entire batch, disallow dangerous combinations. For payable multicall, account from actual contract balance deltas or consume value exactly once instead of trusting `msg.value` in each subcall.
 
 ### Permissionless Market Without Guardrails
 Anyone can create pools/markets with arbitrary tokens and parameters.

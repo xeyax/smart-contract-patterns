@@ -60,6 +60,22 @@ if (utilization <= kink) {
 
 The benchmark source needs the same freshness and fallback scrutiny as an oracle.
 
+### Two-Kink Variant
+
+Some markets use three rate regions with two utilization kinks:
+
+```solidity
+if (utilization <= kink1) {
+    rate = baseRate + utilization * slope1;
+} else if (utilization <= kink2) {
+    rate = rateAtKink1 + (utilization - kink1) * slope2;
+} else {
+    rate = rateAtKink2 + (utilization - kink2) * jumpSlope;
+}
+```
+
+This can model a softer middle region before the final jump rate, but it adds calibration risk.
+
 ## Key Points
 
 - Define utilization denominator carefully when reserves are present.
@@ -68,11 +84,13 @@ The benchmark source needs the same freshness and fallback scrutiny as an oracle
 - Rate-model updates should be timelocked or otherwise governed.
 - Test behavior at zero cash, full utilization, and exactly the kink.
 - If the curve uses an external benchmark, validate the benchmark through a bounded rate-source adapter.
+- For multi-kink curves, test both kink boundaries and ensure slopes do not create negative or decreasing rates unless that behavior is intentional and bounded.
 
 ## Source Evidence
 
 - JustLend computes utilization from cash, borrows, and reserves, then applies a normal slope before the kink and a jump slope above it.
 - SparkLend Advanced uses benchmark-targeted rate-model variants that combine external APR-style inputs, spreads, and kink utilization behavior.
+- Venus uses a two-kink interest-rate model and audit material highlights that decreasing supply-rate behavior should be treated as an explicit risk.
 
 ## Related Patterns
 

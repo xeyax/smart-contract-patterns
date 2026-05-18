@@ -76,7 +76,8 @@ Use Uniswap's official [OracleLibrary](https://github.com/Uniswap/v3-periphery/b
 import {OracleLibrary} from "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 
 function getTWAPPrice(address pool, uint32 twapWindow) external view returns (uint256) {
-    (int24 arithmeticMeanTick, ) = OracleLibrary.consult(pool, twapWindow);
+    (int24 arithmeticMeanTick, uint128 harmonicMeanLiquidity) = OracleLibrary.consult(pool, twapWindow);
+    require(harmonicMeanLiquidity >= minLiquidity, "low liquidity");
     
     // Convert tick to price — use OracleLibrary.getQuoteAtTick
     return OracleLibrary.getQuoteAtTick(arithmeticMeanTick, baseAmount, baseToken, quoteToken);
@@ -123,6 +124,7 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Wrong token order** | Inverted prices | Verify which token is token0 in the pool |
 | **Decimal mismatch** | Orders of magnitude error | Normalize all prices to consistent decimals |
 | **Uninitialized observation history** | TWAP silently covers a shorter period than intended or reverts | Gate reads until cardinality and oldest observation cover the full window |
+| **Ignoring harmonic mean liquidity** | TWAP can include thin or zero-liquidity manipulation windows | Require minimum windowed harmonic mean liquidity |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -187,6 +189,7 @@ Before using a TWAP for value-bearing operations:
 
 - Check that current cardinality is at least the required cardinality, not just `cardinalityNext`.
 - Verify the pool has an observation older than the requested window.
+- Check the returned harmonic mean liquidity against a minimum threshold for value-bearing use.
 - Use a separate initialization phase or circuit breaker until readiness is true.
 - Reject fallback-to-shorter-window behavior unless the shorter window is explicitly configured and audited.
 

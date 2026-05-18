@@ -19,6 +19,7 @@ This is especially dangerous for LSTs, LRTs, vault shares, and wrappers where re
 ## Applies When
 
 - Collateral value comes from staking, vault, or wrapper exchange rates
+- Collateral value comes from AMM LP virtual price or invariant value per share
 - Redemptions are delayed, queued, capped, or permissioned
 - Liquidations sell collateral into a market price, not into the exchange-rate redemption path
 - The oracle reports a fresh timestamp but no market discount
@@ -35,6 +36,7 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Liquidators refuse to buy collateral at oracle value, leaving bad debt.
 - A wrapper updates `updatedAt` every call while the underlying redemption path is impaired.
 - A protocol caps upward movement but ignores downside depeg.
+- A metapool treats base-pool LP virtual price as fair value while secondary market liquidity is thin or cached.
 
 ## Mitigations
 
@@ -47,9 +49,11 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 ## Source Evidence
 
 - SparkLend Advanced includes exchange-rate style valuation components for stable, LST, LRT, and ERC4626-style assets, which surfaced the need to distinguish freshness from realizable market value.
+- Curve metapools cache and read base-pool LP virtual prices, which are useful fair-value accounting inputs but are not market-clearing prices.
 
 ## Related Patterns
 
 - [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md)
 - [Historical Bounds](./pattern-historical-bounds.md)
+- [LP Virtual Price Monotonicity Requirements](../liquidity/req-lp-virtual-price-monotonicity.md)
 - [Price Manipulation Risk](./risk-price-manipulation.md)

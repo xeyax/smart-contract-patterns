@@ -49,12 +49,25 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Ethena | `ethena-labs/bbp-public-assets` | Stablecoin |
 | Maple Finance | `maple-labs/maple-core-v2` | Lending |
 
+## Fourth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Sky Lending | `sky-ecosystem/dss` | CDP |
+| SSV Network | `ssvlabs/ssv-contracts` | Staking Pool |
+| Curve DEX | `curvefi/curve-contract` | DEX |
+| Compound V3 | `compound-finance/comet` | Lending |
+| Uniswap V3 | `Uniswap/v3-core`, `Uniswap/v3-periphery` | DEX |
+| PancakeSwap AMM | `pancakeswap/pancake-v3-contracts` | DEX |
+| Venus Core Pool | `VenusProtocol/venus-protocol` | Lending |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
 - `batch-01-findings.md` — accepted and deferred catalog updates from the first 12 dry-run analyses.
 - `batch-02-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
 - `batch-03-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
+- `batch-04-findings.md` — accepted and deferred catalog updates from the next 7 dry-run analyses.
 
 ## Notes
 

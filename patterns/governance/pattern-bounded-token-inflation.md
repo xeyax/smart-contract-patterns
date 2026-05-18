@@ -62,6 +62,21 @@ Governance can change the cap only within a hard maximum and through a delay:
 require(newCap <= hardMaxPerWindow, "above hard max");
 ```
 
+### Backstop Auction Variant
+
+If minting is a recapitalization backstop, gate dilution behind debt accounting and surplus netting:
+
+```solidity
+function startDebtAuction() external {
+    require(queuedDebt > 0, "no debt");
+    require(block.timestamp >= debtQueuedAt + delay, "delay");
+    require(surplus == 0, "net surplus first");
+    _startFixedLotMintAuction();
+}
+```
+
+This keeps emergency inflation tied to realized system debt instead of discretionary treasury minting.
+
 ## Key Points
 
 - Bound both per-transaction and per-window minting where possible.
@@ -69,10 +84,12 @@ require(newCap <= hardMaxPerWindow, "above hard max");
 - Emit budget usage so supply monitors do not need to infer it from transfer events.
 - Timelock cap increases; cap decreases can be immediate.
 - Test migration, bridge, reward, and emergency mint paths against the same invariant.
+- For backstop minting, net surplus against debt and enforce delay before starting dilution.
 
 ## Source Evidence
 
 - Ethena's governance token design includes bounded mint authority so token issuance can expand under governance without becoming unrestricted arbitrary supply creation.
+- Sky/Maker DSS delays debt-backed MKR dilution until debt is queued, surplus is netted, and fixed-size debt auctions can be started.
 
 ## Related Patterns
 

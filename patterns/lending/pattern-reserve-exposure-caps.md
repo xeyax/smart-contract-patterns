@@ -52,13 +52,16 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - Check caps on mint, borrow, portal, migration, and collateral-enabling paths.
 - Pair caps with correlated collateral limits when assets share the same failure mode.
 - Monitor cap utilization before listing changes or rate model updates.
+- Allow risk-reducing deltas even when an account or market is already above a cap, as long as the action reduces debt, exposure, or unsafe collateralization.
 
 ## Source Evidence
 
 - Aave V3 uses reserve-level supply and borrow caps, isolation-mode debt ceilings, and exposure controls alongside liquidation parameters.
+- Sky/Maker DSS risk checks allow position changes that improve safety even when debt ceilings or collateralization constraints would reject risk-increasing changes.
 
 ## Related Patterns
 
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
 - [Kinked Utilization Rate Model](./pattern-kinked-utilization-rate-model.md)
+- [Dust-Aware Liquidation Cap](./pattern-dust-aware-liquidation-cap.md)
 - [Correlated Collateral Basket](../../ANTIPATTERNS.md#correlated-collateral-basket)

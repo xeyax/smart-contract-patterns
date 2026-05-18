@@ -66,5 +66,6 @@ function claim(address token, uint256 cumulativeAmount, bytes32[] calldata proof
 
 ## Related Patterns
 
+- [Indexed Merkle Airdrop](./pattern-indexed-merkle-airdrop.md)
 - [Queued Reward Streaming](./pattern-queued-reward-streaming.md)
 - [Pause Traps Funds](../../ANTIPATTERNS.md#pause-traps-funds)
