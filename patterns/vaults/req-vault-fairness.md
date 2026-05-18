@@ -41,6 +41,7 @@ total_shares_after    real_nav_after
 - If user deposits 10% of vault's real value, they should get 10% of shares
 - "Real value" = actual market value, not stale oracle value
 - No systematic over/under pricing of shares
+- Share math must use actual assets received, not the requested transfer amount, unless fee-on-transfer and rebasing tokens are explicitly rejected
 
 ### Violations
 - deltaNav calculated with stale oracle ≠ real deposited value
@@ -61,6 +62,7 @@ If withdraw requires liquidation: liquidation_cost paid by withdrawer
 - Rebalancing costs don't fall on existing shareholders
 - Each user pays for their own "onboarding" or "exit" costs
 - Protocol operations (keeper calls, rebalancing) may be socialized if they benefit all
+- Emergency unwinds should block new entry before blocking exit; exit costs and delays must be explicit
 
 ### Violations
 - Atomic swap slippage absorbed by vault (paid by all shareholders)
@@ -85,6 +87,7 @@ risk-free profit from deposit/withdraw at time T
 - Knowing that NAV will increase shouldn't enable profitable deposit
 - Knowing that NAV will decrease shouldn't enable profitable withdraw
 - No front-running vault operations
+- Discrete harvest profit should not be claimable by users who deposit immediately after the harvest
 
 ### Violations
 - Predictable oracle updates
@@ -93,7 +96,7 @@ risk-free profit from deposit/withdraw at time T
 
 ### Solutions
 - [Async Deposit](./pattern-async-deposit.md) — delayed settlement removes timing advantage
-- Profit locking (Yearn-style) — profits unlock gradually
+- [Locked Profit Smoothing](./pattern-locked-profit-smoothing.md) — profits unlock gradually
 
 ---
 
@@ -107,6 +110,7 @@ When evaluating a vault pattern, verify:
 | R2 | Is share price based on real (not stale) asset values? |
 | R3 | Who pays for swaps, liquidations, rebalancing? |
 | R4 | Can timing of deposit/withdraw be exploited? |
+| Emergency | Can users still exit or claim when entry paths are paused? |
 
 ---
 
@@ -116,6 +120,8 @@ When evaluating a vault pattern, verify:
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base accounting method
 - [Premium Buffer](./pattern-premium-buffer.md) — satisfies R1, R3 via fees
 - [Async Deposit/Withdrawal](./pattern-async-deposit.md) — satisfies R4
+- [Locked Profit Smoothing](./pattern-locked-profit-smoothing.md) — satisfies R4 for discrete harvests
+- [Withdrawal Liquidity Buffer](./pattern-withdrawal-liquidity-buffer.md) — improves exit liveness
 - [Proportional Deposit/Withdrawal](./pattern-proportional-deposit.md) — satisfies R1, R2 without oracles
 
 ### Risks (Violations)

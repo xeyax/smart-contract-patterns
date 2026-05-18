@@ -180,6 +180,14 @@ After upgrade:
 
 Trade-off: ~100K gas per deploy (vs ~45K for EIP-1167), but all clones upgrade atomically when beacon implementation changes. Extra trust assumption — beacon owner can change all vaults at once.
 
+Safer beacon variants reduce blast radius:
+
+- Use one beacon per strategy, asset, risk cohort, or product family instead of one global beacon.
+- Store the beacon immutably in each proxy so creation-time beacon selection is auditable.
+- Use deterministic deployment when integrations need stable addresses before creation.
+- Require fork tests for every shared-beacon upgrade across multiple live instances.
+- Pair shared beacons with timelocks, high-threshold multisigs, and upgrade monitoring.
+
 ## Real-World Examples
 
 - [Morpho MetaMorpho VaultFactory](https://github.com/morpho-org/metamorpho/blob/main/src/MetaMorphoFactory.sol) — CREATE2 factory for MetaMorpho vaults

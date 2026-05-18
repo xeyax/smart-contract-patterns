@@ -1,0 +1,86 @@
+# Version-Gated Upgrade Registry
+
+> Authorize proxy upgrades only to implementation versions that a registry has approved and not deprecated.
+
+## Metadata
+
+| Property | Value |
+|----------|-------|
+| Category | upgrades |
+| Tags | upgrade, proxy, registry, version, governance, beacon |
+| Complexity | Medium |
+| Gas Efficiency | Medium |
+| Audit Risk | Medium |
+
+## Use When
+
+- Many proxy instances should share a vetted implementation catalog
+- Instance owners still need control over when to upgrade
+- Old implementations may need deprecation without forcing immediate migration
+- Integrators need a public list of supported versions
+
+## Avoid When
+
+- All instances must upgrade atomically through a single beacon
+- The system has only one proxy and direct admin approval is simpler
+- Governance cannot reliably review and register implementations
+
+## Trade-offs
+
+**Pros:**
+- Separates implementation approval from per-instance upgrade timing
+- Prevents accidental upgrade to unregistered code
+- Supports deprecating known-bad versions
+- Gives integrators a canonical version registry
+
+**Cons:**
+- Registry governance becomes critical infrastructure
+- Deprecated versions may still be running until instance owners upgrade
+- Version hashes and implementation metadata must be stable
+
+## How It Works
+
+```solidity
+contract VersionRegistry {
+    mapping(bytes32 => address) public implementationOf;
+    mapping(bytes32 => bool) public deprecated;
+
+    function registerVersion(bytes32 version, address implementation) external onlyGovernance {
+        require(implementation.code.length != 0, "no code");
+        implementationOf[version] = implementation;
+    }
+
+    function deprecateVersion(bytes32 version) external onlyGovernance {
+        deprecated[version] = true;
+    }
+}
+
+contract VersionedProxyAdmin {
+    VersionRegistry public registry;
+
+    function upgradeToVersion(ITransparentProxy proxy, bytes32 version) external onlyOwner {
+        address implementation = registry.implementationOf(version);
+        require(implementation != address(0), "unregistered");
+        require(!registry.deprecated(version), "deprecated");
+
+        proxy.upgradeTo(implementation);
+    }
+}
+```
+
+## Key Points
+
+- Register code only after audit, bytecode verification, and storage layout checks.
+- Deprecation should block new upgrades to a version without silently changing existing proxies.
+- Instance owners must still be monitored; they can lag on critical upgrades.
+- Emit version metadata that off-chain systems can map to source code and audit reports.
+
+## Source Evidence
+
+- Reserve Index DTF gates proxy upgrades through a version registry and rejects unregistered or deprecated versions before upgrading.
+- Tests cover registered upgrades and reject unregistered, deprecated, non-owner, and direct-admin paths.
+
+## Related Anti-Patterns
+
+- [Beacon Proxy Single Point of Failure](../../ANTIPATTERNS.md#beacon-proxy-single-point-of-failure)
+- [Storage Layout Drift](../../ANTIPATTERNS.md#storage-layout-drift)

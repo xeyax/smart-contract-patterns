@@ -1,0 +1,113 @@
+# Virtual Share Offset
+
+> Add virtual assets and virtual shares to vault conversion math so first-depositor donations cannot round later depositors to zero shares.
+
+## Metadata
+
+| Property | Value |
+|----------|-------|
+| Category | vaults |
+| Tags | vault, erc4626, shares, inflation, rounding, first-depositor |
+| Complexity | Low |
+| Gas Efficiency | High |
+| Audit Risk | Low |
+
+## Use When
+
+- Vault share minting uses `assets * totalSupply / totalAssets`
+- `totalAssets()` can increase through direct token transfers or donations
+- First deposit can be very small
+- Deposits can be routed through arbitrary ERC-20 tokens or external strategies
+- Need ERC4626-compatible inflation attack protection
+
+## Avoid When
+
+- Vault uses strictly internal accounting and rejects direct asset donations
+- Minimum initial liquidity is seeded by a trusted deployer and enforced forever
+- Shares are non-transferable accounting units with no external depositor surface
+- The offset would materially distort expected share price UX for tiny vaults
+
+## Trade-offs
+
+**Pros:**
+- Prevents the classic first-depositor inflation attack
+- Preserves simple proportional share accounting
+- Low gas overhead
+- Compatible with ERC4626-style conversion functions
+
+**Cons:**
+- Share price has a small synthetic component at low TVL
+- Requires careful documentation so integrations understand preview behavior
+- Does not replace zero-share checks or actual-received asset accounting
+- Offset size must be chosen for the asset/share precision domain
+
+## How It Works
+
+The vault behaves as if it always has a small amount of virtual liquidity:
+
+```
+shares = assets * (totalSupply + virtualShares) / (totalAssets + virtualAssets)
+assets = shares * (totalAssets + virtualAssets) / (totalSupply + virtualShares)
+```
+
+If an attacker deposits 1 wei, receives 1 share, and then donates assets directly to the vault, the virtual shares dilute the attacker's ownership of the donated assets. Later depositors still receive non-zero shares because the denominator and numerator both include the offset.
+
+## Implementation
+
+```solidity
+contract VirtualOffsetVault {
+    uint256 internal constant VIRTUAL_ASSETS = 1;
+    uint256 internal constant VIRTUAL_SHARES = 1e6;
+
+    function previewDeposit(uint256 assets) public view returns (uint256 shares) {
+        shares = assets * (totalSupply() + VIRTUAL_SHARES)
+            / (totalAssets() + VIRTUAL_ASSETS);
+    }
+
+    function deposit(uint256 assets, address receiver) external returns (uint256 shares) {
+        uint256 beforeBalance = _assetBalance();
+        _pullAsset(msg.sender, assets);
+        uint256 received = _assetBalance() - beforeBalance;
+
+        shares = previewDeposit(received);
+        require(shares > 0, "zero shares");
+
+        _mint(receiver, shares);
+    }
+
+    function totalAssets() public view returns (uint256);
+    function totalSupply() public view returns (uint256);
+    function _assetBalance() internal view returns (uint256);
+    function _pullAsset(address from, uint256 assets) internal;
+    function _mint(address to, uint256 shares) internal;
+}
+```
+
+### Key Points
+
+- Apply the offset consistently in all preview and conversion functions.
+- Still require `shares > 0` on minting paths.
+- Measure actual received assets before conversion when supporting arbitrary ERC-20s.
+- The virtual values are not withdrawable assets; they only affect conversion math.
+- Use enough virtual shares to make donation attacks economically unattractive at expected deposit sizes.
+
+## Source Evidence
+
+- EigenLayer `StrategyBase` uses virtual `SHARES_OFFSET` and `BALANCE_OFFSET` in deposit conversion math and rejects zero-share mints.
+- EigenLayer tests validate asset/share conversion integrity with non-zero total shares.
+
+## Real-World Examples
+
+- [OpenZeppelin ERC4626](https://docs.openzeppelin.com/contracts/4.x/erc4626) — describes virtual offset defense for ERC4626 inflation attacks.
+- [EigenLayer StrategyBase](https://github.com/Layr-Labs/eigenlayer-contracts) — strategy share math uses virtual shares/assets offsets.
+
+## Related Patterns
+
+- [Delta NAV Share Accounting](./pattern-delta-nav.md) — base share accounting pattern this hardens
+- [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — separate NAV pricing risk
+- [Async Deposit/Withdrawal](./pattern-async-deposit.md) — timing mitigation, not a replacement for offset math
+
+## References
+
+- [OpenZeppelin ERC4626 Security](https://docs.openzeppelin.com/contracts/4.x/erc4626)
+- [EIP-4626: Tokenized Vault Standard](https://eips.ethereum.org/EIPS/eip-4626)

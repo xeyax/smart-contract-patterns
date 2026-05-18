@@ -20,6 +20,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Price data has a maximum acceptable age
 - Different use cases have different freshness needs (lending vs. display)
 - Stale data can enable arbitrage or cause incorrect liquidations
+- Wrapper feeds must expose the oldest underlying source timestamp, not a synthetic current timestamp
 
 ### Violations
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — using outdated price data
@@ -28,6 +29,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Check `updatedAt` timestamp from Chainlink
 - Use on-chain TWAP with recent observations
 - Implement staleness checks before using price
+- Reject `latestAnswer()`-only integrations for value-bearing operations
 
 ---
 
@@ -43,6 +45,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Price should be close to actual trading price
 - Deviation threshold depends on asset volatility and use case
 - Larger deviations create larger arbitrage opportunities
+- Accepted state updates should be bounded by both value delta and update cadence
 
 ### Violations
 - Large deviation thresholds (e.g., 1% for Chainlink)
@@ -52,6 +55,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 ### Solutions
 - [Multi-Source Validation](./pattern-multi-source-validation.md) — cross-check multiple sources
 - [TWAP Oracle](./pattern-twap-oracle.md) — smooth out short-term noise
+- [Historical Bounds](./pattern-historical-bounds.md) — reject excessive, stale, non-monotonic, or future-dated accepted-state updates
 - Circuit breakers during high deviation
 
 ---
@@ -116,6 +120,7 @@ When evaluating an oracle integration, verify:
 | R2 | What's the maximum expected deviation from true price? |
 | R3 | Can this price be manipulated within a single block/transaction? |
 | R4 | What happens if the oracle is unavailable? |
+| Wrappers | Does the feed preserve source freshness and round semantics? |
 
 ---
 
@@ -128,6 +133,7 @@ Different patterns satisfy different combinations:
 | [Chainlink Integration](./pattern-chainlink-integration.md) | ✅ | ⚠️ | ✅ | ⚠️ |
 | [TWAP Oracle](./pattern-twap-oracle.md) | ✅ | ✅ | ✅ | ⚠️ |
 | [Multi-Source Validation](./pattern-multi-source-validation.md) | ✅ | ✅ | ✅ | ✅ |
+| [Threshold Reporter Consensus](./pattern-threshold-reporter-consensus.md) | ⚠️ | ⚠️ | ⚠️ | ⚠️ |
 | [DEX Spot Price](./pattern-dex-spot-price.md) | ✅ | ✅ | ❌ | ✅ |
 
 Legend: ✅ = satisfies, ⚠️ = partially satisfies, ❌ = does not satisfy
@@ -143,10 +149,10 @@ Legend: ✅ = satisfies, ⚠️ = partially satisfies, ❌ = does not satisfy
 - [Multi-hop Price](./pattern-multihop-price.md) — derive price through intermediate asset
 - [DEX Spot Price](./pattern-dex-spot-price.md) — current pool price
 - [Historical Bounds](./pattern-historical-bounds.md) — sanity check against history
+- [Threshold Reporter Consensus](./pattern-threshold-reporter-consensus.md) — quorum-gated accepted state
 
 ### Risks (Violations)
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — violates R1
 - [Price Manipulation Risk](./risk-price-manipulation.md) — violates R3
 - [Oracle Frontrunning Risk](./risk-oracle-frontrunning.md) — violates R1, R2
 - [Oracle Centralization Risk](./risk-oracle-centralization.md) — violates R4
-

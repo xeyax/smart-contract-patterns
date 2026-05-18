@@ -59,6 +59,17 @@ Impact:
 - Protocol cannot distinguish real from fake prices
 ```
 
+### 3b. Reporter-Set Quorum Collusion
+
+```
+Scenario: Permissioned reporters submit the same false payload
+
+Impact:
+- Threshold consensus accepts incorrect state
+- Public execution makes the bad update easy to finalize
+- Protocol treats quorum as validation even though all reporters share one operator or incentive
+```
+
 ### 4. Regulatory Pressure
 
 ```
@@ -160,6 +171,7 @@ Protocol behavior:
 | [Multi-Source Validation](./pattern-multi-source-validation.md) | No single source dependency | Higher gas, complexity |
 | Fallback Oracles | Alternative when primary fails | Need multiple integrations |
 | [Historical Bounds](./pattern-historical-bounds.md) | Reject extreme outliers | May reject legitimate prices |
+| [Threshold Reporter Consensus](./pattern-threshold-reporter-consensus.md) | Prevents unilateral bad reports | Still trusts reporter independence |
 | Governance Override | Manual intervention for emergencies | Introduces different centralization |
 
 ### Implementation: Fallback Oracle Chain
@@ -294,4 +306,3 @@ Example: UMA's optimistic oracle
 - [Chainlink Architecture](https://docs.chain.link/architecture-overview/architecture-overview)
 - [UMA Optimistic Oracle](https://docs.umaproject.org/oracle/optimistic-oracle)
 - [Decentralizing DeFi Oracles](https://blog.chain.link/levels-of-data-aggregation-in-chainlink-price-feeds/)
-

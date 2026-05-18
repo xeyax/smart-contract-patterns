@@ -17,7 +17,7 @@ Contract A depends on B, B depends on A (directly or through chain).
 ### Shared Mutable State
 Multiple contracts read/write the same storage slot or external state without clear ownership.
 **Symptoms:** Race conditions, unexpected state changes, hard to reason about invariants.
-**Fix:** Single owner per state, others read via view functions.
+**Fix:** Single owner per state, others read via view functions. A shared custody vault can be acceptable only when it is immutable, has explicit internal ledgers, and has a restricted writer set.
 
 ### Missing Abstraction
 Direct coupling to external protocol without adapter/interface layer.
@@ -35,7 +35,7 @@ Internal implementation details exposed through contract interfaces.
 Owner/admin can change critical parameters instantly without timelock, bounds, or multi-sig.
 **Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner.
 **Risk:** Rug pull, accidental misconfiguration, governance attack.
-**Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin.
+**Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked.
 
 ### Missing Pause
 No emergency stop mechanism. If exploit found, no way to stop bleeding.
@@ -44,9 +44,9 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 
 ### Pause Traps Funds
 Pause blocks ALL operations including withdrawals.
-**Symptoms:** Pause disables both deposit and withdraw/redeem.
+**Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks deposits only. Withdrawals always available.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook.
 
 ## Oracle & Price
 
@@ -68,25 +68,25 @@ Using instantaneously manipulable price (DEX spot, single-block read) for value-
 Loop over user-controlled or growing data structure without gas limit.
 **Symptoms:** Array that grows with users/deposits, loop in core operation.
 **Risk:** Gas DoS — operation becomes too expensive as data grows.
-**Fix:** Bounded batch processing, pagination, or restructure to avoid loops.
+**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives.
 
 ### Fee-on-Transfer Blindness
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without checking balance delta.
 **Risk:** Accounting mismatch, exploitable for value extraction.
-**Fix:** Measure actual balance change, or explicitly reject fee-on-transfer tokens.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding.
 
 ### Missing Slippage Protection
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope.
 
 ### Donation Attack Surface
 Share price manipulable via direct token transfer to contract.
 **Symptoms:** `totalAssets()` reads token balance directly, no virtual offset or internal accounting.
 **Risk:** Attacker donates tokens → inflates share price → first depositor gets ~0 shares.
-**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance.
+**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance. Also check lifecycle predicates that depend on zero token balance; donations can grief removal or cleanup flows even without share inflation.
 
 ## State & Lifecycle
 
@@ -132,7 +132,7 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants.
 
 ### Unvalidated External Contract
 Protocol integrates with external contracts passed as parameters, validates token addresses but not the contract itself.
@@ -166,19 +166,19 @@ Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot 
 Assumes token transfer delivers exact amount requested.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check.
 **Risk:** Accounting mismatch with fee-on-transfer tokens, exploitable for value extraction.
-**Fix:** Measure actual balance change, or explicitly reject fee-on-transfer tokens.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding.
 
 ### Implicit Decimal Assumption
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
 **Symptoms:** No per-token decimal normalization, share math doesn't account for decimal differences.
 **Risk:** USDC (6 decimals) valued as 1e12× correct amount. Common in multi-token vaults.
-**Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals.
+**Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals. If the system only supports 18-decimal accounting, reject non-18-decimal tokens and feeds at every onboarding path.
 
 ### Approval Persistence
 Protocol requests unlimited approval, approved spender contracts are upgradeable.
 **Symptoms:** `type(uint256).max` approval, no permit2, no session-scoped approvals.
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
-**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals.
+**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance.
 
 ## Governance
 
@@ -186,7 +186,7 @@ Protocol requests unlimited approval, approved spender contracts are upgradeable
 Governance token = voting token, no snapshot, no minimum holding period.
 **Symptoms:** No snapshot mechanism, proposal execution without timelock, emergency bypass.
 **Risk:** Flash loan borrow governance tokens → pass malicious proposal in one tx. Beanstalk: $182M.
-**Fix:** Snapshot voting at prior block, time-weighted voting power, mandatory timelock on all paths.
+**Fix:** Snapshot voting at prior block, time-weighted voting power, mandatory timelock on all paths. Vote-weight caps and post-vote transfer locks reduce token reuse but are not a full snapshot substitute.
 
 ### Governance as Arbitrary Execution
 Governor contract executes arbitrary calldata against any target.
@@ -228,7 +228,7 @@ User-facing swap/deposit broadcasts exact amounts to public mempool.
 Many instances share single Beacon, Beacon owner is EOA or low-threshold multisig.
 **Symptoms:** One global beacon for all vaults/pools, no upgrade monitoring.
 **Risk:** Compromising Beacon owner upgrades ALL instances simultaneously.
-**Fix:** Timelock + high-threshold multisig, per-cohort beacons, upgrade monitoring with auto-pause.
+**Fix:** Timelock + high-threshold multisig, per-cohort beacons, upgrade monitoring with auto-pause. Consider instance-owned delegates, rollback paths, or version-gated upgrade registries when blast-radius control matters.
 
 ### Storage Layout Drift
 Upgradeable contracts without namespaced storage, no layout diffing in CI.
@@ -242,7 +242,7 @@ Upgradeable contracts without namespaced storage, no layout diffing in CI.
 Cross-chain message lacks chain ID binding, replay protection depends on single nonce.
 **Symptoms:** No per-chain deduplication, shared small validator set.
 **Risk:** Valid message on Chain A replayed on Chain B. Wormhole, Ronin, Nomad exploits.
-**Fix:** (sourceChain, destChain, nonce) tuples, per-chain deduplication, independent validator sets.
+**Fix:** Bind operation, source chain, destination chain, nonce, participants, value, and payload into the request hash; keep per-chain deduplication and independent validator sets. Price relays also need source-feed keyed freshness and monotonic timestamp checks.
 
 ### Bridge Custodian Concentration
 Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.

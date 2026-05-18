@@ -120,6 +120,18 @@ contract ChainlinkOracle {
 
 **Note:** Chainlink USD pairs typically use 8 decimals. Normalize prices before use.
 
+### Chainlink-Compatible Wrappers
+
+Some contracts implement `AggregatorV3Interface` but are not Chainlink feeds. They may derive values from DEX TWAPs, staking exchange rates, bridged messages, or internal accounting, and may synthesize `updatedAt` as `block.timestamp`.
+
+Interface compatibility is not the same as Chainlink freshness or round semantics. For every wrapper:
+
+- Inspect the source of `answer`, `updatedAt`, `roundId`, and `answeredInRound`.
+- Prefer `latestRoundData()` over `latestAnswer()` so the caller can validate timestamp and round completeness.
+- If the wrapper composes multiple sources, propagate the oldest underlying timestamp.
+- Reject wrappers that return a fresh timestamp while the underlying source has no freshness signal.
+- Normalize decimals after reading the feed, and reject negative or zero answers.
+
 ### With Fallback Oracle
 
 ```solidity
@@ -194,6 +206,8 @@ contract L2ChainlinkOracle {
 | **L2 sequencer down** | Sequencer feed | Check `answer == 0` and grace period on L2s |
 | **Wrong decimals** | `decimals()` | Normalize to 18 decimals (most USD pairs use 8) |
 | **Negative price** | `price` | `require(price > 0)` |
+| **Fresh-timestamp shim** | wrapper source | Do not trust `updatedAt = block.timestamp` unless the underlying source is fresh |
+| **`latestAnswer()` only** | missing timestamp | Use `latestRoundData()`; off-chain monitoring is not an on-chain guard |
 
 ## Real-World Examples
 
@@ -213,4 +227,3 @@ contract L2ChainlinkOracle {
 - [Chainlink Feed Addresses](https://docs.chain.link/data-feeds/price-feeds/addresses)
 - [Chainlink L2 Sequencer Feeds](https://docs.chain.link/data-feeds/l2-sequencer-feeds)
 - [Using Data Feeds Safely](https://docs.chain.link/data-feeds/using-data-feeds)
-

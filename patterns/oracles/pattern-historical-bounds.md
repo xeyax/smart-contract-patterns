@@ -189,6 +189,26 @@ contract RateLimitedBoundsOracle {
 }
 ```
 
+### Rate-Limited Accepted State
+
+For stateful oracle reports, validate both cadence and magnitude before mutating the accepted value:
+
+```solidity
+function acceptReport(uint256 newValue, uint256 reportTime) external {
+    require(reportTime > lastReportTime, "non-monotonic");
+    require(block.timestamp - reportTime <= maxReportAge, "stale");
+    require(reportTime <= block.timestamp + maxFutureDrift, "future report");
+    require(block.timestamp >= lastAcceptedAt + minUpdateInterval, "too soon");
+    require(_withinDeviation(newValue, lastAcceptedValue, maxDeltaBps), "too far");
+
+    lastAcceptedValue = newValue;
+    lastAcceptedAt = block.timestamp;
+    lastReportTime = reportTime;
+}
+```
+
+This variant is useful for reporter-quorum systems and cross-chain price relays where each accepted update becomes protocol state. Reject zero values, undercollateralized rates, non-monotonic timestamps, excessive deltas, stale reports, and future-dated reports before minting, borrowing, or accepting deposits against the value.
+
 ## Calibration
 
 | Asset Type | Suggested Max Deviation | Rationale |
@@ -201,6 +221,8 @@ contract RateLimitedBoundsOracle {
 - Too tight: rejects legitimate price moves
 - Too loose: doesn't catch anomalies
 - Consider asset-specific volatility patterns
+- Bound both value movement and update cadence for accepted-state oracles
+- For bridged prices, authenticate the remote sender and reject stale, future-dated, or non-monotonic timestamps
 
 ## Limitations
 
@@ -271,4 +293,3 @@ contract CircuitBreakerWithBounds {
 
 - [MakerDAO Oracle Security Module](https://docs.makerdao.com/smart-contract-modules/oracle-module)
 - [Price Oracle Best Practices](https://blog.openzeppelin.com/secure-oracle-design)
-

@@ -99,6 +99,41 @@ Shares issued immediately but locked for a period. See [Timelock on Shares](./pa
 
 **Important limitation:** Timelock does NOT prevent unfair share allocation — attacker still gets more shares than deserved, just can't exit instantly. It primarily prevents flash loan attacks.
 
+### Approach 4: Batch Queue Settlement
+
+Requests are accumulated in a queue and processed as an explicit batch:
+
+```
+1. Users request deposits or redemptions
+   → assets or shares are escrowed
+   → request ids define ordering
+
+2. Manager/keeper processes a bounded id range
+   → all included requests share one execution price
+   → shares/assets distributed pro-rata across included requests
+
+3. Skipped requests remain pending or become refundable
+   → bypass rules must be objective and bounded
+```
+
+**Why it works:** Users in the same processed batch cannot choose a favorable pricing moment. The manager can net flows and prepare liquidity, but must not be able to cherry-pick only favorable users without a documented bypass rule.
+
+### Public Gas-Bounded Settlement
+
+For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
+
+```solidity
+function settle(uint256 maxRequests) external {
+    uint256 processed;
+    while (processed < maxRequests && _hasPendingRequest() && _hasCapacity()) {
+        _settleNextRequest();
+        processed++;
+    }
+}
+```
+
+This avoids keeper monopoly and prevents a growing queue from making settlement uncallable. If settlement can be disabled, the disable switch should have the same scrutiny as pausing withdrawals because it can affect exit liveness.
+
 ## Implementation
 
 ### Epoch-Based System
@@ -191,6 +226,19 @@ contract DelayedDeployVault {
 - Slippage during deployment affects all shareholders proportionally
 - Keeper can optimize timing/routing for deployment
 
+### Withdrawal Queue Finalization
+
+Async withdrawals need additional liveness and accounting checks:
+
+- Finalization must be gas-bounded: process explicit ranges or batches, not the entire queue.
+- If batch calculation happens off-chain, reconstruct enough state on-chain to reject invalid batches.
+- Claiming should not depend on a paused deposit path when solvency allows claims.
+- Bypass mechanisms need objective thresholds; otherwise a manager can starve large or unfavorable requests.
+- Pending exits may remain liable for losses or slashing until final claim, depending on the protocol's risk model.
+- Public settlement should accept a max count or explicit id range and stop cleanly when capacity is exhausted.
+- If assets are scarce, refill a [Withdrawal Liquidity Buffer](./pattern-withdrawal-liquidity-buffer.md) before deploying surplus capital.
+- Delayed unstaking can burn shares immediately, escrow assets in a manager, and allow claim after a delay; cancellation rules must be explicit and value-neutral.
+
 ## ERC-7540: Async Vault Standard
 
 Emerging standard for async ERC4626 vaults:
@@ -210,6 +258,11 @@ interface IERC7540 {
 
 - [Yearn V3](https://github.com/yearn/yearn-vaults-v3) — `auto_allocate` flag controls immediate vs delayed deploy
 - [Enzyme Finance](https://enzyme.finance/) — `sharesActionTimelock` parameter
+- [Lido](https://github.com/lidofinance/core) — withdrawal queue finalization uses bounded batches and queue invariants
+- [Rocket Pool](https://github.com/rocket-pool/rocketpool) — public bounded deposit assignment drains queues without requiring a privileged keeper
+- [Renzo](https://github.com/Renzo-Protocol/contracts-public) — withdrawal deficits are refilled before new assets are delegated
+- [Reserve Index DTF](https://github.com/reserve-protocol/reserve-index-dtf) — delayed unstaking burns shares, creates claim locks, and allows cancellation
+- [Symbiotic](https://github.com/symbioticfi/core) — pending withdrawals remain slashable until epoch finality
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns

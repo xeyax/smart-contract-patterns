@@ -122,6 +122,7 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Overflow when squaring sqrtRatioX96** | Revert on extreme ticks | Check `sqrtRatioX96 <= type(uint128).max` before squaring |
 | **Wrong token order** | Inverted prices | Verify which token is token0 in the pool |
 | **Decimal mismatch** | Orders of magnitude error | Normalize all prices to consistent decimals |
+| **Uninitialized observation history** | TWAP silently covers a shorter period than intended or reverts | Gate reads until cardinality and oldest observation cover the full window |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -178,6 +179,17 @@ function ensureObservationCapacity(address pool, uint16 minCardinality) external
 - For 30-min TWAP: ~30 observations (assuming 1 trade/min average)
 - Default is often 1 — must be increased!
 
+### Readiness Gate
+
+Increasing `observationCardinalityNext` does not backfill history. A pool is ready only after enough swaps or observations have populated the ring buffer and the oldest usable observation is at least `twapWindow` seconds old.
+
+Before using a TWAP for value-bearing operations:
+
+- Check that current cardinality is at least the required cardinality, not just `cardinalityNext`.
+- Verify the pool has an observation older than the requested window.
+- Use a separate initialization phase or circuit breaker until readiness is true.
+- Reject fallback-to-shorter-window behavior unless the shorter window is explicitly configured and audited.
+
 ## Attack Vectors
 
 ### Insufficient Liquidity
@@ -216,4 +228,3 @@ function ensureObservationCapacity(address pool, uint16 minCardinality) external
 - [Uniswap V3 Oracle Documentation](https://docs.uniswap.org/concepts/protocol/oracle)
 - [Uniswap V3 TWAP Deep Dive](https://blog.uniswap.org/uniswap-v3-oracles)
 - [OracleLibrary.sol](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol)
-

@@ -98,6 +98,17 @@ On L2s (Arbitrum, Optimism):
 - No transactions processed, including oracle updates
 - When sequencer restarts, prices are stale
 
+### Chainlink-Compatible Shims
+
+Some contracts expose a Chainlink-like interface while deriving the answer from a staking exchange rate, DEX TWAP, bridged price, or internal conversion. If the shim returns `updatedAt = block.timestamp`, a generic staleness check passes even when the underlying source has no freshness guarantee.
+
+Treat wrappers as new oracle implementations:
+
+- Inspect how the answer is computed.
+- Propagate the oldest underlying timestamp through `updatedAt`.
+- Reject `latestAnswer()` integrations for value-bearing operations because they cannot check freshness.
+- Do not rely on off-chain monitoring as the only guard for on-chain state changes.
+
 ## Conditions That Increase Risk
 
 | Factor | Higher Risk | Lower Risk |
@@ -128,6 +139,7 @@ Example (1% deviation threshold):
 | [TWAP Oracle](./pattern-twap-oracle.md) | On-chain source updates every block | Lags during volatility |
 | Staleness Check | Reject stale prices | May block operations |
 | Premium Buffer | Fee covers potential staleness | Cost to users |
+| Source Timestamp Propagation | Prevents wrappers from hiding stale inputs | Requires wrapper-specific integration |
 
 ### Implementation: Staleness Check
 
@@ -205,4 +217,3 @@ function isPriceStale() public view returns (bool) {
 - [Chainlink Deviation and Heartbeat](https://docs.chain.link/data-feeds)
 - [L2 Sequencer Uptime Feeds](https://docs.chain.link/data-feeds/l2-sequencer-feeds)
 - [Oracle Security Best Practices](https://blog.openzeppelin.com/secure-oracle-design)
-

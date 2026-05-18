@@ -128,6 +128,26 @@ contract VolatilityBasedPremiumVault {
 
 ## Variations
 
+### Liquidity Utilization Premium
+
+For instant withdrawals from a finite liquidity buffer, scale the fee by post-withdrawal utilization instead of oracle volatility:
+
+```solidity
+function instantWithdrawalFee(uint256 amount) public view returns (uint256 feeBps) {
+    uint256 available = withdrawalBuffer.available();
+    require(amount <= available, "insufficient buffer");
+
+    uint256 postAvailable = available - amount;
+    require(postAvailable >= drawdownFloor, "below floor");
+    if (postAvailable >= bufferTarget) return minFeeBps;
+
+    uint256 usedCapacity = bufferTarget - postAvailable;
+    feeBps = minFeeBps + usedCapacity * (maxFeeBps - minFeeBps) / (bufferTarget - drawdownFloor);
+}
+```
+
+This variant charges more as the buffer approaches its drawdown floor, discouraging users from draining scarce instant liquidity while keeping slower queued withdrawals available.
+
 ### Time-Decaying Premium
 
 Higher premium right after large price moves:
@@ -163,6 +183,7 @@ function calculatePremium() public view returns (uint256) {
 ## Related Patterns
 
 - [Premium Buffer](./pattern-premium-buffer.md) — fixed premium (simpler version)
+- [Withdrawal Liquidity Buffer](./pattern-withdrawal-liquidity-buffer.md) — liquidity reserve that can drive utilization premiums
 - [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — the problem this solves
 - [Circuit Breaker](./pattern-circuit-breaker.md) — complementary protection
 
