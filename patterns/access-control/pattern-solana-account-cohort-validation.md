@@ -42,6 +42,7 @@
 Validate accounts as a cohort, not as isolated types:
 
 - account owner is the expected program
+- account discriminator or layout tag matches the expected account type before raw layout parsing
 - PDA address matches the seed tuple
 - stored pool/reserve/market keys match the passed accounts
 - SPL token mint, owner, delegate, and close authority match the role
@@ -50,6 +51,7 @@ Validate accounts as a cohort, not as isolated types:
 ## Key Points
 
 - Validate role relationships before deserializing mutable state for execution.
+- When using raw layout parsing or bytemuck-style casts, check owner, length, and discriminator/tag before trusting fields.
 - Keep helper functions role-specific; avoid generic "is valid token account" checks for custody paths.
 - After validation, use names that preserve semantic account role.
 - Test swapped same-type accounts, wrong mint, wrong authority, wrong market, and wrong program owner.
@@ -60,6 +62,7 @@ Validate accounts as a cohort, not as isolated types:
 - Raydium AMM validates Serum/OpenBook market and open-orders accounts, pool configuration PDAs, vault owners, mints, delegates, and token authorities.
 - Kamino Lend validates PDA-derived lending accounts and post-CPI token states for reserves and obligations.
 - Raydium evidence also shows why later role confusion remains a risk even after initial validation.
+- OnRe's Jupiter integration adapter is useful negative evidence: it length-checks and raw-parses account layouts, which should be paired with owner and discriminator checks in value-bearing programs.
 
 ## Related Patterns
 

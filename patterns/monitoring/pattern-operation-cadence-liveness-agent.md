@@ -39,6 +39,21 @@ check unstake cadence:
 
 The agent should alert on both missing calls and suspiciously small or large amounts.
 
+### Cross-Chain Verifier Worker Variant
+
+For bridge verifier or DVN workers, cadence is not enough. Persist source event cursors, in-flight packet ids, proof request hashes, submitted transaction hashes, retry counts, and final verification or execution status:
+
+```text
+PacketSent
+  -> proof requested
+  -> proof received
+  -> verification tx submitted
+  -> receive library committed
+  -> destination execution observed
+```
+
+Starting from the latest block after a restart can silently skip pending packets. Treat worker persistence, redundant RPC, gas funding, and alerting as part of the bridge liveness design.
+
 ## Key Points
 
 - Monitor state progress, not only function calls.
@@ -46,12 +61,15 @@ The agent should alert on both missing calls and suspiciously small or large amo
 - Alert on failed transactions, stale cadence, and suspicious amounts.
 - Keep monitors read-only and independent from keeper keys.
 - Treat monitor coverage as part of the operational runbook.
+- For cross-chain workers, alert on stuck packet states, repeated proof failures, skipped cursors, and already-verified races that do not reach destination execution.
 
 ## Source Evidence
 
 - Stader BNBx includes off-chain agent checks for operation cadence and suspicious staking or withdrawal amounts around keeper-dependent liquid-staking flows.
+- GAIB's Symbiotic Super Sum simulation documents DVN worker state, proof submission, already-verified races, and the need for persistent state, redundant RPC, gas strategy, and monitoring before production use.
 
 ## Related Patterns
 
 - [Read-Only Protocol Health Checker](./pattern-read-only-protocol-health-checker.md)
 - [Async Deposit/Withdrawal](../vaults/pattern-async-deposit.md)
+- [Stake-Backed DVN Verifier Adapter](../cross-chain/pattern-stake-backed-dvn-verifier-adapter.md)

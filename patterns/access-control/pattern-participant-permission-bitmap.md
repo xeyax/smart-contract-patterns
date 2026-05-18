@@ -83,6 +83,7 @@ This is easier to inspect for regulated tokens, but it still needs the same endp
 - Emit events for bit changes so off-chain compliance and monitoring can reconstruct state.
 - Fuzz policy combinations, not only the happy-path private/public modes.
 - For regulated or permissioned shares, check the delegated transfer initiator as well as `from` and `to`; a non-eligible spender should not move eligible users' tokens through `transferFrom`.
+- If transfer rights intentionally inherit from the `from` account through normal ERC20 approval, document that delegation as a business requirement and test approved spenders explicitly.
 - Permission bits may include expiry timestamps, freeze bits, and endorsed system escrow/router bypasses, but bypasses should be narrow and documented.
 
 ## Source Evidence
@@ -91,6 +92,7 @@ This is easier to inspect for regulated tokens, but it still needs the same endp
 - Centrifuge liquidity pools use time-bounded membership, freeze state, sender/receiver checks, endorsed escrow/router paths, and authorized settlement transfers for permissioned tranche tokens.
 - An Ondo audit-contest snapshot checks KYC/sanctions status for `from`, `to`, and delegated transfer initiator on regulated rebasing share transfers.
 - Spiko's Stellar token delegates mint, transfer, redeem, and redemption-contract eligibility to a permission manager with admin-controlled whitelist roles.
+- Karpatkey's KPK token intentionally lets an allowlisted sender delegate transfers through ERC20 approval, illustrating that delegated-spender checks are policy-dependent and must be explicit.
 
 ## Related Patterns
 

@@ -228,6 +228,12 @@ Protocol requests unlimited approval, approved spender contracts are upgradeable
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
 **Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance.
 
+### Overwrite-Based Allowance Changes
+Custom transfer budgets or ERC20-like allowances are replaced by a new value without accounting for pending spender use.
+**Symptoms:** Admin calls `setAllowance(spender, newAmount)`, or a decrease reverts if the current allowance has already changed.
+**Risk:** A spender can consume the old budget before the new value lands, or grief reductions by changing the current allowance.
+**Fix:** Prefer increase/decrease APIs, zero-first replacement, exact expected-current checks, or saturating reduction to zero when the goal is revocation.
+
 ### Permit Front-run Griefing
 Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if the permit nonce was already consumed.
 **Symptoms:** `permit()` is called first, then deposit/withdraw/repay assumes the permit succeeded.
@@ -294,7 +300,7 @@ Many instances share single Beacon, Beacon owner is EOA or low-threshold multisi
 A contract can be called through `delegatecall` even though its logic assumes `address(this)` is the original deployed contract.
 **Symptoms:** Functions rely on immutables, self-address checks, pool identity, or storage context, but can be reached through arbitrary proxies.
 **Risk:** Code executes against unexpected storage or caller context, bypassing assumptions about pool identity or contract state.
-**Fix:** Add no-delegatecall guards to functions that depend on original contract context, such as an immutable self-address comparison, or make delegatecall support explicit with shared storage-layout tests.
+**Fix:** Add no-delegatecall guards to functions that depend on original contract context, such as an immutable self-address comparison, or make delegatecall support explicit with shared storage-layout tests. EIP-7702-style implementation delegation should be treated as delegatecall support and tested against the wallet/account storage context it will actually run in.
 
 ### Storage Layout Drift
 Upgradeable contracts without namespaced storage, no layout diffing in CI.

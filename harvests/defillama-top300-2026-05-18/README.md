@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories analyzed so far: 54 repositories across 7 batches.
+- Source repositories analyzed so far: 62 repositories across 8 batches.
 
 ## First Batch Repositories
 
@@ -96,6 +96,19 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Stader BNBx | `stader-labs/bnbX` | Liquid Staking |
 | Defi Saver V3 | `defisaver/defisaver-v3-contracts` | Automation |
 
+## Eighth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| UniRouter Bridge | `UniRouter/unirouter-staking-contract` | Bridge candidate |
+| Coinbase Wrapped Staked ETH | `coinbase/smart-wallet` | Liquid Staking candidate |
+| B2 Buzz | `b2network/halving-protocol` | Canonical Bridge candidate |
+| b14g | `b14glabs/btc-signature-verify` | Restaking candidate |
+| AFI Protocol | `Artificial-Financial-Intelligence/afiUSD` | Farm |
+| GAIB | `gaib-ai/symbiotic-super-sum` | RWA |
+| OnRe | `onre-finance/jup-onyc-integration` | RWA |
+| KPK | `karpatkey/kpk-token` | Risk Curators |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -106,6 +119,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-05-findings.md` — accepted and deferred catalog updates from the next 6 dry-run analyses.
 - `batch-06-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 - `batch-07-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
+- `batch-08-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 
 ## Notes
 

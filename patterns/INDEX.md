@@ -12,9 +12,11 @@
 | pattern-bounded-timelocked-parameter-change.md | Require critical parameter changes to be committed, delayed, bounded, and explicitly applied before they affect protocol economics. | Parameters affect fees, amplification, rates, caps, or admin recipients |
 | pattern-break-glass-risk-limiter.md | Give an emergency role narrowly scoped powers to reduce risk limits or disable risky routes without granting the power to re-enable them. | Operators need to react faster than governance during suspected compromise or market stress |
 | pattern-consumer-scoped-rate-limiter.md | Apply token-bucket limits per approved consumer or route so one actor cannot exhaust shared capacity for unrelated flows. | Multiple protocol components share a constrained operation such as instant redemption, bridge egress, or privileged cons |
+| pattern-erc1271-replay-safe-account-signatures.md | Wrap arbitrary external hashes in an account-specific EIP-712 domain before a smart account returns ERC-1271 signature validity. | Smart accounts expose `isValidSignature(bytes32,bytes)` for external protocols |
 | pattern-mutual-parameter-acceptance.md | Require both affected parties to accept shared economic parameters before the new values take effect. | A parameter affects two independent parties, such as manager and user, partner and protocol, or splitter recipients |
 | pattern-participant-permission-bitmap.md | Encode participant eligibility as compact policy bits so deposits, borrows, transfers, and exits can enforce both account-level and pool-level access. | A pool has private, public, pool-level, or function-level participation modes |
 | pattern-pda-scoped-protocol-authority.md | Derive Solana protocol authorities and custody accounts from canonical PDA seeds, then verify every account against the stored authority graph. | A Solana program owns token vaults, mints, obligations, or market authority through PDAs |
+| pattern-scoped-chain-id-bypass-for-wallet-maintenance.md | Allow replayable smart-wallet maintenance only through self-calls, selector allowlists, and reserved nonce domains, never through arbitrary value execution. | A smart account needs the same owner-maintenance operation on multiple chains |
 | pattern-selector-scoped-authority.md | Grant operators permission to call specific function selectors on specific targets instead of granting broad owner or admin authority. | Operators need to run recurring maintenance or risk-management calls |
 | pattern-self-authenticated-key-registry.md | Let operators register protocol keys only after proving control of the key, then snapshot key history for epoch-scoped verification. | Operators need off-chain signing, consensus, or relay keys distinct from owner accounts |
 | pattern-solana-account-cohort-validation.md | Validate every passed Solana account as part of the expected account cohort before trusting its data, authority, or balance. | A Solana instruction receives many accounts from the caller |
@@ -56,6 +58,7 @@
 | pattern-retryable-cross-domain-message-ledger.md | Record successful and failed cross-domain message executions so failed deliveries can be retried while successful deliveries remain exact-once. | Cross-domain messages execute arbitrary destination calls |
 | pattern-self-describing-utxo-deposit-reveal.md | Encode depositor, wallet, refund, and routing terms into a Bitcoin deposit script, then reveal and sweep that UTXO with proof-based settlement. | A bridge accepts deposits from a UTXO chain into an account-based chain |
 | pattern-signed-custody-routed-mint.md | Authorize mint and redeem orders with typed signatures that bind route, custodian allocation, nonce, expiry, and asset ratios before custody-backed settlement. | Tokens are minted or redeemed against off-chain or custodied reserves |
+| pattern-stake-backed-dvn-verifier-adapter.md | Plug an external stake-backed validator-set proof into a bridge verifier lane, then forward the verified packet to the canonical receive library. | A bridge or messaging layer supports custom verifier lanes |
 | pattern-threshold-custody-wallet-lifecycle.md | Manage bridge custody through rotating threshold-signer wallets with explicit states, liveness timeouts, moving-funds transitions, and fraud challenges. | A bridge custody account is controlled by a threshold signer group |
 | pattern-token-owned-bridge-registration.md | Let token contracts opt into bridge mappings while preventing unauthorized peer remapping after registration. | Tokens choose custom bridge gateways or remote token implementations |
 
@@ -221,7 +224,7 @@
 | risk-exchange-rate-valuation.md | Collateral value comes from staking, vault, or wrapper exchange rates |
 | risk-oracle-centralization.md | Relying on a single oracle source creates single points of failure and trust assumptions. |
 | risk-oracle-frontrunning.md | Attackers exploit predictable oracle updates to front-run price changes and extract value. |
-| risk-oracle-staleness.md | Using outdated price data leads to incorrect valuations and creates arbitrage opportunities. |
+| risk-oracle-staleness.md | Price or rate data has a heartbeat, deviation threshold, relay delay, or manual update cadence |
 | risk-price-manipulation.md | Attackers manipulate on-chain price sources to exploit protocols that rely on them. |
 
 ### Requirements
@@ -269,6 +272,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-launch-locked-recipient-scoped-transfer-gate.md | Launch a governance or distribution token as non-transferable, then allow controlled transfers through account allowlists and recipient-scoped spend budgets until full transferability is enabled. | A token has an intentional non-transferable launch or distribution phase |
 | pattern-principal-reward-split-derivative.md | Represent a staking position with one token for principal and a separate token for accrued rewards. | Principal should remain close to 1:1 with deposited assets |
 | pattern-timeboxed-idempotency-key-ledger.md | Record operation keys for a bounded retention window so retried mints, burns, transfers, or redemptions execute at most once. | Off-chain operations can be retried after network or operator failures |
 
