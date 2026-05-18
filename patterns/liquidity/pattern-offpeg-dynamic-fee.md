@@ -52,5 +52,6 @@ The fee applies to swaps and liquidity operations that create or increase imbala
 ## Related Patterns
 
 - [Dynamic Premium](../vaults/pattern-dynamic-premium.md)
+- [Hook-Governed Dynamic LP Fee](./pattern-hook-governed-dynamic-lp-fee.md)
 - [Amplified Stable Invariant](./pattern-amplified-stable-invariant.md)
 - [Peg Ratio Monitor](../oracles/pattern-peg-ratio-monitor.md)

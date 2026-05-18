@@ -43,17 +43,21 @@ function swapCallback(int256 amount0Delta, int256 amount1Delta, bytes calldata d
 }
 ```
 
+In action-router variants, the router enters the pool manager's unlock callback, dispatches a compact list of actions, and derives the user from transient locker state while keeping final slippage checks at the router boundary.
+
 ## Key Points
 
 - Enforce deadline and exact-in/exact-out bounds at the router entry point.
 - Validate callback sender against factory-derived pool identity.
 - Switch payer deliberately between user and router for multi-hop paths.
 - Avoid storing route state between calls.
+- For unlock-based action routers, validate the pool manager caller, constrain the action set, and enforce final plus per-hop slippage after callback settlement.
 - Test path decoding, wrong callback sender, expired deadline, and slippage failure.
 
 ## Source Evidence
 
 - PancakeSwap V3 routers use compact path encoding, exact-input/exact-output bounds, deadlines, payer switching, and callback validation against canonical pool identity.
+- Uniswap V4 periphery validates pool-manager callbacks, executes action batches inside unlock, tracks the transient locker sender, and enforces final and per-hop slippage checks.
 
 ## Related Patterns
 

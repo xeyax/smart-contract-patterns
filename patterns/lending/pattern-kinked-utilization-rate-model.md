@@ -85,12 +85,14 @@ This can model a softer middle region before the final jump rate, but it adds ca
 - Test behavior at zero cash, full utilization, and exactly the kink.
 - If the curve uses an external benchmark, validate the benchmark through a bounded rate-source adapter.
 - For multi-kink curves, test both kink boundaries and ensure slopes do not create negative or decreasing rates unless that behavior is intentional and bounded.
+- For packed or versioned rate data, validate monotonic segment ordering and decode/encode round trips before activating the curve.
 
 ## Source Evidence
 
 - JustLend computes utilization from cash, borrows, and reserves, then applies a normal slope before the kink and a jump slope above it.
 - SparkLend Advanced uses benchmark-targeted rate-model variants that combine external APR-style inputs, spreads, and kink utilization behavior.
 - Venus uses a two-kink interest-rate model and audit material highlights that decreasing supply-rate behavior should be treated as an explicit risk.
+- Fluid uses packed one-kink and two-kink rate data variants with validation around rate-data versioning and monotonic curve segments.
 
 ## Related Patterns
 

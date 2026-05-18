@@ -52,11 +52,17 @@ For continuous changes such as AMM amplification ramps, also bound the maximum r
 - Make cancellation rules explicit.
 - Test edge values, early apply attempts, and maximum-change constraints.
 - Test that bounds are applied to the proposed new value, not accidentally to the current stored value or another stale state variable.
+- Ensure numeric bounds are economically meaningful; a fee cap just below 100 percent may still be a confiscatory admin power.
+- Treat trust-list changes, vault enablement, maintainer admission, and bridge allowlists as critical parameter changes even when the value is boolean.
+- Do not label cooldown-bounded updates as timelocks unless users can observe a committed change before it becomes executable.
 
 ## Source Evidence
 
 - Curve pool templates commit and apply fee/admin changes behind a delay and bound amplification ramps by duration and maximum factor changes.
 - An Ondo audit-contest snapshot showed setter checks that appeared to validate current fee variables rather than proposed inputs, a reusable stale-state bound-check failure mode.
+- StakeWise V2 audit material flagged a protocol-fee bound just below 100 percent as economically weak despite being numerically bounded.
+- tBTC v2 shows that immediate trust-list changes depend on the outer owner or governance path when no internal delay is present.
+- Fluid uses cooldown-bounded rate authorization for some changes; this is useful risk reduction but weaker than public commit-and-delay semantics.
 
 ## Related Patterns
 

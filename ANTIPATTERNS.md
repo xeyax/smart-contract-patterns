@@ -35,7 +35,7 @@ Internal implementation details exposed through contract interfaces.
 Owner/admin can change critical parameters instantly without timelock, bounds, or multi-sig.
 **Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner.
 **Risk:** Rug pull, accidental misconfiguration, governance attack.
-**Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked.
+**Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked. Treat allowlist, maintainer, vault-status, and bridge-trust-list changes as critical even when they are not numeric parameters.
 
 ### Stale-State Bound Check
 Setter validates an old stored value or unrelated state instead of the proposed new parameter.
@@ -86,7 +86,13 @@ Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfe
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value.
+
+### Quote Execution Formula Drift
+Quoted helper functions use a different formula than the state-changing execution path.
+**Symptoms:** `getAmountIn` calls output math, previews omit dynamic fees, or off-chain quotes use stale router formulas.
+**Risk:** Users set wrong slippage bounds, integrators route through stale math, or economic checks pass against a quote the execution path never honors.
+**Fix:** Share quote and execution math libraries, test public quote helpers against execution, and treat quote-only fixes as compatibility-sensitive upgrades.
 
 ### Donation Attack Surface
 Share price manipulable via direct token transfer to contract.
@@ -144,7 +150,7 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks.
 
 ### Account Role Confusion
 Code validates a set of same-type accounts but later reads or writes one role using another role's variable.
@@ -171,6 +177,12 @@ Vault strategy locks all funds in external protocols, no reserved liquidity buff
 **Symptoms:** No liquidity reserve, FIFO withdrawal queue, no forced unwind trigger.
 **Risk:** During stress, liquid reserves depleted. Late withdrawers stuck indefinitely. Bank-run dynamics.
 **Fix:** Liquidity buffer (10-20% TVL always liquid), pro-rata withdrawal during stress, forced unwind triggers. Queue processing must be gas-bounded and mass exits must not brick finalization. Manual pull redemptions should fix entitlement or enforce queue order so users cannot wait for a favorable later price while others exit.
+
+### Permissioned Exit Custody
+Withdrawal or migration escrow lets only an owner or operator release user funds without user-specific entitlement or queue semantics.
+**Symptoms:** Owner-only escrow withdrawal, no recorded beneficiary balance, or migration custody that relies on social process.
+**Risk:** Users cannot independently claim assets and must trust the operator not to delay, reorder, or redirect exits.
+**Fix:** Record user entitlements, queue order, and claim conditions on-chain. If permissioned custody is temporary for migration, publish the migration boundary, operator trust assumptions, and final user claim path.
 
 ### Rebasing Token Accounting
 Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot model.
@@ -264,7 +276,7 @@ Many instances share single Beacon, Beacon owner is EOA or low-threshold multisi
 A contract can be called through `delegatecall` even though its logic assumes `address(this)` is the original deployed contract.
 **Symptoms:** Functions rely on immutables, self-address checks, pool identity, or storage context, but can be reached through arbitrary proxies.
 **Risk:** Code executes against unexpected storage or caller context, bypassing assumptions about pool identity or contract state.
-**Fix:** Add no-delegatecall guards to functions that depend on original contract context, or make delegatecall support explicit with shared storage-layout tests.
+**Fix:** Add no-delegatecall guards to functions that depend on original contract context, such as an immutable self-address comparison, or make delegatecall support explicit with shared storage-layout tests.
 
 ### Storage Layout Drift
 Upgradeable contracts without namespaced storage, no layout diffing in CI.
@@ -291,6 +303,12 @@ Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.
 **Symptoms:** Hot wallet key management, small multisig (2-of-5), no anomaly detection.
 **Risk:** Key compromise drains entire bridge. Ronin: $624M, Harmony: $100M, Multichain: $126M.
 **Fix:** Rate-limit withdrawals, anomaly detection with auto-pause, distributed key management (MPC/TSS).
+
+### Trusted SPV Boundary Omitted
+Bridge documentation or code presents SPV proofs as fully trustless while the relay or proof submitter set is trusted to provide canonical source-chain data.
+**Symptoms:** Bitcoin or external-chain proof verifies merkle inclusion and work, but header submission, chain selection, or maintainer admission is centralized or owner-controlled.
+**Risk:** Users and integrators overestimate finality guarantees, and governance can admit false or stale source-chain state as canonical.
+**Fix:** Document relay maintainer trust, challenge windows, replacement rules, and emergency procedures. Bind bridge state transitions to authenticated relay state and monitor maintainer or allowlist changes as critical governance events.
 
 ## DeFi Architecture
 

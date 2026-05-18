@@ -68,9 +68,11 @@ For bridges that alias L1 senders on L2, normalize through the bridge's official
 - Arbitrum token bridge gateways use `onlyCounterpartGateway` checks on both L1 and L2 finalize paths.
 - `L1ArbitrumMessenger.getL2ToL1Sender` recovers the remote L2 sender from the active bridge/outbox context.
 - Foundry tests reject non-bridge callers, wrong counterpart gateways, and missing outbox sender context.
+- Optimism Bedrock standard bridges validate the local messenger and the remote bridge sender, while L2 messenger paths normalize L1-to-L2 address aliasing before accepting the counterpart.
 
 ## Related Patterns
 
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md)
 - [Authenticated Root-Child Tunnel](./pattern-authenticated-root-child-tunnel.md)
+- [Retryable Cross-Domain Message Ledger](./pattern-retryable-cross-domain-message-ledger.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay)

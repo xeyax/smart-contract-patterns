@@ -76,6 +76,16 @@ hasUnhandledReport = true;
 
 The executor can then enforce slot, block, wait-period, or rate-limit checks before finalizing the state transition.
 
+### Same-Block Settlement Fence
+
+When accepted reports update reward indexes, Merkle roots, migrations, or other claim-critical state, dependent actions can be blocked until a later block:
+
+```solidity
+require(lastReportBlock < block.number, "same block report");
+```
+
+This reduces same-block sandwiching around public report execution, at the cost of one-block latency.
+
 ## Key Points
 
 - Key duplicate submissions by reporter and report id.
@@ -84,6 +94,7 @@ The executor can then enforce slot, block, wait-period, or rate-limit checks bef
 - Allow public execution after quorum to avoid keeper monopoly.
 - Treat reporter membership and threshold changes as critical governance actions.
 - Serialize accepted reports when downstream execution must process them in order.
+- Add a same-block settlement fence when report execution changes rewards, claim roots, transfers, or migration prices that users can act on immediately.
 
 ## Common Pitfalls
 
@@ -100,6 +111,7 @@ The executor can then enforce slot, block, wait-period, or rate-limit checks bef
 - Rocket Pool requires trusted node submissions, rejects duplicate submissions, and accepts network balance/price updates only after matching submissions reach threshold.
 - Once enough reports match, execution can be called publicly, preserving liveness if the original reporters do not execute.
 - Ether.fi uses same-hash reporter quorum, blocks new reports while a prior report is unhandled, and gates downstream execution by consensus, block/slot timing, wait periods, and APR caps.
+- StakeWise V2 prevents reward reports and dependent reward, Merkle, transfer, claim, or migration actions from finalizing in the same block.
 
 ## Related Patterns
 

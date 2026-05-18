@@ -50,14 +50,27 @@
 - Monitoring can detect changes that strand pending exits.
 - Tests cover override misuse around in-flight settlement.
 
+## R5: Emergency Exit Pauses Are Scoped And Expiring
+
+**A bridge that must pause proof or exit finalization needs narrow identifiers, expiry, monitoring, and a documented reason why no safer exit path can remain open.**
+
+### What This Means
+
+- Pause identifiers distinguish deposits, proof submission, finalization, and lockbox movement.
+- Exit pauses have maximum duration or explicit renewal procedures.
+- Users know whether timed-out redemptions, refunds, or standard proof-based exits remain callable.
+
 ## Source Evidence
 
 - Arbitrum token bridge pauses deposits while preserving L1 withdrawal finalization paths.
 - Arbitrum gateway fallback handlers issue refund withdrawals when destination token validation fails.
 - Arbitrum native USDC migration tests check pending deposits before burn and role transfer.
+- Optimism Bedrock uses scoped pause identifiers with expiry, but paused portal proof and finalization paths remain liveness exceptions that need operational justification.
+- tBTC v2 redemptions include timeout paths that restore balances or keep timed-out redemptions honor-able, and optimistic mint pauses do not block standard proof-based minting.
 
 ## Related Patterns
 
 - [Escrow Mint-Burn Refund Fallback](./pattern-escrow-mint-burn-refund-fallback.md)
 - [Proof Bridge Exit Safety Requirements](./req-proof-bridge-exit-safety.md)
+- [Retryable Cross-Domain Message Ledger](./pattern-retryable-cross-domain-message-ledger.md)
 - [Pause Traps Funds](../../ANTIPATTERNS.md#pause-traps-funds)

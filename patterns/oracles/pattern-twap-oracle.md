@@ -48,7 +48,19 @@ TWAP calculates the average price over a time window by accumulating price-secon
 TWAP = (cumulativePrice_now - cumulativePrice_past) / (time_now - time_past)
 ```
 
-Uniswap V3 stores tick (log-price) accumulators that can be queried for any historical point:
+Uniswap V2-style pools store cumulative fixed-point prices, while Uniswap V3 stores tick (log-price) accumulators that can be queried for historical points.
+
+For V2-style accumulators:
+
+```
+price0Cumulative += reserve1 / reserve0 * secondsElapsed
+price1Cumulative += reserve0 / reserve1 * secondsElapsed
+TWAP = (priceCumulative_now - priceCumulative_past) / elapsed
+```
+
+The accumulator uses the previous reserve ratio over elapsed time. Periphery readers can compute a counterfactual current cumulative value without forcing a pool state update.
+
+For V3-style accumulators:
 
 ```
 tickCumulative grows by: currentTick × secondsElapsed
@@ -125,6 +137,7 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Decimal mismatch** | Orders of magnitude error | Normalize all prices to consistent decimals |
 | **Uninitialized observation history** | TWAP silently covers a shorter period than intended or reverts | Gate reads until cardinality and oldest observation cover the full window |
 | **Ignoring harmonic mean liquidity** | TWAP can include thin or zero-liquidity manipulation windows | Require minimum windowed harmonic mean liquidity |
+| **Mixing V2 and V3 assumptions** | Wrong price math or readiness checks | Use cumulative-price windows for V2 pools and tick/liquidity observations for V3 pools |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -216,6 +229,7 @@ Before using a TWAP for value-bearing operations:
 ## Real-World Examples
 
 - [Uniswap V3 Oracle](https://docs.uniswap.org/concepts/protocol/oracle) — native TWAP implementation
+- [Uniswap V2](https://github.com/Uniswap/v2-core) — cumulative reserve-ratio price accumulators with counterfactual current cumulative reads in periphery
 - [Euler Finance](https://docs.euler.finance/euler-protocol/getting-started/methodology/oracle-rating) — uses TWAP for price discovery
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
 
@@ -231,3 +245,4 @@ Before using a TWAP for value-bearing operations:
 - [Uniswap V3 Oracle Documentation](https://docs.uniswap.org/concepts/protocol/oracle)
 - [Uniswap V3 TWAP Deep Dive](https://blog.uniswap.org/uniswap-v3-oracles)
 - [OracleLibrary.sol](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol)
+- [Uniswap V2 Oracle Library](https://github.com/Uniswap/v2-periphery/blob/master/contracts/libraries/UniswapV2OracleLibrary.sol)

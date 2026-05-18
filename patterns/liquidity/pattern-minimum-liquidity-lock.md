@@ -61,6 +61,7 @@ Later withdrawals reject burning the entire live supply unless the protocol has 
 
 ## Source Evidence
 
+- Uniswap V2 mints a fixed `MINIMUM_LIQUIDITY` amount to the zero address on first liquidity.
 - Raydium AMM computes initial LP shares from `sqrt(x*y)`, subtracts a decimal-scaled minimum amount from the first depositor, and rejects withdrawals that would drain all LP supply.
 
 ## Related Patterns

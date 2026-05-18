@@ -50,13 +50,16 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Update the user index before mint, burn, transfer, borrow, repay, or claim changes their earning base.
 - Define behavior when total stake is zero.
 - Keep reward-token balance accounting separate from emitted reward accounting.
+- If a user has zero earning balance, advance their user index cursor to the latest index so future stake cannot backfill historical rewards.
 - Test multiple users entering, exiting, and claiming across emission updates.
 
 ## Source Evidence
 
 - Aave V3 rewards accrue incentives through asset-level indexes and update users lazily when balances change or rewards are claimed.
+- StakeWise V2 audit material highlights the need to checkpoint zero-balance users so later stake does not claim rewards from before the user entered.
 
 ## Related Patterns
 
 - [Queued Reward Streaming](./pattern-queued-reward-streaming.md)
 - [Lazy Borrow Index](../lending/pattern-lazy-borrow-index.md)
+- [Index-To-Distributor Reward Routing](./pattern-index-to-distributor-reward-routing.md)

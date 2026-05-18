@@ -60,14 +60,28 @@
 - Custody migration excludes amounts needed for pending valid exits.
 - Cutover state is tested for old exits, new exits, and duplicate exits.
 
+## R6: Challenge Or Relay Finality Is Explicit
+
+**If the source proof depends on a challenge game, light client, relay, or trusted maintainer set, the finality rule must be checked before custody changes.**
+
+### What This Means
+
+- Rollup outputs are mature and accepted by the active dispute or validity system before withdrawal finalization.
+- Light-client or SPV proofs authenticate headers, difficulty, inclusion, and confirmation depth according to the bridge's trust model.
+- Trusted relay maintainers, blacklists, retirement states, and pause states are documented and monitored as part of the proof boundary.
+
 ## Source Evidence
 
 - Polygon PoS portal verifies receipt inclusion, checkpoint membership, log emitter mapping, and duplicate-exit nullifiers before dispatch.
 - Polygon withdraw tests cover invalid proof and duplicate-exit rejection.
 - Migration paths in Polygon predicates illustrate the need to preserve exit boundaries before moving custody.
+- Optimism Bedrock gates withdrawal finalization on proven output roots, proof maturity, and dispute-game validity.
+- tBTC v2 gates Bitcoin-side bridge transitions on SPV and relay proofs while documenting maintainer trust in canonical chain data.
 
 ## Related Patterns
 
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
+- [Dispute-Game Gated Withdrawal Finality](./pattern-dispute-game-gated-withdrawal-finality.md)
+- [Bitcoin SPV State Transition Gate](./pattern-bitcoin-spv-state-transition-gate.md)
 - [Bridge Exit Liveness Requirements](./req-bridge-exit-liveness.md)
 - [Bridge Exit Cutover Custody Drain](./risk-bridge-exit-cutover-custody-drain.md)
