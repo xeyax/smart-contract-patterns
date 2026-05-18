@@ -37,6 +37,12 @@ Owner/admin can change critical parameters instantly without timelock, bounds, o
 **Risk:** Rug pull, accidental misconfiguration, governance attack.
 **Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked.
 
+### Stale-State Bound Check
+Setter validates an old stored value or unrelated state instead of the proposed new parameter.
+**Symptoms:** `require(currentFee <= MAX_FEE)` inside `setFee(newFee)`, tests cover only existing valid values, or events emit the proposed value while bounds check another variable.
+**Risk:** A critical parameter can be set outside intended bounds even though the setter appears guarded.
+**Fix:** Validate proposed inputs directly, test failing over-limit proposals from both valid and invalid current states, and emit old/new values.
+
 ### Missing Pause
 No emergency stop mechanism. If exploit found, no way to stop bleeding.
 **Symptoms:** No pause function, or pause doesn't cover all entry points.
@@ -138,7 +144,13 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup.
+
+### Account Role Confusion
+Code validates a set of same-type accounts but later reads or writes one role using another role's variable.
+**Symptoms:** `baseVault` and `quoteVault` both have correct type checks, but later accounting loads both balances from the same account variable; Solana account arrays or long EVM parameter lists reuse adjacent names.
+**Risk:** Accounting, settlement, or authority checks use the wrong account after initial validation, causing mispriced deposits, withdrawals, or custody movement.
+**Fix:** Use role-specific account structs, validate account cohorts together, keep semantic names through execution, and add negative tests that swap same-type accounts.
 
 ### Unvalidated External Contract
 Protocol integrates with external contracts passed as parameters, validates token addresses but not the contract itself.
@@ -191,6 +203,12 @@ Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if t
 **Symptoms:** `permit()` is called first, then deposit/withdraw/repay assumes the permit succeeded.
 **Risk:** An observer front-runs the same permit, consumes the nonce, and makes the user's bundled action revert or miss a deadline.
 **Fix:** Treat permit failure as non-fatal when allowance is already sufficient for the action. Check final allowance before proceeding, and still enforce amount and deadline bounds.
+
+### Signature Scope Drift
+Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
+**Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
+**Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist.
 
 ## Governance
 
@@ -261,6 +279,12 @@ Cross-chain message lacks chain ID binding, replay protection depends on single 
 **Symptoms:** No per-chain deduplication, shared small validator set.
 **Risk:** Valid message on Chain A replayed on Chain B. Wormhole, Ronin, Nomad exploits.
 **Fix:** Bind operation, source chain, destination chain, nonce, participants, value, and payload into the request hash; keep per-chain deduplication and independent validator sets. Price relays also need source-feed keyed freshness and monotonic timestamp checks.
+
+### Bridge Endpoint Authentication Mismatch
+Bridge adapter authenticates the wrong endpoint because it assumes `msg.sender`, source address, or bridge validation semantics match another bridge's model.
+**Symptoms:** Adapter checks only local caller, ignores the bridge-reported source chain/address, or treats a forwarder as the remote app without verifying the bridge's validation primitive.
+**Risk:** Messages from the wrong chain, adapter, or remote application can execute as trusted bridge payloads.
+**Fix:** Authenticate the local bridge adapter, the bridge-provided source chain, the bridge-provided source address, and the expected remote application. Test wrong chain, wrong sender, wrong adapter, and spoofed forwarder cases for every bridge transport.
 
 ### Bridge Custodian Concentration
 Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.

@@ -223,6 +223,25 @@ function validateReporterUpdate(uint256 reporterPrice, uint256 anchorPrice) inte
 
 This reduces the chance that a reporter can move accepted state too far from a reference source in one update window. The anchor can be a TWAP, median, or prior accepted state, but it must have its own freshness and manipulation-resistance checks.
 
+### External-Anchor Accepted State
+
+For RWA or NAV-style feeds, accepted-state updates can require both a fresh external reference and a bounded move from the previous accepted value:
+
+```solidity
+function acceptNav(uint256 newNav, uint256 externalPrice, uint256 externalUpdatedAt) external {
+    require(externalPrice > 0, "bad anchor");
+    require(block.timestamp - externalUpdatedAt <= maxAnchorAge, "stale anchor");
+    require(block.timestamp >= lastAcceptedAt + minCadence, "too soon");
+    require(_withinAbsBound(newNav, externalPrice, maxAnchorDeltaBps), "anchor delta");
+    require(_withinDelta(newNav, lastAcceptedValue, maxStateDeltaBps), "state delta");
+
+    lastAcceptedValue = newNav;
+    lastAcceptedAt = block.timestamp;
+}
+```
+
+This constrains accepted-state movement; it is not a freshness guarantee by itself. The external anchor must still have round freshness, nonzero values, and monotonic update checks.
+
 ### One-Sided Stablecoin Cap
 
 For assets intended not to exceed a peg, a one-sided cap can preserve downside depeg while preventing upward overvaluation:
@@ -249,6 +268,7 @@ This is safer than forcing the price to a constant peg because it does not hide 
 - Too loose: doesn't catch anomalies
 - Consider asset-specific volatility patterns
 - Bound both value movement and update cadence for accepted-state oracles
+- Accepted-state bounds constrain mutations, but do not prove source liveness unless the anchor or reporter timestamp is also fresh
 - For bridged prices, authenticate the remote sender and reject stale, future-dated, or non-monotonic timestamps
 - For stable or pegged collateral, prefer one-sided caps that limit upward overvaluation without masking downside depeg
 - Do not treat out-of-gas, empty-return, or unexpected-revert fallback paths as valid default prices
@@ -312,6 +332,7 @@ contract CircuitBreakerWithBounds {
 - [MakerDAO OSM](https://docs.makerdao.com/smart-contract-modules/oracle-module/oracle-security-module-osm-detailed-documentation) — price bounds with delay
 - [Chainlink Circuit Breakers](https://blog.chain.link/circuit-breakers-and-client-diversity-within-the-chainlink-network/) — built-in bounds checking
 - SparkLend Advanced uses one-sided capped stablecoin-style oracle logic so upward overvaluation is limited without hiding downside depeg.
+- An Ondo audit-contest snapshot combines fresh Chainlink round checks, daily cadence, absolute bounds, and anchor-delta bounds before accepting RWA oracle state.
 
 ## Related Patterns
 

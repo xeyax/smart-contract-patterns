@@ -51,11 +51,13 @@ After deployment, no privileged role should remain with the factory except expli
 - If any handoff can fail, revert the whole deployment instead of leaving partial authority.
 - Do not leave the factory as owner "for convenience."
 - Combine with selector-scoped authority for any retained factory or operator permissions.
+- For cross-chain factories, assert proxy admin, upgrade executor, beacon owner, implementation initialization, and gateway roles after both local and remote deployments.
 
 ## Source Evidence
 
 - Wormhole NTT factory temporarily owns/configures manager and transceiver contracts, sets peers and limits, then transfers owner/pauser roles to the final owner contract.
 - Tests assert final owner and pauser placement after factory deployment.
+- Arbitrum token bridge deployment tests assert proxy admin, upgrade executor, beacon, owner, and initialized-logic placement after factory-driven bridge deployment.
 
 ## Related Patterns
 

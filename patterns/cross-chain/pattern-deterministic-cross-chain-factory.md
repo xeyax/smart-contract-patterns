@@ -69,11 +69,13 @@ transceiver = CREATE3.deploy(transceiverSalt, transceiverBytecode);
 - Expose address prediction functions for off-chain peer configuration.
 - Validate exact message fees during peer setup; excess or short payment should fail closed.
 - Keep staged bytecode immutable or versioned if stored on-chain for deployment.
+- For retryable-ticket deployment, reserve enough destination gas, isolate nonce/address derivation through a dedicated sender, and make resends idempotent so expired or out-of-order retryables do not rewrite finalized mappings.
 
 ## Source Evidence
 
 - Wormhole NTT uses deterministic deployment for factory and NTT components across chains.
 - Its salts bind version, deployer, role labels, token metadata, manager address, and external salt, with tests for collisions and successful different-salt deployments.
+- Arbitrum's atomic token bridge deployment flow uses retryable-ticket deployment, dedicated retryable sender contracts, idempotent resend logic, and tests for failed deployment, frontrun, and already-existing deterministic contracts.
 
 ## Related Patterns
 

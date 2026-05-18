@@ -80,6 +80,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Validate the destination chain before irreversible actions such as burning.
 - Pair request-hash replay protection with source-chain finality rules.
 - Historical custodial wrappers may store local request hashes for auditability, but modern cross-chain bridges should bind the full operation and chain domain.
+- Proof-based exits may use a source transaction or log-location nullifier instead of an application request hash only when the checkpoint manager fixes the source domain, the destination contract fixes the peer/emitter, and equivalent proof encodings are normalized before hashing.
 
 ## Common Pitfalls
 
@@ -95,8 +96,10 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - FBTC hashes bridge requests with operation, nonce, source chain, destination chain, participants, amount, fee, and extra data.
 - FBTC records cross-chain confirmations by request hash and tests duplicate confirmation rejection.
 - WBTC stores request hashes for mint/burn request auditability, but its trusted-custodian model is not a substitute for chain-bound replay protection.
+- Polygon PoS exits derive spent-exit nullifiers from proven source log location and normalized proof data while relying on checkpoint and child-emitter validation for the chain and peer domain.
 
 ## Related Patterns
 
 - [Historical Bounds](../oracles/pattern-historical-bounds.md) - guardrails for cross-chain price relays
+- [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay) - anti-pattern this mitigates

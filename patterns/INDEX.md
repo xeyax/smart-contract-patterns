@@ -14,7 +14,10 @@
 | pattern-consumer-scoped-rate-limiter.md | Apply token-bucket limits per approved consumer or route so one actor cannot exhaust shared capacity for unrelated flows. | Multiple protocol components share a constrained operation such as instant redemption, bridge egress, or privileged cons |
 | pattern-mutual-parameter-acceptance.md | Require both affected parties to accept shared economic parameters before the new values take effect. | A parameter affects two independent parties, such as manager and user, partner and protocol, or splitter recipients |
 | pattern-participant-permission-bitmap.md | Encode participant eligibility as compact policy bits so deposits, borrows, transfers, and exits can enforce both account-level and pool-level access. | A pool has private, public, pool-level, or function-level participation modes |
+| pattern-pda-scoped-protocol-authority.md | Derive Solana protocol authorities and custody accounts from canonical PDA seeds, then verify every account against the stored authority graph. | A Solana program owns token vaults, mints, obligations, or market authority through PDAs |
 | pattern-selector-scoped-authority.md | Grant operators permission to call specific function selectors on specific targets instead of granting broad owner or admin authority. | Operators need to run recurring maintenance or risk-management calls |
+| pattern-solana-account-cohort-validation.md | Validate every passed Solana account as part of the expected account cohort before trusting its data, authority, or balance. | A Solana instruction receives many accounts from the caller |
+| pattern-timelocked-spell-authority.md | Grant authority to scheduled action contracts only after a delay, with cancelability and separate emergency pause controls. | A system is immutable or proxyless but still needs controlled authority changes |
 | pattern-two-step-authority-handoff.md | Stage critical authority or withdrawal-address changes and require confirmation by the new address before activation. | A privileged role controls upgrades, pausing, treasury movement, or withdrawal addresses |
 
 ## cross-chain
@@ -23,17 +26,32 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-authenticated-root-child-tunnel.md | Pair root and child tunnel contracts so each side accepts messages only from the canonical bridge and configured peer tunnel. | A protocol exposes generic cross-chain message tunnels instead of one fixed bridge action |
 | pattern-bridged-governance-timelock-receiver.md | Receive governance messages from a canonical bridge, validate the root timelock sender, and queue actions into a local timelock before execution. | Root governance lives on one chain and controls deployments on another |
+| pattern-canonical-bridge-counterpart-validation.md | Authenticate both the canonical bridge messenger and the remote application counterpart before finalizing cross-chain messages. | Application contracts receive messages through a canonical rollup or bridge messenger |
 | pattern-chain-bound-request-hash.md | Bind cross-chain requests to source chain, destination chain, nonce, operation, participants, value, and payload before accepting remote confirmation. | A bridge mints, burns, unlocks, or confirms value on another chain |
+| pattern-checkpointed-receipt-exit-proof.md | Finalize exits by proving a source-chain receipt log inside a finalized checkpoint before releasing or minting destination assets. | Users exit from a child chain or rollup by proving a burn or message event |
 | pattern-custodian-attested-mint-burn.md | Mint and burn wrapped assets through merchant requests that are approved and reconciled by a trusted custodian. | The source asset is not trustlessly verifiable on the destination chain |
 | pattern-deterministic-cross-chain-factory.md | Deploy peer contract systems at predictable addresses across chains so cross-chain configuration can be precomputed and verified. | The same protocol graph is deployed on multiple chains |
+| pattern-escrow-mint-burn-refund-fallback.md | Pair source escrow or burn with destination validation and automatic refund when bridge settlement cannot safely mint or release. | Bridge deposits lock or burn assets before destination settlement |
+| pattern-multi-adapter-message-quorum.md | Send cross-chain messages through multiple bridge adapters and execute only after a session-scoped quorum confirms the same payload. | A protocol cannot rely on one bridge transport for high-value state changes |
+| pattern-predicate-mediated-bridge-custody.md | Route bridge deposits and exits through token-specific predicates that own custody rules while a root manager owns mapping and proof orchestration. | A bridge supports multiple token standards or custody modes; Deposit/exit proof orchestration is shared across assets |
 | pattern-signed-custody-routed-mint.md | Authorize mint and redeem orders with typed signatures that bind route, custodian allocation, nonce, expiry, and asset ratios before custody-backed settlement. | Tokens are minted or redeemed against off-chain or custodied reserves |
+| pattern-token-owned-bridge-registration.md | Let token contracts opt into bridge mappings while preventing unauthorized peer remapping after registration. | Tokens choose custom bridge gateways or remote token implementations |
+
+### Risks
+
+| File | Triggered When |
+|------|---------------|
+| risk-bridge-exit-cutover-custody-drain.md | A bridge disables old exits during migration; Predicate or gateway custody can be moved to a new bridge |
 
 ### Requirements
 
 | File | Applies To |
 |------|-----------|
+| req-bridge-exit-liveness.md | R1: Pauses Preserve Safe Exit Paths, R2: Failed Destination Settlement Has A Refund Path, R3: Migration Accounts For In-Flight Messages, R4: Admin Overrides Are Explicitly Trusted |
 | req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness |
+| req-proof-bridge-exit-safety.md | R1: Source Proof Is Finalized, R2: Exit Nullifier Is Unique And Normalized, R3: Emitter And Event Are Authenticated, R4: Custody Is Sufficient Before Release, R5: Migration Cutovers Preserve Pending Exits |
 
 ## governance
 
@@ -54,6 +72,7 @@
 | pattern-comptroller-risk-gate.md | Route market actions through a central risk module that approves borrows, redeems, transfers, and liquidations before state changes. | A lending protocol has multiple collateral and borrow markets |
 | pattern-debt-converting-flash-loan.md | Allow unpaid flash-loan principal to become normal borrow debt only after the same risk, fee, callback, and accounting checks as an ordinary borrow. | Flash borrowers should be able to keep part of the borrowed amount as debt |
 | pattern-dust-aware-liquidation-cap.md | Bound in-flight liquidation debt and fail partial liquidations that would leave uneconomic dust positions or null auctions. | Liquidations create auctions or protocol inventory that has operational capacity |
+| pattern-elevation-scoped-borrow-mode.md | Allow higher borrow power only inside a constrained collateral group with one debt asset and explicit group-level risk limits. | A lending market wants higher LTV for tightly related collateral |
 | pattern-explicit-bad-debt-realization.md | When liquidation cannot cover debt, reduce market supply and borrow totals immediately so insolvency is visible instead of hidden in stale accounting. | Liquidation can leave debt uncovered after seizing all collateral |
 | pattern-isolated-permissionless-market.md | Let anyone create lending markets only when each market's collateral, debt, oracle, and interest-rate state is isolated from every other market. | The protocol wants permissionless market creation |
 | pattern-kinked-utilization-rate-model.md | Increase borrow rates slowly below a target utilization and sharply above it to discourage liquidity exhaustion. | A lending market needs dynamic borrow and supply rates |
@@ -61,9 +80,11 @@
 | pattern-protocol-absorbed-liquidation-inventory.md | Absorb underwater accounts into protocol reserves first, then sell seized collateral from protocol inventory under reserve and slippage constraints. | Liquidations should not require a liquidator to repay exact borrower debt in the same transaction |
 | pattern-reserve-exposure-caps.md | Bound how much a lending market can supply, borrow, or expose to one asset so risk parameters cannot rely on liquidation mechanics alone. | A market lists assets with limited liquidity or correlated risk |
 | pattern-resettable-dutch-liquidation-auction.md | Sell liquidated collateral through a descending-price auction that can be reset when it becomes stale or too far below its starting price. | Collateral is sold after liquidation rather than seized directly by the liquidator |
+| pattern-risk-priority-liquidation-sequencing.md | Force liquidations in multi-asset accounts to address the riskiest debt and weakest collateral before safer legs. | Borrower accounts can hold multiple debt and collateral assets |
 | pattern-scaled-balance-token-accounting.md | Store token balances scaled by a liquidity or debt index so interest accrues globally while user balances update lazily. | A lending protocol represents supplied or borrowed positions as transferable or account-bound tokens |
 | pattern-share-denominated-lending-accounting.md | Track supply and borrow positions as market shares against total assets so interest and losses are allocated proportionally. | A lending market needs proportional supply or borrow accounting |
 | pattern-single-borrow-asset-market.md | Build each lending market around one borrowable base asset with separate collateral assets, reducing cross-asset borrow complexity. | The protocol wants one borrow asset per market |
+| pattern-solana-instruction-paired-flash-loan.md | On Solana, validate flash-loan borrow and repay instructions as a matched pair inside the same transaction. | A Solana lending program offers atomic flash loans; The transaction can include both borrow and repay instructions |
 
 ### Requirements
 
@@ -80,10 +101,13 @@
 | File | Description | Use When |
 |------|-------------|----------|
 | pattern-amplified-stable-invariant.md | Use an amplification parameter to make swaps near a peg behave like a high-liquidity constant-sum market while preserving constant-product style safety away from the peg. | Assets should trade close to a shared value, peg, or redemption ratio |
+| pattern-bounded-cranked-orderbook-maintenance.md | Maintain external AMM maker orders through resumable cranks with per-call limits, stored cursors, and cancel/settle fallbacks. | An AMM maintains many external maker orders |
 | pattern-canonical-amm-pool-factory.md | Create each AMM pool at a deterministic canonical address keyed by sorted token pair, fee tier, and tick spacing. | A protocol supports many pools with identical logic |
 | pattern-concentrated-liquidity-ranges.md | Represent LP positions as liquidity active only between lower and upper ticks so capital is concentrated around selected prices. | LPs should choose price ranges instead of passively providing across all prices |
 | pattern-invariant-delta-liquidity-accounting.md | Mint and burn LP shares from the change in an AMM invariant, with imbalance fees and slippage bounds around the invariant delta. | A pool supports imbalanced or single-sided deposits and withdrawals |
+| pattern-minimum-liquidity-lock.md | Permanently lock a small amount of initial LP supply so the first depositor cannot fully control or reset pool share price. | AMM LP supply starts at zero; Initial LP shares are minted from deposited reserves or invariant value |
 | pattern-offpeg-dynamic-fee.md | Increase AMM fees as pool balances move away from the expected peg or balance so trades that worsen imbalance pay more. | Pool assets are expected to stay close to a peg or fair ratio; Trades that worsen imbalance increase LP risk |
+| pattern-orderbook-backed-amm-inventory-accounting.md | Account for AMM liquidity deployed to an external orderbook by reconciling vault balances, open orders, unsettled fills, and protocol PnL. | An AMM posts some pool inventory as maker orders on an external orderbook |
 | pattern-range-fee-growth-snapshots.md | Track fee growth outside and inside each tick range so concentrated-liquidity positions can accrue fees lazily without iterating over LPs. | LP positions are active only inside price ranges; Fees should accrue only while a position's range is active |
 | pattern-verified-callback-settlement.md | Let AMM pools optimistically call external payers during mint, swap, or flash operations, then verify post-callback balances before finalizing. | The pool needs optimistic settlement for swaps, mints, or flash loans |
 

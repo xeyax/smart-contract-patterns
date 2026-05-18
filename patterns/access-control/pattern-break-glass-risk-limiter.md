@@ -62,10 +62,12 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - Emit events that include old and new limits for monitoring.
 - Define whether pending orders use the old limit, new limit, or must be cancelled.
 - Test that the emergency role cannot regain capacity through alternate setters.
+- For AMMs, operation modes should be separated by risk: stopping new deposits, swaps, and order placement does not automatically imply stopping withdrawals, cancel/settle maintenance, or other exit-enabling paths.
 
 ## Source Evidence
 
 - Ethena separates emergency risk-limiting powers from broader admin powers so a limiter can reduce exposure during a custody or mint/redeem incident without being able to restore full capacity alone.
+- Raydium AMM exposes operation-mode gates for deposit, withdraw, swap, and orderbook behavior; the reusable lesson is the scoped mode matrix, not immediate owner-controlled parameter changes.
 
 ## Related Patterns
 

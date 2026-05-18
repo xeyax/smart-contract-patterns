@@ -47,10 +47,12 @@ Use `received`, not requested `amount`, in mint/share/repay accounting.
 - Account with the received amount.
 - Combine with a reentrancy guard if token hooks can run during transfer.
 - If using curated tokens instead, document and enforce the rejection boundary.
+- On Solana or Token-2022-style systems, combine post-CPI balance/internal-ledger reconciliation with explicit extension allowlists or rejections for transfer hooks, nonzero transfer fees, paused tokens, and unsafe confidential-transfer settings.
 
 ## Source Evidence
 
 - JustLend accepts no-return ERC20s, rejects false returns, measures balance delta as actual received amount, and mints/repays from actual received amounts.
+- Kamino Lend performs post-token-CPI vault and ledger checks and rejects unsupported Token-2022 mint/account extensions around lending reserves.
 
 ## Related Anti-Patterns
 

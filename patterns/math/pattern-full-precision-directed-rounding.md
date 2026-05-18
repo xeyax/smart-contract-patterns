@@ -43,10 +43,12 @@ For AMM swaps, use rounding that preserves pool solvency: exact-output input amo
 - Use full-width math for price conversions before downscaling.
 - Pair math libraries with invariant and conservation fuzz tests.
 - Do not mix rounding directions across preview and execution paths.
+- In claim ledgers, consume/check entitlement with conservative rounding and pay/transfer with the opposite conservative direction so one claimant cannot drain escrow dust owed to later claimants.
 
 ## Source Evidence
 
 - Uniswap V3 uses full-precision `mulDiv` and directed AMM rounding libraries, with Echidna tests for full math and swap-step conservation.
+- Centrifuge liquidity-pool tests and audit notes show why async claim ledgers need explicit rounding direction across fulfillment and claim paths.
 
 ## Related Patterns
 

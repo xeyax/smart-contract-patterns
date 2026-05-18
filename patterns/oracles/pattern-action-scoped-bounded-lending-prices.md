@@ -41,6 +41,18 @@ function liquidateAllowed(address account) external view returns (bool) {
 
 Borrow, redeem, and transfer checks can use conservative bounded collateral values. Liquidation checks can use liquidation thresholds or spot-like values so bounded-price divergence does not prematurely liquidate accounts.
 
+The same idea can be represented as validation-status flags attached to the oracle value:
+
+```solidity
+function priceFor(Action action, address asset) internal view returns (uint256 price) {
+    Price memory p = oracle.price(asset);
+    require(p.flags & requiredFlags[action] == requiredFlags[action], "price flags");
+    return p.value;
+}
+```
+
+Borrowing may require all freshness, confidence, TWAP, and heuristic checks. Liquidation may require a narrower liquidation-safe flag set so accounts can still be resolved during partial oracle degradation.
+
 ## Key Points
 
 - Document the price mode used by every user action.
@@ -48,10 +60,12 @@ Borrow, redeem, and transfer checks can use conservative bounded collateral valu
 - Test accounts between borrow and liquidation thresholds.
 - Monitor divergence between bounded and liquidation price modes.
 - Pair with collateral threshold separation so action scopes are coherent.
+- If using status flags, document the required flag mask for each action and test that missing action-required flags fail closed.
 
 ## Source Evidence
 
 - Venus parameterizes liquidity calculations by weight function, uses bounded prices for borrow checks, and uses a liquidation-threshold path for liquidation eligibility.
+- Kamino Lend attaches price status flags to oracle values and uses different required flag sets for borrow and liquidation paths.
 
 ## Related Patterns
 

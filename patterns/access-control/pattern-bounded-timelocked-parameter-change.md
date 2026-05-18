@@ -51,10 +51,12 @@ For continuous changes such as AMM amplification ramps, also bound the maximum r
 - Treat delay reductions as critical changes.
 - Make cancellation rules explicit.
 - Test edge values, early apply attempts, and maximum-change constraints.
+- Test that bounds are applied to the proposed new value, not accidentally to the current stored value or another stale state variable.
 
 ## Source Evidence
 
 - Curve pool templates commit and apply fee/admin changes behind a delay and bound amplification ramps by duration and maximum factor changes.
+- An Ondo audit-contest snapshot showed setter checks that appeared to validate current fee variables rather than proposed inputs, a reusable stale-state bound-check failure mode.
 
 ## Related Patterns
 

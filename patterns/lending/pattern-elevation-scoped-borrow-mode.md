@@ -1,0 +1,73 @@
+# Elevation-Scoped Borrow Mode
+
+> Allow higher borrow power only inside a constrained collateral group with one debt asset and explicit group-level risk limits.
+
+## Metadata
+
+| Property | Value |
+|----------|-------|
+| Category | lending |
+| Tags | lending, risk-mode, correlated-collateral, ltv, isolation |
+| Complexity | High |
+| Gas Efficiency | Medium |
+| Audit Risk | High |
+
+## Use When
+
+- A lending market wants higher LTV for tightly related collateral
+- The risk mode can restrict collateral assets, debt asset, and collateral count
+- Group-level exposure can be tracked separately from ordinary reserves
+- Liquidation math can validate the mode's thresholds and close factors
+
+## Avoid When
+
+- Correlated collateral is treated as independent without aggregate limits
+- Users can freely mix elevated collateral with unrelated debt
+- Oracle and liquidation paths cannot identify the active group
+
+## Trade-offs
+
+**Pros:**
+- Gives capital efficiency to known collateral sets without raising global risk
+- Keeps elevated debt exposure bounded by a named mode
+- Makes correlated-collateral assumptions explicit in code and tests
+
+**Cons:**
+- Misconfigured groups can concentrate systemic risk
+- Users need clear rules for entering, leaving, and refreshing group state
+- Liquidation and borrow checks become more complex
+
+## How It Works
+
+An account opts into a risk group. The protocol enforces that group on every collateral and debt refresh:
+
+```solidity
+struct RiskGroup {
+    address debtAsset;
+    uint256 maxCollateralCount;
+    uint256 debtLimit;
+    mapping(address => bool) allowedCollateral;
+}
+```
+
+Borrowing under the group is allowed only for the group debt asset, only while collateral belongs to the group, and only below group exposure limits.
+
+## Key Points
+
+- Validate group parameters before activation: LTV, liquidation threshold, bonus, debt asset, and asset count.
+- Track group debt separately from ordinary reserve debt.
+- Recompute group eligibility on collateral deposit, withdrawal, borrow, repay, and price refresh.
+- Define how accounts exit elevated mode before borrowing unrelated assets.
+- Stress correlated collateral together; do not assume diversification inside the group.
+
+## Source Evidence
+
+- Kamino Lend models `ElevationGroup` with constrained collateral and debt parameters.
+- Borrow and deposit refresh paths enforce group membership and group debt rules.
+- Market update handlers validate new elevation-group parameters before use.
+
+## Related Patterns
+
+- [Reserve Exposure Caps](./pattern-reserve-exposure-caps.md)
+- [Collateral Threshold Separation Requirements](./req-collateral-threshold-separation.md)
+- [Correlated Collateral Basket](../../ANTIPATTERNS.md#correlated-collateral-basket)

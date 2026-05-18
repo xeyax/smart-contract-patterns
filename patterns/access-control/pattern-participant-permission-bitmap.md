@@ -70,10 +70,14 @@ require(hasPermission(pool, to, RECEIVE_BIT), "receiver not allowed");
 - Distinguish pool-level allowlists from function-level permissions.
 - Emit events for bit changes so off-chain compliance and monitoring can reconstruct state.
 - Fuzz policy combinations, not only the happy-path private/public modes.
+- For regulated or permissioned shares, check the delegated transfer initiator as well as `from` and `to`; a non-eligible spender should not move eligible users' tokens through `transferFrom`.
+- Permission bits may include expiry timestamps, freeze bits, and endorsed system escrow/router bypasses, but bypasses should be narrow and documented.
 
 ## Source Evidence
 
 - Maple uses participant permission modes and pool/lender bitmaps, with tests covering private, function-level, pool-level, public, and transfer eligibility checks.
+- Centrifuge liquidity pools use time-bounded membership, freeze state, sender/receiver checks, endorsed escrow/router paths, and authorized settlement transfers for permissioned tranche tokens.
+- An Ondo audit-contest snapshot checks KYC/sanctions status for `from`, `to`, and delegated transfer initiator on regulated rebasing share transfers.
 
 ## Related Patterns
 

@@ -51,12 +51,14 @@ For withdrawal addresses, keep the old address active until the new address conf
 - Use a timelock for high-impact role changes if the current authority remains able to stage malicious changes.
 - For withdrawal addresses, distinguish "current address approved" from "new address confirmed".
 - Disable or constrain `renounceOwnership()` when the system requires continuing authority for minting, burning, pausing, or upgrades.
+- For risk-bearing account ownership transfers, consider a three-party flow: current owner initiates, protocol admin or risk manager approves, and the pending owner accepts after checks prove no active orders, unsafe CPI context, or incompatible companion instructions.
 
 ## Source Evidence
 
 - Rocket Pool stages guardian transfer and requires confirmation by the pending guardian.
 - Rocket Pool node withdrawal addresses can be set through a pending confirmation path and reject confirmations from unrelated addresses.
 - WBTC disables ownership renounce paths where continuing controller authority is required.
+- Kamino Lend stages obligation ownership transfers through initiate, approve, accept, and abort states with transaction-context restrictions.
 
 ## Related Anti-Patterns
 

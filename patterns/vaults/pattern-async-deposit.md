@@ -140,6 +140,18 @@ Partial FIFO processing can produce different exchange rates for users in the sa
 
 Manual pull redemptions also need a rule for timing optionality. If users can choose when to pull after becoming claimable, either fix their entitlement at processing time or enforce queue order so a user cannot wait for a better claim price while others exit.
 
+### ERC-7540 Claim-Ledger Settlement
+
+ERC-7540-style asynchronous vaults need a claim ledger, not only a pending queue:
+
+- Escrow assets or shares at request time.
+- Fulfillment fixes the claimable entitlement before the user-controlled claim call.
+- Cancellation is a separate pending or claimable state, not an implicit return path.
+- Partial fills need weighted execution prices and must preserve solvency across the shared escrow.
+- Claim rounding must not let early claimants drain dust needed by later claimants.
+
+For RWA flows that assign off-chain or manager prices, bind every request to a durable request id and a specific price id before claim. A later user-controlled claim can be safe only if it consumes the fixed entitlement from the assigned price id instead of recalculating at claim time.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
@@ -290,6 +302,8 @@ interface IERC7540 {
 - [Symbiotic](https://github.com/symbioticfi/core) — pending withdrawals remain slashable until epoch finality
 - [Ethena](https://github.com/ethena-labs) — cooldown exits escrow user claims before delayed withdrawal
 - [Maple Finance](https://github.com/maple-labs/maple-core-v2) — withdrawal queues show partial FIFO pricing and manual redemption timing caveats
+- [Centrifuge](https://github.com/centrifuge/liquidity-pools) — ERC-7540 request, fulfill, cancel, and claim flows with shared escrow accounting
+- Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns

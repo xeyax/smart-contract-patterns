@@ -62,6 +62,20 @@ function handleIncomingAssets(uint256 amount) internal {
 }
 ```
 
+For externally redeemed assets with minimum lot sizes, the buffer can top up by redeeming at least the external minimum lot when local cash is insufficient:
+
+```solidity
+if (cash < requested) {
+    uint256 needed = requested - cash;
+    uint256 redeemAmount = max(needed, externalMinRedeemLot);
+    uint256 beforeBalance = asset.balanceOf(address(this));
+    _redeemExternal(redeemAmount);
+    require(asset.balanceOf(address(this)) - beforeBalance >= needed, "redeem shortfall");
+}
+```
+
+Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free cash, until all pending claims and low-watermark requirements are satisfied.
+
 ## Key Points
 
 - `claimReserve` must be subtracted from free liquidity; already-promised claims are not deployable capital.
@@ -80,6 +94,7 @@ function handleIncomingAssets(uint256 amount) internal {
 - Renzo's instant withdrawal path blocks withdrawals when the buffer is insufficient and scales fees by remaining buffer capacity.
 - Ether.fi excludes normal and priority withdrawal locks plus a low watermark before instant redemption, and tests queued exits through rebases and slashing.
 - Ethena's surplus rescue design highlights that admin withdrawals must be limited to assets above user claims and buffer requirements.
+- An Ondo audit-contest snapshot uses existing USDC first, redeems at least an external minimum lot when necessary, and verifies the external redemption by exact USDC balance delta.
 
 ## Related Patterns
 
