@@ -53,6 +53,7 @@ Use `received`, not requested `amount`, in mint/share/repay accounting.
 - Deterministic Token-2022 transfer-fee extensions can be supported with canonical extension reads and fee normalization, but this is narrower than arbitrary fee-on-transfer token support.
 - When normalizing the received delta to a canonical precision, explicitly reject token decimals above the canonical scale or prove the exponent cannot underflow.
 - Direct-to-custodian transfers need the same actual-received guarantee. If the protocol never holds the asset locally, either reject fee-on-transfer tokens at onboarding or verify recipient balance deltas for every custodian leg.
+- Balance deltas are also useful after trusted CPI claims or zap legs: measure the vault or ledger before and after the CPI, then fund rewards or residual accounting from the observed increase.
 
 ## Source Evidence
 
@@ -64,6 +65,7 @@ Use `received`, not requested `amount`, in mint/share/repay accounting.
 - Reservoir's PSM mints against actual received underlying before decimal normalization in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/PegStabilityModule.sol`; the `18 - decimals` normalization also illustrates why supported decimal ranges need an onboarding guard.
 - Satoshi Nexus mints from actual received collateral deltas in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/NexusYieldManager.sol`, while Sophon's custom USDC bridge uses a balance delta and then rejects non-exact transfers for canonical USDC bridge deposits.
 - Ethena's 2023 Code4rena snapshot routes mint collateral directly from the benefactor to custodian addresses in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol`, which is safe only for curated exact-transfer collateral or with per-recipient received-amount checks.
+- Meteora Dynamic Fee Sharing funds rewards from post-CPI balance deltas in `/private/tmp/defillama-source/MeteoraAg_dynamic-fee-sharing/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`, and Meteora Zap records residual token ledgers in `/private/tmp/defillama-source/MeteoraAg_zap-program/programs/zap/src/state/user_ledger.rs`.
 
 ## Related Anti-Patterns
 

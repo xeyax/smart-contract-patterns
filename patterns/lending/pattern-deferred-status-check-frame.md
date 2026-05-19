@@ -68,6 +68,13 @@ be scoped: only the relevant account or calling vault can remove its own pending
 check, and the frame must still enforce all remaining account and vault checks at
 the outer boundary.
 
+### Modular Wallet Hook Variant
+
+Smart-wallet or safe modules can defer solvency checks until after a sequence of
+module calls completes. The post-operation hook should receive the touched wallet
+or account, re-run debt-manager health checks, and fail the whole frame if the
+wallet is insolvent after the module action.
+
 ## Key Points
 
 - Hard-cap the deferred account and vault sets.
@@ -78,12 +85,14 @@ the outer boundary.
 - Add tests where an account is unsafe mid-frame but safe at exit, and tests where a missing final check reverts.
 - If the frame exposes a temporary executor, prove callbacks cannot use the active frame to mutate unrelated positions.
 - If forgiveness exists, test that it cannot remove unrelated accounts or vaults and that reentrant status-check execution is locked.
+- For modular wallets, bind the post-operation hook to the active wallet and debt manager; module execution must not be able to skip the final solvency hook.
 
 ## Source Evidence
 
 - Euler's Ethereum Vault Connector defers account and vault status checks during `call`, `controlCollateral`, and `batch` frames, caps internal check sets, restores context at outer-frame exit, and tests deferred scheduling followed by validation.
 - Euler EVC exposes scoped `forgiveAccountStatusCheck` and `forgiveVaultStatusCheck` paths, caps deferred account and vault sets at 10, blocks status-check reentrancy, and restores execution context after the outer frame in `/private/tmp/defillama-source/euler-xyz__ethereum-vault-connector/src/EthereumVaultConnector.sol`, `src/ExecutionContext.sol`, and `docs/whitepaper.md`.
 - Alpha Homora V2 stores `POSITION_ID` and `SPELL` during `execute`, restricts bank actions to the active spell, checks collateral value against borrow value after spell execution, and clears the temporary context in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
+- EtherFi Cash V3 safe modules run post-operation debt-manager checks through `EtherFiSafe`, `ModuleManager`, and `EtherFiHook` in `/private/tmp/defillama-source/etherfi-protocol_cash-v3/src/safe/EtherFiSafe.sol` and `src/hook/EtherFiHook.sol`.
 
 ## Related Patterns
 

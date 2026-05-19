@@ -60,6 +60,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Test multiple users entering, exiting, and claiming across emission updates.
 - Enforce one active pool per staking token when pool supply is derived from `stakingToken.balanceOf(farm)`, or track per-pool principal internally.
 - When LP fees are removed from AMM reserves and claimed separately, hook LP balance changes so per-user fee indexes stay current across transfers.
+- If rewards are funded by calling an external fee-claiming program, whitelist the external program and account index set, then account funding from the reward-vault balance delta.
 
 ## Source Evidence
 
@@ -73,6 +74,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Pendle V2 uses multi-token lazy reward indexes based on token balance deltas and per-user cursors in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/RewardManager`.
 - VVS Farm illustrates why duplicate staking-token registration must be blocked when MasterChef-style rewards use the farm's aggregate LP-token balance as pool supply in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/Craftsman.sol`.
 - Velodrome V2 separates AMM fees into `PoolFees` and updates LP fee indexes on balance changes in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Pool.sol`.
+- Meteora Dynamic Fee Sharing funds reward vaults by whitelisted fee-claim CPI and reward-vault balance deltas in `/private/tmp/defillama-source/MeteoraAg_dynamic-fee-sharing/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`.
 
 ## Related Patterns
 

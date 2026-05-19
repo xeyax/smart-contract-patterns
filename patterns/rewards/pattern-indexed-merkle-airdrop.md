@@ -47,6 +47,7 @@ function claim(uint256 index, address account, uint256 amount, bytes32[] calldat
 ## Key Points
 
 - Include `index` in the leaf so bitmap tracking is unambiguous.
+- Domain-separate leaf hashes from internal-node hashes, especially when the tree is reused for escrow creation, sale caps, or non-airdrop claims.
 - Validate the off-chain input set for duplicate addresses, duplicate indexes, and zero amounts.
 - Publish the generated claim blob and token total.
 - If unclaimed tokens can be swept, enforce a public deadline or closed state before sweeping.
@@ -57,9 +58,12 @@ function claim(uint256 index, address account, uint256 amount, bytes32[] calldat
 
 - SSV uses a fixed Merkle distributor with packed claim bitmap tracking, deterministic off-chain claim generation, and tests for full claims, double claims, and invalid proofs.
 - DoubleZero Solana stores processed reward, debt, and debt-write-off bitmaps in distribution `remaining_data` ranges and tests bitmap boundaries in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/state/distribution.rs` and `tests/distribute_rewards_test.rs`.
+- Jupiter Lock and Meteora Presale both domain-separate Merkle leaves from internal nodes in `/private/tmp/defillama-source/jup-ag_jup-lock/merkle-tree/src/merkle_tree.rs` and `/private/tmp/defillama-source/MeteoraAg_presale/merkle-tree/src/tree_node.rs`.
 
 ## Related Patterns
 
 - [Delayed Cumulative Merkle Claims](./pattern-delayed-cumulative-merkle-claims.md)
 - [Queued Reward Streaming](./pattern-queued-reward-streaming.md)
 - [Snapshot-Gated Integration Reward Distribution](./pattern-snapshot-gated-integration-reward-distribution.md)
+- [Merkle-Instantiated Vesting Escrow Factory](./pattern-merkle-instantiated-vesting-escrow-factory.md)
+- [Merkle-Scoped Sale Escrow Caps](../access-control/pattern-merkle-scoped-sale-escrow-caps.md)

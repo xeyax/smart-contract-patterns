@@ -51,20 +51,27 @@ function finalizeSweep(bytes32 depositKey, uint256 sweptAmount) external {
 
 Guardian cancellation or pause can stop optimistic acceleration while leaving standard proof-based minting available.
 
+### Native Sync Pool Variant
+
+When native assets are bridged through a sync pool, the destination chain can mint or release optimistically against a recorded deficit. Later source-chain settlement repays the deficit before fresh liquidity is treated as surplus. This variant needs the same debt ledger, caps, and cancellation paths as deposit-id optimistic mints.
+
 ## Key Points
 
 - Track optimistic debt by deposit id or depositor and reconcile it before final minting.
 - Require delay, caps, minter authorization, and guardian cancellation.
 - Keep proof-based settlement independent so optimistic pause does not block normal minting.
 - Document what the contract does not verify on-chain, such as Bitcoin confirmations or refund timing.
+- For sync pools, keep deficit accounting separate from ordinary pool liquidity so later deposits repay optimistic releases before new minting proceeds.
 - Test cancellation, double minting, partial sweep repayment, and late proof settlement.
 
 ## Source Evidence
 
 - tBTC v2 optimistic minting allows faster minting after deposit reveal through minter and guardian roles, records depositor debt, supports cancellation, and reconciles debt when the later sweep finalizes.
+- EtherFi sync pools track native bridge deficits and repay them during later source-chain settlement in `/private/tmp/defillama-source/etherfi-protocol_weETH-cross-chain/contracts/native-minting/layerzero-base/L2BaseSyncPoolUpgradeable.sol` and `contracts/native-minting/layerzero-base/L1BaseSyncPoolUpgradeable.sol`.
 
 ## Related Patterns
 
 - [Self-Describing UTXO Deposit Reveal](./pattern-self-describing-utxo-deposit-reveal.md)
 - [Bitcoin SPV State Transition Gate](./pattern-bitcoin-spv-state-transition-gate.md)
 - [Break-Glass Risk Limiter](../access-control/pattern-break-glass-risk-limiter.md)
+- [Pairwise Bridge Rate Limits](./pattern-pairwise-bridge-rate-limits.md)

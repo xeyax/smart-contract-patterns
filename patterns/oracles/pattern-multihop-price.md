@@ -128,6 +128,7 @@ Multi-hop amplifies errors. See [TWAP Oracle Pitfalls](./pattern-twap-oracle.md#
 | **Liquidity thresholds** | Shallow pools are easily manipulated | Check `pool.liquidity() >= minThreshold` before using |
 | **TWAP window consistency** | Timing mismatch causes errors | Use same window for all hops |
 | **Intermediate token verification** | Wrong base asset = wrong price | Verify pool.token0/token1 match expected |
+| **Base-asset depth limit** | Recursive base assets compound failures | Allow one base hop or prove every chained base route is bounded |
 
 ## Error Propagation
 
@@ -156,6 +157,7 @@ If a token has no meaningful on-chain liquidity even versus major bases (WETH/WB
 
 - [Uniswap Router](https://docs.uniswap.org/contracts/v3/guides/swaps/multihop-swaps) — multi-hop swaps use same routing concept
 - [1inch Pathfinder](https://docs.1inch.io/docs/aggregation-protocol/introduction) — complex routing for best prices
+- EtherFi Cash V3 uses a price-provider registry with base assets and rejects chained base assets in `/private/tmp/defillama-source/etherfi-protocol_cash-v3/src/oracle/PriceProviderV2.sol`.
 
 ## Related Patterns
 
@@ -167,4 +169,3 @@ If a token has no meaningful on-chain liquidity even versus major bases (WETH/WB
 
 - [Uniswap V3 Multi-hop Swaps](https://docs.uniswap.org/contracts/v3/guides/swaps/multihop-swaps)
 - [Price Oracle Design Patterns](https://blog.chain.link/defi-oracle-design-patterns/)
-

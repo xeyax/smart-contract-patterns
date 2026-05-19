@@ -60,6 +60,13 @@ function openAuction(Auction calldata a) external onlyManager {
 }
 ```
 
+### Step-Decay Reward Token Auction Variant
+
+Vaults that periodically sell reward tokens can use a public Dutch auction with
+step-decay pricing, minimum prices, fixed auction parameters, decimal scaling,
+partial fills, and optional callback settlement. Freeze auction parameters once
+started so a manager cannot move the price curve after bidders have committed.
+
 ## Key Points
 
 - Validate token allowlists before setting positive target weights.
@@ -67,11 +74,13 @@ function openAuction(Auction calldata a) external onlyManager {
 - Bound auction length, price ranges, per-token limits, and duplicate tokens.
 - Let later manager actions narrow ranges, not widen them, unless governance restarts the rebalance.
 - Expose active external fill or auction state for integrators that read NAV or previews.
+- For reward-token auctions, freeze price-decay parameters at start, scale decimals explicitly, enforce minimum price, and test partial fills plus callback validation.
 
 ## Source Evidence
 
 - Reserve Index DTF validates rebalance allowlists, TTLs, limits, duplicate tokens, weight ranges, and price ranges before opening auctions.
 - Reserve permits non-allowlisted tokens only when their target weights are zero, allowing sell-down without new exposure.
+- Yearn V3 strategy periphery sells reward tokens through step-decay public auctions with minimum prices, partial fills, callback support, and CoW-style validation in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/Auctions/Auction.sol`.
 
 ## Related Patterns
 

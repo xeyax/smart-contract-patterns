@@ -100,6 +100,7 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - Keep emergency selectors separate from routine maintenance selectors.
 - For call forwarders, scope by user, target, and selector; do not rely on selector blacklists.
 - For bridge peer registration, delegated operators may initialize an unset route, but replacing an existing peer should be owner-only or timelocked because it redirects future message authentication.
+- Operator routers that execute AVS or node-management calls should bind the operator, target, and selector; a privileged manager bypass remains a trusted path and should be documented separately.
 
 ## Source Evidence
 
@@ -109,6 +110,7 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - Veda uses a Merkle permission manifest for manager calls and includes target, selector, and decoded argument constraints for sensitive operations.
 - Sophon's custom USDC bridge lets owner or admin initialize an unset chain bridge address, but reserves replacement of an existing chain bridge address to the owner in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 - Aera v3 verifies guardian operations against Merkle leaves that bind target, selector, value flag, callback data, hook configuration, and extracted calldata in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/BaseVault.sol`.
+- EtherFi AVS operator management routes calls by operator, target, and selector in `/private/tmp/defillama-source/etherfi-protocol_avs-smart-contracts/src/AvsOperatorManager.sol`, with operator execution in `src/AvsOperator.sol`.
 
 ## Related Patterns
 

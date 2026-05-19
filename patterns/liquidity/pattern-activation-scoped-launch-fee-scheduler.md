@@ -65,6 +65,7 @@ fn base_fee(now: u64, price: u128, trade: TradeContext) -> u64 {
 - Cap minimum and maximum fees for every scheduler mode.
 - Define whether schedules apply to both directions or only launch-sensitive directions.
 - Quote fees through the same code path used by execution.
+- If the fee is nonlinear per instruction or per buy window, reject same-pool swap fragmentation inside the same transaction or CPI sibling frame so traders cannot split one trade to evade the launch fee.
 - Test pre-activation, exact activation, post-activation taper, cap behavior, and direction-specific trades.
 
 ## Source Evidence
@@ -73,6 +74,7 @@ fn base_fee(now: u64, price: u128, trade: TradeContext) -> u64 {
 - Meteora computes linear and exponential time tapering in `base_fee/fee_time_scheduler.rs`.
 - Meteora reduces fees by market-cap or price progress in `base_fee/fee_market_cap_scheduler.rs`.
 - Meteora scopes rate-limited launch fees in `base_fee/fee_rate_limiter.rs` and tests them in `programs/cp-amm/src/tests/test_rate_limiter.rs`.
+- Meteora Dynamic Bonding Curve rejects repeated same-pool swap instructions in one transaction while rate-limited launch fees are active in `/private/tmp/defillama-source/MeteoraAg_dynamic-bonding-curve/programs/dynamic-bonding-curve/src/instructions/swap/ix_swap.rs`, with rate-limiter tests in `programs/dynamic-bonding-curve/src/tests/test_rate_limiter.rs`.
 
 ## Real-World Examples
 
@@ -83,6 +85,7 @@ fn base_fee(now: u64, price: u128, trade: TradeContext) -> u64 {
 - [TWAP-Deviation Dynamic Fee](./pattern-twap-deviation-dynamic-fee.md)
 - [Volatility Accumulator Dynamic Fee](./pattern-volatility-accumulator-dynamic-fee.md)
 - [Offpeg Dynamic Fee](./pattern-offpeg-dynamic-fee.md)
+- [Bonding-Curve Terminal Liquidity Cutover](./pattern-bonding-curve-terminal-liquidity-cutover.md)
 
 ## References
 

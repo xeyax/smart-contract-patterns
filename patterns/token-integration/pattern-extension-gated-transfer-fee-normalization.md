@@ -47,6 +47,8 @@ At onboarding, reject unsupported extensions or require an admin badge/allowlist
 - Verify inverse fee math and rounding direction.
 - Apply user slippage limits to normalized amounts, including partial-fill swaps where only the used input should be converted back to fee-included amount.
 - Keep post-transfer balance reconciliation for integrations where external balance changes are possible.
+- If Token-2022 transfer hooks are supported, derive and validate the exact remaining-account slice required by the hook before calling transfer CPI; fee normalization alone does not make hook behavior safe.
+- For escrow lifecycles, gross up locked amounts for transfer fees and harvest withheld fees before closing accounts.
 
 ## Source Evidence
 
@@ -54,6 +56,8 @@ At onboarding, reject unsupported extensions or require an admin badge/allowlist
 - Orca Whirlpools rejects unsupported Token-2022 extensions, native mints, and freeze authorities unless badge policy allows them in `/private/tmp/defillama-source/orca-so__whirlpools/programs/whirlpool/src/util/v2/token.rs`, and stores badge policy in `state/token_badge.rs`.
 - Orca Whirlpools normalizes transfer-fee excluded and included amounts in `util/v2/token.rs`.
 - Meteora DAMM v2 normalizes transfer-fee amounts for exact-in, partial-fill, and exact-out swaps in `/private/tmp/defillama-source/MeteoraAg__damm-v2/programs/cp-amm/src/instructions/swap`.
+- Jupiter Lock rejects unsupported Token-2022 extensions, computes pre-fee and post-fee escrow transfers, routes transfer-hook remaining accounts, emits memos, and harvests withheld fees before account close in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/util/token2022.rs`.
+- Meteora Presale declares and parses Token-2022 hook remaining-account slices before deposits in `/private/tmp/defillama-source/MeteoraAg_presale/programs/presale/src/token2022.rs`.
 
 ## Related Patterns
 

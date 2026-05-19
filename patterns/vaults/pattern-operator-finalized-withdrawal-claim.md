@@ -92,11 +92,13 @@ function claimWithdraw(uint256 id) external {
 - Bound operator batch sizes and emit per-request fulfillment events.
 - Define emergency requests, cancellation, and timeout behavior explicitly.
 - Treat the operator as a liveness dependency; do not describe the pattern as fully trustless exit unless users can force or self-claim from reserved assets.
+- Pausing claim after an operator finalizes a request traps a fixed entitlement; use narrower pause scopes, expiry, or an emergency claim route.
 
 ## Source Evidence
 
 - Astherus `Earn.sol` burns or accounts withdrawn share tokens in `_doRequestWithdraw`, stores numbered withdrawal requests, lets a bot distribute funding through `distributeWithdraw`, and lets users claim by request number in `claimWithdraw` in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
 - The same contract separates emergency and ordinary withdrawal requests, making the operator-funded phase a distinct liveness surface rather than a synchronous redeem path.
+- EtherFi beHYPE finalizes withdrawal requests through an operator-managed queue and exposes claim pausing as an exit-liveness risk in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/WithdrawManager.sol`.
 
 ## Real-World Examples
 

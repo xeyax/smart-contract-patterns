@@ -67,10 +67,12 @@ pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
 - Document whether pause affects transfers only, mint/burn, or off-chain redemption.
 - Test missing extra accounts, wrong mint, wrong owner, pause state, unauthorized admin updates, and frozen accounts.
 - Pair transfer pauses with a separate emergency redemption or book-entry process when user exit liveness matters.
+- When another program transfers hook-enabled tokens, define typed remaining-account slices per transfer leg and reject malformed or unsupported extension combinations before CPI.
 
 ## Source Evidence
 
 - OpenEden's Solana TBILL program initializes Token-2022 extra-account metadata, dispatches transfer-hook calls through fallback decoding, and checks a pause PDA during transfers in `/private/tmp/defillama-source/OpenEdenHQ__openeden.tbill.solana/programs/tbill/src/lib.rs`, with Anchor tests for extra-account metadata, frozen accounts, transfers, and unauthorized mint/freeze/thaw paths.
+- Jupiter Lock and Meteora Presale both parse transfer-hook remaining accounts before Token-2022 CPI in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/util/remaining_accounts.rs` and `/private/tmp/defillama-source/MeteoraAg_presale/programs/presale/src/token2022.rs`.
 
 ## Real-World Examples
 

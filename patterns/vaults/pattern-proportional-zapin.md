@@ -273,6 +273,7 @@ function zapDeposit(
 - The vault never executes a swap — it only receives pre-assembled baskets
 - Validate route endpoints before executing internal swaps and liquidity legs.
 - Clear temporary allowances after staking or liquidity minting so the zap does not leave residual spending power.
+- Ledger-backed residual accounting helps return unused assets, but it does not replace per-leg swap and liquidity minimums.
 
 ## Variations
 
@@ -334,6 +335,7 @@ ERC4626 mandates `asset()` returning a single token and `deposit(uint256, addres
 - [StakeDAO / StoneVault ZapIn](https://docs.stakedao.org/) — peripheral ZapIn contract for single-token entry into multi-strategy vaults
 - Velodrome V2 zap validates route endpoints, applies per-leg swap and liquidity minimums, returns residual assets, and clears staking allowance in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Router.sol`.
 - VVS Zap is a contrasting risk example: it enforces a final output minimum but uses zero minimums for internal swap and liquidity legs in `/private/tmp/defillama-source/vvs-finance__vvs-zap/contracts/VVSZap.sol`.
+- Meteora Zap records user-ledger residuals and validates protocol-zap settlement context in `/private/tmp/defillama-source/MeteoraAg_zap-program/programs/zap/src/state/user_ledger.rs` and `programs/zap/src/instructions/ix_zap_in_damm_v2.rs`; the catalog still treats missing per-leg minimums as a slippage caveat.
 
 ## Related Patterns
 

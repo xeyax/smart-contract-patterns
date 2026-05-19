@@ -98,6 +98,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - If an L1 or external staking queue has both deposit and withdrawal operations pending, process withdrawal operations before new deposit or rebalance operations consume liquid capacity.
 - Lending pools that deploy idle liquidity into yield adapters need a target buffer ratio, a recall path, and tests proving withdrawals cannot spend accounting balances that remain externally deployed.
 - For validator or nominator pools, block new stake deployment while withdrawal requests are pending, and expose a bounded public drain path so exits do not depend on one operator.
+- Instant withdrawal buffers should subtract low-watermark liquidity before quoting redeemable capacity; the low watermark is not rescueable surplus.
 
 ## Source Evidence
 
@@ -115,6 +116,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Kinetiq queues L1 staking operations, converts withdrawal amounts with withdrawal-favoring rounding, and processes pending L1 withdrawals before deposit and rebalance operations in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/StakingManager.sol`.
 - RAAC keeps a lending-pool liquidity buffer ratio, calls `_ensureLiquidity` before withdrawals, and rebalances through `_rebalanceLiquidity` when local liquidity and externally deployed yield positions diverge in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/pools/LendingPool/LendingPool.sol`.
 - TON Nominator Pool stores withdraw requests, lets anyone process bounded batches or single emergency requests, and rejects new stake while withdraws are pending in `/private/tmp/defillama-source/ton-blockchain__nominator-pool/func/pool.fc`, with queue limit and balance tests in `test/withdraw-requests-limit.js`, `withdraw-requests-balance.js`, and `new-stake-has-withdraws.js`.
+- EtherFi beHYPE excludes a low watermark before instant withdrawals in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/WithdrawManager.sol`.
 
 ## Related Patterns
 

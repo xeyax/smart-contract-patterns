@@ -56,6 +56,7 @@ require_keys_eq!(expected_vault, vault.key(), ErrorCode::InvalidVault);
 - Store and verify bumps or derive them consistently.
 - Verify account owner, mint, token authority, and close authority in addition to PDA address.
 - Sign CPIs only with the seed tuple that derives the expected authority.
+- For hot Solana accounts, precompute a bounded set of equivalent authority PDAs and require the route or instruction to name which shard is being used.
 - Reconcile internal accounting after token CPIs.
 
 ## Source Evidence
@@ -63,6 +64,7 @@ require_keys_eq!(expected_vault, vault.key(), ErrorCode::InvalidVault);
 - Kamino Lend derives market, reserve, obligation, vault, and collateral accounts through helper PDA functions.
 - Its handlers and transfer utilities verify canonical account relationships before CPI signing.
 - Post-transfer checks reconcile vault balances and internal ledger state after token CPIs.
+- Jupiter routing code uses multiple equivalent authority PDAs to avoid hot-account contention, with account indexes selected by the swap transaction builder in `/private/tmp/defillama-source/jup-ag_jupiter-amm-implementation/jupiter-core/src/swap_transaction/build_swap_instruction.rs` and authority definitions shared with `/private/tmp/defillama-source/jup-ag_jupiter-cpi/src/lib.rs`.
 
 ## Related Patterns
 

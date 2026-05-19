@@ -61,6 +61,12 @@ fn settle_signed_order(ctx: Context, order: SignedOrder) {
 }
 ```
 
+### Adjacent-Instruction Settlement Guard Variant
+
+For Solana protocol zaps or aggregator settlements that do not carry a signed order, the program can still bind settlement to the surrounding transaction. Inspect the adjacent instruction, verify the expected program id and account layout, and require the settlement instruction to be paired with the exact protocol-zap instruction that produced the assets.
+
+This is narrower than signed-order verification. It prevents orphaned settlement calls and account substitution, but it does not replace user slippage bounds inside the routed swap or liquidity leg.
+
 ## Implementation
 
 - Verify signature instruction program id, offsets, signer, signature, and exact message bytes.
@@ -68,6 +74,7 @@ fn settle_signed_order(ctx: Context, order: SignedOrder) {
 - Enforce slot or timestamp expiry.
 - Track replay ids on-chain with a documented bounded cache size.
 - Bind taker and delegate semantics before settlement.
+- When using adjacent-instruction guards, verify program id, instruction index, account order, vault accounts, and expected authority before settling.
 - Test offset spoofing, wrong signer, byte mutation, expired slot, replay, and cache rollover.
 
 ## Source Evidence
@@ -75,6 +82,7 @@ fn settle_signed_order(ctx: Context, order: SignedOrder) {
 - Drift validates Solana Ed25519 instruction offsets, signer, and message bytes in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/validation/sig_verification.rs`.
 - Drift binds signed message order fields and slot expiry in `programs/drift/src/state/order_params.rs`, stores a bounded replay cache in `programs/drift/src/state/signed_msg_user.rs`, and settles signed orders in `programs/drift/src/instructions/keeper.rs`.
 - Drift tests signed-message replay behavior in `programs/drift/src/state/signed_msg_user/tests.rs`.
+- Meteora Protocol Zap verifies adjacent instruction context and expected accounts before settlement in `/private/tmp/defillama-source/MeteoraAg_zap-program/protocol-zap/src/utils/mod.rs` and `processors/jup_v6_zap.rs`.
 
 ## Real-World Examples
 

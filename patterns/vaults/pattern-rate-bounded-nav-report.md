@@ -69,6 +69,20 @@ should reject expired signatures, excessive per-period update counts, and
 exchange-rate moves outside configured bounds before the rate can affect mint,
 redeem, or withdrawal settlement.
 
+### One-Shot Override Variant
+
+Strategy health checks sometimes need an explicit one-shot override after a
+legitimate out-of-band gain or loss. Treat the override as a privileged event
+that applies to one report only, then clear it automatically so routine reports
+return to bounded acceptance.
+
+### External-Core Cooldown Variant
+
+If exchange-rate accounting depends on an external staking core, block rate
+updates until the core has completed a minimum delay or checkpoint after deposits,
+withdrawals, or operator accounting changes. The cooldown reduces same-block or
+same-epoch accounting races, but it does not prove the external core's value.
+
 ## Key Points
 
 - Block ordinary reports while the current NAV is still valid.
@@ -82,6 +96,8 @@ redeem, or withdrawal settlement.
 - For shared price calculators, pause conversions or risk-increasing actions when a report violates age, cadence, or movement thresholds.
 - Simulate complex oracle reports before applying them, and separately account burn-cover buckets from ordinary fee or reward accounting.
 - Signed NAV or exchange-rate reports should bind chain id and verifying contract, enforce signature expiry, and cap update frequency as well as value movement.
+- One-shot report overrides should clear after one use and be monitored as privileged bypasses.
+- External-core exchange-rate updates should enforce a cooldown or checkpoint before rate changes affect user settlement.
 
 ## Source Evidence
 
@@ -91,6 +107,8 @@ redeem, or withdrawal settlement.
 - Lido simulates oracle reports, caps positive rebases, rejects large consensus-layer losses through sanity checks, and tracks cover/non-cover share-burn buckets in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9`.
 - Aera v3 price reports enforce max price age, monotonic timestamps, minimum update interval, maximum update delay, upward/downward tolerance ratios, and automatic pause on threshold violation in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/PriceAndFeeCalculator.sol`.
 - Astherus `Earn.sol` accepts signed exchange-rate uploads in `uploadExchangeRate`, binding expiry and chain-specific message data while enforcing configured update cadence and deviation limits in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
+- Yearn V3 periphery bounds strategy report profit and loss and supports one-shot overrides in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/Bases/HealthCheck/BaseHealthCheck.sol`.
+- EtherFi beHYPE uses staking-core accounting cooldowns before exchange-rate updates in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/StakingCore.sol`.
 
 ## Related Patterns
 

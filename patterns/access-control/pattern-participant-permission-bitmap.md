@@ -91,6 +91,7 @@ For redeemable or claim-bearing vault shares, endpoint checks must cover the cal
 - If transfer rights intentionally inherit from the `from` account through normal ERC20 approval, document that delegation as a business requirement and test approved spenders explicitly.
 - Permission bits may include expiry timestamps, freeze bits, and endorsed system escrow/router bypasses, but bypasses should be narrow and documented.
 - For regulated vault shares, rescue frozen accounts through specific entitlements rather than broad operator custody.
+- Vesting escrows can use creator and recipient capability bits for actions such as cancel, update-recipient, and withdraw; each bit should be named and tested independently.
 
 ## Source Evidence
 
@@ -101,6 +102,7 @@ For redeemable or claim-bearing vault shares, endpoint checks must cover the cal
 - Karpatkey's KPK token intentionally lets an allowlisted sender delegate transfers through ERC20 approval, illustrating that delegated-spender checks are policy-dependent and must be explicit.
 - Firelight's regulated vault-share flow checks transfer endpoints and includes frozen-account rescue mechanics for claim-ledger periods and amounts.
 - SlowMist's Avalon USDa audit reported an endpoint blocklist predicate that used `||` over negated sender/receiver checks, illustrating why one-sided negative tests are required for transfer policies.
+- Jupiter Lock stores creator and recipient permission flags on vesting escrows in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/state/vesting_escrow.rs` and tests cancel and recipient-update authorization in `tests/test_cancel.ts` and `tests/test_update_recipient.ts`.
 
 ## Related Patterns
 
