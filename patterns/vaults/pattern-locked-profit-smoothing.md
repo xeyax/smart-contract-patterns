@@ -134,6 +134,7 @@ be applied only when yield is actually released.
 - Treat zero-duration unlock settings as a value-affecting governance parameter.
 - For donation-smearing savings vaults, test repeated donations, partial accrual, withdrawal during the smoothing window, and max interest-left saturation.
 - For withheld-yield variants, define whether losses consume withheld yield, protocol fees, or LP-due value first, and test release-rate rounding over long idle periods.
+- Upward-only or rate-limited rebases should expose the undistributed yield bucket and avoid treating smoothed yield as free surplus before the release schedule has applied.
 
 ## Source Evidence
 
@@ -146,6 +147,7 @@ be applied only when yield is actually released.
 - Avant `StakedAvUSD` excludes unvested rewards from `totalAssets()` and vests them over an 8-hour window, with tests around share pricing and delayed reward vesting in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/StakedAvUSD.sol`.
 - Euler Savings Rate smears direct asset donations through `gulf` and `interestLeft`, with tests for repeated donations, partial accrual, and zero remaining interest in `/private/tmp/defillama-source/euler-xyz__euler-vault-kit/src/Synths/EulerSavingsRate.sol` and `test/unit/esr/ESR.Gulp.t.sol`.
 - Sanctum INF releases withheld yield over time, absorbs losses against withheld yield and protocol-fee buckets before LP-due value, and uses release-rate tests in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/core/src/yields/update.rs`, `controller/core/src/yields/release.rs`, and `controller/core/src/typedefs/rps.rs`.
+- Origin Dollar vaults rate-limit rebases and drip yield through vault and harvester state in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultStorage.sol`, `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultCore.sol`, and `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/harvest/Dripper.sol`.
 
 ## Related Patterns
 

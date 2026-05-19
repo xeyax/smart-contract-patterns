@@ -91,15 +91,19 @@ For large histories, off-chain helpers can suggest event ids and a bounded searc
 - Bound claim input size or depth so a single claim cannot become uncallable.
 - Mark claimed or partially claimed state before paying.
 - Keep event capacity and request intervals immutable after they become claimable.
+- When the queue is represented as cumulative ticket or checkpoint totals, store each request's cumulative boundary and settle only against finalized capacity at or beyond that boundary.
 
 ## Source Evidence
 
 - Liquid Collective `RedeemManagerV1` exposes claim functions that match redeem request ids to withdrawal event ids, return per-request claim statuses, and include helper logic for finding matching withdrawal events in `/private/tmp/defillama-source/liquid-collective__liquid-collective-protocol/natspec/RedeemManagerV1.md`.
 - The same NatSpec documents full, partial, skipped, not-satisfied, out-of-bounds, and already-claimed cases, making interval matching a reusable queue design rather than a simple FIFO transfer.
+- StakeWise V3 stores exit positions and cumulative queue checkpoints in `/private/tmp/defillama-source/stakewise__v3-core/contracts/libraries/ExitQueue.sol`, with vault entry and exit integration in `/private/tmp/defillama-source/stakewise__v3-core/contracts/vaults/modules/VaultEnterExit.sol`.
+- Origin Dollar tracks cumulative withdrawal queue totals and per-request queued boundaries in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultStorage.sol` and processes request/claim flows in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultCore.sol`.
 
 ## Real-World Examples
 
 - Liquid Collective - liquid-staking redemption manager with cumulative interval matching between redeem requests and withdrawal events.
+- StakeWise V3 and Origin Dollar - cumulative exit queues resolved by finalized queue capacity.
 
 ## Related Patterns
 

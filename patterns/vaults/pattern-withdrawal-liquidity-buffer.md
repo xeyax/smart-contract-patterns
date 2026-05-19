@@ -106,6 +106,7 @@ For instant unstake pools, count incoming stake accounts as pending liabilities 
 - Instant withdrawal buffers should subtract low-watermark liquidity before quoting redeemable capacity; the low watermark is not rescueable surplus.
 - Instant unstake pools should track incoming stake as a liability until reclaimed, and utilization fees should be computed from post-unstake reserve liquidity.
 - If LP mint or burn value includes flash-borrowed reserves, include the borrowed amount consistently in liquidity snapshots and enforce instruction-paired repayment.
+- Transmuter or savings buffers should keep redemption liquidity out of redeployable strategy balances and route newly available underlying to pending claims before ordinary deployment.
 
 ## Source Evidence
 
@@ -131,6 +132,8 @@ For instant unstake pools, count incoming stake accounts as pending liabilities 
   and documents forced market-removal recovery in `/private/tmp/defillama-source/morpho-org__metamorpho/src/libraries/ConstantsLib.sol:15`,
   `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:308`,
   and `/private/tmp/defillama-source/morpho-org__metamorpho/README.md:158`.
+- Alchemix `TransmuterBuffer` separates redemption liquidity from active yield deployment in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/src/TransmuterBuffer.sol`, with tests in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/test/TransmuterBuffer.spec.ts`.
+- Origin Dollar withdrawal queues and vault buffer state track pending requests and available liquidity in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultStorage.sol` and `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultCore.sol`.
 
 ## Related Patterns
 

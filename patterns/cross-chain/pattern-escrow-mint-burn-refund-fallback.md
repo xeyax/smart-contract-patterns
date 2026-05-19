@@ -67,6 +67,7 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - For signer-mediated withdrawals, lock the requested amount plus maximum fee, then make signer acceptance burn the locked amount and refund unused fee while signer rejection unlocks the escrow.
 - For auto-call bridge settlement, make failed external calls fall back to the original receiver or fallback address instead of leaving approved tokens or native value in the executor.
 - When the bridge offers destination native drops, separate recipient principal, relayer/native-drop funding, relayer fee, and refund of excess native value.
+- For escrowed token bridge flows, test failed destination handling and wrong-counterpart messages separately from ordinary mint/burn success cases.
 
 ## Source Evidence
 
@@ -80,6 +81,7 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - deBridge auto-call settlement sends leftovers back to reserve, clears approvals, and pays execution fees only around the call proxy frame in `/private/tmp/defillama-source/debridge-finance__debridge-contracts-v1/contracts/periphery/CallProxy.sol` and `/private/tmp/defillama-source/debridge-finance__debridge-contracts-v1/contracts/transfers/DeBridgeGate.sol`.
 - LI.FI destination receivers catch failed compose swaps and route remaining funds to receiver or refund/fallback handling in `/private/tmp/defillama-source/lifinance__contracts/src/Periphery/ReceiverStargateV2.sol` and `src/Periphery/ReceiverAcrossV4.sol`.
 - Wormhole's example token bridge relayer separates self-redemption, relayer-funded native drops, fee recipient payout, and recipient token balance in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/src/token-bridge-relayer/TokenBridgeRelayer.sol`.
+- Velodrome Superchain escrow bridges lock and release assets through root and leaf escrow bridge contracts in `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/root/bridge/RootEscrowTokenBridge.sol` and `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/bridge/LeafEscrowTokenBridge.sol`.
 
 ## Related Patterns
 

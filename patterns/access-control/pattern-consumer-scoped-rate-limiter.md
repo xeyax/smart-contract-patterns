@@ -114,6 +114,7 @@ shared decimals.
 - Bridge outflows may need destination daily caps, per-transfer min/max, per-user daily caps, and per-user attempt caps, with dust normalization before limit checks.
 - Define whether pause time refills capacity. If accumulated capacity during a pause would surprise operators, reset or checkpoint bucket timestamps on unpause.
 - For OFT-style bridges, consume destination-scoped capacity before burning or locking local supply.
+- For XERC20-style bridge minters, use a midpoint or replenishing buffer per bridge so one bridge cannot exhaust mint/burn capacity intended for other routes.
 
 ## Source Evidence
 
@@ -123,6 +124,7 @@ shared decimals.
 - Lista OFT combines destination-specific daily caps, per-transfer min/max, per-user daily caps, per-user attempt caps, and dust normalization before debit limit checks.
 - USDT0 audit reports discuss route-scoped OFT rate limits and pause-aware refill behavior; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
 - Astherus `asBTC` applies transfer-limiter checks from `_debit` before LayerZero OFT debit settlement, with limiter state in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/oft/TransferLimiter.sol` and `contracts/oft/asBTC.sol`.
+- Velodrome Superchain restricted XERC20 bridge capacity is implemented in `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/xerc20/extensions/RestrictedXERC20.sol` and bridge wiring under `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/bridge`.
 
 ## Related Patterns
 

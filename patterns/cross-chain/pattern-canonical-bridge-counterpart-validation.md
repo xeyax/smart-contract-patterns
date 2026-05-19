@@ -78,6 +78,7 @@ destination domains.
 - If using same-address endpoint authentication, document the deterministic deployment invariant and test wrong-origin-sender cases.
 - For peer-configured messaging, validate both the local endpoint caller and the configured remote peer before trusting the payload.
 - For token-bridge relayers, validate the canonical bridge's reported emitter or foreign contract before applying relayer-specific payload semantics.
+- For cross-chain gauge or token bridges, keep root and leaf bridge counterpart configuration in the same deployment checklist as token, gauge, and voter wiring.
 
 ## Source Evidence
 
@@ -90,6 +91,7 @@ destination domains.
 - USDT0 deployment audit reports repeatedly check bidirectional LayerZero peer, DVN, executor, library, enforced-option, and confirmation configuration before activation; this is audit-source evidence, not code-proven behavior from this repository.
 - LayerZero V2 OApps require calls from the local endpoint and reject messages whose origin sender is not the configured peer in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppReceiver.sol` and `OAppCore.sol`.
 - Wormhole's token bridge relayer registers foreign contracts and rejects transfers whose emitter does not match the registered source in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/src/token-bridge-relayer/TokenBridgeRelayerGovernance.sol` and `TokenBridgeRelayer.sol`.
+- Velodrome Superchain root and leaf token/message bridges bind counterpart bridge roles across `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/root/bridge` and `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/bridge`.
 
 ## Related Patterns
 

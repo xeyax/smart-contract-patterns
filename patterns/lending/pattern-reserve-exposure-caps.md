@@ -59,6 +59,9 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - For facilitator-style stablecoin minters, enforce per-facilitator bucket
   capacity and expose zero-cap offboarding; bucket caps constrain mint authority
   but are not proof of reserve solvency.
+- Fixed-maturity lending markets need both market-level and currency-level debt
+  limits because maturity settlement can move exposure between fCash and cash
+  buckets.
 
 ## Source Evidence
 
@@ -76,6 +79,7 @@ For isolated assets, aggregate exposure can be capped separately from the market
   minting and zero-cap behavior in `/private/tmp/defillama-source/aave__gho-core/src/contracts/gho/GhoToken.sol:34`,
   `/private/tmp/defillama-source/aave__gho-core/src/contracts/gho/GhoToken.sol:84`,
   and `/private/tmp/defillama-source/aave__gho-core/src/test/TestGhoToken.t.sol:171`.
+- Notional V3 caps market and currency exposure through risk-parameter storage and free-collateral checks in `/private/tmp/defillama-source/notional-finance__contracts-v3/contracts/internal/markets` and `/private/tmp/defillama-source/notional-finance__contracts-v3/contracts/internal/valuation`.
 
 ## Related Patterns
 

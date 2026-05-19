@@ -29,6 +29,7 @@
 - Queue entries store enough scaled-share or capture-time data to apply later slashes.
 - Completion uses the correct historical or current factor for the withdrawal.
 - Tests cover slashing before queue, after queue, and during completion.
+- Operator-managed withdrawal queues should document whether queued requests remain slash-exposed until batch finalization, oracle report, or claim.
 
 ## R3: Capture Times Are Bounded By Vault Epochs
 
@@ -63,6 +64,7 @@
 
 - EigenLayer derives withdrawable shares from deposit scaling factor, operator `maxMagnitude`, and beacon-chain slashing factor; queued withdrawals store scaled shares and complete against slash factors in `/private/tmp/defillama-source/Layr-Labs__eigenlayer-contracts/src/contracts`.
 - Symbiotic computes slashable stake at a capture timestamp inside the vault epoch, subtracts later cumulative slashes, and optionally routes slashes through resolver veto request/execute states in `/private/tmp/defillama-source/symbioticfi__core/src/contracts`.
+- Puffer's restaking protocol and withdrawal manager make validator/accounting finalization part of exit settlement in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferProtocol.sol` and `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferWithdrawalManager.sol`.
 
 ## Related Patterns
 

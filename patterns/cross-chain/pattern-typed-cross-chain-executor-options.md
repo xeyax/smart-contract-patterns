@@ -86,6 +86,7 @@ function _parseAndCheck(bytes calldata options, uint256 nativeCap) internal pure
 - Reject unsupported option types instead of ignoring them.
 - Cap native-drop value and require nonzero receive gas for deliverable messages.
 - Test duplicate options, unsupported types, zero gas, read-message calldata size, over-cap native value, and caller/enforced option composition.
+- When bridge deployment scripts preconfigure route options, treat those scripts as security evidence only if the runtime bridge also enforces the option format or counterpart.
 
 ## Source Evidence
 
@@ -93,6 +94,7 @@ function _parseAndCheck(bytes calldata options, uint256 nativeCap) internal pure
 - LayerZero V2 combines enforced and caller-supplied type-3 options, while comments note duplicate handling is off-chain, in `OAppOptionsType3.sol:51`.
 - LayerZero V2 executor fee parsing rejects unsupported options, zero receive gas, zero read calldata size, and native value above cap in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/contracts/ExecutorFeeLib.sol:139`.
 - LayerZero V2 tests cover native-drop caps and fee composition in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/test/ExecutorFeeLib.t.sol`.
+- Velodrome Superchain bridge deployment templates configure route-specific bridge parameters under `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/script/deployBridges` and should be reviewed with runtime bridge checks.
 
 ## Real-World Examples
 

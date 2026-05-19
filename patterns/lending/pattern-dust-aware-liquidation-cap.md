@@ -60,11 +60,14 @@ This prevents tiny remnants from surviving repeated partial liquidations. If the
 - Ensure cap exhaustion does not permanently block liquidation progress.
 - Test full, partial, cap-full, dust-remainder, and null-auction cases.
 - Route below-threshold accounts through a full-account or bad-debt-healing path rather than leaving uneconomic remnants.
+- If a liquidation hook chooses between partial and full-account liquidation, keep the dust threshold, close factor, and collateral priority in one audited path.
 
 ## Source Evidence
 
 - Sky/Maker DSS liquidation modules bound global and per-collateral active liquidation debt and reject partial liquidations that would create dusty remnants or invalid auctions.
 - Girin/Doppler-style comptroller code routes below-threshold accounts away from ordinary close-factor liquidation into full-account liquidation or healing.
+- Silo V2 partial-liquidation hooks implement collateral priority and close-factor behavior in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol`.
+- Term Finance liquidation contracts and auction specs cover fixed-maturity repo liquidation flows under `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts` and `/private/tmp/defillama-source/term-finance__term-finance-contracts/certora/specs`.
 
 ## Related Patterns
 

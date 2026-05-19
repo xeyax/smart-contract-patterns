@@ -93,16 +93,20 @@ function claimWithdraw(uint256 id) external {
 - Define emergency requests, cancellation, and timeout behavior explicitly.
 - Treat the operator as a liveness dependency; do not describe the pattern as fully trustless exit unless users can force or self-claim from reserved assets.
 - Pausing claim after an operator finalizes a request traps a fixed entitlement; use narrower pause scopes, expiry, or an emergency claim route.
+- If batch finalization can use a rate lower than the original request preview, record the exact finalized rate or amount per request so later claims cannot reprice opportunistically.
 
 ## Source Evidence
 
 - Astherus `Earn.sol` burns or accounts withdrawn share tokens in `_doRequestWithdraw`, stores numbered withdrawal requests, lets a bot distribute funding through `distributeWithdraw`, and lets users claim by request number in `claimWithdraw` in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
 - The same contract separates emergency and ordinary withdrawal requests, making the operator-funded phase a distinct liveness surface rather than a synchronous redeem path.
 - EtherFi beHYPE finalizes withdrawal requests through an operator-managed queue and exposes claim pausing as an exit-liveness risk in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/WithdrawManager.sol`.
+- Puffer finalizes withdrawal requests through `PufferWithdrawalManager`, records claimable request data, and exposes the claim path as a separate liveness surface in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferWithdrawalManager.sol`.
+- Swell `swEXIT` and `RswEXIT` batch requests into operator-finalized exits and claim against finalized batch data in `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lst/contracts/implementations/swEXIT.sol` and `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lrt/contracts/implementations/RswEXIT.sol`.
 
 ## Real-World Examples
 
 - Astherus Earn - request-numbered withdrawals with bot-funded distribution and user pull claims.
+- Puffer and Swell - batch-finalized withdrawal tickets with user pull claims.
 
 ## Related Patterns
 

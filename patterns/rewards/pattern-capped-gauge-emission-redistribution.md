@@ -64,6 +64,7 @@ function notifyRewardAmount(uint256 amount) external {
 - Bound redistribution iteration or process it through cursors.
 - Test cap changes, killed gauges, no-capacity epochs, and repeated redistributions.
 - If governance can kill a gauge, reject new deposits, preserve withdrawals, and return pending or future emissions to the minter or redistributor instead of trapping rewards in the dead gauge.
+- For cross-chain gauge systems, define whether root-chain emissions are escrowed, bridged, or returned when a leaf gauge is killed or cannot receive messages.
 
 ## Source Evidence
 
@@ -71,6 +72,7 @@ function notifyRewardAmount(uint256 amount) external {
 - Aerodrome factory cap controls are in `contracts/gauge/CLGaugeFactory.sol` through `setEmissionCap` and `calculateMaxEmissions`.
 - Aerodrome redistributes excess through `contracts/gauge/Redistributor.sol` and `_redistribute`.
 - Velodrome V2 killed gauges reject new deposits, preserve withdrawals, and redirect pending or future emissions in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Gauge.sol` and `contracts/Voter.sol`.
+- Velodrome Superchain leaf gauges and voters route cross-chain emissions and kill-state behavior through `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/gauges/LeafGauge.sol` and `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/voter/LeafVoter.sol`.
 
 ## Real-World Examples
 

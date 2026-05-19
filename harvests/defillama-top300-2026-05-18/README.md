@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 276 across 27 batches.
+- Source repository inspections so far: 288 across 28 batches.
 
 ## First Batch Repositories
 
@@ -385,6 +385,23 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Stargate V1 | `stargate-protocol/stargate` | Cross-chain bridge |
 | Nomad | `nomad-xyz/monorepo` | Cross-chain bridge |
 
+## Twenty-Eighth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Silo Finance | `silo-finance/silo-contracts-v2` | Lending |
+| Puffer Finance | `PufferFinance/puffer-contracts` | Liquid restaking |
+| StakeWise V3 | `stakewise/v3-core` | Liquid staking |
+| Swell V3 | `SwellNetwork/v3-core-public` | Liquid staking / restaking |
+| Notional V3 | `notional-finance/contracts-v3` | Fixed-maturity lending |
+| Goldfinch | `goldfinch-eng/mono` | RWA lending |
+| Origin Dollar | `originprotocol/origin-dollar` | Yield stablecoin |
+| Fraxtal Contracts | `FraxFinance/fraxtal-contracts` | Rollup / bridge |
+| Alchemix V2 | `alchemix-finance/v2-foundry` | Self-repaying lending |
+| Moonwell V2 | `moonwell-fi/moonwell-contracts-v2` | Lending |
+| Term Finance | `term-finance/term-finance-contracts` | Fixed-term repo lending |
+| Velodrome Superchain | `velodrome-finance/superchain-contracts` | Cross-chain DEX / gauges |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -415,6 +432,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-25-findings.md` — accepted and deferred catalog updates from the fifteenth expanded source-discovery batch.
 - `batch-26-findings.md` — accepted and deferred catalog updates from the sixteenth expanded source-discovery batch.
 - `batch-27-findings.md` — accepted and deferred catalog updates from the seventeenth expanded source-discovery batch.
+- `batch-28-findings.md` — accepted and deferred catalog updates from the eighteenth expanded source-discovery batch.
 
 ## Notes
 

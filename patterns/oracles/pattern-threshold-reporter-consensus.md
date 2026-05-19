@@ -115,6 +115,7 @@ a median, and reject medians whose neighboring submissions exceed a spread cap.
 - Add a downstream quarantine or pause path when an agreed payload fails protocol sanity checks; same-payload quorum proves reporter agreement, not report safety.
 - For signed-payload quorum, sort or otherwise deduplicate signers before counting and bind signatures to the exact feed, timestamp, deadline, and payload fields.
 - For Merkle-rooted sidecars, bind values to an epoch or voting round and test timestamp monotonicity for both canonical and trusted-provider prices.
+- Validator-set reports should bind the validator root, deadline, and intended vault or module action into the signed or quorum payload so accepted data cannot be replayed into a different operator action.
 
 ## Common Pitfalls
 
@@ -137,6 +138,8 @@ a median, and reject medians whose neighboring submissions exceed a spread cap.
 - Mantle mETH tracks duplicate and replacement reports per reporter, aligns report windows, forwards only after quorum, and quarantines or pauses downstream state when accepted payloads fail sanity checks.
 - Derive V2/Lyra feed contracts accept signed oracle payloads with reporter threshold checks, duplicate rejection, deadline and timestamp binding, stale checks, monotonic updates, confidence bounds, and settlement heartbeat validation in `/private/tmp/defillama-source/derivexyz__v2-core/src/feeds`.
 - Flare FAssets `FtsoV2PriceStore` verifies epoch feed values against a relay Merkle root, accepts trusted-provider submissions in a bounded prior-round window, rejects duplicates, computes a median, and enforces spread and timestamp invariants in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/ftso/implementation/FtsoV2PriceStore.sol`.
+- StakeWise V3 separates keeper oracle, rewards, and validator payload handling across `/private/tmp/defillama-source/stakewise__v3-core/contracts/keeper/KeeperOracles.sol`, `/private/tmp/defillama-source/stakewise__v3-core/contracts/keeper/KeeperRewards.sol`, and `/private/tmp/defillama-source/stakewise__v3-core/contracts/keeper/KeeperValidators.sol`.
+- Puffer guardian validation signs or approves validator operations through `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/GuardianModule.sol`, making signer quorum and payload binding part of validator lifecycle safety.
 
 ## Related Patterns
 

@@ -51,6 +51,7 @@
 - Failed push payments convert to user-specific pull claims rather than becoming yield.
 - Queue settlement is bounded and preserves FIFO or documented ordering.
 - Exit requests that use a cooldown should either fix the claim entitlement or bind the claim basis to a historical exchange rate so post-maturity claim timing cannot harvest later rewards.
+- Pending staking exits should remain exposed to validator losses until the protocol-defined finalization point, not become harvestable yield or risk-free claims merely because the user entered a queue.
 
 ## R5: Burn-Cover Buckets Are Separate From Ordinary Rewards
 
@@ -78,6 +79,8 @@
 - Lista's stkBNB strategy aggregates unstake requests, distributes in bounded FIFO batches, converts failed pushes to manual claims, and excludes pending unstake amounts from harvestable yield.
 - BENQI sAVAX escrows shares for cooldown exits and claims against a historical rate lookup at the claimable timestamp in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/sAVAX/StakedAvax.sol`, with pause liveness remaining a separate risk.
 - Lido separates cover and non-cover share-burn requests, caps positive rebases, and avoids fees on non-profitable reports in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9`.
+- StakeWise V3 keeps exit-queue accounting in vault state and finalizes exits through oracle-reported vault data in `/private/tmp/defillama-source/stakewise__v3-core/contracts/vaults/modules/VaultState.sol`, `/private/tmp/defillama-source/stakewise__v3-core/contracts/vaults/modules/VaultEnterExit.sol`, and `/private/tmp/defillama-source/stakewise__v3-core/contracts/keeper/KeeperRewards.sol`.
+- Puffer withdrawal requests remain dependent on protocol accounting and finalization in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferWithdrawalManager.sol` and `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferProtocol.sol`.
 
 ## Related Patterns
 

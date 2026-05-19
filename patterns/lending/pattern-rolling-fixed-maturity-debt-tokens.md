@@ -69,6 +69,11 @@ Coupon-strip variants can mint a ladder of nearer maturities as coupons plus a
 principal term. Principal redemption should require coupons to be claimed or
 otherwise settled so the position cannot leave dangling claims.
 
+Some protocols deploy serial ERC20 instruments per term instead of encoding
+terms into an ERC1155 id. The same maturity, cap, and settlement requirements
+still apply; the registry or servicer must prove which contract is active for
+each maturity.
+
 ## Key Points
 
 - Define earliest and latest mintable ids from time, not from caller input.
@@ -77,12 +82,14 @@ otherwise settled so the position cannot leave dangling claims.
 - Burn discounted cost before minting face-value claims.
 - Block redemption until maturity and decrement debt when face value is paid.
 - Test window edges, maturity redemption, per-term cap exhaustion, discount rounding, coupon-claim order, and ERC1155 approval assumptions.
+- For per-maturity ERC20 instruments, test term-token registration, rollover, and stale-token redemption separately from the shared servicer logic.
 
 ## Source Evidence
 
 - Reservoir's `TermIssuer` maps ids to rolling maturity timestamps, burns discounted rUSD on mint, mints ERC1155 term claims, and mints face-value rUSD only after maturity in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/TermIssuer.sol`.
 - Reservoir's `AccountManager` builds a coupon ladder on top of term ids and requires all coupons to be claimed before principal redemption in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/AccountManager.sol`.
 - Reservoir term debt caps are covered by invariants and window tests in `/private/tmp/defillama-source/reservoir-protocol__reservoir/test`.
+- Term Finance represents repo obligations through term-scoped token contracts and servicers under `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts`, alongside auction settlement that selects the active term cohort.
 
 ## Related Patterns
 

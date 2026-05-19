@@ -107,6 +107,7 @@ assets externally.
 - One-shot report overrides should clear after one use and be monitored as privileged bypasses.
 - External-core exchange-rate updates should enforce a cooldown or checkpoint before rate changes affect user settlement.
 - Liability-rate vaults should fuzz conversion round trips and make rate updates role-bound, cadence-bound, and pause-aware.
+- Snapshot reports that decompose total backing into component balances need component-level sanity checks; a correct aggregate NAV can still hide wrong pending-exit, reserve, or staking-core decomposition.
 
 ## Source Evidence
 
@@ -119,6 +120,7 @@ assets externally.
 - Yearn V3 periphery bounds strategy report profit and loss and supports one-shot overrides in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/Bases/HealthCheck/BaseHealthCheck.sol`.
 - EtherFi beHYPE uses staking-core accounting cooldowns before exchange-rate updates in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/StakingCore.sol`.
 - Ember Vault stores a managed rate, enforces update interval, min/max rate, and max per-update delta, and derives `totalAssets()` and conversions from that rate in `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/contracts/EmberVault.sol`, with rate-bound and conversion fuzz tests under `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/test`.
+- Swell `RepricingOracle` implementations report exchange-rate data for LST/LRT exit accounting in `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lst/contracts/implementations/RepricingOracle.sol` and `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lrt/contracts/implementations/RepricingOracle.sol`.
 
 ## Related Patterns
 

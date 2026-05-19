@@ -111,6 +111,9 @@ the collateral path.
   reserve feed should fail closed.
 - For non-USD perps collateral, bind haircut configuration to action-specific
   price freshness and trade-size/skew bounds.
+- Lending systems with separate max-LTV and solvency oracle paths should test
+  deposit, borrow, transition, liquidation, and collateral-exit actions against
+  the exact oracle mode each action uses.
 
 ## Source Evidence
 
@@ -138,6 +141,7 @@ the collateral path.
 - Synthetix V3 perps collateral configuration applies bounded non-USD collateral
   discounts by trade size and skew scale in `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`
   and `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`.
+- Silo V2 separates max-LTV and solvency oracle configuration in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/SiloConfig.sol` and applies action logic through `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/lib/Actions.sol`.
 
 ## Related Patterns
 

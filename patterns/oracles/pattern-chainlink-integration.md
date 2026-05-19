@@ -133,6 +133,7 @@ Interface compatibility is not the same as Chainlink freshness or round semantic
   min/max answer, or timestamp semantics; those may be explicit assumptions of
   the wrapper.
 - Reject wrappers that return a fresh timestamp while the underlying source has no freshness signal.
+- Treat wrappers that store heartbeat values but do not apply them on the read path as wrapper-specific trust assumptions, not as Chainlink freshness.
 - For primary/backup adapters, validate freshness on the selected feed and fail closed if both feeds are stale.
 - Normalize decimals after reading the feed, and reject negative or zero answers.
 
@@ -232,6 +233,7 @@ The severe-health-factor exception is a policy choice: it can contain obvious ba
 | **Wrong decimals** | `decimals()` | Normalize to 18 decimals (most USD pairs use 8) |
 | **Negative price** | `price` | `require(price > 0)` |
 | **Fresh-timestamp shim** | wrapper source | Do not trust `updatedAt = block.timestamp` unless the underlying source is fresh |
+| **Stored heartbeat ignored** | wrapper read path | Verify the heartbeat is enforced where `latestRoundData()` is consumed |
 | **`latestAnswer()` only** | missing timestamp | Use `latestRoundData()`; off-chain monitoring is not an on-chain guard |
 | **Missing previous round** | `roundId - 1` reads | Check historical depth before adjacent-round or interpolation logic |
 | **Interpolation divide-by-zero** | timestamps | Require strictly increasing round timestamps |
@@ -244,6 +246,8 @@ The severe-health-factor exception is a policy choice: it can contain obvious ba
 - [Compound](https://docs.compound.finance/v2/prices/) — Chainlink with fallbacks
 - Morpho Blue oracle libraries intentionally leave Chainlink staleness and
   min/max checks to integration assumptions in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
+- Silo Chainlink-compatible adapters include wrapper-specific timestamp and heartbeat assumptions in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-oracles/contracts/_common/Aggregator.sol` and `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-oracles/contracts/chainlinkV3/ChainlinkV3Oracle.sol`.
+- Moonwell documents delayed Chainlink OEV wrapper semantics in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/docs/OEV.md` and implements wrapper reads in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/src/oracles/ChainlinkOEVWrapper.sol`.
 - [MakerDAO](https://docs.makerdao.com/smart-contract-modules/oracle-module) — Chainlink + median
 
 ## Related Patterns
