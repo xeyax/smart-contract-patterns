@@ -246,11 +246,8 @@ Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot 
 
 ## Token Integration
 
-### Fee-on-Transfer Blindness
-Assumes token transfer delivers exact amount requested.
-**Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check, or docs say only standard non-rebasing tokens are supported while onboarding does not reject fee-on-transfer behavior.
-**Risk:** Accounting mismatch with fee-on-transfer tokens, exploitable for value extraction.
-**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. Direct-to-custodian top-ups, bridge settlements, Token-2022 escrow funding, and CPI fee harvests need the same actual-received or explicit-rejection boundary. Balance-delta equality can enforce a rejection boundary, but exact-input router support does not make liquidity add/remove, repayment, or withdrawal paths fee-on-transfer safe automatically. A documented unsupported-token assumption is only sufficient when every market, asset, pool, or bridge route-onboarding path makes the same rejection boundary visible to integrators.
+### Fee-on-Transfer Blindness (see Economic)
+See [Economic > Fee-on-Transfer Blindness](#fee-on-transfer-blindness) for the canonical entry. Token onboarding and transfer paths should apply the same actual-received or explicit-rejection boundary.
 
 ### Implicit Decimal Assumption
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
