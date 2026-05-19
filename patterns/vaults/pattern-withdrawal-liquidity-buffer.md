@@ -93,6 +93,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Instant RWA redemption buffers should cap redeemable shares by actual idle or yield liquidity, round redeemable capacity down, round required input up for exact payout, and fail closed on stale or below-minimum oracle prices.
 - LST delayed exits should maintain aggregate pending-ticket amount and count, and claim paths should check reserve availability before payment.
 - NFT redemption tickets should snapshot maturity, fee, liability, and beneficiary information, and partial redemption should reduce the ticket's remaining liability before paying out.
+- Principal-plus-interest claim paths need funded reserves or enforced liquidity predicates; operator top-up cadence is monitoring, not trust-minimized withdrawal liveness.
 
 ## Source Evidence
 
@@ -105,6 +106,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Superstate on-chain redemptions cap instant RWA redemptions by available idle or yield liquidity, use conservative rounding, and fail closed on stale or below-minimum oracle prices.
 - Marinade delayed unstake tickets maintain aggregate pending balances and claim from reserve after maturity.
 - Frax frxETH V2 represents LST exits as NFT redemption tickets with maturity, fee snapshot, liabilities, and full or partial ETH redemption paths in `/private/tmp/defillama-source/FraxFinance__frxETH-v2-public/src/contracts/frxeth-redemption-queue-v2/FraxEtherRedemptionQueueCore.sol` and `FraxEtherRedemptionQueueV2.sol`.
+- SlowMist's Avalon USDa audit noted that saving-account redemption and interest distribution can leave claims underfunded if the contract lacks enough underlying tokens, a lower-confidence audit-source example for funded claim reserves.
 
 ## Related Patterns
 

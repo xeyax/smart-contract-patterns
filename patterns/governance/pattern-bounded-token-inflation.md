@@ -85,11 +85,13 @@ This keeps emergency inflation tied to realized system debt instead of discretio
 - Timelock cap increases; cap decreases can be immediate.
 - Test migration, bridge, reward, and emergency mint paths against the same invariant.
 - For backstop minting, net surplus against debt and enforce delay before starting dilution.
+- Multisig or role gating is not a substitute for protocol-level supply and balance-mutation bounds; every mint and burn role should still be constrained by amount, recipient, reason, or window.
 
 ## Source Evidence
 
 - Ethena's governance token design includes bounded mint authority so token issuance can expand under governance without becoming unrestricted arbitrary supply creation.
 - Sky/Maker DSS delays debt-backed MKR dilution until debt is queued, surplus is netted, and fixed-size debt auctions can be started.
+- SlowMist's Avalon USDa audit identified arbitrary role-gated mint and burn functions as excessive authority, showing that multisig custody alone does not bound supply mutation.
 
 ## Related Patterns
 

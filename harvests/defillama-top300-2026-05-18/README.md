@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 141 across 15 batches.
+- Source repository inspections so far: 145 across 16 batches.
 
 ## First Batch Repositories
 
@@ -217,6 +217,15 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Derive V2 | `derivexyz/v2-core` | Derivatives |
 | Polygon zkEVM Bridge | `0xPolygonHermez/zkevm-contracts` | Canonical Bridge |
 
+## Sixteenth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Mantle Bridge | `mantlenetworkio/mantle` | Canonical Bridge |
+| Alpha Homora V2 | `AlphaFinanceLab/alpha-homora-v2-contract` | Leveraged Farming |
+| Avalon USDa | `avalonfinancexyz/USDa-audit-slowmist` | CDP / audit source |
+| Avalanche ICM | `ava-labs/icm-contracts` | Cross-chain messaging |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -235,6 +244,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-13-findings.md` — accepted and deferred catalog updates from the third expanded source-discovery batch.
 - `batch-14-findings.md` — accepted and deferred catalog updates from the fourth expanded source-discovery batch.
 - `batch-15-findings.md` — accepted and deferred catalog updates from the fifth expanded source-discovery batch.
+- `batch-16-findings.md` — accepted and deferred catalog updates from the sixth expanded source-discovery batch.
 
 ## Notes
 

@@ -55,6 +55,13 @@ function finalize(bytes calldata payload) external {
 
 For bridges that alias L1 senders on L2, normalize through the bridge's official sender-recovery primitive instead of comparing raw `msg.sender`.
 
+Some transports deliberately deploy the same immutable messenger bytecode to the
+same address on every chain. In that model, the local endpoint can authenticate
+the remote endpoint by requiring the bridge-provided origin sender to equal
+`address(this)`, but only if deployment tooling proves the same-address,
+same-bytecode invariant and message ids are still bound to source and
+destination domains.
+
 ## Key Points
 
 - Validate messenger and counterpart on every finalize path.
@@ -62,6 +69,7 @@ For bridges that alias L1 senders on L2, normalize through the bridge's official
 - Reject messages from the default gateway, router, or owner unless that exact address is the configured peer.
 - Do not use this pattern as a substitute for bridge-layer replay protection.
 - Include counterpart updates in governance, deployment, and migration playbooks.
+- If using same-address endpoint authentication, document the deterministic deployment invariant and test wrong-origin-sender cases.
 
 ## Source Evidence
 
@@ -69,6 +77,7 @@ For bridges that alias L1 senders on L2, normalize through the bridge's official
 - `L1ArbitrumMessenger.getL2ToL1Sender` recovers the remote L2 sender from the active bridge/outbox context.
 - Foundry tests reject non-bridge callers, wrong counterpart gateways, and missing outbox sender context.
 - Optimism Bedrock standard bridges validate the local messenger and the remote bridge sender, while L2 messenger paths normalize L1-to-L2 address aliasing before accepting the counterpart.
+- Avalanche ICM Teleporter requires Warp messages to report `originSenderAddress == address(this)` and documents same-address universal deployment for `TeleporterMessenger` in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/TeleporterMessenger.sol` and `contracts/teleporter/README.md`.
 
 ## Related Patterns
 

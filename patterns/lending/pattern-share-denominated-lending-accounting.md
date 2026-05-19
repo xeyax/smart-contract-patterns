@@ -48,10 +48,12 @@ Supply and borrow sides can each have their own total assets and total shares. A
 - Keep total assets and total shares internally consistent after interest, repayment, liquidation, and bad debt.
 - Do not mix share-based positions with principal-index positions without a clear conversion boundary.
 - Test asset/share round trips at zero, dust, and high utilization.
+- For borrow shares, debt views and new borrows should round up, partial repayments can round share burn down, and full repayment should burn all remaining shares so dust debt does not survive.
 
 ## Source Evidence
 
 - Morpho Blue stores supply and borrow positions as shares, uses virtual offsets in conversion math, and formally specifies conservative asset accounting rules.
+- Alpha Homora V2 computes borrow balances with ceiling division, mints borrow shares with ceiling division, caps repayment to old debt, floors partial share reduction, and burns all remaining shares on full repayment in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
 
 ## Related Patterns
 

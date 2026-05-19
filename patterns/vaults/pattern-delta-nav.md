@@ -153,6 +153,8 @@ contract DeltaNavVault {
 - **Rounding:** Always round down for minting (favor vault), round down for burning (favor vault)
 - **First deposit:** Usually 1:1 ratio, but vulnerable to inflation attack
 - **Zero check:** Prevent minting zero shares on small deposits
+- **Preview consistency:** Public preview and conversion helpers should use the same accrued accounting basis as mint/redeem, or be explicitly labeled as stale estimates.
+- **Minimum size:** Minimum deposit checks should cover downstream share, rate-index, and reward-index precision, not only nonzero token transfer amount.
 
 ## Security Considerations
 
@@ -189,6 +191,27 @@ Anyone can send tokens directly to vault without calling `deposit()`. This incre
 When NAV is calculated using oracle prices, stale prices create arbitrage opportunities. Attackers can deposit when oracle shows inflated prices or withdraw when oracle shows deflated prices.
 
 **See:** [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) for detailed analysis and mitigations.
+
+### Preview / Execution Drift
+
+If `previewDeposit`, `convertToShares`, or similar helpers omit accrued yield,
+pending interest, locked profit, or rate-index updates that the state-changing
+path applies, integrators can set limits against a price the execution path will
+not honor.
+
+**Mitigation:** Share the accounting basis between previews and execution, force
+a freshness update before both paths, or label the helper as a stale estimate and
+avoid using it for user protection.
+
+### Minimum Deposit Precision
+
+A nonzero transfer amount can still mint zero shares or zero rate-index units
+after downstream precision loss. Minimum deposits should be calibrated against
+the narrowest precision boundary in the full mint/redeem path.
+
+## Source Evidence
+
+- SlowMist's Avalon USDa audit flagged preview/conversion freshness, minimum deposit precision, and interest accounting issues in saving-account flows. This is audit-report evidence rather than production-proven positive pattern evidence.
 
 ## Real-World Examples
 

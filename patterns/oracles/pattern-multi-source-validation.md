@@ -204,6 +204,17 @@ The warning state should not bypass min/max price bounds, freshness checks, or
 history-span requirements. It is a grace period for operator response, not proof
 that either source is safe.
 
+### Bounded Agreement Aggregation
+
+Some lending oracles cap each asset to at most three primary sources and use only
+sources that return successfully. One source is accepted as a fallback, two
+sources must agree within a configured deviation before averaging, and three
+sources either return the median when all adjacent sorted prices agree or average
+the agreeing adjacent pair.
+
+This is simpler than diagnosing source type, but it needs tight source-count and
+deviation bounds. A lone valid source is availability, not high confidence.
+
 ## Interpretation Table
 
 | Oracle vs TWAP | Oracle vs Spot | TWAP vs Spot | Diagnosis | Recommended Action |
@@ -226,6 +237,7 @@ that either source is safe.
 - Stablecoins: tighten all thresholds to 0.5-1%
 - Volatile assets: loosen to 5-10%
 - If using a warning state, cap both maximum deviation and maximum warning duration, then fail closed after expiry.
+- If accepting a single valid source, make that fallback explicit in action-scoped policy and avoid treating it as equal to multi-source agreement.
 
 ## Gas Optimization
 
@@ -254,6 +266,7 @@ function getOptimizedPrice() public view returns (uint256) {
 - [MakerDAO Medianizer](https://docs.makerdao.com/smart-contract-modules/oracle-module) — median of multiple sources
 - NAVI validates primary/secondary oracle divergence with warning and rejection states in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/oracle_pro.move` and `oracle/sources/strategy.move`.
 - Liquity V1's `PriceFeed.sol` fallback and last-good-price state machine provides additional evidence that source disagreement needs explicit status transitions instead of silent fallback.
+- Alpha Homora V2's `AggregatorOracle` caps primary sources at three, sorts valid prices, averages agreeing pairs, returns the median when all three agree, and reverts when no pair is within deviation in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/AggregatorOracle.sol`.
 
 ## Related Patterns
 

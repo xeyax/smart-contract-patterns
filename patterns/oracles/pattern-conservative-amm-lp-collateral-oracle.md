@@ -41,10 +41,17 @@ function lpPrice() external view returns (uint256) {
 
 This estimates a fair-value floor for curated pools. It does not prove the LP token can be liquidated at that value during stress.
 
+For constant-product and weighted pools, the conservative value can be derived
+from fair reserves instead of current reserve ratios. A Uniswap-style LP oracle
+can price `2 * sqrt(px0 * px1) * sqrt(reserve0 * reserve1) / totalSupply`, while
+a weighted-pool oracle can solve for fair reserves under the pool invariant and
+external prices before dividing by LP supply.
+
 ## Key Points
 
 - Check external feed positivity, freshness, and L2 sequencer status where relevant.
 - Use conservative constituent pricing such as `min(price_i)` for stableswap-style pools when appropriate.
+- For constant-product and weighted pools, derive fair reserves from the invariant and external prices instead of trusting the current manipulated reserve split.
 - Document read-only reentrancy assumptions for pool view functions.
 - Apply collateral discounts for redemption delay, market depeg, and thin LP liquidity.
 - Regression-test every configured pool and feed route.
@@ -53,6 +60,7 @@ This estimates a fair-value floor for curated pools. It does not prove the LP to
 ## Source Evidence
 
 - Stake DAO's Curve stableswap collateral oracle uses conservative pool pricing with external feed hops and explicitly documents flash-manipulation, read-only reentrancy, and L2 sequencer caveats.
+- Alpha Homora V2 prices Uniswap V2 LP collateral from the square-root reserve invariant, Balancer LP collateral from fair reserves, and Curve LP collateral from the minimum underlying price times virtual price in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle`.
 
 ## Related Patterns
 

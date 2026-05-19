@@ -70,6 +70,7 @@ Any config queued while a shorter delay is pending should still use the active d
 - Ensure numeric bounds are economically meaningful; a fee cap just below 100 percent may still be a confiscatory admin power.
 - Treat trust-list changes, vault enablement, maintainer admission, and bridge allowlists as critical parameter changes even when the value is boolean.
 - Do not label cooldown-bounded updates as timelocks unless users can observe a committed change before it becomes executable.
+- Bound claim, cooldown, and processing-period setters with hard upper limits when they affect exit liveness, not only fee or rate economics.
 
 ## Source Evidence
 
@@ -79,6 +80,7 @@ Any config queued while a shorter delay is pending should still use the active d
 - tBTC v2 shows that immediate trust-list changes depend on the outer owner or governance path when no internal delay is present.
 - Fluid uses cooldown-bounded rate authorization for some changes; this is useful risk reduction but weaker than public commit-and-delay semantics.
 - Stake DAO's UniversalBoostRegistry tests delay-reduction bypass attempts by queuing delay changes under the current delay before allowing shorter-delay config changes.
+- SlowMist's Avalon USDa audit flagged an unbounded saving-account process-period setter as an exit-liveness risk, reinforcing that time parameters need hard upper bounds.
 
 ## Related Patterns
 

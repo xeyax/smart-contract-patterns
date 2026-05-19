@@ -86,6 +86,7 @@ For redeemable or claim-bearing vault shares, endpoint checks must cover the cal
 - If roles or registries replace bitmaps, keep the same sender, receiver, delegated-spender, and redemption-contract coverage.
 - Emit events for bit changes so off-chain compliance and monitoring can reconstruct state.
 - Fuzz policy combinations, not only the happy-path private/public modes.
+- For blocklists or freeze lists, test each endpoint independently; a transfer must fail when either side is blocked if the policy is "neither endpoint may be blocked."
 - For regulated or permissioned shares, check the delegated transfer initiator as well as `from` and `to`; a non-eligible spender should not move eligible users' tokens through `transferFrom`.
 - If transfer rights intentionally inherit from the `from` account through normal ERC20 approval, document that delegation as a business requirement and test approved spenders explicitly.
 - Permission bits may include expiry timestamps, freeze bits, and endorsed system escrow/router bypasses, but bypasses should be narrow and documented.
@@ -99,6 +100,7 @@ For redeemable or claim-bearing vault shares, endpoint checks must cover the cal
 - Spiko's Stellar token delegates mint, transfer, redeem, and redemption-contract eligibility to a permission manager with admin-controlled whitelist roles.
 - Karpatkey's KPK token intentionally lets an allowlisted sender delegate transfers through ERC20 approval, illustrating that delegated-spender checks are policy-dependent and must be explicit.
 - Firelight's regulated vault-share flow checks transfer endpoints and includes frozen-account rescue mechanics for claim-ledger periods and amounts.
+- SlowMist's Avalon USDa audit reported an endpoint blocklist predicate that used `||` over negated sender/receiver checks, illustrating why one-sided negative tests are required for transfer policies.
 
 ## Related Patterns
 

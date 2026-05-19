@@ -54,6 +54,12 @@ function requireAccountCheck(address account) internal {
 
 Validation must re-enforce the same invariants as the immediate path. For lending, that usually means one active controller per account, collateral support, vault health, and no stale risk state.
 
+A spell-mediated variant stores the active position id and spell during the
+outer frame, allows only that spell to call privileged bank actions, and checks
+collateral value against borrow value after the spell returns. The temporary
+position and spell context must be cleared only after the final health check
+passes or the whole transaction reverts.
+
 ## Key Points
 
 - Hard-cap the deferred account and vault sets.
@@ -62,10 +68,12 @@ Validation must re-enforce the same invariants as the immediate path. For lendin
 - Restore caller/account context after checks, not before.
 - Validate that every controller or vault touched during the frame appears in the deferred sets.
 - Add tests where an account is unsafe mid-frame but safe at exit, and tests where a missing final check reverts.
+- If the frame exposes a temporary executor, prove callbacks cannot use the active frame to mutate unrelated positions.
 
 ## Source Evidence
 
 - Euler's Ethereum Vault Connector defers account and vault status checks during `call`, `controlCollateral`, and `batch` frames, caps internal check sets, restores context at outer-frame exit, and tests deferred scheduling followed by validation.
+- Alpha Homora V2 stores `POSITION_ID` and `SPELL` during `execute`, restricts bank actions to the active spell, checks collateral value against borrow value after spell execution, and clears the temporary context in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
 
 ## Related Patterns
 

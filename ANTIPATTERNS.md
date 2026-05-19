@@ -66,6 +66,12 @@ Pause blocks ALL operations including withdrawals.
 **Risk:** Users cannot exit during emergency.
 **Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
 
+### EOA Gate as Security Boundary
+Contract rejects contract callers with `tx.origin`, `isContract`, or both and presents that as security.
+**Symptoms:** `require(tx.origin == msg.sender)`, `Address.isContract(msg.sender)` checks, or README language claiming bots/MEV/bridges are blocked by EOA-only access.
+**Risk:** Constructor calls and account abstraction can bypass or invalidate the assumption; smart wallets and routers are broken; users lose explicit recipient and signed-intent protections.
+**Fix:** Use explicit recipients, signed intent, allowlists, bridge-aware receiver checks, slippage bounds, and action-specific authorization. EOA gates can be a UX guardrail only when documented as such and tested against smart-account flows.
+
 ## Oracle & Price
 
 ### Oracle Monoculture
@@ -168,7 +174,7 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation. Cross-contract controllers, vaults, and callback receivers need a shared reentrancy model; a per-contract lock is not sufficient when the callback can re-enter a sibling contract that shares accounting assumptions.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation. Cross-contract controllers, vaults, and callback receivers need a shared reentrancy model; a per-contract lock is not sufficient when the callback can re-enter a sibling contract that shares accounting assumptions. Refund callbacks during a temporary privileged execution context need explicit reentrancy reasoning, because the callback target may observe or reuse the still-active frame.
 
 ### Unkeyed Transient Execution Context
 Transient scratch storage or per-transaction context is shared across callers, wallets, or operations without a key.
@@ -265,6 +271,12 @@ Governor contract executes arbitrary calldata against any target.
 **Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism. Operator or receiver contract can hold funds and execute arbitrary calldata.
 **Risk:** Passed proposal becomes unrestricted execution primitive. Can drain treasury, brick protocol.
 **Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift.
+
+### Privileged Supply Mutation
+Minter or burner roles can arbitrarily change user balances or total supply.
+**Symptoms:** Role-gated `mint` or `burn` with no per-window cap, recipient scope, debt/backing condition, or user-specific authorization.
+**Risk:** Key compromise, governance error, or signer coercion can dilute holders, erase balances, or break reserve accounting even if the role is held by a multisig.
+**Fix:** Enforce protocol-level supply and balance-mutation bounds, tie emergency minting to realized debt or backing proofs, require user consent for burns except narrow slashing/settlement cases, and monitor every budget-consuming path.
 
 ## Lending / Borrowing
 

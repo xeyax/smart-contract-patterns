@@ -62,11 +62,13 @@ Starting from the latest block after a restart can silently skip pending packets
 - Keep monitors read-only and independent from keeper keys.
 - Treat monitor coverage as part of the operational runbook.
 - For cross-chain workers, alert on stuck packet states, repeated proof failures, skipped cursors, and already-verified races that do not reach destination execution.
+- Monitoring operator top-ups or interest distribution cadence does not replace on-chain claim reserves; it should alert before liveness fails, not define the solvency condition.
 
 ## Source Evidence
 
 - Stader BNBx includes off-chain agent checks for operation cadence and suspicious staking or withdrawal amounts around keeper-dependent liquid-staking flows.
 - GAIB's Symbiotic Super Sum simulation documents DVN worker state, proof submission, already-verified races, and the need for persistent state, redundant RPC, gas strategy, and monitoring before production use.
+- SlowMist's Avalon USDa audit provides a lower-confidence audit-source reminder that keeper or operator funding cadence must be paired with explicit reserve checks for user claims.
 
 ## Related Patterns
 

@@ -61,6 +61,11 @@ manager = CREATE3.deploy(managerSalt, managerBytecode);
 transceiver = CREATE3.deploy(transceiverSalt, transceiverBytecode);
 ```
 
+When an immutable messenger is deployed at the same address on every chain, that
+address can become part of endpoint authentication. This should be reserved for
+protocols that can reproduce bytecode and address derivation exactly across
+chains; otherwise use explicit counterpart registration instead.
+
 ## Key Points
 
 - Include version and deployer in salts unless true global address reuse is intended.
@@ -71,6 +76,7 @@ transceiver = CREATE3.deploy(transceiverSalt, transceiverBytecode);
 - Keep staged bytecode immutable or versioned if stored on-chain for deployment.
 - For retryable-ticket deployment, reserve enough destination gas, isolate nonce/address derivation through a dedicated sender, and make resends idempotent so expired or out-of-order retryables do not rewrite finalized mappings.
 - Constructor-agnostic proxies can keep deterministic wrapped-token addresses stable while initialization binds token metadata and bridge authority after deployment.
+- Same-address immutable messengers can authenticate the remote endpoint by comparing the bridge-reported origin sender to `address(this)`, but only when deployment artifacts prove identical bytecode and address reuse.
 
 ## Source Evidence
 
@@ -78,6 +84,7 @@ transceiver = CREATE3.deploy(transceiverSalt, transceiverBytecode);
 - Its salts bind version, deployer, role labels, token metadata, manager address, and external salt, with tests for collisions and successful different-salt deployments.
 - Arbitrum's atomic token bridge deployment flow uses retryable-ticket deployment, dedicated retryable sender contracts, idempotent resend logic, and tests for failed deployment, frontrun, and already-existing deterministic contracts.
 - Polygon zkEVM/Agglayer deploys wrapped-token proxies deterministically with constructor-agnostic bytecode and initializes bridge-owned token metadata through the bridge in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/lib/TokenWrappedTransparentProxy.sol` and `contracts/AgglayerBridge.sol`.
+- Avalanche ICM Teleporter documents universal same-address deployment for `TeleporterMessenger` and uses that invariant in endpoint authentication in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/README.md` and `contracts/teleporter/TeleporterMessenger.sol`.
 
 ## Related Patterns
 

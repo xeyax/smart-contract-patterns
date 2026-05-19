@@ -42,6 +42,13 @@ function liquidateAllowed(address account) external view returns (bool) {
 
 Borrow, redeem, and transfer checks can use conservative bounded collateral values. Liquidation checks can use liquidation thresholds or spot-like values so bounded-price divergence does not prematurely liquidate accounts. Some designs deliberately choose a stricter liquidation price, such as a lower bounded price, as a risk posture; that should be documented as a stricter liquidation policy rather than merged into borrower-grace guidance.
 
+Lending protocols can express the same action split as token-specific valuation
+factors. Borrow checks inflate debt value with a borrow factor, collateral
+checks discount wrapped collateral by a collateral factor, and liquidation
+conversion can apply a liquidation incentive factor. Those factors should be
+bounded at onboarding and read through the same oracle path used by the health
+check.
+
 The same idea can be represented as validation-status flags attached to the oracle value:
 
 ```solidity
@@ -80,6 +87,7 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - Test accounts between borrow and liquidation thresholds.
 - Monitor divergence between bounded and liquidation price modes.
 - Pair with collateral threshold separation so action scopes are coherent.
+- Bound borrow, collateral, and liquidation factors so action-scoped prices cannot become discretionary admin pricing.
 - If using status flags, document the required flag mask for each action and test that missing action-required flags fail closed.
 - If allowing stale-price collateral withdrawals, test the no-debt and with-debt branches separately.
 - For perps, test each oracle action class separately; do not assume a funding-safe price is liquidation-safe or settlement-safe.
@@ -91,6 +99,7 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - Suilend permits stale-price collateral exits only for no-debt accounts while debt-bearing withdrawal and borrow paths fail closed; evidence appears in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/sources/obligation.move` and oracle checks in `oracles.move`.
 - fx Protocol uses min/mid/max bounded prices and action modes for exchange, redeem, and liquidation in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/contracts/price-oracle` and `contracts/core/PoolConfiguration.sol`.
 - Drift uses action-scoped oracle validity for funding, settlement, liquidation, margin, trigger, and AMM-fill paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/math/oracle.rs`.
+- Alpha Homora V2 uses token-specific borrow, collateral, and liquidation factors around a shared source oracle in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/ProxyOracle.sol` and applies them in HomoraBank health and liquidation checks.
 
 ## Related Patterns
 
