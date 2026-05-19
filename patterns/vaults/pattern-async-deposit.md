@@ -134,6 +134,13 @@ Shares or assets can be moved into an escrow during a cooldown period:
 
 This works only if the claim basis is fixed or the later pricing moment is not user-selectable. A simple cooldown followed by a discretionary user claim can preserve timing optionality if the user can wait for a favorable exchange rate.
 
+For liquid-staking exits, the request can escrow shares and bind the claim to a
+historical exchange-rate lookup at the claimable timestamp. That prevents a user
+from choosing a later claim time to harvest rewards that accrued after the
+cooldown basis was fixed. This should be described as pricing protection, not as
+exit liveness: if claim or redeem is globally paused, the fixed basis does not
+guarantee users can exit.
+
 ### Queue Pricing Caveats
 
 Partial FIFO processing can produce different exchange rates for users in the same queue if each processed slice reads a new NAV. That may be acceptable when the queue explicitly prices each processed batch independently, but it is not the same as one epoch-wide clearing price.

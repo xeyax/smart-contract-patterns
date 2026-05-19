@@ -65,6 +65,7 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - For AMMs, operation modes should be separated by risk: stopping new deposits, swaps, and order placement does not automatically imply stopping withdrawals, cancel/settle maintenance, or other exit-enabling paths.
 - Emergency risk-reduction setters should not require fresh oracle reads unless the reduced state itself depends on that price; stale oracle liveness should not block containment.
 - Treat bypass-threshold increases as risk-increasing even when small transfers bypass monitoring; use one-shot guardians, separate roles, or governance for increases, while allowing monotonic threshold decreases through the limiter.
+- Automated monitors can trigger the limiter, but restoration should remain behind a separate admin path and the paused action matrix must be explicit.
 
 ## Source Evidence
 
@@ -72,10 +73,12 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - Raydium AMM exposes operation-mode gates for deposit, withdraw, swap, and orderbook behavior; the reusable lesson is the scoped mode matrix, not immediate owner-controlled parameter changes.
 - Euler V2 documentation shows that requiring fresh pull-oracle reads for a risk-reducing LTV setter can block emergency borrow-LTV zeroing and push operators toward unsafe temporary oracle stubs.
 - Lombard's bascule controls distinguish replay-monitor bypass threshold increases from monotonic decreases, including one-shot authority for threshold increases.
+- BENQI's PauseGuardian can pause minting and borrowing when proof-of-reserve monitoring detects token supply above reserves, while unpausing remains admin-controlled; the pause scope is visible through Comptroller pause flags in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/lending`.
 
 ## Related Patterns
 
 - [Selector-Scoped Authority](./pattern-selector-scoped-authority.md)
 - [Two-Step Authority Handoff](./pattern-two-step-authority-handoff.md)
 - [Oracle Staleness Risk](../oracles/risk-oracle-staleness.md)
+- [Peg Ratio Monitor](../oracles/pattern-peg-ratio-monitor.md)
 - [Unrestricted Admin](../../ANTIPATTERNS.md#unrestricted-admin)

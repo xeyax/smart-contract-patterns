@@ -51,12 +51,14 @@ The final balance-delta check is the user-facing safety boundary, not the backen
 - Allowlist aggregators, wrappers, selectors, and approval targets.
 - Enforce final balance-delta slippage after fees.
 - Bind user-signed terms to input, output, receiver, deadline, and fee.
+- If arbitrary calldata is permitted, separately allowlist the trader/executor and router target, and measure the final output balance delta after the call.
 - Keep fallback behavior explicit; do not swallow arbitrary failures as success.
 - Reset or scope approvals around route execution.
 
 ## Source Evidence
 
 - Defi Saver V3 gates exchange aggregators and wrappers through registries, supports fallback routing, and checks final balance-delta slippage after route execution.
+- fx Protocol's permissioned swap utility separately allowlists trader and router, executes calldata, and enforces output through balance-delta and `minOut` checks in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/contracts/common/utils/PermissionedSwap.sol`.
 
 ## Related Patterns
 

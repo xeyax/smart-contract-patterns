@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories inspected so far: 134 repositories across 14 batches.
+- Source repository inspections so far: 141 across 15 batches.
 
 ## First Batch Repositories
 
@@ -205,6 +205,18 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Yearn V3 | `yearn/yearn-vaults-v3` | Yield Aggregator |
 | Blend Pools V2 | `blend-capital/blend-contracts-v2` | Lending |
 
+## Fifteenth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| BENQI | `benqi-fi/BENQI-Smart-Contracts` | Lending / Liquid Staking |
+| Drift Protocol | `drift-labs/protocol-v2` | Derivatives deep pass |
+| fx Protocol | `AladdinDAO/fx-protocol-contracts` | Dual-Token Stablecoin deep pass |
+| QuickSwap Periphery | `QuickSwap/quickswap-periphery` | DEX periphery deep pass |
+| Aave V2 | `aave/protocol-v2` | Lending |
+| Derive V2 | `derivexyz/v2-core` | Derivatives |
+| Polygon zkEVM Bridge | `0xPolygonHermez/zkevm-contracts` | Canonical Bridge |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -222,6 +234,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-12-findings.md` — accepted and deferred catalog updates from the second expanded source-discovery batch.
 - `batch-13-findings.md` — accepted and deferred catalog updates from the third expanded source-discovery batch.
 - `batch-14-findings.md` — accepted and deferred catalog updates from the fourth expanded source-discovery batch.
+- `batch-15-findings.md` — accepted and deferred catalog updates from the fifth expanded source-discovery batch.
 
 ## Notes
 

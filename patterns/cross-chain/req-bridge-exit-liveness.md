@@ -65,6 +65,7 @@
 - Pause identifiers distinguish deposits, proof submission, finalization, and lockbox movement.
 - Exit pauses have maximum duration or explicit renewal procedures.
 - Users know whether timed-out redemptions, refunds, or standard proof-based exits remain callable.
+- If an emergency mode blocks both sends and claims, document it as a trusted break-glass exception rather than as normal liveness-preserving pause design.
 
 ## Source Evidence
 
@@ -79,6 +80,7 @@
 - Linea message service tests show directional pause behavior where sends and claims can be paused independently in `/private/tmp/defillama-source/Consensys__linea-monorepo/contracts/test/hardhat/messaging/l1/L1MessageService.ts`.
 - Gnosis xDAI bridge USDS migration docs and tests cover router compatibility, legacy message handling, direct-route failure cases, and liquidity buffers for claims in `/private/tmp/defillama-source/gnosischain__tokenbridge-contracts-xdaibridge/USDSMigration.md` and bridge tests.
 - Stargate V2 migration tests pause new sends, drain buses, clear credits, revoke mint authority, burn locked supply or credit, reconnect pools, and revalidate invariants in `/private/tmp/defillama-source/stargate-protocol__stargate-v2/packages/stg-evm-v2/test/stargatePoolMigratable/OFTPoolToPoolMigrationTest.t.sol`.
+- Polygon zkEVM/Agglayer emergency mode can block bridge sends and claim finalization in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`, illustrating a broad break-glass exception that must be operationally justified.
 
 ## Related Patterns
 

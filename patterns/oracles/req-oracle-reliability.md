@@ -49,6 +49,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Larger deviations create larger arbitrage opportunities
 - Accepted state updates should be bounded by both value delta and update cadence
 - Lending collateral oracles should preserve enough liquidation buffer that an allowed oracle jump cannot instantly push healthy accounts below the intended liquidation threshold.
+- Perps or portfolio-margin systems should define action-specific validity for funding, settlement, liquidation, trigger, margin, and AMM-fill paths instead of relying on one global fresh/stale flag.
 
 ### Violations
 - Large deviation thresholds (e.g., 1% for Chainlink)
@@ -127,6 +128,7 @@ When evaluating an oracle integration, verify:
 | Wrappers | Does the feed preserve source freshness and round semantics? |
 | Bridged Rates | Is the source update timestamp checked separately from the message receive timestamp? |
 | Report Ranges | Are off-chain source ranges finalized, contiguous, and non-sparse? |
+| Action Scope | Which price-validity flags are required for each value-bearing action? |
 
 ---
 

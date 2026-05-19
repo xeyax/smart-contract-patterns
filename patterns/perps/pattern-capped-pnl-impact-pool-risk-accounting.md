@@ -45,6 +45,12 @@ require(pendingPnl <= poolValue * maxPnlFactor / FACTOR, "pnl factor");
 
 When a trader closes with positive PnL, the payout deducts from pool value. When a trade receives positive price impact, the impact-pool balance funds that improvement rather than treating it as free inventory.
 
+A variant uses a PnL or fee pool as the first settlement boundary and then falls
+through to insurance, bankruptcy handling, or socialized loss when capped pools
+are insufficient. In that design, positive unrealized PnL may receive a lower
+asset weight as exposure grows, and settlement should reject stale or divergent
+oracle states before moving value.
+
 ## Key Points
 
 - Cap positive and negative PnL according to market risk factors.
@@ -52,11 +58,13 @@ When a trader closes with positive PnL, the payout deducts from pool value. When
 - Gate withdrawals, decreases, or market actions when max-PnL factors are exceeded.
 - Use fresh oracle prices for pool-value and PnL checks.
 - Document that caps constrain pool exposure; they do not remove insolvency risk under stress.
+- Define the order of loss absorption: PnL pool, fee pool, insurance or security module, bankruptcy, and any socialized loss.
 - Test positive PnL caps, negative PnL caps, impact-pool depletion, and action gating.
 
 ## Source Evidence
 
 - GMX Synthetics computes pool value from token inventory, pending fees, capped PnL, and impact pools, validates max-PnL factors, and tests capped-PnL decrease behavior.
+- Drift caps PnL settlement through PnL and fee-pool limits, applies positive-PnL asset-weight discounts, and falls through liquidation, bankruptcy, and socialized-loss paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/controller/pnl.rs` and `controller/liquidation.rs`.
 
 ## Related Patterns
 

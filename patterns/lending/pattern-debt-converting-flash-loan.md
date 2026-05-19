@@ -51,14 +51,17 @@ The debt conversion path should be indistinguishable from a normal borrow for co
 - Enforce a fee floor even when principal converts to debt.
 - Cap repayment accounting so overpayment cannot create negative debt.
 - Include active flash-loan amounts in exchange-rate cash logic.
+- If debt is opened on behalf of another account, consume borrow delegation or credit allowance during settlement.
 - Test full repay, partial repay, fee-only repay, failed risk checks, and reentrancy.
 
 ## Source Evidence
 
 - Venus flash loans allow unpaid balances to become borrower debt through the normal borrow path, with market, delegate, fee, repayment, and accounting checks.
+- Aave V2 flash loans require repayment plus premium for mode `NONE`, while nonzero modes route post-callback unpaid principal through ordinary borrow validation and stable or variable debt minting in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPool.sol`; tests cover variable debt conversion and delegated stable debt.
 
 ## Related Patterns
 
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
 - [Lazy Borrow Index](./pattern-lazy-borrow-index.md)
+- [Nontransferable Debt Token Delegation](./pattern-nontransferable-debt-token-delegation.md)
 - [Hook/Callback Trust](../../ANTIPATTERNS.md#hookcallback-trust)

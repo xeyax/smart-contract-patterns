@@ -86,6 +86,14 @@ require(lastReportBlock < block.number, "same block report");
 
 This reduces same-block sandwiching around public report execution, at the cost of one-block latency.
 
+### Signed Payload Quorum
+
+Some systems submit one payload with several reporter signatures instead of
+separate on-chain submissions. The same consensus requirements still apply:
+reject duplicate signers, bind deadline and timestamp, enforce monotonic updates
+and stale checks, and validate confidence or heartbeat bounds before accepting
+the payload.
+
 ## Key Points
 
 - Key duplicate submissions by reporter and report id.
@@ -98,6 +106,7 @@ This reduces same-block sandwiching around public report execution, at the cost 
 - Serialize accepted reports when downstream execution must process them in order.
 - Add a same-block settlement fence when report execution changes rewards, claim roots, transfers, or migration prices that users can act on immediately.
 - Add a downstream quarantine or pause path when an agreed payload fails protocol sanity checks; same-payload quorum proves reporter agreement, not report safety.
+- For signed-payload quorum, sort or otherwise deduplicate signers before counting and bind signatures to the exact feed, timestamp, deadline, and payload fields.
 
 ## Common Pitfalls
 
@@ -118,6 +127,7 @@ This reduces same-block sandwiching around public report execution, at the cost 
 - StakeWise V2 prevents reward reports and dependent reward, Merkle, transfer, claim, or migration actions from finalizing in the same block.
 - M0 validates sorted unique reporter signatures, stores monotonic per-reporter timestamps, uses the minimum valid signer timestamp for accepted collateral reports, and rejects stale reports relative to dependent state.
 - Mantle mETH tracks duplicate and replacement reports per reporter, aligns report windows, forwards only after quorum, and quarantines or pauses downstream state when accepted payloads fail sanity checks.
+- Derive V2/Lyra feed contracts accept signed oracle payloads with reporter threshold checks, duplicate rejection, deadline and timestamp binding, stale checks, monotonic updates, confidence bounds, and settlement heartbeat validation in `/private/tmp/defillama-source/derivexyz__v2-core/src/feeds`.
 
 ## Related Patterns
 

@@ -40,11 +40,24 @@
 - Pending PnL is compared against configured factors before ADL orders are valid.
 - ADL creation and execution are separate monitored actions.
 
+## R4: Backstop Exhaustion And Socialized Loss Are Explicit
+
+**If insurance, fee pools, or security modules can be exhausted, the protocol must define the next loss-allocation step before insolvency occurs.**
+
+### What This Means
+
+- Backstop balance and depletion checks are explicit.
+- Socialized loss, bankruptcy, or deleveraging updates name the accounts or pools affected.
+- Tests cover partial backstop use, full exhaustion, and the transition into socialized loss.
+
 ## Source Evidence
 
 - GMX Synthetics validates reserves and open-interest reserve factors, implements funding-fee rounding rules, and gates ADL state/order validity on fresh oracle timestamps and pending-PnL thresholds.
+- Drift caps reserve-paid funding, uses liquidation and bankruptcy fallback paths, and supports socialized loss through funding/PnL settlement mechanics without being cited as direct ADL evidence.
+- Derive V2 uses a security module and cash-asset insolvency accounting with tests for socialized losses after backstop exhaustion.
 
 ## Related Patterns
 
 - [Capped PnL Impact Pool Risk Accounting](./pattern-capped-pnl-impact-pool-risk-accounting.md)
+- [Fee-Pool Capped Asymmetric Funding](./pattern-fee-pool-capped-asymmetric-funding.md)
 - [Oracle Staleness Risk](../oracles/risk-oracle-staleness.md)

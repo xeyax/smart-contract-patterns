@@ -80,6 +80,7 @@ function claim(Message calldata message, Proof calldata proof) external {
 - Linea accumulates ordered rolling hashes and sparse Merkle roots in `/private/tmp/defillama-source/Consensys__linea-monorepo/contracts/src/messaging/l1/L1MessageService.sol` and `L1MessageManager.sol`, with claim tests in `contracts/test/hardhat/messaging/l1/L1MessageService.ts`.
 - Agglayer combines domain exit roots in `/private/tmp/defillama-source/agglayer__agglayer-contracts/contracts/AgglayerGER.sol` using `contracts/lib/GlobalExitRootLib.sol`.
 - Agglayer bridge claims set nullifiers before callbacks in `AgglayerBridge.sol`, with reentrancy tests in `BridgeV2ClaimMessageReentrancy.test.ts`.
+- Polygon zkEVM/Agglayer contracts update mainnet and rollup exit roots, compute global exit roots, and prove claims against root histories in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerGER.sol` and `contracts/AgglayerBridge.sol`.
 
 ## Real-World Examples
 

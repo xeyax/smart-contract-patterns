@@ -50,6 +50,7 @@
 - Yield calculations subtract pending exit obligations before reporting surplus.
 - Failed push payments convert to user-specific pull claims rather than becoming yield.
 - Queue settlement is bounded and preserves FIFO or documented ordering.
+- Exit requests that use a cooldown should either fix the claim entitlement or bind the claim basis to a historical exchange rate so post-maturity claim timing cannot harvest later rewards.
 
 ## Verification Checklist
 
@@ -64,6 +65,7 @@
 
 - StakeWise V2 tracks `totalPenalty`, repays penalties from later rewards before distribution, and applies outstanding penalty during migration.
 - Lista's stkBNB strategy aggregates unstake requests, distributes in bounded FIFO batches, converts failed pushes to manual claims, and excludes pending unstake amounts from harvestable yield.
+- BENQI sAVAX escrows shares for cooldown exits and claims against a historical rate lookup at the claimable timestamp in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/sAVAX/StakedAvax.sol`, with pause liveness remaining a separate risk.
 
 ## Related Patterns
 

@@ -48,6 +48,12 @@ function relayMessage(Message memory message) external {
 
 Retry relays use the same message hash, not a new id, and must re-authenticate the source message before re-execution.
 
+Low-level call success is not always semantic acknowledgement by the receiver.
+If the destination can be an EOA or a contract with no return-value convention,
+document whether delivery means "call did not revert" or "application-level
+receiver acknowledged the message." Applications that need semantic acceptance
+should make the receiver callback return or record an explicit acknowledgement.
+
 ## Key Points
 
 - Bind message version, source chain, destination chain, nonce, sender, target, value, gas limit, and payload into the message hash.
@@ -55,10 +61,12 @@ Retry relays use the same message hash, not a new id, and must re-authenticate t
 - Preserve failed-message state only as retry eligibility, not as proof that the message is safe.
 - Scope temporary sender context to the relay call and clear it afterward.
 - Document that retry is not the same as refund; receivers that can never succeed need an application-level recovery path.
+- Distinguish low-level delivery success from semantic receiver acknowledgement.
 
 ## Source Evidence
 
 - Optimism Bedrock's `CrossDomainMessenger` tracks successful and failed messages, uses versioned message hashes, sets temporary cross-domain sender context during relay, and tests retry-after-failure plus no-retry-after-success behavior.
+- Polygon zkEVM/Agglayer treats low-level successful destination calls as delivered and permits EOA value delivery without application execution in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`.
 
 ## Related Patterns
 

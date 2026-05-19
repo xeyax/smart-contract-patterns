@@ -117,6 +117,7 @@ Treat wrappers as new oracle implementations:
 - Reject `latestAnswer()` integrations for value-bearing operations because they cannot check freshness.
 - Do not rely on off-chain monitoring as the only guard for on-chain state changes.
 - For bridged rate providers, distinguish source update time from destination relay time; `block.timestamp` on the destination proves only when the message executed.
+- A fallback oracle that triggers only when a source is missing or non-positive is not multi-source validation if it ignores source freshness.
 
 ### Conservative Zeroing Can Still Be Liveness Risk
 
@@ -229,6 +230,7 @@ function isPriceStale() public view returns (bool) {
 - **Compound (2020)** — DAI oracle manipulation during flash crash
 - **Arbitrum Sequencer Outage** — multiple protocols affected by stale prices
 - Rocket Pool's Polygon rate relay and Symbiotic Relay's voting-power calculators show wrapper-specific freshness hazards: the former can confuse source and destination timestamps, while the latter can zero voting power on stale prices.
+- Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
 
 ## Related Patterns
 

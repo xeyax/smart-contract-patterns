@@ -62,6 +62,11 @@ The accumulator uses the previous reserve ratio over elapsed time. Periphery rea
 
 For V2-style sliding windows, store observations in epoch buckets and avoid overwriting the same bucket twice. A usable observation should be old enough to cover the requested window, recent enough to be inside the configured window, and paired with counterfactual current cumulative prices rather than requiring a pool sync.
 
+For fixed-window V2 readers, initialize and gate the average before value-bearing
+`consult` calls. A reader that stores zero averages until the first update should
+fail closed or expose an explicit readiness flag so callers do not treat zero as
+a valid price.
+
 For V3-style accumulators:
 
 ```
@@ -141,6 +146,7 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Ignoring harmonic mean liquidity** | TWAP can include thin or zero-liquidity manipulation windows | Require minimum windowed harmonic mean liquidity |
 | **Mixing V2 and V3 assumptions** | Wrong price math or readiness checks | Use cumulative-price windows for V2 pools and tick/liquidity observations for V3 pools |
 | **Same-period V2 overwrite** | Oracle observation window collapses or becomes too recent | Skip updates until the next period bucket |
+| **Unready fixed-window V2 average** | Default zero averages can leak into value-bearing reads | Gate `consult` until the first successful update initializes averages |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -234,6 +240,7 @@ Before using a TWAP for value-bearing operations:
 - [Uniswap V3 Oracle](https://docs.uniswap.org/concepts/protocol/oracle) — native TWAP implementation
 - [Uniswap V2](https://github.com/Uniswap/v2-core) — cumulative reserve-ratio price accumulators with counterfactual current cumulative reads in periphery
 - PancakeSwap V2 periphery includes a sliding-window oracle that buckets observations by period, rejects missing or too-recent observations, and computes current cumulative prices counterfactually.
+- QuickSwap/Uniswap V2 example fixed-window oracle code illustrates the need to gate `consult` until the first update initializes nonzero averages; its sliding-window example rejects missing observations.
 - [Euler Finance](https://docs.euler.finance/euler-protocol/getting-started/methodology/oracle-rating) — uses TWAP for price discovery
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
 

@@ -31,7 +31,7 @@ Internal implementation details exposed through contract interfaces.
 
 ### Prose-Only Security Guardrail
 Documentation, deployment scripts, or comments describe a security limit that the contract never enforces.
-**Symptoms:** README says withdrawals are capped, minimums apply, or unsafe amounts are rejected, but no runtime check or invariant test exists.
+**Symptoms:** README says withdrawals are capped, minimums apply, or unsafe amounts are rejected, but no runtime check or invariant test exists. Constants or comments declare risk bounds, but privileged setters assign the proposed value without checking those bounds.
 **Risk:** Operators, users, and auditors rely on a nonexistent control; later code changes preserve the prose while behavior remains unsafe.
 **Fix:** Encode the guard in contract logic or tests, or explicitly mark it as an operational policy outside the trust-minimized path.
 
@@ -98,7 +98,7 @@ Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfe
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection.
 
 ### tx.origin-Keyed Economic Entitlement
 Discounts, fee tiers, gauges, or other economic entitlements are keyed by `tx.origin`.

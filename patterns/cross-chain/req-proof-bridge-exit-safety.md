@@ -28,6 +28,7 @@
 
 - The nullifier binds source transaction or message id, log location, and event domain.
 - Ambiguous proof encodings are normalized before hashing.
+- Packed proof ids, global indexes, or proof-position encodings are canonicalized before nullifier use.
 - Duplicate finalization fails before custody changes.
 
 ## R3: Emitter And Event Are Authenticated
@@ -77,6 +78,7 @@
 - Migration paths in Polygon predicates illustrate the need to preserve exit boundaries before moving custody.
 - Optimism Bedrock gates withdrawal finalization on proven output roots, proof maturity, and dispute-game validity.
 - tBTC v2 gates Bitcoin-side bridge transitions on SPV and relay proofs while documenting maintainer trust in canonical chain data.
+- Polygon zkEVM/Agglayer validates canonical global indexes before using claim nullifiers in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`, with tests for invalid global-index encodings.
 
 ## Related Patterns
 

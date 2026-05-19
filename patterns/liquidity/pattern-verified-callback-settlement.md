@@ -39,6 +39,12 @@ Periphery callback handlers validate `msg.sender` against the canonical factory-
 
 Some shared-liquidity systems support callback modes that skip direct transfers or net transfers across integrated modules. In that variant, the callback still needs a final input/output balance check against the core ledger before the operation commits.
 
+V2 flash-swap receivers are the same trust shape even though the callback name and
+pair model differ: the receiver must verify `msg.sender` is the factory-derived
+pair for the expected tokens before doing arbitrary work and repaying. Example or
+demo receivers are useful evidence for the mechanics, but production code should
+still add the same reentrancy, slippage, and token-safety review as any callback.
+
 ## Key Points
 
 - Lock the pool for the full callback-settlement operation.
@@ -52,6 +58,7 @@ Some shared-liquidity systems support callback modes that skip direct transfers 
 
 - Uniswap V3 and PancakeSwap V3 use optimistic mint/swap/flash callbacks, pool-wide locks, callback caller validation, and post-callback balance checks with underpayment tests.
 - Fluid liquidity operations include `SKIP_TRANSFERS` and `NET_TRANSFERS` style settlement modes that still enforce final balance and total-input checks around callbacks.
+- QuickSwap/Uniswap V2 example flash-swap receivers validate callback sender against the factory-derived pair before repayment in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/contracts/examples/ExampleFlashSwap.sol`; treat this as example-level evidence.
 
 ## Related Patterns
 

@@ -27,7 +27,8 @@
 
 ## How It Works
 
-The bridged token stores immutable bridge and remote-token addresses:
+The bridged token stores immutable bridge and remote-token addresses, or stores
+only bridge authority while the bridge registry owns the remote-token mapping:
 
 ```solidity
 contract BridgeMintableToken {
@@ -52,6 +53,7 @@ The bridge validates both local token class and remote-token pairing before chan
 
 - Make bridge and remote-token identity immutable or migration-gated.
 - Check the declared remote token before every bridge mint or burn.
+- If the token stores only bridge authority, keep origin identity in bridge mappings and deterministic deployment salts, and validate that mapping before mint or burn.
 - Support an interface marker so the bridge can reject arbitrary ERC20s pretending to be mintable bridge tokens.
 - Keep token factory deployment deterministic where users need predictable addresses.
 - Treat bridge upgrades as mint-authority migrations that must preserve pending exits.
@@ -59,6 +61,7 @@ The bridge validates both local token class and remote-token pairing before chan
 ## Source Evidence
 
 - Optimism's mintable ERC20 stores immutable bridge and remote token fields, restricts mint and burn to the bridge, and the standard bridge checks the local token's remote-pair identity before finalizing.
+- Polygon zkEVM/Agglayer wrapped tokens store bridge authority while the bridge keeps origin token identity in mappings and deterministic deployment salts in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol` and `contracts/lib/TokenWrappedBridgeUpgradeable.sol`.
 
 ## Related Patterns
 
