@@ -22,6 +22,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Stale data can enable arbitrage or cause incorrect liquidations
 - Wrapper feeds must expose the oldest underlying source timestamp, not a synthetic current timestamp
 - Composite feeds must propagate the oldest or limiting timestamp from every leg used in the price path, including multiplication chains.
+- Chainlink-compatible consumers must not discard the wrapper-provided timestamp and then rely only on positivity or decimal normalization.
 - Bridged rate providers must expose source-chain freshness separately from destination-chain relay execution time
 - Off-chain state reports over block ranges must be finalized and contiguous: each accepted range starts at the previous range's end plus one, ends after it starts, and is older than the configured finalization buffer.
 - Oracle node graphs must normalize leaf price and timestamp data and make
@@ -143,6 +144,8 @@ oracle.getPrice() should not revert under normal conditions
 - Uniswap swap-router TWAP slippage checks reject paths whose observation data is
   unavailable or insufficient in `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/base/OracleSlippage.sol:17`
   and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/OracleSlippage.spec.ts:339`.
+- Inverse FiRM's pessimistic feed wrappers propagate the older underlying
+  `updatedAt` timestamp in `/private/tmp/defillama-source/InverseFinance__FiRM/src/feeds/PessimisticFeed.sol`, while its main oracle illustrates why consumers still need to check the timestamp returned by `latestRoundData` instead of reading only the price in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Oracle.sol`.
 
 ---
 
@@ -165,6 +168,7 @@ When evaluating an oracle integration, verify:
 | Composite Metadata | Are source mappings unique and complete before a composite price path can refresh? |
 | Node Graphs | Are leaf values normalized and guarded by explicit staleness/deviation/fallback nodes before value-bearing use? |
 | Execution TWAP | Does every route hop have enough observation history before the path is accepted? |
+| Wrapper Consumption | Does the consumer use the wrapper's returned timestamp and round metadata, not only the answer value? |
 
 ---
 

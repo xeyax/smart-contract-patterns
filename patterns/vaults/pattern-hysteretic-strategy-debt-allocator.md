@@ -76,12 +76,16 @@ post-call token and cToken balance deltas.
 - Return machine-readable trigger data for keepers, but re-check inside execution.
 - For lending-reserve wrappers, cap allocation per reserve, keep an explicit unallocated bucket, and reconcile post-CPI token and receipt-token deltas.
 - Treat reserve allowlisting, stale reserve data, and minimum invest delay as part of allocation safety, not only admin configuration.
+- Solver-driven flash rebalances should still run the same strategy checks: minimum time between rebalances, slippage caps, idle-buffer preservation, premium/discount bounds, and predicted return versus swap cost.
+- Connector allocation should validate cadence and yield before moving funds between idle and external connectors, and should expose emergency withdraw behavior for impaired connectors.
 
 ## Source Evidence
 
 - Yearn V3 vault periphery's `DebtAllocator.sol` gates debt updates by change size, wait time, idle buffer, strategy liquidity, max debt, base fee, and unrealized-loss checks in `/private/tmp/defillama-source/yearn_vault-periphery/src/debtAllocators/DebtAllocator.sol`.
 - `src/test/debtAllocators/TestDebtAllocator.t.sol` covers trigger behavior, debt limits, wait periods, and liquidity-dependent updates.
 - Kamino KVault allocates vault assets into whitelisted lending reserves with target allocations, per-reserve caps, an unallocated bucket, stale-reserve and invest-delay checks, and post-CPI balance reconciliation in `/private/tmp/defillama-source/Kamino-Finance_kvault/programs/kvault/src/state.rs`, `handlers/handler_update_reserve_allocation.rs`, `operations/vault_operations.rs`, and `operations/vault_checks.rs`.
+- Tokemak V2 executes solver-driven flash rebalances only after strategy verification of time gaps, slippage, idle thresholds, destination premium/discount, and predicted swap-cost recovery in `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/vault/AutopoolETH.sol` and `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/strategy/AutopoolETHStrategy.sol`.
+- mStable savings contracts rebalance a bounded connector fraction on cadence, validate connector yield, and refresh exchange rates after allocation changes in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/savings/SavingsContract.sol`.
 
 ## Real-World Examples
 

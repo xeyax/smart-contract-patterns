@@ -61,6 +61,20 @@ function commitOracle(address asset) external {
 
 If the current oracle is disabled, consumers must either use a valid accepted pending oracle or fail closed.
 
+### Maturity-Gated Feed Switch Variant
+
+For fixed-maturity instruments, the effective feed can switch automatically at maturity while pre-maturity replacement remains timelocked:
+
+```solidity
+function latestRoundData() external view returns (Round memory) {
+    if (block.timestamp >= maturity) return afterMaturity.latestRoundData();
+    if (block.timestamp >= switchReadyAt) return pendingFeed.latestRoundData();
+    return previousFeed.latestRoundData();
+}
+```
+
+This variant should expose whether a switch is queued, reject maturity-in-the-past deployment, and preserve feed decimals and freshness semantics across both feeds.
+
 ## Implementation
 
 ### Key Points
@@ -70,10 +84,12 @@ If the current oracle is disabled, consumers must either use a valid accepted pe
 - Document whether opt-in is per-user, per-vault, or per-asset.
 - Treat oracle divergence as a fairness and accounting risk in shared pools.
 - Keep removal of an active underlying or oracle blocked until dependent consumers migrate.
+- For maturity-gated switches, test pre-maturity queued state, cancellation, maturity override, and decimal mismatch rejection.
 
 ## Source Evidence
 
 - Aera v3 schedules oracle updates, commits them after a delay, disables current oracles, and lets consumers accept a pending oracle before global commit in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/periphery/OracleRegistry.sol`.
+- Inverse FiRM switches Pendle PT feeds through a timelock before maturity and automatically uses the after-maturity feed once maturity passes in `/private/tmp/defillama-source/InverseFinance__FiRM/src/util/FeedSwitch.sol`.
 
 ## Real-World Examples
 

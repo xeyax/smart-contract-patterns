@@ -104,6 +104,7 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - Swap or bridge executors should scope approval-only spenders separately from callable targets when `approveTo` differs from `callTo`.
 - If a cross-chain governance router executes arbitrary target calldata after message authentication, the batch hash protects substitution but does not provide selector-scoped authority.
 - Restaking module managers should bind module/operator identity, target, selector, and value-transfer permissions; a broad manager path that bypasses those fields is governance-grade authority.
+- Managed vault execution should route calls through contract and asset guards that classify transaction type, public accessibility, and post-call tracking; replacing those guards is a privileged configuration change.
 
 ## Source Evidence
 
@@ -117,6 +118,7 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - LI.FI allowlists target-selector pairs and uses a special approve-only selector for `approveTo` addresses that differ from swap call targets in `/private/tmp/defillama-source/lifinance__contracts/src/Libraries/LibAllowList.sol` and `src/Helpers/SwapperV2.sol`.
 - Nomad governance router authenticates inbound governance batches but can execute arbitrary target calldata from accepted batches in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-core/contracts/governance/GovernanceRouter.sol`, making selector scoping a separate governance requirement.
 - Puffer module management routes restaking operations through `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferModuleManager.sol` and `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferProtocol.sol`, with guardian payload checks in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/GuardianModule.sol`.
+- dHEDGE manager execution resolves contract guards first, falls back to asset guards, validates transaction type and caller access, and optionally calls tracking guards after execution in `/private/tmp/defillama-source/dhedge__V2-Public/contracts/PoolLogic.sol`.
 
 ## Related Patterns
 

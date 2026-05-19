@@ -89,6 +89,7 @@ This keeps emergency inflation tied to realized system debt instead of discretio
 - If tokenomics are calendar-denominated, avoid hardcoded block-time conversions unless drift is acceptable and monitored. Timestamp or epoch budgets track annual supply limits more directly.
 - Epoch inflation can reduce the emission rate on a fixed schedule while also
   capping mintable supply to the amount available in the current epoch.
+- Epoch governors that can nudge emissions should have hard per-epoch bounds and tests around both increases and decreases.
 
 ## Source Evidence
 
@@ -100,6 +101,7 @@ This keeps emergency inflation tied to realized system debt instead of discretio
   supply, and guards mints in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:61-132`,
   `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:167-220`,
   and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:333-340`.
+- Aerodrome V1 bounds weekly emissions, tail emissions, growth, team rate, and epoch-governor nudges in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Minter.sol`, with mint authority in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Aero.sol`.
 
 ## Related Patterns
 

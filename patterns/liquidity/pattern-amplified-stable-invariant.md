@@ -42,6 +42,10 @@ stored balances. Those extensions do not change the core requirement: invariant
 solvers, amplification ramps, and rate scaling must remain bounded and tested
 across imbalanced states.
 
+Simulation repositories are useful for parameter research, but should be
+labeled as simulation evidence unless deployed code or tests confirm the exact
+invariant and ramp behavior.
+
 ## Key Points
 
 - Bound amplification and ramp speed.
@@ -50,6 +54,7 @@ across imbalanced states.
 - Apply slippage bounds to user-facing swaps and liquidity operations.
 - Monitor off-peg balances because amplification increases loss if assets are not actually substitutable.
 - Pair with virtual-price monotonicity requirements for LP accounting.
+- When the stable basket supports fee-on-transfer collateral, compute invariant inputs from the actual received amount rather than the requested transfer amount.
 
 ## Source Evidence
 
@@ -59,6 +64,8 @@ across imbalanced states.
   `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:760-870`,
   `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/general/test_donation_get_D.py:7-30`,
   and `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/general/test_ramp_A.py:6-90`.
+- mStable Masset uses StableSwap-style invariant validation for mint, swap, and redemption paths, applies slippage checks, supports A ramping, and measures transfer-fee assets before invariant accounting in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/masset/MassetLogic.sol` and `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/masset/versions/MV2.sol`.
+- Yield Basis simulation material under `/private/tmp/defillama-source/yield-basis__yb-simulations/btcusd` explores stableswap invariant parameters, amplification, price-scale behavior, and dynamic fee variants; treat it as simulation-only evidence rather than deployed invariant proof.
 
 ## Related Patterns
 

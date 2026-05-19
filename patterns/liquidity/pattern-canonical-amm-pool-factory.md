@@ -60,6 +60,7 @@ factory should define exactly which immutable configuration makes a pool unique.
   in one registration flow.
 - For bin or versioned AMMs, include bin step, version, or tier metadata in the
   pool key and route path.
+- If governance can approve multiple factory paths over time, preserve canonical pool identity inside each approved path and test migration or reapproval constraints.
 
 ## Source Evidence
 
@@ -79,6 +80,7 @@ factory should define exactly which immutable configuration makes a pool unique.
   version/bin-step metadata through routing in `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:52-68`,
   `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:184-225`,
   and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:330-390`.
+- Aerodrome V1 creates deterministic sorted-token pools in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/factories/PoolFactory.sol` and constrains factory-path migration in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/factories/FactoryRegistry.sol`.
 
 ## Related Patterns
 

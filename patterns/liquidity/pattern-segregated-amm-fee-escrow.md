@@ -67,11 +67,13 @@ function _updateFor(address account) internal {
 - Checkpoint LPs before minting, burning, and fee claims.
 - Make the escrow pay only proven accrued fees, not arbitrary token balances.
 - Test swaps, mints, burns, transfers, claims, and zero-supply periods.
+- Restrict escrow claims to the owning pool so users cannot call fee-transfer helpers directly.
 
 ## Source Evidence
 
 - Velodrome V2 removes fees from pool reserves, indexes fee entitlement per LP holder, and pays through `PoolFees` in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Pool.sol` and `contracts/PoolFees.sol`.
 - Velodrome tests cover fee claiming and LP-transfer accounting in `/private/tmp/defillama-source/velodrome-finance__contracts/test/PoolFees.t.sol`.
+- Aerodrome V1 moves fees into a separate `PoolFees` contract and restricts fee claims to the pool in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Pool.sol` and `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/PoolFees.sol`.
 
 ## Real-World Examples
 

@@ -73,6 +73,7 @@ function notifyRewardAmount(uint256 amount) external {
 - Aerodrome redistributes excess through `contracts/gauge/Redistributor.sol` and `_redistribute`.
 - Velodrome V2 killed gauges reject new deposits, preserve withdrawals, and redirect pending or future emissions in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Gauge.sol` and `contracts/Voter.sol`.
 - Velodrome Superchain leaf gauges and voters route cross-chain emissions and kill-state behavior through `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/gauges/LeafGauge.sol` and `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/voter/LeafVoter.sol`.
+- Aerodrome V1 returns killed-gauge claimable emissions to the minter and tests killed-gauge distribution behavior in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Voter.sol` and `/private/tmp/defillama-source/aerodrome-finance__contracts/test/Voter.t.sol`.
 
 ## Real-World Examples
 

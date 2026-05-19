@@ -57,6 +57,7 @@ external prices before dividing by LP supply.
 - Regression-test every configured pool and feed route.
 - Do not use internal virtual price as a market-clearing price.
 - For fixed-yield LP tokens, distinguish approximate PT/YT accounting value from realizable exit value and haircut exchange-rate drops below the stored index.
+- When a Chainlink-compatible wrapper derives a conservative minimum from multiple feeds, propagate the oldest underlying timestamp and round metadata so downstream consumers do not inherit fake freshness.
 
 ## Source Evidence
 
@@ -64,6 +65,7 @@ external prices before dividing by LP supply.
 - Alpha Homora V2 prices Uniswap V2 LP collateral from the square-root reserve invariant, Balancer LP collateral from fair reserves, and Curve LP collateral from the minimum underlying price times virtual price in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle`.
 - Satoshi Core's Uniswap V2 LP feed normalizes reserve and feed decimals before applying a square-root reserve invariant, while its Curve LP feed reads virtual price after a zero-liquidity removal checkpoint in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/dependencies/priceFeed`.
 - Pendle's PT/YT/LP oracle libraries compute maturity-aware LP rates from PY/SY exchange-rate state and explicitly treat LP output as approximate fair value in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/oracles/PtYtLpOracle`.
+- Inverse FiRM uses minimum-of-two feed wrappers and pessimistic Curve LP wrappers that propagate the older feed timestamp in `/private/tmp/defillama-source/InverseFinance__FiRM/src/feeds/PessimisticFeed.sol` and `/private/tmp/defillama-source/InverseFinance__FiRM/src/feeds/CurveLPPessimisticFeed.sol`.
 
 ## Related Patterns
 

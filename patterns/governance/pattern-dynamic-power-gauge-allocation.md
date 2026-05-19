@@ -75,6 +75,8 @@ checkpoint slope changes by epoch rather than scanning all voters.
 - Enforce revote delays so users cannot rapidly redirect the same voting power.
 - Emit allocation changes with old and new weights.
 - Test voting-power accrual, vote updates, over-allocation, zero-power users, and voter-list growth.
+- For veNFT systems, test managed-lock deposit and withdrawal as gauge voting state changes, not only as escrow transfers.
+- If utilization changes allocation points, checkpoint pool rewards before applying the utilization-derived multiplier.
 
 ## Source Evidence
 
@@ -85,6 +87,8 @@ checkpoint slope changes by epoch rather than scanning all voters.
   10,000 bps in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:188-285`,
   `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:345-380`,
   and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:485-553`.
+- Aerodrome V1 normalizes gauge vote weights by current veNFT balance, caps vote count, and updates managed lock voting state in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Voter.sol`.
+- Premia Mining combines pool votes with utilization-rate multipliers to compute allocation points in `/private/tmp/defillama-source/premiafinance__premia-contracts/contracts/mining/PremiaMining.sol`.
 
 ## Real-World Examples
 

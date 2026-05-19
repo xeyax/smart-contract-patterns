@@ -66,6 +66,7 @@ The price-scale adjustment is part of AMM state, not an oracle guarantee.
   imbalanced paths.
 - Treat the pool EMA/oracle as AMM state for execution and monitoring, not as a
   manipulation-resistant collateral oracle by itself.
+- Parameter research that compares price-scale catch-up, pool imbalance, and virtual-profit behavior should be captured as simulation support, not production evidence, unless it maps to deployed pool code.
 
 ## Source Evidence
 
@@ -77,6 +78,7 @@ The price-scale adjustment is part of AMM state, not an oracle guarantee.
 - Curve Crypto tests oracle and stateful behavior in
   `/private/tmp/defillama-source/curvefi__curve-crypto-contract/tests/twocrypto/test_oracles.py`
   and `/private/tmp/defillama-source/curvefi__curve-crypto-contract/tests/twocrypto/test_stateful.py`.
+- Yield Basis simulations under `/private/tmp/defillama-source/yield-basis__yb-simulations/btcusd` analyze Curve-style price-scale following, imbalance, dynamic rates, and fee variants for BTC/stable pools as simulation-only support for adaptive price-scale trade-offs.
 
 ## Related Patterns
 

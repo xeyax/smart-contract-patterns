@@ -148,6 +148,7 @@ contract ProportionalVault {
 - Excess amounts beyond minimum ratio are not accepted (or returned)
 - No oracle calls anywhere in the flow
 - Withdrawal always in-kind (receive all assets)
+- For complex assets, require per-asset unwind data and slippage tolerance so external-position withdrawal cannot silently under-deliver.
 
 ## Variations
 
@@ -180,11 +181,29 @@ Some vaults offer choice:
 - **In-kind:** Receive proportional slice of all assets
 - **Single-asset:** Vault sells other assets, user receives one (incurs slippage)
 
+### Complex-Asset Withdrawal Variant
+
+For managed vaults that hold external or leveraged positions, an in-kind withdrawal may need asset guards to unwind positions before transferring the recipient's proportional value. User-provided complex-asset data can carry per-asset withdrawal instructions and slippage tolerance:
+
+```solidity
+function withdrawSafe(uint256 shares, ComplexAsset[] calldata data) external {
+    uint256 portion = shares * WAD / totalSupply();
+    for (uint256 i = 0; i < supportedAssets.length; i++) {
+        (address asset, uint256 amount) = guards[i].withdrawProcessing(portion, data[i]);
+        uint256 minValue = expectedValues[i] * (BPS - data[i].slippageTolerance) / BPS;
+        require(value(asset, amount) >= minValue, "under-delivered");
+    }
+}
+```
+
+This keeps the high-level withdrawal proportional while allowing complex assets to exit through guard-specific unwind logic.
+
 ## Real-World Examples
 
 - [Uniswap V2 LP](https://github.com/Uniswap/v2-core) — proportional add/remove liquidity
 - [Balancer Proportional Joins](https://docs.balancer.fi/concepts/pools/joins-and-exits.html) — weighted pool joins
 - [Curve Base Pool](https://curve.readthedocs.io/) — option for proportional deposits
+- dHEDGE computes each withdrawal's proportional pool share, uses asset guards for simple and complex assets, and applies value and slippage checks in `/private/tmp/defillama-source/dhedge__V2-Public/contracts/PoolLogic.sol`.
 
 ## Related Patterns
 

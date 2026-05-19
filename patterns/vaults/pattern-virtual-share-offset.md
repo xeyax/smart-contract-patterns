@@ -52,6 +52,17 @@ assets = shares * (totalAssets + virtualAssets) / (totalSupply + virtualShares)
 
 If an attacker deposits 1 wei, receives 1 share, and then donates assets directly to the vault, the virtual shares dilute the attacker's ownership of the donated assets. Later depositors still receive non-zero shares because the denominator and numerator both include the offset.
 
+### Credit-Offset Savings Variant
+
+Some savings ledgers use an exchange-rate credit unit instead of ERC4626 shares. A small credit offset in the conversion math can avoid zero-credit or division-edge behavior:
+
+```solidity
+credits = underlying * WAD / exchangeRate + 1;
+exchangeRate = totalCollateral * WAD / (totalCredits - 1);
+```
+
+The offset must be applied consistently in both directions and should not be described as withdrawable collateral.
+
 ## Implementation
 
 ```solidity
@@ -95,6 +106,7 @@ contract VirtualOffsetVault {
   depends on asset decimals, share decimals, expected first deposits, and whether
   direct donations can still distort previews or oracles.
 - If direct asset transfers are later counted as rewards, seed initial liquidity atomically with deployment or enforce a minimum first deposit.
+- For credit-offset savings ledgers, test tiny deposits, full withdrawals, exchange-rate refreshes, and the first/last credit edge cases.
 
 ## Source Evidence
 
@@ -104,6 +116,7 @@ contract VirtualOffsetVault {
 - MetaMorpho applies ERC4626 conversion offsets but warns that 18-decimal assets
   receive weak inflation protection from the chosen offset in `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:526`
   and `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:646`.
+- mStable SavingsContract converts underlying to credits with a `+1` credit offset and computes exchange rates against `totalCredits - 1` in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/savings/SavingsContract.sol`.
 
 ## Real-World Examples
 

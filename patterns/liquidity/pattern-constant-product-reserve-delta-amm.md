@@ -53,10 +53,12 @@ function swap(uint256 amount0Out, uint256 amount1Out, address to) external lock 
 - Update reserves after the invariant check.
 - Lock swap, mint, burn, skim, and sync operations against reentrancy.
 - Keep token support assumptions explicit for fee-on-transfer, rebasing, and hook-enabled tokens.
+- If the same pool contract supports stable and volatile modes, make the invariant branch explicit and test reserve-delta accounting in both modes.
 
 ## Source Evidence
 
 - Uniswap V2 pairs infer swap input from post-transfer balances, apply a 0.3 percent fee adjustment, and require the adjusted product to preserve `k`.
+- Aerodrome V1 infers swap input from balance deltas, accrues fees, and enforces volatile or stable `_k` in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Pool.sol`.
 
 ## Related Patterns
 

@@ -66,6 +66,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - When LP fees are removed from AMM reserves and claimed separately, hook LP balance changes so per-user fee indexes stay current across transfers.
 - If rewards are funded by calling an external fee-claiming program, whitelist the external program and account index set, then account funding from the reward-vault balance delta.
 - Piecewise reward-rate schedules should be sorted, bounded in size, checkpoint global rewards before mutation, and integrate cumulative emissions over every crossed segment.
+- Option or liquidity-mining pools can derive allocation points from both governance votes and utilization, but must checkpoint pool reward indexes before changing utilization-derived weights.
 
 ## Source Evidence
 
@@ -86,6 +87,7 @@ Call `updateUser` before changing the user's stake and before claiming.
   transfer strategies used by `RewardsController` in `/private/tmp/defillama-source/aave__aave-v3-periphery/contracts/rewards/RewardsDistributor.sol:284`,
   `/private/tmp/defillama-source/aave__aave-v3-periphery/contracts/rewards/RewardsController.sol:214`,
   and `/private/tmp/defillama-source/aave__aave-v3-periphery/contracts/rewards/transfer-strategies/TransferStrategyBase.sol:23`.
+- Premia Mining accrues pool rewards with `accPremiaPerShare`, caps emissions by available rewards, and updates allocation points from votes and utilization in `/private/tmp/defillama-source/premiafinance__premia-contracts/contracts/mining/PremiaMining.sol`.
 
 ## Related Patterns
 

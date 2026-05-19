@@ -114,6 +114,12 @@ the collateral path.
 - Lending systems with separate max-LTV and solvency oracle paths should test
   deposit, borrow, transition, liquidation, and collateral-exit actions against
   the exact oracle mode each action uses.
+- Long-tail or NFT collateral can attach TWAP and freshness state to
+  collection-level prices; borrow and auction entry should fail closed on stale
+  or missing collection data.
+- Historical-low dampening is an action-scoped borrowing-power policy, not a
+  general market price: document where the dampened value is used and where
+  spot-like values remain acceptable.
 
 ## Source Evidence
 
@@ -142,6 +148,8 @@ the collateral path.
   discounts by trade size and skew scale in `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`
   and `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`.
 - Silo V2 separates max-LTV and solvency oracle configuration in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/SiloConfig.sol` and applies action logic through `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/lib/Actions.sol`.
+- Inverse FiRM dampens borrower credit by recent daily lows in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Oracle.sol` and consumes that bounded price in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Market.sol`.
+- BendDAO stores NFT collection price records, calculates TWAP values, and uses freshness-aware validation around borrow and auction paths in `/private/tmp/defillama-source/BendDAO__bend-lending-protocol/contracts/protocol/NFTOracle.sol` and `/private/tmp/defillama-source/BendDAO__bend-lending-protocol/contracts/libraries/logic/ValidationLogic.sol`.
 
 ## Related Patterns
 

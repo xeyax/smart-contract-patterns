@@ -66,6 +66,7 @@ function harvestAndQueue() external {
 - Fee splits should happen before queuing so streamed accounting matches token balance.
 - Treat instant distribution as flash-deposit sensitive unless stake duration, caller eligibility, or trigger design prevents same-transaction entry and claim.
 - For epoch-governed gauges, end the stream at the next epoch boundary instead of `now + duration`, carry leftovers, reject zero reward rates, and cap the rate by the funded balance.
+- Reward liquidation flows should validate sell amount, deadline, fair-price minimums, and fee splits before queueing net rewards into the rewarder.
 
 ## Source Evidence
 
@@ -73,6 +74,7 @@ function harvestAndQueue() external {
 - Convex proxy harvest flows claim external rewards and split fees through registry-configured recipients.
 - Reserve staking audit material warns that instant payout modes are vulnerable to flash deposits when reward funding is externally triggerable.
 - Velodrome V2 gauges stream rewards until the next epoch boundary, carry leftovers, reject zero rates, and cap reward rate by balance in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Gauge.sol`.
+- Tokemak V2 liquidates claimed destination-vault rewards through whitelisted swappers with oracle minimums and queues net proceeds into main rewarders that carry queued rewards forward in `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/liquidation/LiquidationRow.sol` and `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/rewarders/AbstractRewarder.sol`.
 
 ## Related Patterns
 

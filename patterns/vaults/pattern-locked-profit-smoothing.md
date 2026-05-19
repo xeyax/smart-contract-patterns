@@ -135,6 +135,7 @@ be applied only when yield is actually released.
 - For donation-smearing savings vaults, test repeated donations, partial accrual, withdrawal during the smoothing window, and max interest-left saturation.
 - For withheld-yield variants, define whether losses consume withheld yield, protocol fees, or LP-due value first, and test release-rate rounding over long idle periods.
 - Upward-only or rate-limited rebases should expose the undistributed yield bucket and avoid treating smoothed yield as free surplus before the release schedule has applied.
+- Savings managers that collect external interest in batches should validate the implied APY, enforce a collection cadence, and stream both new interest and leftover unstreamed rewards over the configured duration.
 
 ## Source Evidence
 
@@ -148,6 +149,7 @@ be applied only when yield is actually released.
 - Euler Savings Rate smears direct asset donations through `gulf` and `interestLeft`, with tests for repeated donations, partial accrual, and zero remaining interest in `/private/tmp/defillama-source/euler-xyz__euler-vault-kit/src/Synths/EulerSavingsRate.sol` and `test/unit/esr/ESR.Gulp.t.sol`.
 - Sanctum INF releases withheld yield over time, absorbs losses against withheld yield and protocol-fee buckets before LP-due value, and uses release-rate tests in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/core/src/yields/update.rs`, `controller/core/src/yields/release.rs`, and `controller/core/src/typedefs/rps.rs`.
 - Origin Dollar vaults rate-limit rebases and drip yield through vault and harvester state in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultStorage.sol`, `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultCore.sol`, and `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/harvest/Dripper.sol`.
+- mStable SavingsManager collects platform interest on a cadence, validates APY, carries leftover unstreamed rewards, and streams interest or liquidation proceeds over fixed windows in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/savings/SavingsManager.sol`.
 
 ## Related Patterns
 

@@ -57,6 +57,8 @@ Use `received`, not requested `amount`, in mint/share/repay accounting.
 - For AMMs with stored balances, disable direct `exchange_received`-style paths
   for rebasing pools and explicitly separate actual-received accounting from
   stored balance updates, rate oracles, and ERC4626 asset classes.
+- Fee-on-transfer support in AMM routers should check the recipient's final balance delta for exact-input swaps; it should not imply that all add/remove liquidity paths are fee-on-transfer safe.
+- Explicit rejection can use the same balance-delta measurement: compare requested and received amounts and revert when the token is not meant to be supported.
 
 ## Source Evidence
 
@@ -75,6 +77,9 @@ Use `received`, not requested `amount`, in mint/share/repay accounting.
   `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:357-496`,
   `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:532-565`,
   and `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/exchange/test_exchange_received.py:100-150`.
+- Aerodrome V1 router supports fee-on-transfer exact-input swap variants by measuring actual pool input/output and final recipient deltas in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Router.sol`, with tests in `/private/tmp/defillama-source/aerodrome-finance__contracts/test/Router.t.sol`.
+- Teller V2 rejects fee-on-transfer principal in borrower funding paths by verifying the receiver balance delta equals the requested amount in `/private/tmp/defillama-source/teller-protocol__teller-protocol-v2/packages/contracts/contracts/TellerV2.sol`.
+- mStable supports configured transfer-fee basket assets by measuring actual received amounts before invariant accounting in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/masset/MassetLogic.sol`.
 
 ## Related Anti-Patterns
 

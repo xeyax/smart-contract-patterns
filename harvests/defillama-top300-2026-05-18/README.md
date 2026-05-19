@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 288 across 28 batches.
+- Source repository inspections so far: 300 across 29 batches.
 
 ## First Batch Repositories
 
@@ -402,6 +402,23 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Term Finance | `term-finance/term-finance-contracts` | Fixed-term repo lending |
 | Velodrome Superchain | `velodrome-finance/superchain-contracts` | Cross-chain DEX / gauges |
 
+## Twenty-Ninth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| PumpSwap Transfer Hook Authority | `pump-fun/transfer-hook-authority` | Solana transfer-hook candidate |
+| Yield Basis Simulations | `yield-basis/yb-simulations` | AMM simulations |
+| Aerodrome V1 | `aerodrome-finance/contracts` | DEX / gauges |
+| Teller V2 | `teller-protocol/teller-protocol-v2` | Lending |
+| Inverse FiRM | `InverseFinance/FiRM` | Fixed-rate lending |
+| BendDAO | `BendDAO/bend-lending-protocol` | NFT lending |
+| Ribbon V2 | `ribbon-finance/ribbon-v2` | Options vaults |
+| Premia | `premiafinance/premia-contracts` | Options AMM |
+| Set Protocol V2 | `SetProtocol/set-protocol-v2` | Portfolio tokens |
+| dHEDGE | `dhedge/V2-Public` | Managed vaults |
+| Tokemak V2 | `Tokemak/v2-core-pub` | Liquidity / LST vaults |
+| mStable | `mstable/mStable-contracts` | Stable basket / savings |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -433,6 +450,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-26-findings.md` — accepted and deferred catalog updates from the sixteenth expanded source-discovery batch.
 - `batch-27-findings.md` — accepted and deferred catalog updates from the seventeenth expanded source-discovery batch.
 - `batch-28-findings.md` — accepted and deferred catalog updates from the eighteenth expanded source-discovery batch.
+- `batch-29-findings.md` — accepted and deferred catalog updates from the nineteenth expanded source-discovery batch.
 
 ## Notes
 
