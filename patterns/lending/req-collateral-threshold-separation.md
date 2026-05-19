@@ -61,11 +61,22 @@
 - Threshold multiplied by liquidation bonus stays within full collateral value.
 - Equal borrow and liquidation thresholds, if permitted, are treated as no-grace-buffer mode rather than the safe default.
 
+## R6: Borrow-Capacity Increases Are Ramped And Separated
+
+**If governance increases borrower capacity, the increase should ramp monotonically and preserve liquidation-threshold separation.**
+
+### What This Means
+
+- Borrower-favorable origination LTV increases are bounded by target time, max delta, and max rate of change.
+- Liquidation premium or liquidation LTV separation cannot be decreased in the same path.
+- This is the opposite direction from risk-reducing liquidation-threshold ramp-downs and should be documented separately.
+
 ## Source Evidence
 
 - Compound III enforces liquidation collateral factors above borrow collateral factors and tests invalid threshold configurations.
 - Euler V2 applies borrow LTV changes immediately while optionally ramping only lower liquidation LTVs over time, and tests both immediate borrow disablement and delayed liquidation eligibility.
 - Aave V2 enforces non-inverted collateral configuration and liquidation-bonus bounds, including `threshold * bonus <= 100%`, in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPoolConfigurator.sol`; this supports bonus calibration but does not weaken the stricter threshold-gap recommendation.
+- Olympus Cooler V2 ramps borrower-favorable origination LTV increases, rejects decreasing origination LTV through that path, bounds target time, delta, and rate of change, and preserves liquidation premium separation in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerLtvOracle.sol`, with bound tests in `src/test/policies/cooler/CoolerLtvOracle.t.sol`.
 
 ## Related Patterns
 

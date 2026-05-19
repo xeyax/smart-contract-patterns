@@ -54,6 +54,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Keep reward-token balance accounting separate from emitted reward accounting.
 - Use an explicit high-precision scalar independent of reward token decimals, and carry forward or recover rewards that accrue while total stake is zero.
 - If a user has zero earning balance, advance their user index cursor to the latest index so future stake cannot backfill historical rewards.
+- A proportional reward pool can use virtual fee debt instead of a cumulative index: new entrants receive debt equal to their pro-rata historical-fee entitlement, and early fee withdrawals convert free fees into per-account debt.
 - Terminal emission cursors should cap accrual at the configured final block or timestamp; setters must reject past cutoffs and avoid silently extending an expired distributor.
 - Reward-per-token math should clamp accrual to the configured emission start/end window before dividing by total stake.
 - For multi-token reward lists, treat reward-token registration and balance-delta reads as a liveness boundary for transfers and exits.
@@ -75,6 +76,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - VVS Farm illustrates why duplicate staking-token registration must be blocked when MasterChef-style rewards use the farm's aggregate LP-token balance as pool supply in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/Craftsman.sol`.
 - Velodrome V2 separates AMM fees into `PoolFees` and updates LP fee indexes on balance changes in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Pool.sol`.
 - Meteora Dynamic Fee Sharing funds reward vaults by whitelisted fee-claim CPI and reward-vault balance deltas in `/private/tmp/defillama-source/MeteoraAg_dynamic-fee-sharing/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`.
+- Flare FAssets CollateralPool tracks per-account and global FAsset fee debt so entrants cannot claim historical fees and early withdrawals convert free fees into debt in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/collateralPool/implementation/CollateralPool.sol`.
 
 ## Related Patterns
 

@@ -92,6 +92,7 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - If allowing stale-price collateral withdrawals, test the no-debt and with-debt branches separately.
 - For perps, test each oracle action class separately; do not assume a funding-safe price is liquidation-safe or settlement-safe.
 - For stable-asset mint/redeem paths, choose conservative peg bounds by action: minting can use the lower of oracle and par, while redemption can use the higher of oracle and par only if reserves and caps absorb the difference.
+- Borrower-favorable LTV oracle changes should be ramped and monotonic, with liquidation-threshold separation preserved, rather than treated as ordinary price freshness.
 
 ## Source Evidence
 
@@ -104,6 +105,7 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - Satoshi Nexus prices stable-asset minting with conservative peg caps and redemptions with the opposite conservative bound in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/NexusYieldManager.sol`.
 - Fraxlend stores low/high oracle exchange rates with deviation gating, uses the high price for solvency checks and the low price for liquidation calculations in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
 - Frax FPI controller tests peg-band mint, redeem, and TWAMM actions against bounded prices in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/FPI/FPIControllerPool.sol`.
+- Olympus Cooler V2 uses an LTV oracle for origination and liquidation thresholds and constrains borrower-favorable changes in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerLtvOracle.sol`.
 
 ## Related Patterns
 

@@ -152,9 +152,9 @@ Share price manipulable via direct token transfer to contract.
 
 ### Uninitialized Proxy
 Upgradeable proxy without initializer protection.
-**Symptoms:** `initialize()` without `initializer` modifier, or no initialization check.
+**Symptoms:** `initialize()` without `initializer` modifier, no initialization check, or a diamond/facet implementation whose initializer can be called directly outside the proxy.
 **Risk:** Attacker calls initialize on implementation, takes ownership.
-**Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor. For reinitializers, gate each revision once and test that repeated or skipped revision initializers cannot overwrite authority, storage namespaces, or version state.
+**Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor. For diamond or governed facet systems, mark implementation contracts initialized in the constructor with an unusable governance value and keep initializer entrypoints internal or proxy-only. For reinitializers, gate each revision once and test that repeated or skipped revision initializers cannot overwrite authority, storage namespaces, or version state.
 
 ### Latched Invalid Initialization
 One-shot initializer records partial or invalid configuration before validating all required fields.

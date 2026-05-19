@@ -99,7 +99,7 @@
 | File | Applies To |
 |------|-----------|
 | req-bridge-exit-liveness.md | R1: Pauses Preserve Safe Exit Paths, R2: Failed Destination Settlement Has A Refund Path, R3: Migration Accounts For In-Flight Messages, R4: Admin Overrides Are Explicitly Trusted, R5: Emergency Exit Pauses Are Scoped And Expiring |
-| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits, R7: Migration Preserves Backing, R8: Hot Redemption Buffers Are Explicit |
+| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits, R7: Migration Preserves Backing, R8: Hot Redemption Buffers Are Explicit, R9: Off-Chain Transfer Instructions Are Solvent Before Emission |
 | req-proof-bridge-exit-safety.md | R1: Source Proof Is Finalized, R2: Exit Nullifier Is Unique And Normalized, R3: Emitter And Event Are Authenticated, R4: Custody Is Sufficient Before Release, R5: Migration Cutovers Preserve Pending Exits, R6: Challenge Or Relay Finality Is Explicit |
 
 ## governance
@@ -179,7 +179,7 @@
 
 | File | Applies To |
 |------|-----------|
-| req-collateral-threshold-separation.md | R1: Liquidation Threshold Exceeds Borrow Threshold, R2: Action Checks Use The Correct Threshold, R3: Freshness Scope Is Documented, R4: Risk Reductions Preserve Exit Windows, R5: Liquidation Bonus Does Not Invert Collateral Safety |
+| req-collateral-threshold-separation.md | R1: Liquidation Threshold Exceeds Borrow Threshold, R2: Action Checks Use The Correct Threshold, R3: Freshness Scope Is Documented, R4: Risk Reductions Preserve Exit Windows, R5: Liquidation Bonus Does Not Invert Collateral Safety, R6: Borrow-Capacity Increases Are Ramped And Separated |
 | req-credit-loss-accounting.md | R1: Loss State Is Explicit, R2: Losses Cannot Exceed Accounted Assets, R3: Normal Issuance Respects Loss State |
 | req-lending-accounting-freshness.md | R1: Accrue Before Value-Changing Actions, R2: Freshness Scope Is Explicit, R3: Stale Actions Fail Closed, R4: Parameter Changes Accrue First, R5: Stale Collateral Reports Have Explicit Consequences |
 
@@ -419,6 +419,7 @@
 | pattern-bounded-rebalance-auction.md | Let managers rebalance basket vaults through auctions while constraining assets, weights, prices, duration, and later parameter changes. | A vault holds a managed basket or index of multiple assets |
 | pattern-circuit-breaker.md | Pause deposits/withdrawals when oracle price deviates significantly from a reference price, closing the attack window during suspicious conditions. | Vault relies on oracle for NAV calculation; Assets are volatile or oracle is known to have latency |
 | pattern-clone-factory.md | Mass deployment of parameterized vault instances via minimal proxy clones — ~45K gas per vault instead of ~2M. | Many vaults with identical logic but different parameters (fee tiers, recipients, names) |
+| pattern-coverage-ratio-gated-tranche-exits.md | Gate junior exits and senior inflows by tranche coverage so first-loss capital cannot quietly leave when senior protection is thin. | A vault has senior and junior share classes; Junior capital is intended to absorb first loss or protect senior claims |
 | pattern-curated-validator-operator-registry.md | Maintain an operator registry that separates validator membership from preferred deposit and withdrawal routing. | Liquid staking depends on a curated validator set; Deposit and withdrawal operations need different preferred operators |
 | pattern-delta-nav.md | Calculate vault shares based on proportional change in Net Asset Value. | Single-asset vault (one underlying token) |
 | pattern-dynamic-premium.md | Entry/exit fee that varies based on oracle volatility, providing adaptive protection against oracle arbitrage during high-risk periods. | Vault has varying risk levels over time; Fixed premium would be too high during normal conditions |
@@ -432,6 +433,7 @@
 | pattern-operator-routed-liquid-staking-share.md | Mint a non-rebasing liquid-staking share while routing deposits to selected validators or operators behind an exchange-rate ledger. | Users need a transferable non-rebasing claim on delegated stake |
 | pattern-oracle-computed-async-settlement.md | Queue mint or burn requests asynchronously, but compute completion economics from stored request data and oracle state instead of operator-supplied output amounts. | Deposits or redemptions require off-chain processing before completion; A completion operator is needed for liveness |
 | pattern-premium-buffer.md | Charge a fee on deposits/withdrawals that covers potential oracle price deviation, eliminating arbitrage profitability. | Vault uses oracle prices for NAV calculation; Need simple, synchronous deposit/withdraw flow |
+| pattern-projected-realized-nav-split.md | Expose continuous target accrual for vault previews while keeping realized NAV separate until discrete rewards or losses are actually accounted. | Vault yield arrives as discrete reward, coupon, or strategy accounting events |
 | pattern-proportional-deposit.md | Users deposit and withdraw all vault assets proportionally, eliminating the need for oracle-based NAV calculation. | Multi-asset vault/pool with known composition; Want to avoid oracle dependency entirely |
 | pattern-proportional-zapin.md | External periphery contract converts single-token input into a proportional multi-token deposit, pushing swap slippage to the depositor and eliminating slippage socialisation in managed vaults. | Multi-token vault where a manager rebalances after single-token deposits (slippage socialised across holders) |
 | pattern-rate-bounded-nav-report.md | Accept manual or off-chain NAV reports only after the current NAV expires and only within annualized share-price movement guardrails. | Vault NAV is reported by an off-chain manager, accountant, or security council |
@@ -458,7 +460,7 @@
 | req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata, R4: Pending Exits Are Not Harvestable Yield, R5: Burn-Cover Buckets Are Separate From Ordinary Rewards |
 | req-restaking-slashing-accounting.md | R1: Slash Factors Are Explicit And Composable, R2: Queued Withdrawals Preserve Slash Exposure, R3: Capture Times Are Bounded By Vault Epochs, R4: Veto Or Resolver Delay Is A State Machine |
 | req-stake-pool-epoch-accounting-freshness.md | R1: Validator Records Are Current Before Value Changes, R2: Pool Backing Is Recomputed From Validated Components, R3: Prior-Epoch Snapshots Support Fees And Rewards, R4: External-Core Accounting Has A Cooldown |
-| req-tiered-loss-waterfall.md | R1: Loss Priority Is Explicit, R2: Tier Capacity Is Measurable, R3: Junior Risk Is Opt-In, R4: Waterfall Execution Preserves Solvency |
+| req-tiered-loss-waterfall.md | R1: Loss Priority Is Explicit, R2: Tier Capacity Is Measurable, R3: Junior Risk Is Opt-In, R4: Waterfall Execution Preserves Solvency, R5: First-Loss Exits Respect Coverage |
 | req-vault-fairness.md | R1: No Value Extraction, R2: Fair Share Price, R3: Cost Attribution, R4: No Timing Advantage |
 
 ## zero-knowledge

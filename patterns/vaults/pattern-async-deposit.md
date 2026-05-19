@@ -134,6 +134,12 @@ Shares or assets can be moved into an escrow during a cooldown period:
 
 This works only if the claim basis is fixed or the later pricing moment is not user-selectable. A simple cooldown followed by a discretionary user claim can preserve timing optionality if the user can wait for a favorable exchange rate.
 
+Cooldown exits may also apply a live coverage ratio at claim or unstake time
+when the vault is undercollateralized. That is a loss-socialization mechanism,
+not a fixed entitlement: governance or accounting can change the haircut between
+request and claim, so users need explicit disclosure and tests for haircut
+updates while requests are pending.
+
 For liquid-staking exits, the request can escrow shares and bind the claim to a
 historical exchange-rate lookup at the claimable timestamp. That prevents a user
 from choosing a later claim time to harvest rewards that accrued after the
@@ -146,6 +152,11 @@ guarantee users can exit.
 Partial FIFO processing can produce different exchange rates for users in the same queue if each processed slice reads a new NAV. That may be acceptable when the queue explicitly prices each processed batch independently, but it is not the same as one epoch-wide clearing price.
 
 Manual pull redemptions also need a rule for timing optionality. If users can choose when to pull after becoming claimable, either fix their entitlement at processing time or enforce queue order so a user cannot wait for a better claim price while others exit.
+
+Some queues intentionally estimate at request time but reprice at operator
+processing time. Treat that as process-time rate risk, not as full oracle
+arbitrage elimination. Skipped, cancelled, blacklisted, and zero-amount requests
+should emit distinct events and return shares or assets through an explicit path.
 
 ### ERC-7540 Claim-Ledger Settlement
 
@@ -252,6 +263,13 @@ function settle(uint256 maxRequests) external {
 ```
 
 This avoids keeper monopoly and prevents a growing queue from making settlement uncallable. If settlement can be disabled, the disable switch should have the same scrutiny as pausing withdrawals because it can affect exit liveness.
+
+### Bounded Cooldown Request Ledger
+
+Cooldown systems that store per-user request slots should cap active slots,
+merge same-block requests where safe, and bound external-receiver requests
+separately. If the cap is reached, extending or merging the final slot is safer
+than letting storage growth make exits unprocessable.
 
 ## Implementation
 
@@ -372,6 +390,8 @@ Async withdrawals need additional liveness and accounting checks:
 - Operator-finalized withdrawal claims should record fixed request entitlements before the operator distribution step and treat unfunded requests as an exit-liveness risk.
 - Height-interval redemption queues should keep cumulative request and withdrawal-event intervals immutable once claimable, and should bound claim input size or search depth.
 - Round-scoped payout receipts should bind each receipt to the finalized round and burn it before payout so transferability cannot duplicate claims.
+- Process-time repriced queues should distinguish estimates from fixed entitlements and return shares on skipped or cancelled requests.
+- Cooldown ledgers should cap active request slots and external-receiver slots to avoid per-user gas growth.
 
 ## ERC-7540: Async Vault Standard
 
@@ -412,6 +432,9 @@ interface IERC7540 {
 - Astherus Earn — request-numbered withdrawals are created before a bot-funded distribution step and user pull claim, showing the operator-finalized claim-ledger variant.
 - Liquid Collective — redeem requests are matched to withdrawal events through cumulative interval logic with full, partial, skipped, out-of-bounds, and already-claimed statuses.
 - TON liquid staking — deposit and withdrawal payout NFTs represent round-scoped claims that are funded during round finalization and burned on claim.
+- Mainstreet staked msUSD applies a live coverage ratio to cooldown exits during undercollateralized states in `/private/tmp/defillama-source/Mainstreet-Labs_mainstreet-core/src/v2/StakedmsUSD.sol`.
+- Ember Vault escrows shares, records sequence-numbered withdrawal requests, supports cancellation, processes bounded batches, and skips cancelled or invalid requests while repricing at processing time in `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/contracts/EmberVault.sol`.
+- Strata Markets cooldown exits cap active request slots, merge same-block requests, bound external-receiver slots, and support early finalization with proportional fees in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/base/cooldown/SharesCooldown.sol`.
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns

@@ -50,12 +50,25 @@
 - Rounding favors solvency over over-crediting any tier.
 - Pauses do not hide pending loss realization.
 
+## R5: First-Loss Exits Respect Coverage
+
+**Junior or first-loss exits must be gated by coverage so protective capital cannot leave while senior claims are underbuffered.**
+
+### What This Means
+
+- Coverage ratios define when junior exits are ordinary, fee-charged, cooldown-locked, or blocked.
+- Senior deposits can require a higher coverage buffer than junior withdrawals.
+- Tests cover coverage manipulation around deposits, withdrawals, and accounting updates.
+- Extreme junior price states have minimum-share, minimum-price, or pause guards.
+
 ## Source Evidence
 
 - infiniFi's yield-sharing accounting applies losses first to a safety buffer, then locked users, then staked users, and finally senior receipt-token price, with unit tests for each tier transition.
+- Strata Markets gates junior exits and senior deposits by tranche coverage ratios in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/Accounting.sol` and maps coverage bands to fee or lock modes in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/StrataCDO.sol`.
 
 ## Related Patterns
 
 - [Vault Fairness Requirements](./req-vault-fairness.md)
 - [Liquid Staking Loss Accounting Requirements](./req-liquid-staking-loss-accounting.md)
 - [Credit Loss Accounting Requirements](../lending/req-credit-loss-accounting.md)
+- [Coverage-Ratio Gated Tranche Exits](./pattern-coverage-ratio-gated-tranche-exits.md)

@@ -73,11 +73,21 @@ function recordSettlement(uint256 id, string calldata settlementTxId) external o
 - Do not describe this as trustless bridging; document custodian and merchant trust explicitly.
 - If an on-chain exit only burns representation and emits an external destination, state clearly that off-chain settlement remains a custody obligation until the source-chain payout is proven.
 
+### Sequenced Custodian Instruction Queue
+
+For custodian systems that emit off-chain transfer instructions, keep separate
+ledgers for confirmed funds, pending requests, escrowed funds, and emitted
+instructions. A request should be admitted only when confirmed plus escrowed
+funds can cover the requested amount and fees, and each emitted instruction
+should carry a sequence number or payment reference that off-chain operators can
+execute and later reconcile.
+
 ## Source Evidence
 
 - WBTC uses merchant mint requests approved by a custodian and merchant burn requests reconciled with settlement transaction ids.
 - WBTC documentation and audit materials emphasize public reserve verification and custodian backing.
 - Lorenzo enzoBTC withdrawal requests burn or mark on-chain representation and emit BTC destination data for off-chain custody release in `/private/tmp/defillama-source/Lorenzo-Protocol__enzoBTC_contract/src/modules/WithdrawalRequest.sol` and `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btcstaking/keeper/msg_server.go`.
+- Flare FAssets CoreVaultManager confirms incoming custody payments once per transaction id, admits transfer requests only against available plus escrowed funds, emits sequenced off-chain payment instructions, and bounds escrow processing in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/coreVaultManager/implementation/CoreVaultManager.sol`.
 
 ## Related Patterns
 

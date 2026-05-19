@@ -71,11 +71,14 @@ Yield tokens receive or track the yield component before expiry. After expiry, p
 - Define pre-expiry redemption as paired PT+YT burn.
 - Define post-expiry redemption, reward ownership, and residual yield explicitly.
 - Track exchange-rate drops and slashing separately from ordinary yield.
+- Freeze the maturity exchange rate separately from post-maturity observed rates so later appreciation does not change matured principal claims.
+- Emergency mode should block new strip/tokenize actions while allowing safe staged claims or interest collection when the claim basis is already fixed.
 - Test maturity boundary, early redemption, late rewards, and negative exchange-rate periods.
 
 ## Source Evidence
 
 - Pendle V2 splits standardized yield into PT/YT contracts per `(SY, expiry)`, authorizes PT mint/burn through YT, requires paired PT/YT redemption before expiry, and supports PT-only redemption after expiry in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/YieldContracts`.
+- Exponent Core mints paired PT/YT from SY, blocks new stripping in emergency mode, burns YT only while the vault is active, and freezes `final_sy_exchange_rate` after expiry in `/private/tmp/defillama-source/exponent-finance_exponent-core/programs/exponent_core/src/instructions/vault` and `src/state/vault.rs`.
 
 ## Real-World Examples
 

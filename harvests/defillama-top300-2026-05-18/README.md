@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 211 across 22 batches.
+- Source repository inspections so far: 220 across 23 batches.
 
 ## First Batch Repositories
 
@@ -295,6 +295,20 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | EtherFi Products | `etherfi-protocol/cash-contracts`, `etherfi-protocol/weETH-cross-chain`, `etherfi-protocol/cash-v3`, `etherfi-protocol/avs-smart-contracts`, `etherfi-protocol/beHYPE` | Cross-chain / wallet / staking / AVS |
 | Yearn V3 Periphery | `yearn/tokenized-strategy`, `yearn/tokenized-strategy-periphery`, `yearn/vault-periphery` | Vault strategy / keeper / auction |
 
+## Twenty-Third Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Strata Markets | `Strata-Markets/contracts` | Tranched vaults / discrete accounting |
+| Exponent | `exponent-finance/exponent-core` | Solana fixed-maturity yield |
+| Ember Protocol | `ember-protocol/Ember-Vaults-EVM` | Bounded-rate vault / withdrawal queue |
+| Mainstreet | `Mainstreet-Labs/mainstreet-core` | Stablecoin staking / cooldown exits |
+| UNCX Network V2 | `uncx-network/liquidity-locker-univ2-contracts` | LP locks / migrator review |
+| SolanaVault Liquid Unstaker | `SolanaVault/liquid-unstaker-client` | LST instant unstake IDL / CLI |
+| Cooler Loans | `OlympusDAO/olympus-v3` | LTV ramp / treasury borrower |
+| FAssets | `flare-foundation/fassets` | Bridge custody / oracle / collateral pool |
+| Meteora DLMM | `MeteoraAg/dlmm-sdk` | DLMM quote math / SDK evidence |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -320,6 +334,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-20-findings.md` — accepted and deferred catalog updates from the tenth expanded source-discovery batch.
 - `batch-21-findings.md` — accepted and deferred catalog updates from the eleventh expanded source-discovery batch.
 - `batch-22-findings.md` — accepted and deferred catalog updates from the twelfth expanded source-discovery batch.
+- `batch-23-findings.md` — accepted and deferred catalog updates from the thirteenth expanded source-discovery batch.
 
 ## Notes
 

@@ -94,6 +94,13 @@ reject duplicate signers, bind deadline and timestamp, enforce monotonic updates
 and stale checks, and validate confidence or heartbeat bounds before accepting
 the payload.
 
+### Merkle-Rooted Epoch Sidecar Variant
+
+Canonical epoch feed data can be verified against a relay Merkle root while a
+trusted-provider sidecar submits comparable values in the prior-round window.
+The sidecar should reject duplicate providers, require minimum turnout, compute
+a median, and reject medians whose neighboring submissions exceed a spread cap.
+
 ## Key Points
 
 - Key duplicate submissions by reporter and report id.
@@ -107,6 +114,7 @@ the payload.
 - Add a same-block settlement fence when report execution changes rewards, claim roots, transfers, or migration prices that users can act on immediately.
 - Add a downstream quarantine or pause path when an agreed payload fails protocol sanity checks; same-payload quorum proves reporter agreement, not report safety.
 - For signed-payload quorum, sort or otherwise deduplicate signers before counting and bind signatures to the exact feed, timestamp, deadline, and payload fields.
+- For Merkle-rooted sidecars, bind values to an epoch or voting round and test timestamp monotonicity for both canonical and trusted-provider prices.
 
 ## Common Pitfalls
 
@@ -128,6 +136,7 @@ the payload.
 - M0 validates sorted unique reporter signatures, stores monotonic per-reporter timestamps, uses the minimum valid signer timestamp for accepted collateral reports, and rejects stale reports relative to dependent state.
 - Mantle mETH tracks duplicate and replacement reports per reporter, aligns report windows, forwards only after quorum, and quarantines or pauses downstream state when accepted payloads fail sanity checks.
 - Derive V2/Lyra feed contracts accept signed oracle payloads with reporter threshold checks, duplicate rejection, deadline and timestamp binding, stale checks, monotonic updates, confidence bounds, and settlement heartbeat validation in `/private/tmp/defillama-source/derivexyz__v2-core/src/feeds`.
+- Flare FAssets `FtsoV2PriceStore` verifies epoch feed values against a relay Merkle root, accepts trusted-provider submissions in a bounded prior-round window, rejects duplicates, computes a median, and enforces spread and timestamp invariants in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/ftso/implementation/FtsoV2PriceStore.sol`.
 
 ## Related Patterns
 

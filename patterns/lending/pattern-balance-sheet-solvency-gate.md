@@ -68,6 +68,20 @@ through an active-debt index. Balance-sheet checks must convert both principal
 ledgers through their current indexes before comparing collateral, supply, owed
 amounts, and mint capacity.
 
+### Namespaced Receipt Liability Variant
+
+If several operators or facilities share assets, track liabilities by
+`(asset, operator)` or equivalent receipt namespace. Yield claims, borrowing, and
+reserve movement should pass a post-action solvency check for that namespace so
+one operator cannot consume another operator's receipts or borrow capacity.
+
+### Yield-Parked Treasury Borrow Variant
+
+A treasury can hold reserves in a yield-bearing wrapper while loans are
+denominated in the underlying debt token. The borrow adapter should withdraw
+from the wrapper, record debt in the underlying unit, and redeposit repayments
+back into the wrapper while flooring over-repayment debt at zero.
+
 ## Key Points
 
 - Check per-channel caps before minting and global ratios after every issuance or allocation.
@@ -77,12 +91,16 @@ amounts, and mint capacity.
 - Allow risk-reducing actions where possible even if ratios are already breached.
 - Invariant-test each debt ceiling and global ratio under mixed issuance and allocation sequences.
 - When supply and owed liabilities use separate indexes, sync or compute both indexes at the same decision point before minting, burning, freezing, or applying penalties.
+- For receipt namespaces, include operator-specific liabilities in solvency before yield claims or borrow withdrawals.
+- For yield-parked reserves, keep accounting in the loan unit and use wrapper previews only for asset movement, not for hiding debt.
 
 ## Source Evidence
 
 - Reservoir's `CreditEnforcer` gates PSM, saving module, and term issuance with channel debt caps, then checks asset, equity, and liquidity ratios in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/CreditEnforcer.sol`.
 - Reservoir computes assets, liabilities, risk-weighted assets, short-term assets, and short-term liabilities from PSM, savings, term, and adapter state, with ratio and debt-cap invariants in `/private/tmp/defillama-source/reservoir-protocol__reservoir/test/invariants`.
 - M0 tracks earning token supply and minter owed M through separate indexed principal ledgers in `MToken.sol` and `MinterGateway.sol`, with tests around active owed M indexing and collateral penalties in `/private/tmp/defillama-source/m0-foundation__protocol`.
+- Olympus Deposit Manager tracks ERC6909 receipt liabilities by asset/operator namespace and checks post-withdrawal solvency before yield claims in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/deposits/DepositManager.sol`.
+- Olympus Cooler Treasury Borrower parks reserves in sUSDS, withdraws USDS for loans, records debt, and redeposits repayments in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerTreasuryBorrower.sol`.
 
 ## Related Patterns
 

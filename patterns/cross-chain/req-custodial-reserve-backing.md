@@ -95,11 +95,23 @@ custody_balance >= wrapped_token_total_supply
 - Hot buffers have caps and replenishment procedures instead of being implied by total custodied assets.
 - Off-chain hedge or custodian losses are documented as backing risks, not hidden behind successful on-chain order verification.
 
+## R9: Off-Chain Transfer Instructions Are Solvent Before Emission
+
+**Custodian transfer instructions must be admitted and emitted only when confirmed and escrowed funds can cover the requested amount plus fees.**
+
+### What This Means
+
+- Incoming custody payments are idempotently confirmed before increasing available funds.
+- Pending transfer requests, escrowed funds, fees, and available funds are tracked separately.
+- Emitted instructions carry sequence or payment references for reconciliation.
+- Bounded processing prevents escrow or instruction queues from becoming uncallable under normal governance limits.
+
 ## Source Evidence
 
 - Stacks sBTC signer validation checks mint and withdrawal limits before signing in `/private/tmp/defillama-source/stacks-network__sbtc/signer/src/bitcoin/validation.rs`, with limit tests in the same tree.
 - USDT0 audit reports discuss child-token supply mutation, bridge migration receivers, and reserve/backing preservation during OFT and adapter migrations; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
 - Ethena's 2023 Code4rena snapshot documents collateral sent to custodians and hedged off-chain, a limited hot collateral balance for redemptions, and custodian wallet loss as an undercollateralization risk in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/README.md` and `contracts/README_OLD.md`.
+- Flare FAssets CoreVaultManager separates available, escrowed, and pending custodian funds and tests idempotent payment confirmation plus solvency before transfer requests in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/coreVaultManager/implementation/CoreVaultManager.sol`.
 
 ## Related Patterns
 

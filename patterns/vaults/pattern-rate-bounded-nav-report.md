@@ -83,6 +83,14 @@ updates until the core has completed a minimum delay or checkpoint after deposit
 withdrawals, or operator accounting changes. The cooldown reduces same-block or
 same-epoch accounting races, but it does not prove the external core's value.
 
+### Liability-Rate Vault Variant
+
+Some vaults compute `totalAssets()` and ERC4626 conversions from a managed
+liability rate rather than from current token balance. Apply report cadence,
+minimum/maximum rate, and per-update delta bounds to that rate, and document that
+the contract balance can diverge from accounting assets while operators move
+assets externally.
+
 ## Key Points
 
 - Block ordinary reports while the current NAV is still valid.
@@ -98,6 +106,7 @@ same-epoch accounting races, but it does not prove the external core's value.
 - Signed NAV or exchange-rate reports should bind chain id and verifying contract, enforce signature expiry, and cap update frequency as well as value movement.
 - One-shot report overrides should clear after one use and be monitored as privileged bypasses.
 - External-core exchange-rate updates should enforce a cooldown or checkpoint before rate changes affect user settlement.
+- Liability-rate vaults should fuzz conversion round trips and make rate updates role-bound, cadence-bound, and pause-aware.
 
 ## Source Evidence
 
@@ -109,6 +118,7 @@ same-epoch accounting races, but it does not prove the external core's value.
 - Astherus `Earn.sol` accepts signed exchange-rate uploads in `uploadExchangeRate`, binding expiry and chain-specific message data while enforcing configured update cadence and deviation limits in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
 - Yearn V3 periphery bounds strategy report profit and loss and supports one-shot overrides in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/Bases/HealthCheck/BaseHealthCheck.sol`.
 - EtherFi beHYPE uses staking-core accounting cooldowns before exchange-rate updates in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/StakingCore.sol`.
+- Ember Vault stores a managed rate, enforces update interval, min/max rate, and max per-update delta, and derives `totalAssets()` and conversions from that rate in `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/contracts/EmberVault.sol`, with rate-bound and conversion fuzz tests under `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/test`.
 
 ## Related Patterns
 

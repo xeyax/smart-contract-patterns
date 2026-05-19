@@ -62,6 +62,8 @@ function swap(SwapState memory state) internal {
 - Maintain non-empty-bin tree updates on mint, burn, and swap.
 - Enforce one-sided deposits outside the active bin.
 - Charge active-bin composition fees when deposits alter reserve ratios.
+- Quote code must include every executable liquidity layer in the bin, such as maker liquidity plus processed and open limit orders.
+- Exact-out quotes should define where excess rounding goes; assigning multi-unit excess to protocol fees is a fee-policy decision that integrators must match.
 - Test empty-bin traversal, tree updates, active-bin fees, share mint/burn rounding, and minimum share locks.
 
 ## Source Evidence
@@ -69,6 +71,7 @@ function swap(SwapState memory state) internal {
 - PancakeSwap Infinity Core implements bin pools in `/private/tmp/defillama-source/pancakeswap__infinity-core/src/pool-bin/libraries/BinPool.sol` through `swap`, `mint`, `burn`, and `_mintBins`.
 - Bin helper and tree math live in `src/pool-bin/libraries/BinHelper.sol` and `src/pool-bin/libraries/math/TreeMath.sol`.
 - PancakeSwap tests bin liquidity behavior in `test/pool-bin/libraries/BinPoolLiquidity.t.sol`.
+- Meteora DLMM SDK quote code models bin liquidity layers, exact-in and exact-out fee modes, rounding excess, and bitmap-derived bin-array traversal in `/private/tmp/defillama-source/MeteoraAg_dlmm-sdk/commons/src/quote.rs`, with multi-liquidity quote tests in `ts-client/src/test/swap_quote_multi_liquidity.test.ts`; this is SDK/source-material evidence for quote parity rather than primary proof of the on-chain program.
 
 ## Real-World Examples
 
