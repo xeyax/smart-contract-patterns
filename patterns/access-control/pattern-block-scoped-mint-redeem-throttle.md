@@ -37,6 +37,7 @@
 - One actor can consume the block's capacity
 - Does not limit multi-block drain without a separate daily or bucket cap
 - Block production assumptions differ across chains
+- A redeem cap on burned shares or stablecoins does not necessarily cap collateral outflow when collateral amount is independently signed or priced
 
 ## How It Works
 
@@ -108,6 +109,7 @@ function redeem(RedeemOrder calldata order, bytes calldata sig) external onlyRed
 - Emit old and new cap values on cap changes.
 - Test multiple calls in the same block and the first call in the next block.
 - Pair with reserve, custody, or solvency accounting; a block cap is not proof of backing.
+- Ensure the limited amount is the economically scarce leg. If redeem orders burn one token but release independently specified collateral, also cap collateral value or hot-wallet exposure.
 - If using delayed mint proposals, allow only approved validators to cancel or freeze and test the proposal delay, one-active-proposal rule, and frozen-minter rejection.
 
 ## Source Evidence
@@ -115,6 +117,7 @@ function redeem(RedeemOrder calldata order, bytes calldata sig) external onlyRed
 - Avant `AvUSDMintingV2` tracks `mintedPerBlock` and `redeemedPerBlock`, enforces `belowMaxMintPerBlock` and `belowMaxRedeemPerBlock`, and lets a gatekeeper disable mint/redeem by setting both caps to zero in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
 - Avant Foundry tests cover same-block mint and redeem limit exhaustion in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/test/foundry/minting/tests/AvUSDMinting.blockLimits.t.sol`.
 - M0 `MinterGateway` creates delayed mint proposals, lets approved validators cancel mint proposals or freeze minters, and tests validator-signature and freeze behavior in `/private/tmp/defillama-source/m0-foundation__protocol/src/MinterGateway.sol` and `test/MinterGateway.t.sol`.
+- Ethena's 2023 Code4rena snapshot applies `belowMaxRedeemPerBlock` to the burned USDe amount while collateral transfer uses a separately signed collateral amount, and its README notes that the per-block cap does not bound redeemer-key compromise in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol` and `/private/tmp/defillama-source/code-423n4__2023-10-ethena/README.md`.
 
 ## Real-World Examples
 

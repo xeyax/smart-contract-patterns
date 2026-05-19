@@ -65,12 +65,14 @@ function harvestAndQueue() external {
 - Bound reward duration changes through governance or timelock.
 - Fee splits should happen before queuing so streamed accounting matches token balance.
 - Treat instant distribution as flash-deposit sensitive unless stake duration, caller eligibility, or trigger design prevents same-transaction entry and claim.
+- For epoch-governed gauges, end the stream at the next epoch boundary instead of `now + duration`, carry leftovers, reject zero reward rates, and cap the rate by the funded balance.
 
 ## Source Evidence
 
 - Convex uses permissioned reward distributors and carries leftover rewards into new reward rates when streams are refilled before period end.
 - Convex proxy harvest flows claim external rewards and split fees through registry-configured recipients.
 - Reserve staking audit material warns that instant payout modes are vulnerable to flash deposits when reward funding is externally triggerable.
+- Velodrome V2 gauges stream rewards until the next epoch boundary, carry leftovers, reject zero rates, and cap reward rate by balance in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Gauge.sol`.
 
 ## Related Patterns
 

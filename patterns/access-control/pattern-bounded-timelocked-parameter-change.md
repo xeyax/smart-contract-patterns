@@ -71,6 +71,8 @@ Any config queued while a shorter delay is pending should still use the active d
 - Treat trust-list changes, vault enablement, maintainer admission, and bridge allowlists as critical parameter changes even when the value is boolean.
 - Do not label cooldown-bounded updates as timelocks unless users can observe a committed change before it becomes executable.
 - Bound claim, cooldown, and processing-period setters with hard upper limits when they affect exit liveness, not only fee or rate economics.
+- A wrapper that timelocks only ownership transfer is not a timelock for forwarded economic setters; delay the sensitive calls themselves.
+- Split emergency halt, routine operator, governor, and root/sudo powers so immediate roles cannot exercise delayed root authority.
 
 ## Source Evidence
 
@@ -81,6 +83,8 @@ Any config queued while a shorter delay is pending should still use the active d
 - Fluid uses cooldown-bounded rate authorization for some changes; this is useful risk reduction but weaker than public commit-and-delay semantics.
 - Stake DAO's UniversalBoostRegistry tests delay-reduction bypass attempts by queuing delay changes under the current delay before allowing shorter-delay config changes.
 - SlowMist's Avalon USDa audit flagged an unbounded saving-account process-period setter as an exit-liveness risk, reinforcing that time parameters need hard upper bounds.
+- VVS `CraftsmanAdmin` illustrates a weak wrapper shape: ownership handoff is delayed, but reward-economic calls such as `add`, `set`, `distributeSupply`, and `updateStakingRatio` are forwarded immediately in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/CraftsmanAdmin.sol`.
+- TON liquid staking separates halter, approver, interest manager, governor, and sudoer roles, with delayed governor and sudoer requests in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/contracts/governor_requests.func` and `sudoer_requests.func`.
 
 ## Related Patterns
 

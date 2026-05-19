@@ -31,6 +31,7 @@
 | pattern-timelocked-spell-authority.md | Grant authority to scheduled action contracts only after a delay, with cancelability and separate emergency pause controls. | A system is immutable or proxyless but still needs controlled authority changes |
 | pattern-two-step-authority-handoff.md | Stage critical authority or withdrawal-address changes and require confirmation by the new address before activation. | A privileged role controls upgrades, pausing, treasury movement, or withdrawal addresses |
 | pattern-two-step-delegated-order-signer.md | Let an account authorize a delegate signer only after both the account and signer confirm the delegation. | Smart-contract accounts need an EOA signer for typed orders |
+| pattern-vested-custody-capability-firewall.md | Reserve locked vesting funds while allowing only whitelisted destinations and message shapes to use the locked balance. | Locked tokens must still participate in staking, voting, or protocol maintenance |
 | pattern-wallet-native-automation-auth-adapter.md | Execute automation through each user's wallet-native permission model instead of asking wallets to trust one global executor shape. | Automation must act through user-owned wallets or proxies |
 
 ## automation
@@ -41,6 +42,7 @@
 |------|-------------|----------|
 | pattern-changeable-trigger-gate.md | Require every strategy trigger to pass, then atomically update only the selected mutable trigger state during execution. | Automated strategies depend on multiple trigger conditions |
 | pattern-cranked-validator-set-maintenance.md | Maintain large validator sets through an explicit on-chain phase machine with bounded per-validator cranks and epoch gates. | Validator-set maintenance cannot fit in one transaction or instruction |
+| pattern-grace-period-keeper-bounties.md | Convert overdue operator duties into permissionless maintenance after a grace period and pay a bounded bounty for completion. | A privileged operator or validator has recurring objective duties |
 | pattern-hash-anchored-strategy-subscription.md | Store only a wallet-bound strategy hash on-chain while bots supply the full strategy data and must match the committed hash before execution. | Automation strategies contain large trigger and action structs; Users or wallets subscribe to immutable strategy terms |
 | pattern-registry-routed-wallet-recipes.md | Execute user-wallet recipes by resolving stateless action modules from a registry and piping typed outputs between steps. | Users execute multi-step DeFi operations through their own wallet or proxy |
 
@@ -75,7 +77,7 @@
 | pattern-recipient-scoped-message-verifier.md | Let each cross-chain message recipient choose its verifier while a generic mailbox enforces versioning, destination domain, and exact-once delivery. | A shared mailbox delivers messages for many applications |
 | pattern-retryable-cross-domain-message-ledger.md | Record successful and failed cross-domain message executions so failed deliveries can be retried while successful deliveries remain exact-once. | Cross-domain messages execute arbitrary destination calls |
 | pattern-self-describing-utxo-deposit-reveal.md | Encode depositor, wallet, refund, and routing terms into a Bitcoin deposit script, then reveal and sweep that UTXO with proof-based settlement. | A bridge accepts deposits from a UTXO chain into an account-based chain |
-| pattern-signed-custody-routed-mint.md | Authorize mint and redeem orders with typed signatures that bind route, custodian allocation, nonce, expiry, and asset ratios before custody-backed settlement. | Tokens are minted or redeemed against off-chain or custodied reserves |
+| pattern-signed-custody-routed-mint.md | Authorize mint and redeem orders with typed signatures and constrain any custody route used for off-chain reserve settlement. | Tokens are minted or redeemed against off-chain or custodied reserves |
 | pattern-sovereign-bridge-local-balance-tree.md | Track bridge-owned local token balances in a Merkle tree when a sovereign chain cannot or should not mint wrapped supply. | A sovereign chain bridge handles assets it cannot freely mint and burn |
 | pattern-stake-backed-dvn-verifier-adapter.md | Plug an external stake-backed validator-set proof into a bridge verifier lane, then forward the verified packet to the canonical receive library. | A bridge or messaging layer supports custom verifier lanes |
 | pattern-threshold-custody-wallet-lifecycle.md | Manage bridge custody through rotating threshold-signer wallets with explicit states, liveness timeouts, moving-funds transitions, and fraud challenges. | A bridge custody account is controlled by a threshold signer group |
@@ -94,7 +96,7 @@
 | File | Applies To |
 |------|-----------|
 | req-bridge-exit-liveness.md | R1: Pauses Preserve Safe Exit Paths, R2: Failed Destination Settlement Has A Refund Path, R3: Migration Accounts For In-Flight Messages, R4: Admin Overrides Are Explicitly Trusted, R5: Emergency Exit Pauses Are Scoped And Expiring |
-| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits, R7: Migration Preserves Backing |
+| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits, R7: Migration Preserves Backing, R8: Hot Redemption Buffers Are Explicit |
 | req-proof-bridge-exit-safety.md | R1: Source Proof Is Finalized, R2: Exit Nullifier Is Unique And Normalized, R3: Emitter And Event Are Authenticated, R4: Custody Is Sufficient Before Release, R5: Migration Cutovers Preserve Pending Exits, R6: Challenge Or Relay Finality Is Explicit |
 
 ## governance
@@ -204,6 +206,7 @@
 | pattern-offpeg-dynamic-fee.md | Increase AMM fees as pool balances move away from the expected peg or balance so trades that worsen imbalance pay more. | Pool assets are expected to stay close to a peg or fair ratio; Trades that worsen imbalance increase LP risk |
 | pattern-orderbook-backed-amm-inventory-accounting.md | Account for AMM liquidity deployed to an external orderbook by reconciling vault balances, open orders, unsettled fills, and protocol PnL. | An AMM posts some pool inventory as maker orders on an external orderbook |
 | pattern-range-fee-growth-snapshots.md | Track fee growth outside and inside each tick range so concentrated-liquidity positions can accrue fees lazily without iterating over LPs. | LP positions are active only inside price ranges; Fees should accrue only while a position's range is active |
+| pattern-segregated-amm-fee-escrow.md | Move swap fees out of AMM reserves into a separate fee escrow and lazily index claimable fees for LP holders. | LP fees should be claimable separately instead of auto-compounded into reserves |
 | pattern-shared-liquidity-kernel.md | Centralize custody and interest accounting in a restricted liquidity core while user-facing fTokens, vaults, and DEX modules act as adapters. | Multiple protocol modules need to draw from the same supplied liquidity |
 | pattern-singleton-flash-accounting-pool-manager.md | Keep many AMM pools in one manager and settle all per-currency deltas to zero at the end of an unlocked operation. | Many pools share the same execution environment and benefit from lower transfer overhead |
 | pattern-twap-deviation-dynamic-fee.md | Adjust AMM swap fees by the bounded deviation between current price and a recent TWAP. | AMM fee should rise during short-term price dislocation or volatility |
@@ -426,6 +429,7 @@
 | pattern-proportional-zapin.md | External periphery contract converts single-token input into a proportional multi-token deposit, pushing swap slippage to the depositor and eliminating slippage socialisation in managed vaults. | Multi-token vault where a manager rebalances after single-token deposits (slippage socialised across holders) |
 | pattern-rate-bounded-nav-report.md | Accept manual or off-chain NAV reports only after the current NAV expires and only within annualized share-price movement guardrails. | Vault NAV is reported by an off-chain manager, accountant, or security council |
 | pattern-reserve-split-liquid-staking-receipt.md | Track user-owned and protocol-reserved receipt-token supply separately when a liquid-staking or CDP wrapper keeps part of minted receipts in reserve. | A wrapper mints receipt tokens while retaining part of the receipt supply as protocol reserve |
+| pattern-round-scoped-transferable-payout-receipts.md | Mint transferable receipt NFTs for an async settlement round, then fund the round and burn receipts for pro-rata payout. | Deposits or withdrawals settle only after an operator, validator, or epoch round finalizes |
 | pattern-timelock-shares.md | Shares are issued immediately but cannot be transferred or redeemed for a specified period, preventing instant arbitrage profit extraction. | Want instant share issuance (better UX than async); Need to prevent flash loan attacks |
 | pattern-user-owned-proxy-vault.md | Deploy one vault/proxy per user so protocol integrations can be automated while custody and position ownership remain isolated. | Users need individualized positions in an external protocol |
 | pattern-vault-wrapper.md | Thin ERC4626 vault that wraps a base strategy vault, adding fee/access layers without duplicating strategy logic. | Multiple fee tiers needed over a single strategy (e.g. 0%, 10%, 15%) |

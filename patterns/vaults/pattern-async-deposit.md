@@ -200,6 +200,11 @@ liability, and beneficiary or receiver semantics. Partial redemption must reduce
 the remaining ticket liability before external payment, and full redemption must
 burn or close the ticket.
 
+Round-scoped receipt NFTs are a stronger form when deposits and withdrawals are
+settled by discrete rounds. The receipt can be transferable before finalization,
+but the settlement round must fund the collection and burn the receipt before
+paying the pro-rata claim.
+
 ### Operator-Finalized Claim Ledger
 
 When withdrawals depend on off-chain settlement or operator-supplied liquidity,
@@ -366,6 +371,7 @@ Async withdrawals need additional liveness and accounting checks:
 - Failed push distributions in exit queues should become user-specific pull claims rather than harvestable yield.
 - Operator-finalized withdrawal claims should record fixed request entitlements before the operator distribution step and treat unfunded requests as an exit-liveness risk.
 - Height-interval redemption queues should keep cumulative request and withdrawal-event intervals immutable once claimable, and should bound claim input size or search depth.
+- Round-scoped payout receipts should bind each receipt to the finalized round and burn it before payout so transferability cannot duplicate claims.
 
 ## ERC-7540: Async Vault Standard
 
@@ -405,6 +411,7 @@ interface IERC7540 {
 - Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
 - Astherus Earn — request-numbered withdrawals are created before a bot-funded distribution step and user pull claim, showing the operator-finalized claim-ledger variant.
 - Liquid Collective — redeem requests are matched to withdrawal events through cumulative interval logic with full, partial, skipped, out-of-bounds, and already-claimed statuses.
+- TON liquid staking — deposit and withdrawal payout NFTs represent round-scoped claims that are funded during round finalization and burned on claim.
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns
@@ -414,6 +421,7 @@ interface IERC7540 {
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base pattern
 - [Operator-Finalized Withdrawal Claim](./pattern-operator-finalized-withdrawal-claim.md) — request ids funded by operator distribution
 - [Height-Interval Redemption Queue](./pattern-height-interval-redemption-queue.md) — interval-based claim matching
+- [Round-Scoped Transferable Payout Receipts](./pattern-round-scoped-transferable-payout-receipts.md) — transferable receipt NFT variant
 
 ## References
 

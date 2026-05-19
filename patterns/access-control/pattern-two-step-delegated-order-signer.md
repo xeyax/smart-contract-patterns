@@ -24,6 +24,7 @@
 - The account can already validate orders directly through ERC-1271
 - Delegation is off-chain only and cannot be audited or revoked on-chain
 - A single signature should grant only one action, not ongoing signer authority
+- Signer acceptance is intentionally not required and immediate account-owned delegation is acceptable
 
 ## Trade-offs
 
@@ -63,6 +64,25 @@ function acceptDelegation(address account) external {
 
 Order validation accepts a recovered signer only when it is either the account itself or an accepted delegate.
 
+### One-Step Account-Owned Variant
+
+If signer consent is not a requirement, the account can register and remove a
+delegate directly:
+
+```solidity
+function setDelegatedSigner(address delegate) external {
+    delegatedSigner[delegate][msg.sender] = true;
+}
+
+function removeDelegatedSigner(address delegate) external {
+    delegatedSigner[delegate][msg.sender] = false;
+}
+```
+
+This is lower friction, but weaker than the two-step model. Use it only when the
+account is the sole authority boundary and typo protection or signer acceptance
+does not matter.
+
 ## Implementation
 
 ```solidity
@@ -82,15 +102,18 @@ function _verifyOrder(Order calldata order, bytes calldata signature) internal v
 - Let the account remove a delegate without delegate cooperation.
 - Emit events for request, acceptance, and removal.
 - Do not use `tx.origin` as a substitute for delegated signer checks.
+- If using one-step registration, document that account compromise or a mistaken delegate address becomes active immediately.
 
 ## Source Evidence
 
 - Avant `AvUSDMintingV2` implements `setDelegatedSigner`, `confirmDelegatedSigner`, `removeDelegatedSigner`, and accepts delegated signers in `verifyOrder` in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
 - Avant tests cover pending delegation, confirmation, accepted delegate signatures, and removal in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/test/foundry/minting/tests/AvUSDMinting.Delegate.t.sol`.
+- Ethena's 2023 Code4rena snapshot implements a one-step account-owned delegated signer in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol`, with delegate success, failure, and removal tests in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/test/foundry/minting/tests/EthenaMinting.Delegate.t.sol`.
 
 ## Real-World Examples
 
 - Avant avUSD - two-step delegated EOA signing for smart-contract users of signed mint/redeem orders.
+- Ethena USDe contest snapshot - one-step account-owned delegated EOA signing for signed mint/redeem orders.
 
 ## Related Patterns
 

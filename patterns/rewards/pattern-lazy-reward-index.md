@@ -24,6 +24,7 @@
 - Rewards are one-off Merkle claims
 - Per-user boosts require expensive global recomputation
 - Reward tokens can be donated and mistakenly counted as newly accrued rewards
+- The same staking asset can be registered in multiple pools while pool supply is read from a shared token balance
 
 ## How It Works
 
@@ -57,6 +58,8 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Reward-per-token math should clamp accrual to the configured emission start/end window before dividing by total stake.
 - For multi-token reward lists, treat reward-token registration and balance-delta reads as a liveness boundary for transfers and exits.
 - Test multiple users entering, exiting, and claiming across emission updates.
+- Enforce one active pool per staking token when pool supply is derived from `stakingToken.balanceOf(farm)`, or track per-pool principal internally.
+- When LP fees are removed from AMM reserves and claimed separately, hook LP balance changes so per-user fee indexes stay current across transfers.
 
 ## Source Evidence
 
@@ -68,6 +71,8 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Satoshi Farm computes reward-per-token lazily over the interval clamped by reward start and end timestamps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-farm/src/core/Farm.sol` and `src/core/libraries/FarmMath.sol`.
 - Zest Protocol incentives use reward-program cumulative indexes and per-user cursors before claim and vault routing in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/rewards/incentives.clar`.
 - Pendle V2 uses multi-token lazy reward indexes based on token balance deltas and per-user cursors in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/RewardManager`.
+- VVS Farm illustrates why duplicate staking-token registration must be blocked when MasterChef-style rewards use the farm's aggregate LP-token balance as pool supply in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/Craftsman.sol`.
+- Velodrome V2 separates AMM fees into `PoolFees` and updates LP fee indexes on balance changes in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Pool.sol`.
 
 ## Related Patterns
 
@@ -75,3 +80,4 @@ Call `updateUser` before changing the user's stake and before claiming.
 - [Lazy Borrow Index](../lending/pattern-lazy-borrow-index.md)
 - [Index-To-Distributor Reward Routing](./pattern-index-to-distributor-reward-routing.md)
 - [Reward Token Accrual DoS](./risk-reward-token-accrual-dos.md)
+- [Segregated AMM Fee Escrow](../liquidity/pattern-segregated-amm-fee-escrow.md)

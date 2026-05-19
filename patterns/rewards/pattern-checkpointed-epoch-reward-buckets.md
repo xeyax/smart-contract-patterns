@@ -58,10 +58,12 @@ claim += rewardsPerEpoch[epoch] * balanceAt(user, epochStart) / supplyAt(epochSt
 - Store user claim cursors so partial claims can resume.
 - Test stale checkpoint catch-up, zero-supply epochs, multiple reward arrivals, and partial claims.
 - Provide an emergency recovery path for unclaimable or mis-sent rewards.
+- Keep missed-epoch catch-up bounded in both checkpoint and claim paths; long inactivity should require a cursor or keeper maintenance, not an unbounded user claim loop.
 
 ## Source Evidence
 
 - Stake DAO's `FeeDistributor` distributes fees by epoch, uses historical balance checkpoints for claims, documents zero-supply epoch loss, and bounds both checkpoint and claim loops with integration tests for partial catch-up.
+- Velodrome V2 epoch reward accounting includes claim-time epoch scans and a bounded global checkpoint catch-up path in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Reward.sol`, illustrating why missed-epoch loops need caps or cursors.
 
 ## Related Patterns
 

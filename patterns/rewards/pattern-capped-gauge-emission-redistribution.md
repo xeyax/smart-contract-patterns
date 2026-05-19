@@ -63,12 +63,14 @@ function notifyRewardAmount(uint256 amount) external {
 - Recompute remaining capacity before accepting redistributed amounts.
 - Bound redistribution iteration or process it through cursors.
 - Test cap changes, killed gauges, no-capacity epochs, and repeated redistributions.
+- If governance can kill a gauge, reject new deposits, preserve withdrawals, and return pending or future emissions to the minter or redistributor instead of trapping rewards in the dead gauge.
 
 ## Source Evidence
 
 - Aerodrome Slipstream caps gauge emissions in `/private/tmp/defillama-source/aerodrome-finance__slipstream/contracts/gauge/CLGauge.sol` through `notifyRewardAmount`.
 - Aerodrome factory cap controls are in `contracts/gauge/CLGaugeFactory.sol` through `setEmissionCap` and `calculateMaxEmissions`.
 - Aerodrome redistributes excess through `contracts/gauge/Redistributor.sol` and `_redistribute`.
+- Velodrome V2 killed gauges reject new deposits, preserve withdrawals, and redirect pending or future emissions in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Gauge.sol` and `contracts/Voter.sol`.
 
 ## Real-World Examples
 

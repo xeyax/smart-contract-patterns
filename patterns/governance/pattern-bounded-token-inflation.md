@@ -86,12 +86,14 @@ This keeps emergency inflation tied to realized system debt instead of discretio
 - Test migration, bridge, reward, and emergency mint paths against the same invariant.
 - For backstop minting, net surplus against debt and enforce delay before starting dilution.
 - Multisig or role gating is not a substitute for protocol-level supply and balance-mutation bounds; every mint and burn role should still be constrained by amount, recipient, reason, or window.
+- If tokenomics are calendar-denominated, avoid hardcoded block-time conversions unless drift is acceptable and monitored. Timestamp or epoch budgets track annual supply limits more directly.
 
 ## Source Evidence
 
 - Ethena's governance token design includes bounded mint authority so token issuance can expand under governance without becoming unrestricted arbitrary supply creation.
 - Sky/Maker DSS delays debt-backed MKR dilution until debt is queued, surplus is netted, and fixed-size debt auctions can be started.
 - SlowMist's Avalon USDa audit identified arbitrary role-gated mint and burn functions as excessive authority, showing that multisig custody alone does not bound supply mutation.
+- VVS Farm converts annual supply targets to per-block emissions through a fixed 6-second block-time assumption in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/VVSInitMintable.sol`, illustrating calendar drift risk for per-block farms.
 
 ## Related Patterns
 

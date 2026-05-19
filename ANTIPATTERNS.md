@@ -39,7 +39,7 @@ Documentation, deployment scripts, or comments describe a security limit that th
 
 ### Unrestricted Admin
 Owner/admin can change critical parameters instantly without timelock, bounds, or multi-sig.
-**Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner. Reserve configuration, oracle thresholds, guardian quorums, signer sets, and liquidity or bridge maintainer allowlists can be changed instantly.
+**Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner. Reserve configuration, oracle thresholds, guardian quorums, signer sets, and liquidity or bridge maintainer allowlists can be changed instantly. Timelock wrappers delay only ownership handoff while forwarding economic setters immediately.
 **Risk:** Rug pull, accidental misconfiguration, governance attack.
 **Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked. Treat allowlist, maintainer, vault-status, and bridge-trust-list changes as critical even when they are not numeric parameters.
 
@@ -122,7 +122,13 @@ Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfe
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection. Multi-leg zaps should carry per-leg swap and liquidity minimums instead of relying only on one final aggregate `minOut`.
+
+### Duplicate Staking Asset Registration
+MasterChef-style farm registers the same staking token in more than one pool while reward debt reads total token balance from the farm contract.
+**Symptoms:** `lpToken.balanceOf(address(this))` is used as pool supply, pool creation lacks a uniqueness check, or docs say duplicate LP pools should not be added without an enforced registry.
+**Risk:** Rewards for one pool can be diluted, amplified, or cross-accounted by deposits in another pool with the same staking token.
+**Fix:** Enforce one active pool per staking asset, or track internal per-pool principal instead of deriving supply from the farm's aggregate token balance.
 
 ### tx.origin-Keyed Economic Entitlement
 Discounts, fee tiers, gauges, or other economic entitlements are keyed by `tx.origin`.
@@ -274,7 +280,13 @@ Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if t
 Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
 **Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
 **Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
-**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations. Executor-supplied custody routes are acceptable only when the unsigned route cannot change user price, asset, receiver, fee, or claim semantics and is still checked against on-chain allowlists.
+
+### Bitmap Nonce Domain Truncation
+Signed-order nonce storage narrows a wider signed nonce into a smaller bitmap index without enforcing the supported range.
+**Symptoms:** `uint256 nonce` is cast to `uint64`, `uint8`, or another smaller type for bitmap word/bit selection, while signatures accept arbitrary-width nonces.
+**Risk:** Different signed nonces can collide in storage or make replay and griefing behavior differ from what signers expect.
+**Fix:** Define the nonce domain explicitly, reject values outside it before casting, and test high-bit collision cases as well as ordinary duplicate nonces.
 
 ## Governance
 

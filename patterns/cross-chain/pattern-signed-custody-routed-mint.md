@@ -1,6 +1,6 @@
 # Signed Custody-Routed Mint
 
-> Authorize mint and redeem orders with typed signatures that bind route, custodian allocation, nonce, expiry, and asset ratios before custody-backed settlement.
+> Authorize mint and redeem orders with typed signatures and constrain any custody route used for off-chain reserve settlement.
 
 ## Metadata
 
@@ -23,13 +23,13 @@
 
 - Reserve movement can be verified trustlessly on-chain
 - Custodian allocation is opaque or not reconcilable
-- Operators can sign orders without expiry, nonce, and route binding
+- Operators can choose settlement routes that change user price, asset, receiver, fee, or claim semantics without signer authorization
 
 ## Trade-offs
 
 **Pros:**
-- Binds off-chain approval to exact on-chain execution terms
-- Supports multi-custodian routing without arbitrary executor discretion
+- Binds off-chain approval to exact user-facing execution terms
+- Supports multi-custodian routing with constrained executor discretion
 - Prevents replay across routes, chains, order types, and users
 
 **Cons:**
@@ -39,7 +39,8 @@
 
 ## How It Works
 
-The signed order should include all fields that affect settlement:
+The strict variant includes every field that affects settlement, including the
+route and custody split:
 
 ```solidity
 struct MintOrder {
@@ -69,20 +70,42 @@ function mint(MintOrder calldata order, bytes calldata sig) external {
 }
 ```
 
+### Operator-Selected Custody Route Variant
+
+Some issuers keep the custodian route outside the signed order so operations can
+choose the wallet split at execution time. That is weaker than route-bound
+signing and should be used only when route choice cannot change the user's
+economics. The contract still needs to reject unknown custodians, zero-ratio
+legs, and routes whose ratios do not sum to 100 percent.
+
+```solidity
+function mint(Order calldata order, Route calldata route, bytes calldata sig) external {
+    _verifyOrder(order, sig);        // account, asset, amounts, nonce, expiry
+    _consumeNonce(order.account, order.nonce);
+    _verifyCustodyRoute(route);      // custodian allowlist and ratio sum
+    _transferCollateral(order.asset, order.amount, route);
+    _mint(order.receiver, order.tokensOut);
+}
+```
+
 ## Key Points
 
 - Domain-separate signatures by chain id and verifying contract.
-- Bind operation type, account, asset, amount, route, custodian allocation, nonce, and expiry.
+- Bind operation type, account, asset, amount, receiver, nonce, and expiry.
+- Bind route and custodian allocation when the route can affect user-visible economics.
+- If the executor supplies the route, prove it is only an internal custody allocation and validate the route on-chain.
 - Use bitmap or mapping nonce consumption so replay is impossible.
 - Check route and custodian allowlists on-chain, not only in the signer service.
 - Pair with public reserve backing requirements and settlement traceability.
 
 ## Source Evidence
 
-- Ethena uses typed signed mint/redeem orders with nonce replay protection, expiry, route/custodian constraints, and ratio checks for custody-routed settlement.
+- Ethena's 2023 Code4rena snapshot signs typed mint/redeem orders with account, asset, amounts, nonce, and expiry, while the route is supplied to `mint(order, route, signature)` and checked by `verifyRoute` for custodian membership, nonzero ratios, and a total of 10,000 bps in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol`.
+- Ethena minting tests cover valid and invalid multi-custodian routes in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/test/foundry/minting/tests/EthenaMinting.core.t.sol`.
 
 ## Related Patterns
 
 - [Custodian-Attested Mint/Burn](./pattern-custodian-attested-mint-burn.md)
 - [Custodial Reserve Backing Requirements](./req-custodial-reserve-backing.md)
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md)
+- [Signature Scope Drift](../../ANTIPATTERNS.md#signature-scope-drift)

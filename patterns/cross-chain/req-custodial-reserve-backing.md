@@ -85,10 +85,21 @@ custody_balance >= wrapped_token_total_supply
 - Local burns and blocked-fund destruction are reconciled against outstanding supply and pending exits.
 - New mint and burn roles are activated only after reserve, peer, and migration boundaries are verified.
 
+## R8: Hot Redemption Buffers Are Explicit
+
+**On-chain redeem capacity backed by a hot wallet or minting contract balance must be separated from total off-chain backing.**
+
+### What This Means
+
+- Users can tell whether a redeem is limited by total reserves, a hot collateral buffer, or an operator transfer from custody.
+- Hot buffers have caps and replenishment procedures instead of being implied by total custodied assets.
+- Off-chain hedge or custodian losses are documented as backing risks, not hidden behind successful on-chain order verification.
+
 ## Source Evidence
 
 - Stacks sBTC signer validation checks mint and withdrawal limits before signing in `/private/tmp/defillama-source/stacks-network__sbtc/signer/src/bitcoin/validation.rs`, with limit tests in the same tree.
 - USDT0 audit reports discuss child-token supply mutation, bridge migration receivers, and reserve/backing preservation during OFT and adapter migrations; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
+- Ethena's 2023 Code4rena snapshot documents collateral sent to custodians and hedged off-chain, a limited hot collateral balance for redemptions, and custodian wallet loss as an undercollateralization risk in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/README.md` and `contracts/README_OLD.md`.
 
 ## Related Patterns
 

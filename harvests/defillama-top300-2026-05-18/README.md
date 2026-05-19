@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 182 across 20 batches.
+- Source repository inspections so far: 194 across 21 batches.
 
 ## First Batch Repositories
 
@@ -273,6 +273,18 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Liquid Collective | `liquid-collective/liquid-collective-protocol` | Liquid staking deep pass |
 | Superstate USTB | `superstateinc/ustb`, `superstateinc/onchain-redemptions` | RWA deep pass |
 
+## Twenty-First Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| VVS Finance | `vvs-finance/vvs-swap-core`, `vvs-finance/vvs-swap-periphery`, `vvs-finance/vvs-farm`, `vvs-finance/vvs-zap` | DEX / farm / zap |
+| Ethena | `ethena-labs/code4arena-contest`, `code-423n4/2023-10-ethena` | Stablecoin audit snapshots |
+| Tonstakers / TON Liquid Staking | `ton-blockchain/liquid-staking-contract` | Liquid staking |
+| TON Nominator Pool | `ton-blockchain/nominator-pool`, `tonwhales/ton-nominators` | Staking pool |
+| TON Vesting | `ton-blockchain/vesting-contract` | Vesting / locked custody |
+| JitoSOL Wormhole Rate | `jito-foundation/jitosol-wormhole-updater` | Cross-chain rate oracle |
+| Velodrome V2 | `velodrome-finance/contracts` | DEX / gauges |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -295,6 +307,8 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-17-findings.md` — accepted and deferred catalog updates from the seventh expanded source-discovery batch.
 - `batch-18-findings.md` — accepted and deferred catalog updates from the eighth expanded source-discovery batch.
 - `batch-19-findings.md` — accepted and deferred catalog updates from the ninth expanded source-discovery batch.
+- `batch-20-findings.md` — accepted and deferred catalog updates from the tenth expanded source-discovery batch.
+- `batch-21-findings.md` — accepted and deferred catalog updates from the eleventh expanded source-discovery batch.
 
 ## Notes
 
