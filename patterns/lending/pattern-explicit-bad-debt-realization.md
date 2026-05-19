@@ -74,6 +74,7 @@ terminal default condition explicit.
 
 - Morpho Blue liquidations can wipe remaining debt and reduce total supply and borrow assets, with integration and formal checks around supplier haircut and no-debt-without-collateral invariants.
 - Blend V2 assigns collateral-free user liabilities to the backstop and later defaults backstop liabilities only below a small-threshold condition in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/pool/bad_debt.rs`, with tests for assignment and default.
+- Fraxlend realizes bad debt during liquidation by reducing both `totalBorrow.amount` and `totalAsset.amount` when collateral cannot cover debt in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
 
 ## Related Patterns
 

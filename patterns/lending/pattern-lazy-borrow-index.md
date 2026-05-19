@@ -62,6 +62,7 @@ On borrow or repay, write the borrower's new principal and current index.
 - Compound V2 stores borrower debt as principal plus interest index and updates debt through `/private/tmp/defillama-source/compound-finance__compound-protocol/contracts/CToken.sol` functions `accrueInterest`, `borrowBalanceStored`, `borrowFresh`, `repayBorrowFresh`, and `liquidateBorrowFresh`.
 - Compound tests borrow accrual, repayment, and liquidation freshness in `tests/Tokens/accrueInterestTest.js`, `borrowAndRepayTest.js`, and `liquidateTest.js`.
 - Satoshi Core lazily applies trove debt interest and OSHI reward indexes around trove state changes in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/logic/TroveManagerLogic.sol`.
+- Zest Protocol stores user principal borrow balance plus the last variable-borrow index, then computes compounded borrow balances from reserve indexes in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/vaults/pool-0-reserve.clar`.
 
 ## Related Patterns
 

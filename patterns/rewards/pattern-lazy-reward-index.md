@@ -65,6 +65,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Girin/Doppler-style reward distributors show terminal emission cursors that cap accrual at a final block and need guarded cutoff changes.
 - Reserve staking audit material highlights precision-scalar and zero-supply accrual hazards in multi-reward lazy indexes.
 - Satoshi Farm computes reward-per-token lazily over the interval clamped by reward start and end timestamps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-farm/src/core/Farm.sol` and `src/core/libraries/FarmMath.sol`.
+- Zest Protocol incentives use reward-program cumulative indexes and per-user cursors before claim and vault routing in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/rewards/incentives.clar`.
 
 ## Related Patterns
 

@@ -102,6 +102,8 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - Drift uses action-scoped oracle validity for funding, settlement, liquidation, margin, trigger, and AMM-fill paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/math/oracle.rs`.
 - Alpha Homora V2 uses token-specific borrow, collateral, and liquidation factors around a shared source oracle in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/ProxyOracle.sol` and applies them in HomoraBank health and liquidation checks.
 - Satoshi Nexus prices stable-asset minting with conservative peg caps and redemptions with the opposite conservative bound in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/NexusYieldManager.sol`.
+- Fraxlend stores low/high oracle exchange rates with deviation gating, uses the high price for solvency checks and the low price for liquidation calculations in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
+- Frax FPI controller tests peg-band mint, redeem, and TWAMM actions against bounded prices in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/FPI/FPIControllerPool.sol`.
 
 ## Related Patterns
 

@@ -116,6 +116,7 @@ move price per share immediately.
 - infiniFi's Pendle farm values principal tokens at discounted maturity value, subtracts remaining yield, and releases that yield over time to avoid a deterministic maturity NAV cliff.
 - Yearn V3 mints vault-owned locked shares on profit or refund reports, offsets fees and losses against locked shares, uses weighted-average unlock rollover, and allows the profit unlock manager to set unlock time to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/contracts/VaultV3.vy`.
 - Yearn V3 tests profit staying out of PPS until unlock and immediate unlock when max unlock time is set to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/tests/unit/vault/test_profit_unlocking.py`.
+- Avant `StakedAvUSD` excludes unvested rewards from `totalAssets()` and vests them over an 8-hour window, with tests around share pricing and delayed reward vesting in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/StakedAvUSD.sol`.
 
 ## Related Patterns
 

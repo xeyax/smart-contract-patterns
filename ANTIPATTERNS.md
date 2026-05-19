@@ -39,7 +39,7 @@ Documentation, deployment scripts, or comments describe a security limit that th
 
 ### Unrestricted Admin
 Owner/admin can change critical parameters instantly without timelock, bounds, or multi-sig.
-**Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner.
+**Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner. Reserve configuration, oracle thresholds, guardian quorums, signer sets, and liquidity or bridge maintainer allowlists can be changed instantly.
 **Risk:** Rug pull, accidental misconfiguration, governance attack.
 **Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked. Treat allowlist, maintainer, vault-status, and bridge-trust-list changes as critical even when they are not numeric parameters.
 
@@ -64,7 +64,7 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 Pause blocks ALL operations including withdrawals.
 **Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, repayments, liquidations, interest accrual, and refunds remain available when solvent or risk-reducing; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
 
 ### EOA Gate as Security Boundary
 Contract rejects contract callers with `tx.origin`, `isContract`, or both and presents that as security.
@@ -210,7 +210,7 @@ Vault strategy locks all funds in external protocols, no reserved liquidity buff
 
 ### Permissioned Exit Custody
 Withdrawal or migration escrow lets only an owner or operator release user funds without user-specific entitlement or queue semantics.
-**Symptoms:** Owner-only escrow withdrawal, no recorded beneficiary balance, or migration custody that relies on social process.
+**Symptoms:** Owner-only escrow withdrawal, no recorded beneficiary balance, migration custody that relies on social process, or an on-chain burn/claim that only emits an off-chain destination while the real asset release is operational.
 **Risk:** Users cannot independently claim assets and must trust the operator not to delay, reorder, or redirect exits.
 **Fix:** Record user entitlements, queue order, and claim conditions on-chain. Beneficiary-specific pending redemptions improve traceability, but they do not remove custody risk if only an operator can execute or cancel and there is no timeout, queue, or user claim path. If permissioned custody is temporary for migration, publish the migration boundary, operator trust assumptions, and final user claim path.
 
@@ -224,13 +224,13 @@ Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot 
 
 ### Fee-on-Transfer Blindness
 Assumes token transfer delivers exact amount requested.
-**Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check.
+**Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check, or docs say only standard non-rebasing tokens are supported while onboarding does not reject fee-on-transfer behavior.
 **Risk:** Accounting mismatch with fee-on-transfer tokens, exploitable for value extraction.
 **Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding.
 
 ### Implicit Decimal Assumption
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
-**Symptoms:** No per-token decimal normalization, share math doesn't account for decimal differences.
+**Symptoms:** No per-token decimal normalization, share math doesn't account for decimal differences, or native-token sentinels flow into ERC20 `decimals()` calls before native handling.
 **Risk:** USDC (6 decimals) valued as 1e12× correct amount. Common in multi-token vaults.
 **Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals. If the system only supports 18-decimal accounting, reject non-18-decimal tokens and feeds at every onboarding path. Oracle adapters that compute `10 ** (18 - decimals)` need an explicit `decimals <= 18` guard or onboarding rejection.
 
@@ -274,7 +274,7 @@ Governor contract executes arbitrary calldata against any target.
 
 ### Privileged Supply Mutation
 Minter or burner roles can arbitrarily change user balances or total supply.
-**Symptoms:** Role-gated `mint` or `burn` with no per-window cap, recipient scope, debt/backing condition, or user-specific authorization.
+**Symptoms:** Role-gated `mint` or `burn` with no per-window cap, recipient scope, debt/backing condition, or user-specific authorization; guardian/quorum paths exist but an admin or DAO mint path bypasses them.
 **Risk:** Key compromise, governance error, or signer coercion can dilute holders, erase balances, or break reserve accounting even if the role is held by a multisig.
 **Fix:** Enforce protocol-level supply and balance-mutation bounds, tie emergency minting to realized debt or backing proofs, require user consent for burns except narrow slashing/settlement cases, and monitor every budget-consuming path.
 
@@ -310,7 +310,7 @@ User-facing swap/deposit broadcasts exact amounts to public mempool.
 
 ### Beacon Proxy Single Point of Failure
 Many instances share single Beacon, Beacon owner is EOA or low-threshold multisig.
-**Symptoms:** One global beacon for all vaults/pools, no upgrade monitoring.
+**Symptoms:** One global beacon for all vaults/pools, no upgrade monitoring, or a chain module can upgrade many plan/proxy instances through one shared beacon authority.
 **Risk:** Compromising Beacon owner upgrades ALL instances simultaneously.
 **Fix:** Timelock + high-threshold multisig, per-cohort beacons, upgrade monitoring with auto-pause. Consider instance-owned delegates, rollback paths, or version-gated upgrade registries when blast-radius control matters.
 
@@ -354,7 +354,7 @@ Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.
 
 ### Trusted SPV Boundary Omitted
 Bridge documentation or code presents SPV proofs as fully trustless while the relay or proof submitter set is trusted to provide canonical source-chain data.
-**Symptoms:** Bitcoin or external-chain proof verifies merkle inclusion and work, but header submission, chain selection, or maintainer admission is centralized or owner-controlled.
+**Symptoms:** Bitcoin or external-chain proof verifies merkle inclusion and work, but header submission, chain selection, validator-finality checks, or maintainer admission is centralized or owner-controlled. A "light client" may verify header linkage and receipt roots while allowlisted submitters decide which headers enter the system.
 **Risk:** Users and integrators overestimate finality guarantees, and governance can admit false or stale source-chain state as canonical.
 **Fix:** Document relay maintainer trust, challenge windows, replacement rules, and emergency procedures. Bind bridge state transitions to authenticated relay state and monitor maintainer or allowlist changes as critical governance events.
 

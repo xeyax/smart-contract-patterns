@@ -55,6 +55,7 @@ Debt tokens use the same shape with a borrow index. The index update belongs to 
 
 - Aave V3 represents supplied and borrowed positions through scaled balances multiplied by liquidity or borrow indexes, allowing global accrual without per-user iteration.
 - Aave V2 uses the same scaled-balance shape for aTokens and variable debt tokens: mint and burn convert through liquidity or variable-borrow indexes, while balance views multiply scaled balances by normalized income or debt in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/tokenization`.
+- Zest Protocol zTokens lazily cumulate balances from liquidity indexes and tests zToken upgrades and balance carry-forward in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/ztoken` and `onchain/tests/borrow/upgrade-z-token-v2.test.ts`.
 
 ## Related Patterns
 

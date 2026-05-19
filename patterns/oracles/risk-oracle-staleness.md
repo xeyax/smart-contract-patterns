@@ -130,6 +130,13 @@ or unavailable. That can preserve liveness for low-risk views, but it is
 fail-open for mint, redeem, borrow, and allocation paths because it masks both
 oracle outages and real depegs.
 
+### Stale Price Degradation Without Clear Action Scope
+
+Some systems degrade stale or broken price ranges toward conservative extremes
+instead of reverting immediately. This can be useful when the degraded range
+forces conservative accounting, but it must be paired with action-specific rules
+that say which actions can continue under degraded prices and which must stop.
+
 ### Emergency Containment Blocked By Stale Reads
 
 Fail-closed stale-price checks are appropriate for value-bearing user actions, but they can be counterproductive on pure risk-reduction setters. If lowering a borrow cap, LTV, mint limit, or route limit does not need the current price, requiring a fresh oracle read can block containment during the exact outage the limiter is meant to handle.
@@ -169,6 +176,7 @@ Example (1% deviation threshold):
 | Conservative Zeroing | Avoids overvaluing stale-priced components | Can change quorum or validator-set composition abruptly |
 | Reject Stale-To-Peg Fallbacks | Prevents stable-asset adapters from silently blessing outages at par | May block actions during benign oracle downtime |
 | Risk-Reduction Setter Exemption | Lets emergency actions lower exposure during oracle outages | Must be limited to monotonic reductions that do not depend on price |
+| Stale Price Degradation | Keeps conservative views available during feed failure | Must not be used as a generic fresh price for all actions |
 
 ### Implementation: Staleness Check
 
@@ -231,6 +239,7 @@ function isPriceStale() public view returns (bool) {
 - Track sequencer status on L2s
 - For voting-power calculators, alert when stale or missing feeds zero a component that contributes to quorum.
 - For emergency playbooks, test that stale or unavailable price feeds do not block monotonic risk reductions that do not use the price.
+- For degraded price ranges, test which actions remain enabled and prove the degraded range is conservative for those actions.
 
 ## Real-World Incidents
 
@@ -238,6 +247,7 @@ function isPriceStale() public view returns (bool) {
 - **Compound (2020)** — DAI oracle manipulation during flash crash
 - **Arbitrum Sequencer Outage** — multiple protocols affected by stale prices
 - Rocket Pool's Polygon rate relay and Symbiotic Relay's voting-power calculators show wrapper-specific freshness hazards: the former can confuse source and destination timestamps, while the latter can zero voting power on stale prices.
+- Reserve Protocol collateral plugins cache price bounds and degrade stale or broken prices toward conservative low/high extremes while collateral default handling is delayed, as implemented under `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/plugins/assets`.
 - Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
 - Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/adapters` and `src/PegStabilityModule.sol`.
 

@@ -74,6 +74,7 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - Euler V2 documentation shows that requiring fresh pull-oracle reads for a risk-reducing LTV setter can block emergency borrow-LTV zeroing and push operators toward unsafe temporary oracle stubs.
 - Lombard's bascule controls distinguish replay-monitor bypass threshold increases from monotonic decreases, including one-shot authority for threshold increases.
 - BENQI's PauseGuardian can pause minting and borrowing when proof-of-reserve monitoring detects token supply above reserves, while unpausing remains admin-controlled; the pause scope is visible through Comptroller pause flags in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/lending`.
+- Avant's gatekeeper can disable mint/redeem and revoke hot minter, redeemer, and collateral-manager roles, while restoration remains with admin-controlled setters in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
 
 ## Related Patterns
 

@@ -50,6 +50,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Accepted state updates should be bounded by both value delta and update cadence
 - Lending collateral oracles should preserve enough liquidation buffer that an allowed oracle jump cannot instantly push healthy accounts below the intended liquidation threshold.
 - Perps or portfolio-margin systems should define action-specific validity for funding, settlement, liquidation, trigger, margin, and AMM-fill paths instead of relying on one global fresh/stale flag.
+- Confidence intervals and exponent normalization should be checked before converting an oracle report into the protocol's fixed precision.
 
 ### Violations
 - Large deviation thresholds (e.g., 1% for Chainlink)
@@ -129,6 +130,7 @@ When evaluating an oracle integration, verify:
 | Bridged Rates | Is the source update timestamp checked separately from the message receive timestamp? |
 | Report Ranges | Are off-chain source ranges finalized, contiguous, and non-sparse? |
 | Action Scope | Which price-validity flags are required for each value-bearing action? |
+| Confidence | Are confidence ratios, exponent ranges, and feed ids validated before conversion? |
 
 ---
 

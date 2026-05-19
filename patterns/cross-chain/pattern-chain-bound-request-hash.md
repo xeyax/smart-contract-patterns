@@ -123,10 +123,13 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 - Lombard's bascule flow reports mint request ids, validates each id once, consumes bypassed small-transfer ids, and separates risk-increasing threshold changes from risk-reducing decreases.
 - Axelar binds command id, source chain, source address, destination contract, payload hash, token symbol, and amount in gateway approval keys in `/private/tmp/defillama-source/axelarnetwork__axelar-cgp-solidity/contracts/AxelarGateway.sol`, then consumes approvals in `validateContractCall` and `validateContractCallAndMint` before execution.
 - Gnosis xDAI bridge migration notes and message libraries show why bridge messages must bind intended token/output semantics during DAI-to-USDS collateral migration in `/private/tmp/defillama-source/gnosischain__tokenbridge-contracts-xdaibridge/USDSMigration.md` and `contracts/libraries/Message.sol`.
+- Lorenzo `MintSecurity` domain-separates guardian mint hashes by chain id and contract address, binds BTC tx hash, token, destination, staking output index, inclusion height, and amount, then consumes hashes and sorts recovered signers to prevent duplicate-signature quorum in `/private/tmp/defillama-source/Lorenzo-Protocol__enzoBTC_contract/src/core/MintSecurity.sol`.
+- Fraxferry v1 commits cross-chain batch ranges and payload hashes before delayed execution in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/Fraxferry/Fraxferry.sol`; the batch hash gives replay and data-integrity structure but not trustless finality.
 
 ## Related Patterns
 
 - [Historical Bounds](../oracles/pattern-historical-bounds.md) - guardrails for cross-chain price relays
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
 - [Break-Glass Risk Limiter](../access-control/pattern-break-glass-risk-limiter.md)
+- [Dispute-Windowed Operator Batch Bridge](./pattern-dispute-windowed-operator-batch-bridge.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay) - anti-pattern this mitigates

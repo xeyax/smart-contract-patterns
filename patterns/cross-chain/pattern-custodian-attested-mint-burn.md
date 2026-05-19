@@ -71,15 +71,18 @@ function recordSettlement(uint256 id, string calldata settlementTxId) external o
 - Enforce minimum redemption amounts or batching where external settlement has fixed costs.
 - Scope pauses so successful burns have a refund or settlement path.
 - Do not describe this as trustless bridging; document custodian and merchant trust explicitly.
+- If an on-chain exit only burns representation and emits an external destination, state clearly that off-chain settlement remains a custody obligation until the source-chain payout is proven.
 
 ## Source Evidence
 
 - WBTC uses merchant mint requests approved by a custodian and merchant burn requests reconciled with settlement transaction ids.
 - WBTC documentation and audit materials emphasize public reserve verification and custodian backing.
+- Lorenzo enzoBTC withdrawal requests burn or mark on-chain representation and emit BTC destination data for off-chain custody release in `/private/tmp/defillama-source/Lorenzo-Protocol__enzoBTC_contract/src/modules/WithdrawalRequest.sol` and `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btcstaking/keeper/msg_server.go`.
 
 ## Related Patterns
 
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md) - trustless bridge replay domain pattern
 - [Signed Custody-Routed Mint](./pattern-signed-custody-routed-mint.md) - typed signed order flow for routed custody settlement
 - [Custodial Reserve Backing](./req-custodial-reserve-backing.md)
+- [Value-Tiered Source Finality](./pattern-value-tiered-source-finality.md)
 - [Bridge Custodian Concentration](../../ANTIPATTERNS.md#bridge-custodian-concentration)

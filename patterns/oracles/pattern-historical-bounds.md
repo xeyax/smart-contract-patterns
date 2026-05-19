@@ -368,6 +368,7 @@ contract CircuitBreakerWithBounds {
 - An Ondo audit-contest snapshot combines fresh Chainlink round checks, daily cadence, absolute bounds, and anchor-delta bounds before accepting RWA oracle state.
 - Stader BNBx constrains accepted LST exchange-rate movement and uses monitoring around exchange-rate drops, supply mismatch, and operation cadence.
 - NAVI oracle strategy checks effective min/max price and price history span in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/strategy.move`.
+- Avant MAX `PriceStorage` accepts a write-once price key only when the new price stays within bounds around `lastPrice`; tests cover duplicate keys and upper/lower bound reverts in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/src/PriceStorage.sol` and `test/PriceStorage.t.sol`.
 
 ## Related Patterns
 

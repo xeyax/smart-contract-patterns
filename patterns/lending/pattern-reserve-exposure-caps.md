@@ -61,6 +61,7 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - Sky/Maker DSS risk checks allow position changes that improve safety even when debt ceilings or collateralization constraints would reject risk-increasing changes.
 - Satoshi Core applies per-market CDP debt caps and Nexus total/daily mint caps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/core/NexusYieldManager.sol`.
 - Reservoir combines PSM, savings, and fixed-maturity term debt caps with global balance-sheet ratio checks in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/CreditEnforcer.sol`.
+- Zest Protocol combines supply caps, borrow caps, isolated-collateral flags, borrowable-isolated assets, and aggregate isolated debt ceilings in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar`, with isolation-mode tests under `onchain/tests/borrow`.
 
 ## Related Patterns
 

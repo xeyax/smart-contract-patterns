@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 152 across 17 batches.
+- Source repository inspections so far: 162 across 18 batches.
 
 ## First Batch Repositories
 
@@ -235,6 +235,16 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Sophon Bridge | `sophon-org/custom-usdc-bridge` | Canonical bridge |
 | USDT0 | `Everdawn-Labs/usdt0-audit-reports` | Cross-chain stablecoin audit source |
 
+## Eighteenth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Avant Protocol | `Avant-Protocol/avUSD-Contracts`, `Avant-Protocol/Avant-Core-Contracts`, `Avant-Protocol/Avant-Contracts-Max` | Basis Trading / stablecoin |
+| Zest Protocol | `Zest-Protocol/zest-contracts` | Lending / Stacks |
+| Reserve Protocol | `reserve-protocol/protocol` | Indexes / RToken core |
+| Frax | `FraxFinance/frax-solidity`, `FraxFinance/fraxlend` | RWA / lending / stablecoin |
+| Lorenzo | `Lorenzo-Protocol/lorenzo`, `Lorenzo-Protocol/enzoBTC_contract`, `Lorenzo-Protocol/audit-report` | BTC yield / bridge / audit source |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -255,6 +265,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-15-findings.md` — accepted and deferred catalog updates from the fifth expanded source-discovery batch.
 - `batch-16-findings.md` — accepted and deferred catalog updates from the sixth expanded source-discovery batch.
 - `batch-17-findings.md` — accepted and deferred catalog updates from the seventh expanded source-discovery batch.
+- `batch-18-findings.md` — accepted and deferred catalog updates from the eighth expanded source-discovery batch.
 
 ## Notes
 

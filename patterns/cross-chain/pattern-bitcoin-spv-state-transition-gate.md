@@ -56,6 +56,7 @@ If the system relies on trusted maintainers to submit canonical headers, that tr
 
 - tBTC v2 gates deposit sweeps and bridge transitions on Bitcoin transaction and relay proofs, with comments documenting that proof submission can prove work but still rely on maintainer trust for canonical mainnet inclusion.
 - Babylon BTC staking documentation distinguishes activation finality from unbonding intent and describes reorg repair across staking, voting-power, and reward indexes.
+- Lorenzo validates Bitcoin header linkage and cumulative work, stores canonical light-client state, verifies merkle inclusion before staking mint flows, and applies source-finality checks in `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btclightclient` and `x/btcstaking`.
 
 ## Related Patterns
 
@@ -63,3 +64,4 @@ If the system relies on trusted maintainers to submit canonical headers, that tr
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
 - [Self-Describing UTXO Deposit Reveal](./pattern-self-describing-utxo-deposit-reveal.md)
 - [Covenant-Gated Bitcoin Staking Output](./pattern-covenant-gated-bitcoin-staking-output.md)
+- [Value-Tiered Source Finality](./pattern-value-tiered-source-finality.md)

@@ -65,6 +65,7 @@ Borrowing under the group is allowed only for the group debt asset, only while c
 - Kamino Lend models `ElevationGroup` with constrained collateral and debt parameters.
 - Borrow and deposit refresh paths enforce group membership and group debt rules.
 - Market update handlers validate new elevation-group parameters before use.
+- Zest Protocol e-mode checks collateral and debt asset type membership when entering the mode, rejects borrows outside the active mode type, and tests mode entry, borrow, and disable-health behavior in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar` and `onchain/tests/borrow/emode.test.ts`.
 
 ## Related Patterns
 
