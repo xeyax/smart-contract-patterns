@@ -8,6 +8,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-address-prefix-subaccount-namespace.md | Encode small virtual subaccounts in low address bits and bind them to a first-use owner namespace. | Users need multiple isolated account slots under one wallet identity |
 | pattern-bootstrap-authority-handoff.md | Let a factory hold temporary setup authority only long enough to wire a contract graph, then transfer all lasting roles to the intended owner. | A factory deploys multiple contracts that must be configured atomically |
 | pattern-bounded-timelocked-parameter-change.md | Require critical parameter changes to be committed, delayed, bounded, and explicitly applied before they affect protocol economics. | Parameters affect fees, amplification, rates, caps, or admin recipients |
 | pattern-break-glass-risk-limiter.md | Give an emergency role narrowly scoped powers to reduce risk limits or disable risky routes without granting the power to re-enable them. | Operators need to react faster than governance during suspected compromise or market stress |
@@ -73,7 +74,7 @@
 | File | Applies To |
 |------|-----------|
 | req-bridge-exit-liveness.md | R1: Pauses Preserve Safe Exit Paths, R2: Failed Destination Settlement Has A Refund Path, R3: Migration Accounts For In-Flight Messages, R4: Admin Overrides Are Explicitly Trusted, R5: Emergency Exit Pauses Are Scoped And Expiring |
-| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness |
+| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed |
 | req-proof-bridge-exit-safety.md | R1: Source Proof Is Finalized, R2: Exit Nullifier Is Unique And Normalized, R3: Emitter And Event Are Authenticated, R4: Custody Is Sufficient Before Release, R5: Migration Cutovers Preserve Pending Exits, R6: Challenge Or Relay Finality Is Explicit |
 
 ## governance
@@ -115,6 +116,7 @@
 | pattern-compressed-amount-storage-directional-rounding.md | Store large lending amounts in compressed form only when every rounding direction is explicit, conservative, and tested at dust boundaries. | A lending core packs many amounts into storage-constrained slots; Exact full-precision storage would be too expensive |
 | pattern-comptroller-risk-gate.md | Route market actions through a central risk module that approves borrows, redeems, transfers, and liquidations before state changes. | A lending protocol has multiple collateral and borrow markets |
 | pattern-debt-converting-flash-loan.md | Allow unpaid flash-loan principal to become normal borrow debt only after the same risk, fee, callback, and accounting checks as an ordinary borrow. | Flash borrowers should be able to keep part of the borrowed amount as debt |
+| pattern-deferred-status-check-frame.md | Batch lending operations can defer account and vault status checks until the outer execution frame exits, then validate every touched account before state is released. | Users need batch operations that temporarily move through an unsafe intermediate state |
 | pattern-dust-aware-liquidation-cap.md | Bound in-flight liquidation debt and fail partial liquidations that would leave uneconomic dust positions or null auctions. | Liquidations create auctions or protocol inventory that has operational capacity |
 | pattern-elevation-scoped-borrow-mode.md | Allow higher borrow power only inside a constrained collateral group with one debt asset and explicit group-level risk limits. | A lending market wants higher LTV for tightly related collateral |
 | pattern-explicit-bad-debt-realization.md | When liquidation cannot cover debt, reduce market supply and borrow totals immediately so insolvency is visible instead of hidden in stale accounting. | Liquidation can leave debt uncovered after seizing all collateral |
@@ -136,7 +138,7 @@
 
 | File | Applies To |
 |------|-----------|
-| req-collateral-threshold-separation.md | R1: Liquidation Threshold Exceeds Borrow Threshold, R2: Action Checks Use The Correct Threshold, R3: Freshness Scope Is Documented |
+| req-collateral-threshold-separation.md | R1: Liquidation Threshold Exceeds Borrow Threshold, R2: Action Checks Use The Correct Threshold, R3: Freshness Scope Is Documented, R4: Risk Reductions Preserve Exit Windows |
 | req-credit-loss-accounting.md | R1: Loss State Is Explicit, R2: Losses Cannot Exceed Accounted Assets, R3: Normal Issuance Respects Loss State |
 | req-lending-accounting-freshness.md | R1: Accrue Before Value-Changing Actions, R2: Freshness Scope Is Explicit, R3: Stale Actions Fail Closed, R4: Parameter Changes Accrue First |
 
@@ -150,6 +152,7 @@
 | pattern-amplified-stable-invariant.md | Use an amplification parameter to make swaps near a peg behave like a high-liquidity constant-sum market while preserving constant-product style safety away from the peg. | Assets should trade close to a shared value, peg, or redemption ratio |
 | pattern-bounded-cranked-orderbook-maintenance.md | Maintain external AMM maker orders through resumable cranks with per-call limits, stored cursors, and cancel/settle fallbacks. | An AMM maintains many external maker orders |
 | pattern-canonical-amm-pool-factory.md | Create each AMM pool at a deterministic canonical address or id keyed by sorted token pair and immutable pool parameters. | A protocol supports many pools with identical logic |
+| pattern-complementary-outcome-netting.md | Net binary outcome-token orders by minting or merging complete sets when same-side orders cross. | Outcome tokens are complementary claims over the same collateral |
 | pattern-concentrated-liquidity-ranges.md | Represent LP positions as liquidity active only between lower and upper ticks so capital is concentrated around selected prices. | LPs should choose price ranges instead of passively providing across all prices |
 | pattern-constant-product-reserve-delta-amm.md | Price swaps by inferring actual token input from reserve deltas, applying fees, and requiring the constant-product invariant to hold. | A two-asset pool should follow `x * y = k`; The pair contract can read token balances and maintain internal reserves |
 | pattern-hook-governed-dynamic-lp-fee.md | Let a pool mark its LP fee as dynamic, then restrict stored fee updates and per-swap fee overrides to the pool's trusted hook. | Pool fees should react to volatility, inventory, order flow, or external signals |
@@ -187,6 +190,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-bounded-continuous-compounding-index.md | Accrue continuously compounded balances with a bounded fixed-point exponential approximation and explicit rounding direction. | Balances accrue at a continuously compounded rate |
 | pattern-full-precision-directed-rounding.md | Use full-width multiplication/division and explicit rounding direction for financial math where intermediate products can overflow native word size. | A formula computes `a * b / denominator` and `a * b` can exceed 256 bits |
 
 ## monitoring
@@ -266,6 +270,13 @@
 | pattern-registry-gated-exchange-fallback.md | Try an allowlisted aggregator route first, then fall back to an allowlisted on-chain wrapper while enforcing final balance-delta slippage. | Off-chain routing can find better prices but cannot be fully trusted |
 | pattern-stateless-callback-validated-swap-router.md | Route swaps through compact path data and callback validation while keeping user slippage, deadline, and payer rules at the router boundary. | Swaps may traverse one or more canonical AMM pools; Pool settlement happens through callbacks |
 | pattern-stateless-prepaid-amm-router.md | Route AMM swaps by pre-paying the first pair, forwarding intermediate outputs pair-to-pair, and enforcing user slippage at the router boundary. | Pools infer swap input from received token balances; The router should not hold balances after the transaction |
+| pattern-typed-signed-order-settlement.md | Keep matching off-chain while settling orders on-chain by binding every fillable term in an EIP-712 order and tracking fill state. | Orders are matched off-chain but assets settle non-custodially on-chain |
+
+### Risks
+
+| File | Triggered When |
+|------|---------------|
+| risk-zero-consideration-signed-order.md | Orders bind maker and taker amounts but allow either amount to be zero |
 
 ## token-integration
 

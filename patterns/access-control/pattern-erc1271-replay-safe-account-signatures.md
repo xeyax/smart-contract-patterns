@@ -52,10 +52,12 @@ This prevents a signature produced for one smart account from being reused as a 
 - Test replay against another account, another chain/domain, and stale owner keys.
 - Document whether contract signatures, passkeys, and EOAs share the same domain.
 - Do not use this to bless arbitrary value-bearing actions that lack their own deadline, nonce, and action parameters.
+- Protocols that accept ERC-1271 order signatures should distinguish EOA, proxy, safe, and contract-wallet signature types; require the intended maker/signer relationship; require code at contract signers; and test wrong type, non-contract maker, invalid contract, and maker/signer mismatch cases.
 
 ## Source Evidence
 
 - Coinbase Smart Wallet wraps ERC-1271 external hashes in an account-specific EIP-712 domain before owner signature validation, with tests for replay behavior.
+- Polymarket CTF Exchange validates multiple order signature types, including ERC-1271 contract signatures, and tests invalid contract signers and signer/maker mismatches.
 
 ## Related Patterns
 

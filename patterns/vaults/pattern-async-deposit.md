@@ -179,6 +179,10 @@ Synchronous deposits and redeems can coexist with async queues only when the cur
 
 If claimability depends on period numbers or epoch calendars, period-duration changes are value-affecting. Stage them at future boundaries, allow only one pending calendar config at a time, and make historical lookup use the config active at the queried timestamp.
 
+### Deferred Burn Exit Drift
+
+Some exits lock shares or tokens at request time but burn them only at claim time. That can be safe only when the payout entitlement is fixed at request or fulfillment time and claim does not recalculate the exchange rate. Any exchange-rate drift caused by deferred burns should be explicitly modeled, bounded, and assigned to a known party.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
@@ -308,6 +312,7 @@ Async withdrawals need additional liveness and accounting checks:
 - ERC-7540 claim ledgers should snapshot conversion terms at settlement time so user-controlled claims do not recalculate against later fees, supply, or NAV.
 - Fixed-entitlement delayed withdrawals can reserve pending assets outside `totalAssets()`, but request-time pricing does not by itself remove timing advantage.
 - Epoch calendar changes for pending exits need future-boundary staging and historical lookup by active config.
+- Deferred-burn exits must fix payout terms before claim and document any exchange-rate drift while shares remain locked but unburned.
 
 ## ERC-7540: Async Vault Standard
 
@@ -341,6 +346,7 @@ interface IERC7540 {
 - Stader BNBx — bounded FIFO withdrawal batches fix batch entitlement and support pause-safe claiming
 - Lagoon ERC-7540 vaults — settlement snapshots assets, supply, and fee terms by request/settlement id; sync paths are gated by NAV validity and can be disabled into async-only mode
 - Firelight vaults — delayed withdrawals burn shares, record fixed per-period assets and shares, exclude pending withdrawal assets from `totalAssets()`, and expose epoch-calendar update caveats
+- Mantle mETH — unstake requests fix the ETH entitlement, record request terms, burn on claim, and document deferred-burn exchange-rate drift.
 - Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 

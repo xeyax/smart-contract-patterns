@@ -81,6 +81,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Pair request-hash replay protection with source-chain finality rules.
 - Historical custodial wrappers may store local request hashes for auditability, but modern cross-chain bridges should bind the full operation and chain domain.
 - Proof-based exits may use a source transaction or log-location nullifier instead of an application request hash only when the checkpoint manager fixes the source domain, the destination contract fixes the peer/emitter, and equivalent proof encodings are normalized before hashing.
+- Cross-chain mint or withdrawal monitors can add a single-use validation ledger around request hashes: requests move from unreported to reported to consumed, and even threshold-bypassed small transfers are marked consumed so they cannot be replayed later.
 
 ### Sidecar Metadata Beside Canonical Value Messages
 
@@ -108,6 +109,7 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 | Confirmation without finality | Mint/unlock can happen for a reorged source event | Require finality depth or canonical bridge proof |
 | Mutable hash schema | Pending messages become unconfirmable after upgrade | Version request encodings explicitly |
 | Unpaired metadata sidecar | Value settles without route data or route data applies to wrong transfer | Commit sidecar to canonical message id and schema |
+| Bypassed request not consumed | Small transfer can be replayed after threshold changes | Mark every accepted request id consumed, including bypassed paths |
 
 ## Source Evidence
 
@@ -116,9 +118,11 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 - WBTC stores request hashes for mint/burn request auditability, but its trusted-custodian model is not a substitute for chain-bound replay protection.
 - Polygon PoS exits derive spent-exit nullifiers from proven source log location and normalized proof data while relying on checkpoint and child-emitter validation for the chain and peer domain.
 - Noble's CCTP metadata wrapper pairs an EVM-side metadata message with a canonical CCTP burn nonce, showing why sidecar route data should reference the value-transfer identity rather than replace it.
+- Lombard's bascule flow reports mint request ids, validates each id once, consumes bypassed small-transfer ids, and separates risk-increasing threshold changes from risk-reducing decreases.
 
 ## Related Patterns
 
 - [Historical Bounds](../oracles/pattern-historical-bounds.md) - guardrails for cross-chain price relays
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
+- [Break-Glass Risk Limiter](../access-control/pattern-break-glass-risk-limiter.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay) - anti-pattern this mitigates

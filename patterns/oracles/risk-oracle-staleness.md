@@ -122,6 +122,10 @@ Treat wrappers as new oracle implementations:
 
 Some voting-power or validator-set calculators fail closed by returning zero when a price is stale or unavailable. This is safer than overvaluing assets for solvency, but it can still distort quorum, validator-set fairness, or chain representation if one component unexpectedly drops to zero.
 
+### Emergency Containment Blocked By Stale Reads
+
+Fail-closed stale-price checks are appropriate for value-bearing user actions, but they can be counterproductive on pure risk-reduction setters. If lowering a borrow cap, LTV, mint limit, or route limit does not need the current price, requiring a fresh oracle read can block containment during the exact outage the limiter is meant to handle.
+
 ## Conditions That Increase Risk
 
 | Factor | Higher Risk | Lower Risk |
@@ -155,6 +159,7 @@ Example (1% deviation threshold):
 | Source Timestamp Propagation | Prevents wrappers from hiding stale inputs | Requires wrapper-specific integration |
 | L2 Action Sentinel | Blocks borrow/liquidation paths during sequencer downtime or grace period | Can delay liquidations unless a severe-risk exception exists |
 | Conservative Zeroing | Avoids overvaluing stale-priced components | Can change quorum or validator-set composition abruptly |
+| Risk-Reduction Setter Exemption | Lets emergency actions lower exposure during oracle outages | Must be limited to monotonic reductions that do not depend on price |
 
 ### Implementation: Staleness Check
 
@@ -216,6 +221,7 @@ function isPriceStale() public view returns (bool) {
 - Monitor deviation between Chainlink and DEX prices
 - Track sequencer status on L2s
 - For voting-power calculators, alert when stale or missing feeds zero a component that contributes to quorum.
+- For emergency playbooks, test that stale or unavailable price feeds do not block monotonic risk reductions that do not use the price.
 
 ## Real-World Incidents
 

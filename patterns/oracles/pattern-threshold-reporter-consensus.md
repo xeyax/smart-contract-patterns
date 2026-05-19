@@ -91,10 +91,13 @@ This reduces same-block sandwiching around public report execution, at the cost 
 - Key duplicate submissions by reporter and report id.
 - Count exact payloads or normalize values before counting.
 - Apply freshness, cadence, and deviation bounds before updating accepted state.
+- For signed collateral or balance attestations, require sorted unique reporters, monotonic per-reporter timestamps, and an accepted report time derived from the minimum valid signer timestamp.
+- For block-range reports, align report windows deterministically and reject gaps, overlaps, future/freshness violations, and non-finalized source ranges.
 - Allow public execution after quorum to avoid keeper monopoly.
 - Treat reporter membership and threshold changes as critical governance actions.
 - Serialize accepted reports when downstream execution must process them in order.
 - Add a same-block settlement fence when report execution changes rewards, claim roots, transfers, or migration prices that users can act on immediately.
+- Add a downstream quarantine or pause path when an agreed payload fails protocol sanity checks; same-payload quorum proves reporter agreement, not report safety.
 
 ## Common Pitfalls
 
@@ -105,6 +108,7 @@ This reduces same-block sandwiching around public report execution, at the cost 
 | Single operator controls reporters | Quorum is only cosmetic | Monitor independence and threshold assumptions |
 | No duplicate key | One reporter can satisfy quorum repeatedly | Track submissions by reporter and epoch |
 | Overwritten pending report | Downstream actions skip an accepted state | Block new accepted reports until the previous one is handled |
+| Agreement without report-window continuity | Sparse off-chain state can skip events | Require contiguous finalized ranges |
 
 ## Source Evidence
 
@@ -112,6 +116,8 @@ This reduces same-block sandwiching around public report execution, at the cost 
 - Once enough reports match, execution can be called publicly, preserving liveness if the original reporters do not execute.
 - Ether.fi uses same-hash reporter quorum, blocks new reports while a prior report is unhandled, and gates downstream execution by consensus, block/slot timing, wait periods, and APR caps.
 - StakeWise V2 prevents reward reports and dependent reward, Merkle, transfer, claim, or migration actions from finalizing in the same block.
+- M0 validates sorted unique reporter signatures, stores monotonic per-reporter timestamps, uses the minimum valid signer timestamp for accepted collateral reports, and rejects stale reports relative to dependent state.
+- Mantle mETH tracks duplicate and replacement reports per reporter, aligns report windows, forwards only after quorum, and quarantines or pauses downstream state when accepted payloads fail sanity checks.
 
 ## Related Patterns
 

@@ -40,9 +40,21 @@
 - High-risk actions still accrue or fail closed where needed.
 - Auditors can identify which views are stored and which are current.
 
+## R4: Risk Reductions Preserve Exit Windows
+
+**When collateral support is reduced, new borrowing can be disabled immediately while liquidation thresholds ramp down over time.**
+
+### What This Means
+
+- Borrow thresholds can move to the safer value immediately to stop new debt.
+- Liquidation thresholds can ramp only downward so existing borrowers have an orderly exit window.
+- Upward or equal-risk threshold changes should not use the ramp path.
+- Equality between borrow and liquidation thresholds is a no-grace-buffer mode, not the recommended default.
+
 ## Source Evidence
 
 - Compound III enforces liquidation collateral factors above borrow collateral factors and tests invalid threshold configurations.
+- Euler V2 applies borrow LTV changes immediately while optionally ramping only lower liquidation LTVs over time, and tests both immediate borrow disablement and delayed liquidation eligibility.
 
 ## Related Patterns
 

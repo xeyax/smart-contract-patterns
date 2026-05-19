@@ -54,6 +54,17 @@ custody_balance >= wrapped_token_total_supply
 - Pauses do not permanently block settlement or refunds.
 - Custodian and merchant roles have documented fallback procedures.
 
+## R5: Reserve-Gated Minting Fails Closed
+
+**When minting is reserve-gated, stale, missing, or insufficient reserve data blocks new minting.**
+
+### What This Means
+
+- Reserve and supply feeds have explicit freshness windows.
+- Reserve and supply decimals are normalized before comparing backing.
+- Missing feed configuration is documented as operational backing, not enforced on-chain backing.
+- Failing reserve checks block minting but do not silently bless undercollateralized supply.
+
 ## Related Patterns
 
 - [Custodian-Attested Mint/Burn](./pattern-custodian-attested-mint-burn.md)

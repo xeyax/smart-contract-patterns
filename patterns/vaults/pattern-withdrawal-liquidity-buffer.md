@@ -87,6 +87,9 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Invariant tests should cover reserve target, invested surplus, recall amount, and user redemption liveness.
 - Parallel exit paths must share the same reserve predicate. Instant withdrawals, priority queues, NFT exits, and normal queues should subtract each other's locked claims before treating liquidity as free.
 - Admin rescue or surplus-withdrawal functions must prove the amount is above all withdrawal locks, low-watermark buffers, and claim reserves.
+- Multi-asset redemption queues should subtract outstanding per-token debt from each token's quota or capacity before accepting new requests.
+- Process multi-asset claims through an explicit cursor, id range, or max-count bound.
+- Per-token pauses and fast-lane reserves are exit-liveness risks; document how they interact with normal queue claims.
 
 ## Source Evidence
 
@@ -95,6 +98,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Ether.fi excludes normal and priority withdrawal locks plus a low watermark before instant redemption, and tests queued exits through rebases and slashing.
 - Ethena's surplus rescue design highlights that admin withdrawals must be limited to assets above user claims and buffer requirements.
 - An Ondo audit-contest snapshot uses existing USDC first, redeems at least an external minimum lot when necessary, and verifies the external redemption by exact USDC balance delta.
+- Bedrock uniBTC delayed redemption queues subtract per-token debts from quota before accepting requests, process claims through bounded cursor paths, and expose per-token pause and fast-lane reserve trade-offs.
 
 ## Related Patterns
 

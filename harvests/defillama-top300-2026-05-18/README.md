@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories analyzed so far: 72 repositories across 10 batches.
+- Source repositories analyzed so far: 81 repositories across 11 batches.
 
 ## First Batch Repositories
 
@@ -129,6 +129,18 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Firelight | `firelight-protocol/firelight-core` | Farm |
 | Reserve Protocol | `reserve-protocol/staking-contract` | Indexes |
 
+## Eleventh Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Euler V2 | `euler-xyz/euler-vault-kit`, `euler-xyz/ethereum-vault-connector` | Lending |
+| M0 | `m0-foundation/protocol` | Stablecoin Issuer |
+| PancakeSwap AMM V2 | `pancakeswap/pancake-swap-core`, `pancakeswap/pancake-swap-periphery` | DEX |
+| Polymarket International | `Polymarket/ctf-exchange` | Prediction Market |
+| Lombard LBTC | `lombard-finance/evm-smart-contracts` | Restaked BTC |
+| mETH Protocol | `mantle-lsp/contracts` | Liquid Staking |
+| Bedrock uniBTC | `bedrock-technology/uniBTC` | Anchor BTC |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -141,7 +153,8 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-07-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 - `batch-08-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
 - `batch-09-findings.md` — accepted and deferred catalog updates from the next 8 source repositories.
-- `batch-10-findings.md` — accepted and deferred catalog updates from the final 2 source repositories in this source map.
+- `batch-10-findings.md` — accepted and deferred catalog updates from the final 2 source repositories in the initial scored source map.
+- `batch-11-findings.md` — accepted and deferred catalog updates from the first expanded source-discovery batch.
 
 ## Notes
 

@@ -60,6 +60,8 @@ TWAP = (priceCumulative_now - priceCumulative_past) / elapsed
 
 The accumulator uses the previous reserve ratio over elapsed time. Periphery readers can compute a counterfactual current cumulative value without forcing a pool state update.
 
+For V2-style sliding windows, store observations in epoch buckets and avoid overwriting the same bucket twice. A usable observation should be old enough to cover the requested window, recent enough to be inside the configured window, and paired with counterfactual current cumulative prices rather than requiring a pool sync.
+
 For V3-style accumulators:
 
 ```
@@ -138,6 +140,7 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Uninitialized observation history** | TWAP silently covers a shorter period than intended or reverts | Gate reads until cardinality and oldest observation cover the full window |
 | **Ignoring harmonic mean liquidity** | TWAP can include thin or zero-liquidity manipulation windows | Require minimum windowed harmonic mean liquidity |
 | **Mixing V2 and V3 assumptions** | Wrong price math or readiness checks | Use cumulative-price windows for V2 pools and tick/liquidity observations for V3 pools |
+| **Same-period V2 overwrite** | Oracle observation window collapses or becomes too recent | Skip updates until the next period bucket |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -230,6 +233,7 @@ Before using a TWAP for value-bearing operations:
 
 - [Uniswap V3 Oracle](https://docs.uniswap.org/concepts/protocol/oracle) — native TWAP implementation
 - [Uniswap V2](https://github.com/Uniswap/v2-core) — cumulative reserve-ratio price accumulators with counterfactual current cumulative reads in periphery
+- PancakeSwap V2 periphery includes a sliding-window oracle that buckets observations by period, rejects missing or too-recent observations, and computes current cumulative prices counterfactually.
 - [Euler Finance](https://docs.euler.finance/euler-protocol/getting-started/methodology/oracle-rating) — uses TWAP for price discovery
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
 
