@@ -49,14 +49,17 @@ function _accountDelta(address account, Currency currency, int256 delta) interna
 ## Key Points
 
 - Key pool state by immutable pool id, not by mutable caller assumptions.
+- If the singleton holds balances for multiple registered applications, key reserves and deltas by app as well as currency.
 - Count every account-currency delta that becomes nonzero and returns to zero.
 - Require end-of-unlock solvency before state exits the operation frame.
 - Make hooks and routers settle through the same delta ledger.
+- Treat sync, settle, fee collection, and reserve accounting as part of the same invariant surface.
 - Treat this as a narrow exception to shared-pool risk, justified only by keyed state and delta invariants.
 
 ## Source Evidence
 
 - Uniswap V4's pool manager stores all pools in a singleton, exposes unlock-scoped flash accounting, and requires all nonzero currency deltas to clear before the unlock completes.
+- PancakeSwap Infinity Core adds a shared vault variant with registered apps, app balances, transient locking, settlement guards, and unsettled-delta accounting in `/private/tmp/defillama-source/pancakeswap__infinity-core/src/Vault.sol` and `src/libraries/SettlementGuard.sol`.
 
 ## Related Patterns
 

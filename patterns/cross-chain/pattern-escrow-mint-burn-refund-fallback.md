@@ -62,6 +62,7 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - For async deposit cancellation, bind the reclaim request to the exact message envelope: remote bridge, selector, token, depositor, recipient, amount, payload, and nonce.
 - Make delayed reclaim depositor-only and document whether messaging fees are spent and non-refundable.
 - Treat cancellation as a race with remote consumption; it is not an instant refund guarantee.
+- For failed destination execution, record a transaction-data hash or equivalent proof handle that lets users later prove and reclaim the deposit.
 
 ## Source Evidence
 
@@ -69,6 +70,7 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - L2 gateway finalization validates deployed tokens and `l1Address()` bindings.
 - Gateway fallback handlers trigger refund withdrawals when token deployment or peer validation fails.
 - StarkGate deposit cancellation binds the exact L1-to-L2 message envelope, delays depositor-only reclaim, and leaves messaging fees spent even when escrowed principal is reclaimed.
+- zkSync Era bridge documentation and integration tests show failed L2 deposit recovery through recorded transaction data hashes and proof paths in `/private/tmp/defillama-source/matter-labs__zksync-era/docs/src/specs/contracts/bridging/overview.md` and `core/tests/ts-integration/tests/l2-erc20.test.ts`.
 
 ## Related Patterns
 

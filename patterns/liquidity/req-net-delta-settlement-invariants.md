@@ -40,6 +40,16 @@
 - ERC20 `settle` cannot credit stale donations or unrelated balance changes.
 - Dust clearing is exact and cannot erase meaningful debt.
 
+## R4: Shared Vault Reserves Are App-Scoped
+
+**When multiple apps or pools share one vault, each reserve and delta must be keyed to the app or pool that owns it.**
+
+### What This Means
+
+- A settlement for one app cannot consume another app's reserves.
+- Fee collection, sync, settle, and take operations preserve app-scoped accounting.
+- Invariants cover registered and unregistered apps separately.
+
 ## Verification Checklist
 
 | Requirement | Question |
@@ -47,10 +57,12 @@
 | R1 | Can any callback or hook return while deltas remain nonzero? |
 | R2 | Does fuzzing cover every zero-crossing delta transition? |
 | R3 | Are sync, settle, take, clear, mint, and burn tested for stale balances? |
+| R4 | Can one registered app settle or withdraw another app's reserve? |
 
 ## Source Evidence
 
 - Uniswap V4 tracks currency deltas and nonzero-delta count during unlocked operations, and its settlement tests cover synced ERC20 balances, native settlement, dust clearing, and failed unlocks with unsettled deltas.
+- PancakeSwap Infinity Core tests app-scoped shared vault settlement and invariants in `/private/tmp/defillama-source/pancakeswap__infinity-core/test/vault/Vault.t.sol` and `test/vault/VaultInvariant.t.sol`.
 
 ## Related Patterns
 

@@ -175,6 +175,35 @@ function getConsensusPrice() public view returns (uint256) {
 }
 ```
 
+### Time-Bound Warning State
+
+Some systems deliberately distinguish short-lived source disagreement from a hard
+oracle failure. A primary/secondary divergence can enter a warning state for a
+bounded period, but value-increasing operations should fail once the warning
+window expires or if historical bounds and freshness checks are missing.
+
+```solidity
+function validateDivergence(uint256 primary, uint256 secondary) internal {
+    bool closeEnough = _deviationOk(primary, secondary, maxWarningDeviationBps);
+    if (closeEnough) {
+        warningStartedAt = 0;
+        return;
+    }
+
+    if (warningStartedAt == 0) {
+        warningStartedAt = block.timestamp;
+        emit OracleWarning(primary, secondary);
+        return;
+    }
+
+    require(block.timestamp - warningStartedAt <= maxWarningDuration, "oracle divergence");
+}
+```
+
+The warning state should not bypass min/max price bounds, freshness checks, or
+history-span requirements. It is a grace period for operator response, not proof
+that either source is safe.
+
 ## Interpretation Table
 
 | Oracle vs TWAP | Oracle vs Spot | TWAP vs Spot | Diagnosis | Recommended Action |
@@ -196,6 +225,7 @@ function getConsensusPrice() public view returns (uint256) {
 **Asset-specific adjustments:**
 - Stablecoins: tighten all thresholds to 0.5-1%
 - Volatile assets: loosen to 5-10%
+- If using a warning state, cap both maximum deviation and maximum warning duration, then fail closed after expiry.
 
 ## Gas Optimization
 
@@ -222,6 +252,8 @@ function getOptimizedPrice() public view returns (uint256) {
 - [Aave Price Oracle](https://docs.aave.com/developers/core-contracts/aaveoracle) — fallback oracle mechanism
 - [Compound Price Feed](https://docs.compound.finance/v2/prices/) — multi-source validation
 - [MakerDAO Medianizer](https://docs.makerdao.com/smart-contract-modules/oracle-module) — median of multiple sources
+- NAVI validates primary/secondary oracle divergence with warning and rejection states in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/oracle_pro.move` and `oracle/sources/strategy.move`.
+- Liquity V1's `PriceFeed.sol` fallback and last-good-price state machine provides additional evidence that source disagreement needs explicit status transitions instead of silent fallback.
 
 ## Related Patterns
 
@@ -233,4 +265,3 @@ function getOptimizedPrice() public view returns (uint256) {
 
 - [Chainlink: Using Multiple Oracles](https://docs.chain.link/data-feeds/using-multiple-oracles)
 - [Oracle Security Best Practices](https://blog.openzeppelin.com/secure-oracle-design)
-

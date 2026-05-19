@@ -62,6 +62,8 @@ require(liquidity >= 0, "insufficient liquidity");
 
 - JustLend preflights borrow, redeem, transfer, and liquidation through comptroller hooks.
 - Its comptroller sums hypothetical collateral and borrow effects across markets before allowing an action.
+- Compound V2 routes `mintAllowed`, `redeemAllowed`, `borrowAllowed`, `liquidateBorrowAllowed`, and `seizeAllowed` through comptroller contracts in `/private/tmp/defillama-source/compound-finance__compound-protocol/contracts/Comptroller.sol` and `ComptrollerG7.sol`.
+- Compound tests pause-guardian behavior in `/private/tmp/defillama-source/compound-finance__compound-protocol/tests/Comptroller/pauseGuardianTest.js`.
 
 ## Related Patterns
 

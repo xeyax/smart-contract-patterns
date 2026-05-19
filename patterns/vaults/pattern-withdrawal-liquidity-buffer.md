@@ -92,6 +92,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Per-token pauses and fast-lane reserves are exit-liveness risks; document how they interact with normal queue claims.
 - Instant RWA redemption buffers should cap redeemable shares by actual idle or yield liquidity, round redeemable capacity down, round required input up for exact payout, and fail closed on stale or below-minimum oracle prices.
 - LST delayed exits should maintain aggregate pending-ticket amount and count, and claim paths should check reserve availability before payment.
+- NFT redemption tickets should snapshot maturity, fee, liability, and beneficiary information, and partial redemption should reduce the ticket's remaining liability before paying out.
 
 ## Source Evidence
 
@@ -103,6 +104,7 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Bedrock uniBTC delayed redemption queues subtract per-token debts from quota before accepting requests, process claims through bounded cursor paths, and expose per-token pause and fast-lane reserve trade-offs.
 - Superstate on-chain redemptions cap instant RWA redemptions by available idle or yield liquidity, use conservative rounding, and fail closed on stale or below-minimum oracle prices.
 - Marinade delayed unstake tickets maintain aggregate pending balances and claim from reserve after maturity.
+- Frax frxETH V2 represents LST exits as NFT redemption tickets with maturity, fee snapshot, liabilities, and full or partial ETH redemption paths in `/private/tmp/defillama-source/FraxFinance__frxETH-v2-public/src/contracts/frxeth-redemption-queue-v2/FraxEtherRedemptionQueueCore.sol` and `FraxEtherRedemptionQueueV2.sol`.
 
 ## Related Patterns
 

@@ -100,6 +100,12 @@ Value-bearing operation (swap, deposit, mint) without user-specified bounds on a
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
 **Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value.
 
+### tx.origin-Keyed Economic Entitlement
+Discounts, fee tiers, gauges, or other economic entitlements are keyed by `tx.origin`.
+**Symptoms:** Fee module checks `tx.origin` for a discount or privileged path, while routers and smart accounts call through intermediary contracts.
+**Risk:** Users lose intended protections through routers, relayers can create inconsistent economics, and phishing-style call chains can inherit a user's origin-bound entitlement.
+**Fix:** Key economic privileges by `msg.sender`, explicit receiver, signed account, or authenticated session context. If router support is required, bind the beneficiary in calldata or a signature and test smart-account, multicall, and relayer paths.
+
 ### Quote Execution Formula Drift
 Quoted helper functions use a different formula than the state-changing execution path.
 **Symptoms:** `getAmountIn` calls output math, previews omit dynamic fees, or off-chain quotes use stale router formulas.
@@ -144,7 +150,7 @@ Entity with lifecycle states but undefined transitions or unreachable states.
 External call to untrusted contract before state is finalized.
 **Symptoms:** State read → external call → state write pattern (violates CEI).
 **Risk:** Callback re-enters contract, reads stale state, extracts value.
-**Fix:** Checks-Effects-Interactions pattern, reentrancy guard, or state finalization before external calls.
+**Fix:** Checks-Effects-Interactions pattern, reentrancy guard, or state finalization before external calls. For bridge claims, consume nullifiers or message ids before external callbacks and test that reentrant independent claims cannot reuse the same proof.
 
 ### Unchecked External Return
 External call without checking return value or handling revert.
@@ -162,7 +168,7 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation. Cross-contract controllers, vaults, and callback receivers need a shared reentrancy model; a per-contract lock is not sufficient when the callback can re-enter a sibling contract that shares accounting assumptions.
 
 ### Unkeyed Transient Execution Context
 Transient scratch storage or per-transaction context is shared across callers, wallets, or operations without a key.
@@ -226,7 +232,7 @@ Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
 Protocol requests unlimited approval, approved spender contracts are upgradeable.
 **Symptoms:** `type(uint256).max` approval, no permit2, no session-scoped approvals.
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
-**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance.
+**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance. For bridge hooks or fee dispatchers callable by arbitrary users, prefer per-call allowance that is granted, consumed, and cleared inside the same operation frame.
 
 ### Overwrite-Based Allowance Changes
 Custom transfer budgets or ERC20-like allowances are replaced by a new value without accounting for pending spender use.
@@ -238,7 +244,7 @@ Custom transfer budgets or ERC20-like allowances are replaced by a new value wit
 Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if the permit nonce was already consumed.
 **Symptoms:** `permit()` is called first, then deposit/withdraw/repay assumes the permit succeeded.
 **Risk:** An observer front-runs the same permit, consumes the nonce, and makes the user's bundled action revert or miss a deadline.
-**Fix:** Treat permit failure as non-fatal when allowance is already sufficient for the action. Check final allowance before proceeding, and still enforce amount and deadline bounds.
+**Fix:** Treat permit failure as non-fatal when allowance is already sufficient for the action. Permit-forwarding helpers inside multicall routers should tolerate already-consumed permits, then check final allowance before proceeding while still enforcing amount and deadline bounds.
 
 ### Signature Scope Drift
 Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.

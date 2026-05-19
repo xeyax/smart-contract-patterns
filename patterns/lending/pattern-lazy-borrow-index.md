@@ -58,6 +58,8 @@ On borrow or repay, write the borrower's new principal and current index.
 
 - JustLend computes borrower debt as principal multiplied by current borrow index divided by the borrower's stored interest index.
 - Global borrow index, total borrows, and reserves update once per accrual.
+- Compound V2 stores borrower debt as principal plus interest index and updates debt through `/private/tmp/defillama-source/compound-finance__compound-protocol/contracts/CToken.sol` functions `accrueInterest`, `borrowBalanceStored`, `borrowFresh`, `repayBorrowFresh`, and `liquidateBorrowFresh`.
+- Compound tests borrow accrual, repayment, and liquidation freshness in `tests/Tokens/accrueInterestTest.js`, `borrowAndRepayTest.js`, and `liquidateTest.js`.
 
 ## Related Patterns
 

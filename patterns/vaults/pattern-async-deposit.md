@@ -187,6 +187,12 @@ Some exits lock shares or tokens at request time but burn them only at claim tim
 
 Delayed LST exits can burn shares up front and create a ticket that records beneficiary, fixed entitlement, and maturity epoch. Claim should verify reserve availability, close or zero the ticket before payment, and decrement aggregate pending-ticket amount and count. Same-epoch stake-delta timing should be accounted for when setting maturity. If claim is paused, document the liveness risk rather than presenting the model as pause-safe.
 
+NFT-style exit tickets are a useful variant when tickets must be transferred,
+partially redeemed, or tracked by id. The ticket should snapshot maturity, fee,
+liability, and beneficiary or receiver semantics. Partial redemption must reduce
+the remaining ticket liability before external payment, and full redemption must
+burn or close the ticket.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:

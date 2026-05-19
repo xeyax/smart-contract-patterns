@@ -17,6 +17,7 @@
 ### What This Means
 
 - Deposit pause and exit pause are separate controls.
+- Directional bridge pauses are preferable: pausing sends in one direction should not automatically block opposite-direction claims.
 - If all exits cannot remain open, the safest solvent exit path stays available.
 - Emergency playbooks explain when and why an exit pause can be used.
 
@@ -73,6 +74,7 @@
 - Tornado Nova's failed external settlement path shows why admin recovery of funds should not be treated as equivalent to user-claimable bridge refund semantics.
 - Noble's CCTP metadata wrapper shows a split value-transfer and routing-metadata flow where liveness depends on pairing the sidecar metadata with the canonical value message.
 - StarkGate shows delayed, depositor-only reclaim for exact bridge message envelopes, with the caveat that the remote message can still be consumed before reclaim and fees may remain spent.
+- Linea message service tests show directional pause behavior where sends and claims can be paused independently in `/private/tmp/defillama-source/Consensys__linea-monorepo/contracts/test/hardhat/messaging/l1/L1MessageService.ts`.
 
 ## Related Patterns
 

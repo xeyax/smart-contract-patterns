@@ -71,6 +71,7 @@ accrualBlock == block.number
 - Morpho Blue accrues before supply, withdraw, borrow, repay, and liquidate paths, and its formal specs compare explicit pre-accrual with expected accrued state.
 - Aave V3 updates reserve state before value-changing reserve actions and represents user balances through indexes that depend on current reserve accounting.
 - Sky/Maker DSS rate accumulator modules require current accumulators before changing duty or savings rates and test stale-parameter-change failures.
+- Compound V2 requires market interest accrual to be current before borrow, repay, redeem, and liquidation state transitions, with debt represented as principal plus borrower interest index in `CToken.sol`.
 
 ## Related Patterns
 

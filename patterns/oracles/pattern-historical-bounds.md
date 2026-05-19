@@ -256,6 +256,23 @@ function acceptNav(uint256 newNav, uint256 externalPrice, uint256 externalUpdate
 
 This constrains accepted-state movement; it is not a freshness guarantee by itself. The external anchor must still have round freshness, nonzero values, and monotonic update checks.
 
+### History-Span Bounds
+
+For stateful oracle strategies, a new price can be bounded against both explicit
+min/max values and a recent history span:
+
+```solidity
+function validatePrice(uint256 price) internal view {
+    require(price >= minEffectivePrice, "below min");
+    require(price <= maxEffectivePrice, "above max");
+    require(history.length >= minHistoryLength, "short history");
+    require(_withinHistoryEnvelope(price, history, maxHistoryDeviationBps), "history");
+}
+```
+
+History-span checks are strongest when the stored history itself has freshness,
+source-quality, and monotonic-time guarantees.
+
 ### One-Sided Stablecoin Cap
 
 For assets intended not to exceed a peg, a one-sided cap can preserve downside depeg while preventing upward overvaluation:
@@ -287,6 +304,7 @@ This is safer than forcing the price to a constant peg because it does not hide 
 - For stable or pegged collateral, prefer one-sided caps that limit upward overvaluation without masking downside depeg
 - Do not treat out-of-gas, empty-return, or unexpected-revert fallback paths as valid default prices
 - For LSTs, exchange-rate bounds constrain accepted internal accounting but do not prove market liquidity or redemption value.
+- For multi-source strategies, warning states should still be bounded by effective min/max price and a sufficient history span.
 
 ## Limitations
 
@@ -349,6 +367,7 @@ contract CircuitBreakerWithBounds {
 - SparkLend Advanced uses one-sided capped stablecoin-style oracle logic so upward overvaluation is limited without hiding downside depeg.
 - An Ondo audit-contest snapshot combines fresh Chainlink round checks, daily cadence, absolute bounds, and anchor-delta bounds before accepting RWA oracle state.
 - Stader BNBx constrains accepted LST exchange-rate movement and uses monitoring around exchange-rate drops, supply mismatch, and operation cadence.
+- NAVI oracle strategy checks effective min/max price and price history span in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/strategy.move`.
 
 ## Related Patterns
 

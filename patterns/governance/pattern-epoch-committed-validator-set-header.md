@@ -53,12 +53,15 @@ Message verification loads the header for the target epoch and delegates signatu
 - Enforce sequential epoch commits or explicitly document skipped epochs.
 - Bind verifier extras, key type, quorum threshold, and capture timestamp into the header.
 - Keep validator-key registry snapshots compatible with the capture timestamp.
+- For weighted operator sets, require sorted unique signers and bind the validator-set epoch into the proof.
+- Retain recent validator sets only for the proof window, and require current-epoch authority for operator-set rotation.
 - Define what happens if an epoch cannot be committed.
 - Test stale headers, wrong key tags, quorum drift, and verifier replacement.
 
 ## Source Evidence
 
 - Symbiotic Relay commits sequential settlement headers containing validator-set roots, quorum parameters, key tags, capture timestamps, and verifier extras, then tests epoch-scoped verification paths.
+- Axelar weighted auth validates operator proofs and rotates operatorship in `/private/tmp/defillama-source/axelarnetwork__axelar-cgp-solidity/contracts/auth/AxelarAuthWeighted.sol` through `validateProof`, `_validateSignatures`, and `_transferOperatorship`, with tests in `test/auth/AxelarAuthWeighted.js`.
 
 ## Related Patterns
 

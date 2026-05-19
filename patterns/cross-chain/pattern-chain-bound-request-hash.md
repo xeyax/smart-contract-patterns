@@ -77,6 +77,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Include the operation type; a burn request must not replay as a mint request.
 - Include all value-bearing fields, including fee, token, sender, receiver, and payload.
 - Store confirmations by request hash, not by nonce alone.
+- Consume approvals or validation records before minting, unlocking, or calling external recipients.
 - Validate the destination chain before irreversible actions such as burning.
 - Pair request-hash replay protection with source-chain finality rules.
 - Historical custodial wrappers may store local request hashes for auditability, but modern cross-chain bridges should bind the full operation and chain domain.
@@ -119,6 +120,7 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 - Polygon PoS exits derive spent-exit nullifiers from proven source log location and normalized proof data while relying on checkpoint and child-emitter validation for the chain and peer domain.
 - Noble's CCTP metadata wrapper pairs an EVM-side metadata message with a canonical CCTP burn nonce, showing why sidecar route data should reference the value-transfer identity rather than replace it.
 - Lombard's bascule flow reports mint request ids, validates each id once, consumes bypassed small-transfer ids, and separates risk-increasing threshold changes from risk-reducing decreases.
+- Axelar binds command id, source chain, source address, destination contract, payload hash, token symbol, and amount in gateway approval keys in `/private/tmp/defillama-source/axelarnetwork__axelar-cgp-solidity/contracts/AxelarGateway.sol`, then consumes approvals in `validateContractCall` and `validateContractCallAndMint` before execution.
 
 ## Related Patterns
 

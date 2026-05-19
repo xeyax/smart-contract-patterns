@@ -55,6 +55,8 @@ fn flash_borrow(ctx: Context<FlashBorrow>, amount: u64) -> Result<()> {
 - Reject CPI borrow/repay unless the full caller model is audited.
 - Require exactly one borrow/repay pair per reserve or transaction if multiple pairs cannot be safely distinguished.
 - Match instruction discriminator, program id, reserve, amount, and token accounts.
+- Match the later repay instruction by explicit borrow-instruction index when the transaction can contain other lending instructions.
+- Reject missing repay, mismatched reserve, mismatched amount, invalid repay index, duplicate flash borrow, and CPI borrow/repay paths in tests.
 - Recalculate and collect fees during repay.
 - Reconcile vault balances after repayment, not only instruction presence.
 
@@ -62,6 +64,8 @@ fn flash_borrow(ctx: Context<FlashBorrow>, amount: u64) -> Result<()> {
 
 - Kamino Lend flash-loan helpers inspect the instructions sysvar to validate matching borrow and repay instructions.
 - Its flash validation rejects mismatched repay accounts and multiple or invalid flash instruction pairs.
+- Solend SPL Token Lending validates flash borrow and repay pairing in `/private/tmp/defillama-source/solendprotocol__solana-program-library/token-lending/program/src/processor.rs` through `_flash_borrow_reserve_liquidity` and `process_flash_repay_reserve_liquidity`.
+- Solend tests invalid repay, missing repay, duplicate flash borrow, and CPI cases in `/private/tmp/defillama-source/solendprotocol__solana-program-library/token-lending/program/tests/flash_borrow_repay.rs`.
 
 ## Related Patterns
 

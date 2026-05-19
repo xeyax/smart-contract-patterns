@@ -53,6 +53,11 @@ function priceFor(Action action, address asset) internal view returns (uint256 p
 
 Borrowing may require all freshness, confidence, TWAP, and heuristic checks. Liquidation may require a narrower liquidation-safe flag set so accounts can still be resolved during partial oracle degradation.
 
+Collateral-only exits can sometimes use a narrower stale-price policy, but only
+when the account has no debt and the action cannot increase protocol credit
+risk. Debt-bearing withdraw, borrow, transfer, and liquidation paths should fail
+closed if their action-required price flags are missing.
+
 ## Key Points
 
 - Document the price mode used by every user action.
@@ -61,11 +66,13 @@ Borrowing may require all freshness, confidence, TWAP, and heuristic checks. Liq
 - Monitor divergence between bounded and liquidation price modes.
 - Pair with collateral threshold separation so action scopes are coherent.
 - If using status flags, document the required flag mask for each action and test that missing action-required flags fail closed.
+- If allowing stale-price collateral withdrawals, test the no-debt and with-debt branches separately.
 
 ## Source Evidence
 
 - Venus parameterizes liquidity calculations by weight function, uses bounded prices for borrow checks, and uses a liquidation-threshold path for liquidation eligibility.
 - Kamino Lend attaches price status flags to oracle values and uses different required flag sets for borrow and liquidation paths.
+- Suilend permits stale-price collateral exits only for no-debt accounts while debt-bearing withdrawal and borrow paths fail closed; evidence appears in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/sources/obligation.move` and oracle checks in `oracles.move`.
 
 ## Related Patterns
 

@@ -49,12 +49,17 @@ Borrowing and withdrawing consume capacity; repayments and deposits can lower ut
 - Scope limits by protocol adapter and asset, not only globally.
 - Keep hard maximums separate from time-expanded available limits.
 - Shrink limits immediately after capacity-consuming or risk-reducing operations as appropriate.
+- Define explicit liquidation-scoped exemptions when the limiter would otherwise trap liquidators holding seized collateral or collateral tokens.
+- If limits can be disabled for upgrade compatibility, make the disabled mode explicit and test both enabled and disabled flows.
 - Test exact boundary, zero-time, max-time, and underflow cases.
 - Do not confuse progressive capacity with request-rate limiting; it is solvency throttling.
 
 ## Source Evidence
 
 - Fluid applies per-protocol withdrawal and borrow limits that expand over time, shrink after operations, and remain bounded by hard limits inside the shared liquidity layer.
+- Suilend implements Move `RateLimiter` logic and liquidation-scoped exemptions in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/sources/rate_limiter.move` and `lending_market.move`.
+- Suilend tests liquidation exemption behavior in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/tests/lending_market_tests.move`.
+- Solend SPL Token Lending implements reserve and market outflow rate limits in `/private/tmp/defillama-source/solendprotocol__solana-program-library/token-lending/sdk/src/state/rate_limiter.rs` and tests them in `token-lending/program/tests/outflow_rate_limits.rs`.
 
 ## Related Patterns
 

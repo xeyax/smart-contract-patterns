@@ -45,13 +45,15 @@ The operation remains inside the manager's settlement frame, so all hook-created
 
 - Treat returned deltas as value-moving instructions from trusted hook logic.
 - Enforce selector returns and declared hook permissions.
-- Apply user slippage checks after custom accounting changes the effective amount.
+- Apply user slippage checks after custom accounting changes the effective amount, and check the signed direction of hook deltas explicitly.
 - Keep hook deltas inside the same settlement invariant as core pool deltas.
 - Test malicious or inconsistent hook returns, wrong sign, and unsettled deltas.
+- Do not assume naive min-out or max-in checks cover positive and negative hook deltas symmetrically.
 
 ## Source Evidence
 
 - Uniswap V4 allows hooks to return custom accounting deltas during liquidity and swap operations while the pool manager remains the common settlement layer.
+- PancakeSwap Infinity Periphery validates min-out and max-in with signed delta handling in `/private/tmp/defillama-source/pancakeswap__infinity-periphery/src/libraries/SlippageCheck.sol`.
 
 ## Related Patterns
 

@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories analyzed so far: 101 repositories across 12 batches.
+- Source repositories inspected so far: 123 repositories across 13 batches.
 
 ## First Batch Repositories
 
@@ -163,6 +163,32 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Sanctum Validator LSTs | `igneous-labs/S` | Liquid Staking |
 | Jupiter Lend | `jup-ag/jupiter-lend` | Lending reference |
 
+## Thirteenth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Axelar | `axelarnetwork/axelar-cgp-solidity` | Bridge |
+| Hyperlane | `hyperlane-xyz/hyperlane-monorepo` | Cross Chain Bridge |
+| zkSync Era txBridge | `matter-labs/zksync-era` | Canonical Bridge |
+| Linea Bridge | `Consensys/linea-monorepo` | Canonical Bridge |
+| Agglayer | `agglayer/agglayer-contracts` | Cross-chain settlement |
+| Stargate V2 | `stargate-protocol/stargate-v2` | Cross Chain Bridge |
+| Compound V2 | `compound-finance/compound-protocol` | Lending |
+| Liquity V1 | `liquity/dev` | CDP |
+| Liquity V2 | `liquity/bold` | CDP |
+| crvUSD | `curvefi/curve-stablecoin` | CDP |
+| Yearn V3 | `yearn/yearn-vaults-v3` | Yield Aggregator |
+| Mellow Core | `mellow-finance/mellow-vaults` | Onchain Capital Allocator |
+| Suilend | `suilend/suilend` | Lending |
+| Save/Solend | `solendprotocol/solana-program-library` | Lending |
+| NAVI Lending | `naviprotocol/navi-smart-contracts` | Lending |
+| Blend Pools V2 | `blend-capital/blend-contracts-v2` | Lending |
+| Aerodrome V1 | `aerodrome-finance/slipstream` | DEX |
+| PancakeSwap Infinity | `pancakeswap/infinity-core`, `pancakeswap/infinity-periphery` | DEX |
+| Frax Ether | `FraxFinance/frxETH-v2-public` | Liquid Staking |
+| fx Protocol | `AladdinDAO/fx-protocol-contracts` | Dual-Token Stablecoin |
+| QuickSwap Periphery | `QuickSwap/quickswap-periphery` | DEX |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -178,6 +204,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-10-findings.md` — accepted and deferred catalog updates from the final 2 source repositories in the initial scored source map.
 - `batch-11-findings.md` — accepted and deferred catalog updates from the first expanded source-discovery batch.
 - `batch-12-findings.md` — accepted and deferred catalog updates from the second expanded source-discovery batch.
+- `batch-13-findings.md` — accepted and deferred catalog updates from the third expanded source-discovery batch.
 
 ## Notes
 
