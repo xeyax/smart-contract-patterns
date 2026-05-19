@@ -24,6 +24,9 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Composite feeds must propagate the oldest or limiting timestamp from every leg used in the price path, including multiplication chains.
 - Bridged rate providers must expose source-chain freshness separately from destination-chain relay execution time
 - Off-chain state reports over block ranges must be finalized and contiguous: each accepted range starts at the previous range's end plus one, ends after it starts, and is older than the configured finalization buffer.
+- Oracle node graphs must normalize leaf price and timestamp data and make
+  staleness checks explicit at the consuming node, not implicit in a leaf that
+  may use unsafe reads.
 
 ### Violations
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — using outdated price data
@@ -54,6 +57,8 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Perps or portfolio-margin systems should define action-specific validity for funding, settlement, liquidation, trigger, margin, and AMM-fill paths instead of relying on one global fresh/stale flag.
 - Confidence intervals and exponent normalization should be checked before converting an oracle report into the protocol's fixed precision.
 - Oracle metadata updates should reject missing mappings, duplicate token mappings, and unsupported source counts before a price path can be refreshed.
+- Circuit-breaker nodes should encode freshness, deviation, and fallback policy
+  as machine-checkable graph behavior, not as off-chain routing convention.
 
 ### Violations
 - Large deviation thresholds (e.g., 1% for Chainlink)
@@ -116,12 +121,21 @@ oracle.getPrice() should not revert under normal conditions
 - Multiple oracle sources with fallback logic
 - [Multi-Source Validation](./pattern-multi-source-validation.md) — graceful degradation
 - Chainlink L2 sequencer uptime feed
+- For off-chain lookup or pull-oracle feeds, stale data should revert with enough
+  machine-readable query data for keepers or clients to refresh the source.
 
 ---
 
 ## Source Evidence
 
 - Kamino Scope propagates source timestamps through multiplication-chain composites, validates mapping metadata before refresh, and distinguishes most-recent agreement from capped most-recent agreement in `/private/tmp/defillama-source/Kamino-Finance_scope/programs/scope/src/oracles/multiplication_chain.rs`, `handlers/handler_update_mapping_and_metadata.rs`, `handlers/handler_refresh_prices.rs`, `oracles/most_recent_of.rs`, and `oracles/capped_most_recent_of.rs`.
+- Synthetix V3 oracle-manager composes leaf nodes with staleness and deviation
+  circuit-breaker nodes, while its Pyth leaf uses unsafe reads only inside a
+  graph that can add staleness/off-chain lookup behavior in
+  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/pyth/PythNode.sol:17-48`,
+  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/StalenessCircuitBreakerNode.sol:14-66`,
+  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/PriceDeviationCircuitBreakerNode.sol:17-67`,
+  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/pyth/PythOffchainLookupNode.sol:18-68`.
 
 ---
 
@@ -142,6 +156,7 @@ When evaluating an oracle integration, verify:
 | Confidence | Are confidence ratios, exponent ranges, and feed ids validated before conversion? |
 | Market Dependency | If the core delegates oracle choice to market creators, are scale, no-revert, magnitude, and unsafe-jump assumptions documented? |
 | Composite Metadata | Are source mappings unique and complete before a composite price path can refresh? |
+| Node Graphs | Are leaf values normalized and guarded by explicit staleness/deviation/fallback nodes before value-bearing use? |
 
 ---
 

@@ -41,6 +41,11 @@ function toAssets(uint256 shares, uint256 totalAssets, uint256 totalShares) inte
 
 Supply and borrow sides can each have their own total assets and total shares. Accrual updates total assets, while positions keep their share counts.
 
+A debt-distribution system can use the same share idea with signed
+`valuePerShare` changes. Market debt flows into pool debt, pool debt flows into
+vault debt, and account debt is lazily consolidated only when the relevant
+market, pool, vault, or account interacts.
+
 ## Key Points
 
 - Define rounding direction per action: user-favoring and protocol-favoring paths should be explicit.
@@ -49,12 +54,18 @@ Supply and borrow sides can each have their own total assets and total shares. A
 - Do not mix share-based positions with principal-index positions without a clear conversion boundary.
 - Test asset/share round trips at zero, dust, and high utilization.
 - For borrow shares, debt views and new borrows should round up, partial repayments can round share burn down, and full repayment should burn all remaining shares so dust debt does not survive.
+- For signed debt distributions, checkpoint each layer before moving collateral,
+  changing pool weights, issuing debt, or reporting withdrawable credit.
 
 ## Source Evidence
 
 - Morpho Blue stores separate supply and borrow shares, uses virtual offsets in conversion math, applies explicit directional rounding, and formally specifies conservative asset accounting rules.
 - Alpha Homora V2 computes borrow balances with ceiling division, mints borrow shares with ceiling division, caps repayment to old debt, floors partial share reduction, and burns all remaining shares on full repayment in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
 - Fraxlend `VaultAccount` stores `amount` and `shares` totals and converts with explicit rounding direction for asset and borrow accounting in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/libraries/VaultAccount.sol`.
+- Synthetix V3 distributes signed debt per share through market, pool, vault, and
+  account layers using lazy consolidation in `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Distribution.sol:9-18`,
+  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Pool.sol:186-249`,
+  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Market.sol:370-461`.
 
 ## Related Patterns
 

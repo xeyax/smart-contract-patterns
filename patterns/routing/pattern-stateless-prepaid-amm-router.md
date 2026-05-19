@@ -52,11 +52,20 @@ Intermediate outputs are sent to the next pair, while the final output goes to t
 - Refund unused native-asset dust on exact-output paths.
 - For fee-on-transfer exact-input support, compute each hop's actual input from the pair's post-transfer balance delta and enforce final receiver balance-delta slippage.
 - Keep exact-output precomputed-hop paths unsupported for fee-on-transfer tokens unless the fee behavior is deterministic and modeled.
+- Carry per-hop pool version, tier, or bin-step metadata when canonical pool
+  identity is wider than token pair alone, and suppress unsafe or ignored pools
+  in quote and execution paths.
 
 ## Source Evidence
 
 - Uniswap V2 Router02 pre-transfers input to the first pair, routes intermediate outputs directly to following pairs, enforces slippage and deadlines, guards WETH receive, and refunds ETH dust.
 - PancakeSwap V2 periphery supports fee-on-transfer exact-input swaps by deriving actual hop input from pair balance minus reserves and checking the receiver's final output balance delta.
+- Trader Joe V2 routers carry bin-step and version metadata per hop, support
+  ignored-pair suppression in quotes, and route through canonical pair lookup in
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:55-61`,
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:394-408`,
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:775-807`,
+  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBQuoter.sol:43-60`.
 
 ## Related Patterns
 

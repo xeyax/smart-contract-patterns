@@ -62,6 +62,13 @@ Partial fills need explicit rounding direction. Round bids up so the buyer pays
 at least the required amount, and round lots down so the auction does not release
 more collateral than the fill earned.
 
+### Bonded Neutral-Price Variant
+
+Some lending books let a kicker start an auction only by posting a bond. The
+auction references a neutral price, forbids same-block take after kick, descends
+through configured phases, and rewards or penalizes the kicker bond based on
+whether the auction helped settle risky debt.
+
 ## Key Points
 
 - Buffer the start price above oracle value to avoid immediate underpricing.
@@ -73,12 +80,19 @@ more collateral than the fill earned.
 - Size partial liquidations so they do not leave uneconomic leftover debt or collateral.
 - Expose breaker levels that can separately stop new auctions, auction resets, and auction takes.
 - For two-sided scaling, test each block-age phase, partial fills, and one-unit dust boundaries with the intended rounding directions.
+- For bonded auctions, test kicker bond reward and penalty paths, neutral-price
+  calculation, same-block take rejection, and each descending-price phase.
 
 ## Source Evidence
 
 - Sky/Maker DSS `Clipper` auctions use feed-buffered start prices, descending price curves, buyer max-price bounds, stale-auction reset by time or price decline, keeper incentives, and breaker levels.
 - Lista CDP liquidation code throttles active liquidation debt globally and per collateral, sizes auctions around dust constraints, and exposes staged breakers for kicks, resets, and takes.
 - Blend V2 auction fill scales lots upward and bids downward by block age in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/auctions/auction.rs`, with tests for block-age phases, partial fills, rounding direction, and dust.
+- Ajna kicks auctions with a bond, computes neutral/reference price, rejects
+  same-block takes, and applies phase-based descending auction price plus kicker
+  reward/penalty logic in `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/KickerActions.sol:307-384`,
+  `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/helpers/PoolHelper.sol:417-492`,
+  and `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/TakerActions.sol:684-786`.
 
 ## Related Patterns
 

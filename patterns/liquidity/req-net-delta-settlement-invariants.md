@@ -18,6 +18,8 @@
 
 - External entry points cannot call delta-creating operations while the manager is in the wrong lock state.
 - The final frame check fails if any account-currency delta remains nonzero.
+- Token-scoped transient deltas must clear before the unlock frame exits, even
+  when the callback executes arbitrary router or hook logic.
 - Tests cover nested calls, early reverts, and callback failures.
 
 ## R2: Nonzero Delta Count Matches Delta Storage
@@ -38,6 +40,8 @@
 
 - Native asset settlement and ERC20 settlement have distinct paths.
 - ERC20 `settle` cannot credit stale donations or unrelated balance changes.
+- If `settle` accepts an amount hint, credit at most the hinted amount so
+  pre-existing token donations cannot satisfy the caller's debt.
 - Dust clearing is exact and cannot erase meaningful debt.
 
 ## R4: Shared Vault Reserves Are App-Scoped
@@ -63,6 +67,10 @@
 
 - Uniswap V4 tracks currency deltas and nonzero-delta count during unlocked operations, and its settlement tests cover synced ERC20 balances, native settlement, dust clearing, and failed unlocks with unsettled deltas.
 - PancakeSwap Infinity Core tests app-scoped shared vault settlement and invariants in `/private/tmp/defillama-source/pancakeswap__infinity-core/test/vault/Vault.t.sol` and `test/vault/VaultInvariant.t.sol`.
+- Balancer V3 unlocks transient accounting through the vault, tracks
+  token-scoped deltas that must all return to zero, and caps settlement credit
+  by the caller's amount hint in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/Vault.sol:82-163`
+  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultCommon.sol:72-120`.
 
 ## Related Patterns
 

@@ -43,6 +43,9 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - A savings token's internal conversion rate increases deterministically while levered lending markets depend on liquidators realizing secondary-market value.
 - Principal/yield tokens or fixed-maturity LP tokens report accounting rates derived from exchange-rate and maturity math, but liquidation still depends on realizable PT/YT/LP market value.
 - ERC4626 share valuation recursively depends on the underlying asset oracle and redemption semantics, not only `convertToAssets`.
+- AMM vaults scale raw balances by token decimals and rate providers for pool
+  math, yield fees, or LP-rate views; those scaled balances are accounting inputs
+  and should not be treated as market-clearing collateral prices.
 
 ## Mitigations
 
@@ -57,6 +60,9 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Monitor upstream program upgrades and adapter slot acceptance when valuations depend on upgradeable Solana programs.
 - For ERC4626 registries, require the underlying asset to be registered and prevent removal while dependent vault shares remain active.
 - Haircut principal/yield or LP rates when the yield-source exchange rate drops below the stored index, and document whether LP values are approximate accounting values.
+- For AMM vault rate providers, separate "pool math and fee accounting rate" from
+  "oracle price for liquidation" and document whether BPT/share rates are
+  monotonic, cached, or hook-adjusted.
 
 ## Source Evidence
 
@@ -68,6 +74,14 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Reservoir sRUSD loopers value collateral through internal saving-module conversion paths while Morpho market parameters determine liquidation exposure in `/private/tmp/defillama-source/reservoir-protocol__srusd-loop/src`.
 - Pendle's PT/YT/LP oracle libraries haircut rates when the standardized-yield exchange rate drops below the stored PY index and document LP output as approximate in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/oracles/PtYtLpOracle`.
 - Aera v2 values ERC4626 shares through `convertToAssets` and the underlying asset oracle, requires underlying registration, and blocks removal of active underlying assets in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v2`.
+- Balancer V3 scales token balances by decimal and rate-provider data for pool
+  math, yield fees, and BPT-rate views in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/Vault.sol:169-190`,
+  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/PoolDataLib.sol:31-92`,
+  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultExtension.sol:491-511`;
+  this is accounting evidence, not proof of market-clearing LP value.
+- Balancer V2 composable stable pools expose rate-derived BPT math in
+  `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/pool-stable/contracts/ComposableStablePoolRates.sol:38-65`
+  and `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/pool-stable/contracts/ComposableStablePoolRates.sol:197-280`.
 
 ## Related Patterns
 

@@ -54,6 +54,11 @@ function settle(uint256 accountId, uint256 assetId) external {
 }
 ```
 
+The same ownership boundary applies when external synth or perps markets report
+debt into a shared core. Market modules can compute debt and reported issuance,
+but the manager should own USD mint/burn, net issuance, withdrawable credit, and
+collateral-backed debt accounting.
+
 ## Implementation
 
 - Bind settlement ids to account, asset, expiry, market, and trade context.
@@ -61,11 +66,18 @@ function settle(uint256 accountId, uint256 assetId) external {
 - Record settled cash before or atomically with external effects.
 - Re-run account risk checks after settlement.
 - Test duplicate settlement, partial expiry, funding accrual, negative cash, and manager pause behavior.
+- For external market modules, prove market-reported debt cannot mint or burn the
+  core cash asset except through manager-owned issuance paths.
 
 ## Source Evidence
 
 - Derive V2 documents asset settlement responsibilities in `/private/tmp/defillama-source/derivexyz__v2-core/docs/assets.md`.
 - Derive V2 manager settlement and cash adjustment logic appears in `src/risk-managers/BaseManager.sol`, while option and cash assets compute settlement behavior in `src/assets/OptionAsset.sol` and `src/assets/CashAsset.sol`.
+- Synthetix V3 lets external markets compute and report debt while core modules
+  own USD issuance, net issuance, withdrawable credit, and collateral-backed debt
+  accounting in `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Market.sol:50-83`,
+  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/modules/core/MarketManagerModule.sol:254-342`,
+  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/modules/core/IssueUSDModule.sol:60-118`.
 
 ## Real-World Examples
 

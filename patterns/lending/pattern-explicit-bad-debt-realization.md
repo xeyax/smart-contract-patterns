@@ -78,6 +78,14 @@ if (debtFinalized && writeOffEnabled && !debtProcessed[index]) {
 This is not a liquidation haircut, but the accounting rule is the same: make the
 absorbing distribution explicit instead of hiding the loss in a later period.
 
+### Treasury-First And Bucket-Bankruptcy Variants
+
+Markets can define an ordered loss waterfall before suppliers are diluted. A
+credit pool can burn treasury LP shares first, emit uncovered loss, zero risky
+quota limits, and freeze new borrowing after a bad-debt liquidation. A
+price-bucket lending book can absorb bad debt through high-price bucket deposits,
+then reserves, then bounded bucket bankruptcy or debt forgiveness.
+
 ## Key Points
 
 - Accrue interest before liquidation and bad-debt calculation.
@@ -85,6 +93,10 @@ absorbing distribution explicit instead of hiding the loss in a later period.
 - Define whether reserves absorb loss before suppliers.
 - If a backstop absorbs loss before suppliers, track backstop liabilities separately from terminal defaulted debt.
 - If debt is tied to a reward distribution, finalize the debt set before allowing write-offs and prevent sweep until write-off windows are closed.
+- Make the loss waterfall explicit: treasury shares, reserves, bucket deposits,
+  backstop, and suppliers should be ordered in code, events, and invariants.
+- If a liquidation loss invalidates a quota or credit line, zero or freeze that
+  exposure before allowing new borrowing.
 - Emit bad-debt events with market id and amount.
 - Include invariants that no borrower has debt without collateral after terminal liquidation.
 
@@ -94,6 +106,15 @@ absorbing distribution explicit instead of hiding the loss in a later period.
 - Blend V2 assigns collateral-free user liabilities to the backstop and later defaults backstop liabilities only below a small-threshold condition in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/pool/bad_debt.rs`, with tests for assignment and default.
 - Fraxlend realizes bad debt during liquidation by reducing both `totalBorrow.amount` and `totalAsset.amount` when collateral cannot cover debt in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
 - DoubleZero Solana supports same-distribution Solana validator debt write-offs after debt finalization and records processed debt and write-off bitmaps in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/processor.rs`, with tests in `tests/write_off_solana_validator_debt_test.rs`.
+- Gearbox V3 liquidation loss burns treasury LP shares before supplier dilution,
+  emits uncovered loss, zeros risky quota limits, and can freeze new borrowing
+  after bad debt in `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/libraries/CreditLogic.sol:50-101`,
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditManagerV3.sol:291-374`,
+  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/PoolV3.sol:471-524`.
+- Ajna settles bad debt through ordered bucket deposits, reserves, and bounded
+  bucket bankruptcy/debt forgiveness in `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/SettlerActions.sol:85-201`,
+  `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/SettlerActions.sol:347-440`,
+  and `/private/tmp/defillama-source/ajna-finance__ajna-core/tests/INVARIANTS.md:67-80`.
 
 ## Related Patterns
 

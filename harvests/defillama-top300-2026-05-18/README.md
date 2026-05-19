@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 237 across 24 batches.
+- Source repository inspections so far: 250 across 25 batches.
 
 ## First Batch Repositories
 
@@ -331,6 +331,24 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Sanctum Flatslab CLI | `igneous-labs/flatslab-cli` | Pricing/admin CLI |
 | Solana Perpetuals | `solana-labs/perpetuals` | Pool-backed perps reference |
 
+## Twenty-Fifth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Balancer V3 | `balancer/balancer-v3-monorepo` | Vault / AMM hooks |
+| Balancer V2 | `balancer/balancer-v2-monorepo` | Vault / pool registry |
+| CoW Protocol | `cowprotocol/contracts` | Batch auction settlement |
+| 1inch Limit Order Protocol | `1inch/limit-order-protocol` | Typed limit orders |
+| 1inch Solidity Utils | `1inch/solidity-utils` | Permit/utilities |
+| 0x Protocol | `0xProject/protocol` | Native orders / RFQ |
+| Trader Joe V2 | `traderjoe-xyz/joe-v2` | Liquidity Book AMM |
+| SushiSwap | `sushi-labs/sushiswap` | SDK/generated bindings |
+| Synthetix V3 | `synthetixio/synthetix-v3` | Core debt / perps / oracle manager |
+| Gearbox Core V3 | `gearbox-protocol/core-v3` | Credit accounts / quotas |
+| Ajna Core | `ajna-finance/ajna-core` | Price-bucket lending |
+| Angle Transmuter | `angleprotocol/angle-transmuter` | Collateral-ratio redemptions |
+| Abracadabra MIM | `abracadabra-money/magic-internet-money` | Cauldron / whitelisting |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -358,6 +376,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-22-findings.md` — accepted and deferred catalog updates from the twelfth expanded source-discovery batch.
 - `batch-23-findings.md` — accepted and deferred catalog updates from the thirteenth expanded source-discovery batch.
 - `batch-24-findings.md` — accepted and deferred catalog updates from the fourteenth expanded source-discovery batch.
+- `batch-25-findings.md` — accepted and deferred catalog updates from the fifteenth expanded source-discovery batch.
 
 ## Notes
 

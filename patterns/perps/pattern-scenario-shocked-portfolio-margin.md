@@ -61,11 +61,18 @@ function portfolioMargin(Account memory account) internal view returns (uint256 
 }
 ```
 
+For perps with non-USD collateral, the haircut can be a deterministic function
+of trade size relative to a spot-market skew scale. The discount should be
+bounded by configured lower and upper limits and use action-specific staleness
+tolerance for the collateral feed.
+
 ## Implementation
 
 - Version and timelock scenario parameters.
 - Include spot, volatility, skew, basis, and collateral haircut assumptions where relevant.
 - Apply oracle confidence contingencies before crediting collateral or PnL.
+- Bound non-USD collateral haircuts and document whether trade size, skew, or
+  spot-market liquidity changes the discount.
 - Bound the number of scenarios or cache reusable risk arrays.
 - Test offset portfolios, concentrated portfolios, stale/confidence-degraded oracle inputs, and worst-scenario selection.
 
@@ -74,6 +81,9 @@ function portfolioMargin(Account memory account) internal view returns (uint256 
 - Derive V2 documents portfolio margin risk managers in `/private/tmp/defillama-source/derivexyz__v2-core/docs/managers/PMRM.md`.
 - Derive V2 computes spot, volatility, skew, basis, collateral haircut, and confidence scenario risk in `src/risk-managers/PMRM_2.sol` and `src/risk-managers/PMRMLib_2.sol`.
 - Derive V2 tests portfolio scenario cases in `test/risk-managers/unit-tests/PMRM_2/TestPMRM_2_PortfolioCasesNEW.t.sol`.
+- Synthetix V3 perps applies bounded non-USD collateral discounts by trade size
+  relative to spot-market skew scale in `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`
+  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`.
 
 ## Real-World Examples
 

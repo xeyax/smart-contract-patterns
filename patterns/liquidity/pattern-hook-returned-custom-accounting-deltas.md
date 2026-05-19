@@ -41,6 +41,13 @@ function _afterSwap(PoolKey memory key, SwapParams memory params) internal {
 
 The operation remains inside the manager's settlement frame, so all hook-created obligations must settle before exit.
 
+Vault hook systems can expose a narrower variant where hooks return adjusted
+amounts rather than arbitrary accounting deltas. Those adjusted amounts still
+move value: the manager must opt the pool into adjusted amounts, verify hook
+success and return length, apply user min/max checks after the adjustment, and
+disable liquidity modes whose safety checks do not compose with adjusted
+amounts.
+
 ## Key Points
 
 - Treat returned deltas as value-moving instructions from trusted hook logic.
@@ -49,11 +56,19 @@ The operation remains inside the manager's settlement frame, so all hook-created
 - Keep hook deltas inside the same settlement invariant as core pool deltas.
 - Test malicious or inconsistent hook returns, wrong sign, and unsettled deltas.
 - Do not assume naive min-out or max-in checks cover positive and negative hook deltas symmetrically.
+- For hook-adjusted amounts, run user slippage or limit checks after the hook
+  adjustment and reject modes that cannot be bounded after adjustment.
 
 ## Source Evidence
 
 - Uniswap V4 allows hooks to return custom accounting deltas during liquidity and swap operations while the pool manager remains the common settlement layer.
 - PancakeSwap Infinity Periphery validates min-out and max-in with signed delta handling in `/private/tmp/defillama-source/pancakeswap__infinity-periphery/src/libraries/SlippageCheck.sol`.
+- Balancer V3 hook-adjusted amount paths are explicitly opt-in, validate hook
+  success and return data, apply user limits after adjustment, and disable
+  unbalanced liquidity where adjusted amounts would bypass safety assumptions in
+  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:118-144`,
+  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:174-251`,
+  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/HooksConfigLib.sol:213-278`.
 
 ## Related Patterns
 

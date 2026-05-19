@@ -44,6 +44,12 @@ then walk to the next non-empty bin using a tree or bitmap. Non-active bins acce
 one-sided deposits on the side implied by their price; active-bin deposits pay
 composition fees when they change pool composition.
 
+Inside each bin, the micro-AMM can be constant-sum rather than constant-product:
+`L = price * reserveX + reserveY`. Liquidity away from the active bin is
+one-sided because the bin is entirely above or below the current price. The
+non-empty-bin index must update exactly when a bin crosses between zero and
+nonzero liquidity.
+
 ```solidity
 function swap(SwapState memory state) internal {
     while (state.amountRemaining != 0) {
@@ -62,6 +68,8 @@ function swap(SwapState memory state) internal {
 - Maintain non-empty-bin tree updates on mint, burn, and swap.
 - Enforce one-sided deposits outside the active bin.
 - Charge active-bin composition fees when deposits alter reserve ratios.
+- Keep constant-sum bin liquidity math, one-sided off-active liquidity rules,
+  composition fees, and tree zero-crossing updates in shared libraries.
 - Quote code must include every executable liquidity layer in the bin, such as maker liquidity plus processed and open limit orders.
 - Exact-out quotes should define where excess rounding goes; assigning multi-unit excess to protocol fees is a fee-policy decision that integrators must match.
 - Test empty-bin traversal, tree updates, active-bin fees, share mint/burn rounding, and minimum share locks.
@@ -72,6 +80,12 @@ function swap(SwapState memory state) internal {
 - Bin helper and tree math live in `src/pool-bin/libraries/BinHelper.sol` and `src/pool-bin/libraries/math/TreeMath.sol`.
 - PancakeSwap tests bin liquidity behavior in `test/pool-bin/libraries/BinPoolLiquidity.t.sol`.
 - Meteora DLMM SDK quote code models bin liquidity layers, exact-in and exact-out fee modes, rounding excess, and bitmap-derived bin-array traversal in `/private/tmp/defillama-source/MeteoraAg_dlmm-sdk/commons/src/quote.rs`, with multi-liquidity quote tests in `ts-client/src/test/swap_quote_multi_liquidity.test.ts`; this is SDK/source-material evidence for quote parity rather than primary proof of the on-chain program.
+- Trader Joe V2 Liquidity Book implements constant-sum bin liquidity, one-sided
+  off-active bins, active-bin composition fees, and sparse non-empty-bin tree
+  transitions in `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/BinHelper.sol:72-164`,
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBPair.sol:480-579`,
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBPair.sol:1070-1112`,
+  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/math/TreeMath.sol:15-93`.
 
 ## Real-World Examples
 

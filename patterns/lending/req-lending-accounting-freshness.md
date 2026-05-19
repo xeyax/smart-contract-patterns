@@ -44,6 +44,9 @@ accrualBlock == block.number
 - Interest model errors block the action.
 - Oracle failures in exchange-rate or liquidity checks block the action.
 - Liquidations do not use stale collateral or debt accounting.
+- If liquidation falls back to a cached exchange rate when an oracle call fails,
+  that fail-open policy must be explicit, bounded, and covered by tests; it
+  should not be an accidental side effect of a broad try/catch.
 
 ## R4: Parameter Changes Accrue First
 
@@ -86,6 +89,10 @@ accrualBlock == block.number
 - Compound V2 requires market interest accrual to be current before borrow, repay, redeem, and liquidation state transitions, with debt represented as principal plus borrower interest index in `CToken.sol`.
 - Aave V2 calls reserve `updateState` before deposit, withdraw, borrow, repay, and flash-loan debt conversion paths, with reserve indexes updated from timestamped state in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPool.sol` and `ReserveLogic.sol`.
 - M0's minter gateway validates sorted validator signatures and monotonic signer timestamps for collateral updates, then applies missed-update and undercollateralization penalties through indexed active owed M in `/private/tmp/defillama-source/m0-foundation__protocol/src/MinterGateway.sol` and integration tests under `test/integration/minter-gateway/update-collateral`.
+- Abracadabra Cauldron V3 demonstrates why cached-price fallback during
+  liquidation needs an explicit stale-price policy: exchange-rate updates and
+  liquidation paths interact through `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:203-217`
+  and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:500-508`.
 
 ## Related Patterns
 

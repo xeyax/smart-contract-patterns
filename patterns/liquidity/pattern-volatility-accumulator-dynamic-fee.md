@@ -50,6 +50,11 @@ function dynamicFeeBps() public view returns (uint256) {
 
 The accumulator should be capped and decay so the pool does not stay permanently expensive after temporary volatility.
 
+Packed fee-parameter variants should decode base fee, variable-fee control,
+filter/decay windows, reduction factor, and accumulator caps through one library
+used by quotes and execution. Governance-triggered decay or parameter changes
+should validate the maximum total fee before activation.
+
 ## Key Points
 
 - Bound base fee, max dynamic fee, accumulator growth, and decay windows.
@@ -58,10 +63,19 @@ The accumulator should be capped and decay so the pool does not stay permanently
 - Test filter-period, decay, cap, and repeated-swap behavior.
 - Keep this distinct from off-peg dynamic fees that price inventory imbalance.
 - Monitor parameter changes as economic risk settings.
+- Test packed parameter encode/decode, filter-window behavior, decay-window
+  behavior, capped accumulator growth, quadratic variable-fee math, and maximum
+  total fee validation.
 
 ## Source Evidence
 
 - Loopscale's cloned DAMM v2 source identifies as Meteora constant-product AMM code and includes volatility accumulator fee state, decay behavior, and dynamic-fee tests.
+- Trader Joe V2 Liquidity Book uses packed fee parameters, filter and decay
+  windows, capped volatility accumulators, quadratic variable-fee math, and
+  max-total-fee validation in `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/PairParameterHelper.sol:9-27`,
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/PairParameterHelper.sol:225-260`,
+  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/PairParameterHelper.sol:372-438`,
+  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:433-474`.
 
 ## Related Patterns
 

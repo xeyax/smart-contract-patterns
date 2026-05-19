@@ -61,6 +61,12 @@ function priceFor(Action action, address asset) internal view returns (uint256 p
 
 Borrowing may require all freshness, confidence, TWAP, and heuristic checks. Liquidation may require a narrower liquidation-safe flag set so accounts can still be resolved during partial oracle degradation.
 
+Some credit-account systems use a "safe price" only for post-operation checks
+after a user or adapter could have offloaded mispriced collateral. A safe price
+can be the lower of a main feed and reserve feed; missing reserve data should
+return zero only in paths where zero will fail the collateral check, not in
+general-purpose price reads.
+
 Collateral-only exits can sometimes use a narrower stale-price policy, but only
 when the account has no debt and the action cannot increase protocol credit
 risk. Debt-bearing withdraw, borrow, transfer, and liquidation paths should fail
@@ -80,6 +86,11 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 }
 ```
 
+Collateral haircuts can also be action-scoped. For example, a perps engine can
+discount non-USD collateral by trade size relative to a spot-market skew scale,
+with bounded minimum and maximum discounts and separate staleness tolerance for
+the collateral path.
+
 ## Key Points
 
 - Document the price mode used by every user action.
@@ -93,6 +104,13 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - For perps, test each oracle action class separately; do not assume a funding-safe price is liquidation-safe or settlement-safe.
 - For stable-asset mint/redeem paths, choose conservative peg bounds by action: minting can use the lower of oracle and par, while redemption can use the higher of oracle and par only if reserves and caps absorb the difference.
 - Borrower-favorable LTV oracle changes should be ramped and monotonic, with liquidation-threshold separation preserved, rather than treated as ordinary price freshness.
+- For stable-asset redemption that pays a basket of reserves, use oracle values
+  to decide global collateral-ratio penalties, not to silently reweight each
+  output token away from the pro-rata reserve claim.
+- For credit accounts, request safe prices only on paths where a zero or missing
+  reserve feed should fail closed.
+- For non-USD perps collateral, bind haircut configuration to action-specific
+  price freshness and trade-size/skew bounds.
 
 ## Source Evidence
 
@@ -106,6 +124,20 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - Fraxlend stores low/high oracle exchange rates with deviation gating, uses the high price for solvency checks and the low price for liquidation calculations in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
 - Frax FPI controller tests peg-band mint, redeem, and TWAMM actions against bounded prices in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/FPI/FPIControllerPool.sol`.
 - Olympus Cooler V2 uses an LTV oracle for origination and liquidation thresholds and constrains borrower-favorable changes in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerLtvOracle.sol`.
+- Angle Transmuter uses action-specific stable-asset oracle bounds for swap and
+  mint/burn paths, while redemption uses oracle value to compute the global
+  collateral-ratio penalty rather than per-token output weights in
+  `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/libraries/LibOracle.sol:23-91`,
+  `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/libraries/LibOracle.sol:104-150`,
+  and `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/facets/Swapper.sol:236-276`.
+- Gearbox V3 derives safe prices from main and reserve feeds and uses them for
+  post-operation credit-account checks after risky adapter operations in
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/core/PriceOracleV3.sol:24-35`,
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/core/PriceOracleV3.sol:127-179`,
+  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:625-649`.
+- Synthetix V3 perps collateral configuration applies bounded non-USD collateral
+  discounts by trade size and skew scale in `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`
+  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`.
 
 ## Related Patterns
 

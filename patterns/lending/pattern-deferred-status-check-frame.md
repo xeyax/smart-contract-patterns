@@ -75,6 +75,15 @@ module calls completes. The post-operation hook should receive the touched walle
 or account, re-run debt-manager health checks, and fail the whole frame if the
 wallet is insolvent after the module action.
 
+### Credit-Account Adapter Frame Variant
+
+Credit-account protocols can batch adapter calls, token enables/disables, quota
+changes, and collateral withdrawals inside one frame. The frame should scope each
+action by permission bits, set a temporary active credit account only while the
+adapter executes, clear it before exit, and run final collateral checks with the
+right safe-price and forbidden-token rules when calls can offload or withdraw
+collateral.
+
 ## Key Points
 
 - Hard-cap the deferred account and vault sets.
@@ -86,6 +95,12 @@ wallet is insolvent after the module action.
 - If the frame exposes a temporary executor, prove callbacks cannot use the active frame to mutate unrelated positions.
 - If forgiveness exists, test that it cannot remove unrelated accounts or vaults and that reentrant status-check execution is locked.
 - For modular wallets, bind the post-operation hook to the active wallet and debt manager; module execution must not be able to skip the final solvency hook.
+- For credit-account adapter frames, test permission bits, active-account
+  cleanup, forbidden-token checks, safe-price checks, and failure paths where an
+  adapter tries to mutate an unrelated account.
+- Open arbitrary-call batching only to authenticated borrowers and ensure the
+  final exchange-rate or solvency guard cannot be bypassed by stale-price
+  fallback behavior.
 
 ## Source Evidence
 
@@ -93,6 +108,16 @@ wallet is insolvent after the module action.
 - Euler EVC exposes scoped `forgiveAccountStatusCheck` and `forgiveVaultStatusCheck` paths, caps deferred account and vault sets at 10, blocks status-check reentrancy, and restores execution context after the outer frame in `/private/tmp/defillama-source/euler-xyz__ethereum-vault-connector/src/EthereumVaultConnector.sol`, `src/ExecutionContext.sol`, and `docs/whitepaper.md`.
 - Alpha Homora V2 stores `POSITION_ID` and `SPELL` during `execute`, restricts bank actions to the active spell, checks collateral value against borrow value after spell execution, and clears the temporary context in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
 - EtherFi Cash V3 safe modules run post-operation debt-manager checks through `EtherFiSafe`, `ModuleManager`, and `EtherFiHook` in `/private/tmp/defillama-source/etherfi-protocol_cash-v3/src/safe/EtherFiSafe.sol` and `src/hook/EtherFiHook.sol`.
+- Gearbox V3 batches credit-account calls with permission-bit checks, temporary
+  active-account context, adapter execution, and final collateral checks in
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:440-486`,
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:492-650`,
+  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditManagerV3.sol:512-591`.
+- Abracadabra Cauldron V3 exposes open-call batching through `cook`, guarded by
+  borrower context and final exchange-rate/solvency checks, in
+  `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:36-39`,
+  `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:390-414`,
+  and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:422-493`.
 
 ## Related Patterns
 

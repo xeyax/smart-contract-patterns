@@ -42,6 +42,11 @@ function beforeSwap(...) external returns (bytes4, uint24 overrideFee) {
 }
 ```
 
+Another variant computes the fee through the configured hook on each swap without
+mutating a stored Uniswap-style dynamic-fee sentinel. The pool must still opt
+into dynamic swap fees, the returned fee must be bounded by the protocol maximum,
+and routers should surface that the fee is hook-determined at execution time.
+
 ## Key Points
 
 - Mark dynamic-fee pools explicitly at initialization.
@@ -49,10 +54,16 @@ function beforeSwap(...) external returns (bytes4, uint24 overrideFee) {
 - Bound per-swap fee overrides and stored fee values.
 - Surface hook identity and dynamic-fee status to routers and frontends.
 - Cross-check with formula-based dynamic fees, but do not merge the two mechanisms.
+- Treat per-swap hook-computed fees as execution-time price inputs and keep
+  user slippage bounds active.
 
 ## Source Evidence
 
 - Uniswap V4 uses a dynamic-fee sentinel, hook-only stored LP fee updates, and bounded per-swap override fees returned from hooks.
+- Balancer V3 supports hook-computed dynamic swap fees bounded by the vault's fee
+  limits without relying on the Uniswap stored-fee sentinel mutation path in
+  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:174-251`
+  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/HooksConfigLib.sol:310-366`.
 
 ## Related Patterns
 

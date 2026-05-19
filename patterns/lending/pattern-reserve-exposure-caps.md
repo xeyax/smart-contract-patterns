@@ -54,6 +54,8 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - Monitor cap utilization before listing changes or rate model updates.
 - Allow risk-reducing deltas even when an account or market is already above a cap, as long as the action reduces debt, exposure, or unsafe collateralization.
 - For stablecoin issuers, cap each issuance channel and combine those caps with global balance-sheet ratios; per-channel headroom alone is not solvency.
+- For proof-based or allowlisted borrowing, cap the resulting debt after fees,
+  interest, and market cap math, not just the requested action amount.
 
 ## Source Evidence
 
@@ -62,6 +64,11 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - Satoshi Core applies per-market CDP debt caps and Nexus total/daily mint caps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/core/NexusYieldManager.sol`.
 - Reservoir combines PSM, savings, and fixed-maturity term debt caps with global balance-sheet ratio checks in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/CreditEnforcer.sol`.
 - Zest Protocol combines supply caps, borrow caps, isolated-collateral flags, borrowable-isolated assets, and aggregate isolated debt ceilings in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar`, with isolation-mode tests under `onchain/tests/borrow`.
+- Abracadabra whitelisted cauldrons verify Merkle proof debt caps against the
+  resulting borrow part after fee/cap math, not merely the user-requested amount,
+  in `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/WhitelistedCauldronV3.sol:278-292`,
+  `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/WhitelistedCauldronV3.sol:488-490`,
+  and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/Whitelister.sol:24-35`.
 
 ## Related Patterns
 

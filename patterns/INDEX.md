@@ -158,6 +158,7 @@
 | pattern-liquidation-grace-period-with-bad-debt-escape.md | Delay ordinary liquidations after an asset freeze or incident, but allow immediate liquidation when the account is already bad debt. | A market needs a freeze or grace period after oracle, collateral, or market incidents |
 | pattern-move-receipt-bound-flash-loan.md | Bind a Move flash loan to repayment by returning a non-storable receipt that must be consumed in the same transaction. | A Move-based lending protocol offers atomic flash liquidity |
 | pattern-nontransferable-debt-token-delegation.md | Represent borrow liabilities as non-transferable debt tokens and expose delegated borrowing through a separate allowance surface. | Borrow balances are represented as tokenized liabilities; Debt should not be sold or transferred like an asset claim |
+| pattern-oracle-free-price-bucket-lending-book.md | Let lenders choose price buckets and derive borrow capacity from deposited quote liquidity instead of a protocol oracle. | Lenders should explicitly price collateral risk through bucket deposits |
 | pattern-packed-reserve-risk-configuration.md | Pack reserve risk parameters and operational flags into a named config word with masks, bounds, decode helpers, and setter validation. | A reserve has many hot-path risk parameters or operational flags |
 | pattern-product-sum-stability-pool-accounting.md | Distribute liquidation losses and collateral gains to pooled backstop depositors with global product and sum accumulators. | A CDP or lending protocol has a pooled liquidation backstop; Liquidations reduce every depositor's principal pro-rata |
 | pattern-progressive-protocol-liquidity-limits.md | Expand protocol-specific withdrawal and borrow capacity over time while shrinking limits immediately after risk-reducing actions. | Multiple protocol adapters share a liquidity core; Each adapter needs bounded borrow or withdrawal capacity |
@@ -180,7 +181,7 @@
 | File | Applies To |
 |------|-----------|
 | req-collateral-threshold-separation.md | R1: Liquidation Threshold Exceeds Borrow Threshold, R2: Action Checks Use The Correct Threshold, R3: Freshness Scope Is Documented, R4: Risk Reductions Preserve Exit Windows, R5: Liquidation Bonus Does Not Invert Collateral Safety, R6: Borrow-Capacity Increases Are Ramped And Separated |
-| req-credit-loss-accounting.md | R1: Loss State Is Explicit, R2: Losses Cannot Exceed Accounted Assets, R3: Normal Issuance Respects Loss State |
+| req-credit-loss-accounting.md | R1: Loss State Is Explicit, R2: Losses Cannot Exceed Accounted Assets, R3: Normal Issuance Respects Loss State, R4: Debt-Bearing Migration Preserves Loss State |
 | req-lending-accounting-freshness.md | R1: Accrue Before Value-Changing Actions, R2: Freshness Scope Is Explicit, R3: Stale Actions Fail Closed, R4: Parameter Changes Accrue First, R5: Stale Collateral Reports Have Explicit Consequences |
 
 ## liquidity
@@ -375,6 +376,7 @@
 |------|-------------|----------|
 | pattern-adapter-isolated-core-ledger.md | Keep the core accounting ledger free of token calls and route every token-specific behavior through small audited adapters. | A protocol accepts multiple collateral or asset types |
 | pattern-balance-delta-transfer-accounting.md | Account for the actual token amount received by measuring balance changes around transfers. | The protocol accepts arbitrary or curated ERC20 collateral |
+| pattern-collateral-ratio-pro-rata-redemption.md | Burn a stable asset for a pro-rata claim on current reserves while using oracle value only to price the global collateral-ratio penalty. | A stable asset is backed by multiple collateral and managed subcollateral |
 | pattern-extension-gated-transfer-fee-normalization.md | Support deterministic token-program transfer fees by reading canonical extension state, normalizing included/excluded amounts, and rejecting unsupported extensions. | The token program exposes canonical, inspectable transfer-fee extension state |
 | pattern-semi-fungible-slot-reserve-wrapper.md | Wrap ERC-3525 or other slot-scoped semi-fungible positions into one ERC-20 claim token per slot while the pool owns the underlying slot value id. | Underlying positions are semi-fungible by slot; Each slot should become a fungible ERC-20 claim |
 

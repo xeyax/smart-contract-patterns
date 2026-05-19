@@ -53,6 +53,9 @@ function _accountDelta(address account, Currency currency, int256 delta) interna
 - Count every account-currency delta that becomes nonzero and returns to zero.
 - Require end-of-unlock solvency before state exits the operation frame.
 - Make hooks and routers settle through the same delta ledger.
+- When settlement credits from observed token balances, cap the credited amount
+  by the caller-supplied settlement amount so donations cannot pay unrelated
+  debt.
 - Treat sync, settle, fee collection, and reserve accounting as part of the same invariant surface.
 - Treat this as a narrow exception to shared-pool risk, justified only by keyed state and delta invariants.
 
@@ -60,6 +63,10 @@ function _accountDelta(address account, Currency currency, int256 delta) interna
 
 - Uniswap V4's pool manager stores all pools in a singleton, exposes unlock-scoped flash accounting, and requires all nonzero currency deltas to clear before the unlock completes.
 - PancakeSwap Infinity Core adds a shared vault variant with registered apps, app balances, transient locking, settlement guards, and unsettled-delta accounting in `/private/tmp/defillama-source/pancakeswap__infinity-core/src/Vault.sol` and `src/libraries/SettlementGuard.sol`.
+- Balancer V3 uses vault-scoped unlock frames and transient token deltas that
+  must settle to zero before exit, with settlement credit limited by amount hints
+  in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/Vault.sol:82-163`
+  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultCommon.sol:72-120`.
 
 ## Related Patterns
 

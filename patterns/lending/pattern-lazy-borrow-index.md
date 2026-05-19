@@ -54,6 +54,13 @@ On borrow or repay, write the borrower's new principal and current index.
 - Pair with [Lending Accounting Freshness Requirements](./req-lending-accounting-freshness.md).
 - If debt is represented by tokens, consider [Scaled Balance Token Accounting](./pattern-scaled-balance-token-accounting.md) so token balances derive from the same index.
 - When a CDP also accrues protocol rewards, checkpoint debt interest and reward cursors before debt, collateral, liquidation, redemption, or claim paths mutate the position.
+- For credit accounts with multiple debt components, define the repayment
+  waterfall across principal, base interest, quota interest, quota fees, and
+  protocol fees; partial repayment ordering and pro-rata fee splits must be
+  explicit.
+- If lenders accrue interest only when their bucket or deposit index is touched,
+  document which actions refresh lender interest and which views are stale until
+  interaction.
 
 ## Source Evidence
 
@@ -63,6 +70,14 @@ On borrow or repay, write the borrower's new principal and current index.
 - Compound tests borrow accrual, repayment, and liquidation freshness in `tests/Tokens/accrueInterestTest.js`, `borrowAndRepayTest.js`, and `liquidateTest.js`.
 - Satoshi Core lazily applies trove debt interest and OSHI reward indexes around trove state changes in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/logic/TroveManagerLogic.sol`.
 - Zest Protocol stores user principal borrow balance plus the last variable-borrow index, then computes compounded borrow balances from reserve indexes in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/vaults/pool-0-reserve.clar`.
+- Gearbox V3 defines multi-component credit-account debt and repayment ordering
+  across principal, base interest, quota interest, quota fees, and protocol fees
+  in `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/libraries/CreditLogic.sol:132-154`,
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/libraries/CreditLogic.sol:156-264`,
+  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditManagerV3.sol:385-470`.
+- Ajna selectively updates lender interest through bucket/deposit interactions
+  in `/private/tmp/defillama-source/ajna-finance__ajna-core/src/base/Pool.sol:537-578`
+  and `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/PoolCommons.sol:249-289`.
 
 ## Related Patterns
 

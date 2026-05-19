@@ -76,6 +76,20 @@ if (utilization <= kink1) {
 
 This can model a softer middle region before the final jump rate, but it adds calibration risk.
 
+### Hard Utilization Stop Variant
+
+A second utilization point can be more than a rate kink. A pool may reject new
+borrowing above the second point so enough liquidity remains available for exits:
+
+```solidity
+require(newUtilization <= u2, "borrow limit");
+available = liquidity * (u2 - utilization) / WAD;
+```
+
+If governance changes the limit or per-block debt cap, initialize the cap as
+fully used for the current block so a limit increase cannot be consumed
+atomically before monitoring reacts.
+
 ## Key Points
 
 - Define utilization denominator carefully when reserves are present.
@@ -86,6 +100,10 @@ This can model a softer middle region before the final jump rate, but it adds ca
 - If the curve uses an external benchmark, validate the benchmark through a bounded rate-source adapter.
 - For multi-kink curves, test both kink boundaries and ensure slopes do not create negative or decreasing rates unless that behavior is intentional and bounded.
 - For packed or versioned rate data, validate monotonic segment ordering and decode/encode round trips before activating the curve.
+- If a utilization point is also a borrow hard stop, test `availableToBorrow`
+  around the boundary and ensure exits remain possible when new borrows revert.
+- When per-block debt caps change, test same-block borrow attempts immediately
+  after the limit update.
 
 ## Source Evidence
 
@@ -93,6 +111,12 @@ This can model a softer middle region before the final jump rate, but it adds ca
 - SparkLend Advanced uses benchmark-targeted rate-model variants that combine external APR-style inputs, spreads, and kink utilization behavior.
 - Venus uses a two-kink interest-rate model and audit material highlights that decreasing supply-rate behavior should be treated as an explicit risk.
 - Fluid uses packed one-kink and two-kink rate data variants with validation around rate-data versioning and monotonic curve segments.
+- Gearbox V3 uses a second utilization point as an optional borrow hard stop,
+  computes available borrow liquidity to reserve exits, and maxes the per-block
+  debt cap on limit changes in `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/LinearInterestRateModelV3.sol:13-19`,
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/LinearInterestRateModelV3.sol:92-142`,
+  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/PoolV3.sol:425-469`,
+  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:856-877`.
 
 ## Related Patterns
 
