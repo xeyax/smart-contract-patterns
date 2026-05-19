@@ -85,11 +85,14 @@ function requestBurn(uint256 shares) external returns (uint256 id) {
 - Snapshot fee terms for pending exits when fee changes should not be retroactive.
 - Make completion idempotent and consume request state before external transfers.
 - Document whether users can cancel or whether completion is permissioned custody.
+- For solver-filled requests, bind request hashes to token, sender, request type, amount, slippage bound, solver tip, deadline, max price age, and fixed-price or auto-price mode.
+- Emit skipped or failed request processing so off-chain operators can distinguish liveness failures from rejected economics.
 
 ## Source Evidence
 
 - Avant MAX V1 completed mint and burn requests with service-supplied output amounts, while MAX V2 computes completion amounts from stored request data and `PriceStorage` in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/src/RequestsManagerV2.sol`.
 - MAX V2 tests cover arbitrary completion amount prevention and request-time burn fee locking in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/test/RequestsManagerV2.t.sol`.
+- Aera v3 hashes async deposit and redeem request parameters, supports solver tips, deadlines, max price age, fixed-price and auto-price modes, direct or vault-routed solving, and refund paths in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/Provisioner.sol`.
 
 ## Real-World Examples
 

@@ -247,6 +247,7 @@ profitPerShare = currentPPS - hwm * (1 + hurdleRate * elapsed / YEAR)
 - [MetaMorpho](https://github.com/morpho-org/metamorpho) — performance fee via share dilution; uses `lastTotalAssets` baseline (equivalent to post-fee HWM)
 - [Yearn V2 Vaults](https://github.com/yearn/yearn-vaults/blob/main/contracts/Vault.vy) — performance fee on per-strategy reported gains (no vault-level HWM, different approach)
 - AFI/afiUSD uses externally reported profit/loss with fee-share minting on profit and fee-share burning on loss, which is useful evidence for clawback caveats rather than a pure HWM design.
+- Aera v3 supports delayed, dispute-windowed fee snapshots and high-profit baselines in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/DelayedFeeCalculator.sol`; treat it as lower-confidence supporting evidence because the fee report is operationally submitted.
 
 ## Related Patterns
 

@@ -52,7 +52,7 @@ Supply and borrow sides can each have their own total assets and total shares. A
 
 ## Source Evidence
 
-- Morpho Blue stores supply and borrow positions as shares, uses virtual offsets in conversion math, and formally specifies conservative asset accounting rules.
+- Morpho Blue stores separate supply and borrow shares, uses virtual offsets in conversion math, applies explicit directional rounding, and formally specifies conservative asset accounting rules.
 - Alpha Homora V2 computes borrow balances with ceiling division, mints borrow shares with ceiling division, caps repayment to old debt, floors partial share reduction, and burns all remaining shares on full repayment in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
 - Fraxlend `VaultAccount` stores `amount` and `shares` totals and converts with explicit rounding direction for asset and borrow accounting in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/libraries/VaultAccount.sol`.
 

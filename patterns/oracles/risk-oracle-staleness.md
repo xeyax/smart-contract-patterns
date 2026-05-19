@@ -250,6 +250,7 @@ function isPriceStale() public view returns (bool) {
 - Reserve Protocol collateral plugins cache price bounds and degrade stale or broken prices toward conservative low/high extremes while collateral default handling is delayed, as implemented under `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/plugins/assets`.
 - Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
 - Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/adapters` and `src/PegStabilityModule.sol`.
+- Pendle's Chainlink-compatible PT/YT/LP wrapper can return the current block timestamp while the underlying implied-rate TWAP still needs readiness checks, and its trusted-sender cross-chain exchange-rate app accepts newer timestamps without max source-age or deviation bounds.
 
 ## Related Patterns
 

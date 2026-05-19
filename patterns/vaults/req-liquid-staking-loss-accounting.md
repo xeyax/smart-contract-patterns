@@ -52,6 +52,16 @@
 - Queue settlement is bounded and preserves FIFO or documented ordering.
 - Exit requests that use a cooldown should either fix the claim entitlement or bind the claim basis to a historical exchange rate so post-maturity claim timing cannot harvest later rewards.
 
+## R5: Burn-Cover Buckets Are Separate From Ordinary Rewards
+
+**Cover burns, non-cover burns, fees, and positive rebases must be ordered explicitly so loss coverage cannot be mistaken for distributable profit.**
+
+### What This Means
+
+- Cover and non-cover burn requests are tracked separately.
+- Positive rebase limits can defer burn-cover processing; cover is not always immediate repayment.
+- Fees are not charged on non-profitable or loss-covering reports unless explicitly documented.
+
 ## Verification Checklist
 
 | Requirement | Question |
@@ -60,15 +70,18 @@
 | R2 | Can rewards be distributed before old penalties are repaid? |
 | R3 | Do exits and migrations apply outstanding loss fairly? |
 | R4 | Are pending exits excluded from yield and free liquidity? |
+| R5 | Are cover burns, non-cover burns, and profit fees ordered explicitly? |
 
 ## Source Evidence
 
 - StakeWise V2 tracks `totalPenalty`, repays penalties from later rewards before distribution, and applies outstanding penalty during migration.
 - Lista's stkBNB strategy aggregates unstake requests, distributes in bounded FIFO batches, converts failed pushes to manual claims, and excludes pending unstake amounts from harvestable yield.
 - BENQI sAVAX escrows shares for cooldown exits and claims against a historical rate lookup at the claimable timestamp in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/sAVAX/StakedAvax.sol`, with pause liveness remaining a separate risk.
+- Lido separates cover and non-cover share-burn requests, caps positive rebases, and avoids fees on non-profitable reports in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9`.
 
 ## Related Patterns
 
 - [Principal-Reward Split Derivative](../tokens/pattern-principal-reward-split-derivative.md)
 - [Credit Loss Accounting Requirements](../lending/req-credit-loss-accounting.md)
+- [Restaking Slashing Accounting Requirements](./req-restaking-slashing-accounting.md)
 - [Rebasing Token Accounting](../../ANTIPATTERNS.md#rebasing-token-accounting)

@@ -131,6 +131,7 @@ When evaluating an oracle integration, verify:
 | Report Ranges | Are off-chain source ranges finalized, contiguous, and non-sparse? |
 | Action Scope | Which price-validity flags are required for each value-bearing action? |
 | Confidence | Are confidence ratios, exponent ranges, and feed ids validated before conversion? |
+| Market Dependency | If the core delegates oracle choice to market creators, are scale, no-revert, magnitude, and unsafe-jump assumptions documented? |
 
 ---
 
@@ -162,6 +163,7 @@ Legend: ✅ = satisfies, ⚠️ = partially satisfies, ❌ = does not satisfy
 - [Historical Bounds](./pattern-historical-bounds.md) — sanity check against history
 - [Threshold Reporter Consensus](./pattern-threshold-reporter-consensus.md) — quorum-gated accepted state
 - [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md) — monitor market/fair-value divergence
+- [User Opt-In Pending Oracle Registry](./pattern-user-opt-in-pending-oracle-registry.md) — staged oracle replacement with consumer opt-in caveats
 
 ### Risks (Violations)
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — violates R1

@@ -88,6 +88,8 @@ function manage(address target, bytes calldata data, bytes32[] calldata proof) e
 
 The leaf should include decoded sensitive arguments such as token, spender, protocol, amount cap, or recipient when the same selector can perform materially different actions.
 
+A richer manifest can also bind value-transfer permission, callback expectations, hook configuration, and selected calldata words. That keeps a broad selector such as `call(bytes)` from becoming broad authority when only some arguments are safe.
+
 ## Key Points
 
 - Scope permissions by both target and selector; selector-only roles are too broad across contracts.
@@ -106,6 +108,7 @@ The leaf should include decoded sensitive arguments such as token, spender, prot
 - Ether.fi migrated call forwarding toward allowlisted user, target, and selector checks after identifying bypassable blacklist behavior.
 - Veda uses a Merkle permission manifest for manager calls and includes target, selector, and decoded argument constraints for sensitive operations.
 - Sophon's custom USDC bridge lets owner or admin initialize an unset chain bridge address, but reserves replacement of an existing chain bridge address to the owner in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
+- Aera v3 verifies guardian operations against Merkle leaves that bind target, selector, value flag, callback data, hook configuration, and extracted calldata in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/BaseVault.sol`.
 
 ## Related Patterns
 

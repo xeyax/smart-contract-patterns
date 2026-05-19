@@ -52,6 +52,7 @@ still add the same reentrancy, slippage, and token-safety review as any callback
 - Bind callback caller to token pair, fee tier, and factory.
 - If transfer skipping or netting is supported, prove the net input and output are balanced against the liquidity core before committing.
 - Avoid writes to critical invariant state after untrusted callbacks unless they are already locked and accounted.
+- Periphery callback handlers should verify `msg.sender` is the expected pool or market before paying; core post-callback balance checks do not automatically protect a generic callback helper.
 - Test underpayment, wrong-callback-caller, reentrancy, and fee-on-transfer token assumptions.
 
 ## Source Evidence
@@ -59,6 +60,8 @@ still add the same reentrancy, slippage, and token-safety review as any callback
 - Uniswap V3 and PancakeSwap V3 use optimistic mint/swap/flash callbacks, pool-wide locks, callback caller validation, and post-callback balance checks with underpayment tests.
 - Fluid liquidity operations include `SKIP_TRANSFERS` and `NET_TRANSFERS` style settlement modes that still enforce final balance and total-input checks around callbacks.
 - QuickSwap/Uniswap V2 example flash-swap receivers validate callback sender against the factory-derived pair before repayment in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/contracts/examples/ExampleFlashSwap.sol`; treat this as example-level evidence.
+- SunSwap V3 repeats the Uniswap V3 callback settlement shape on TRON with router-side callback validation and pool-side post-callback balance checks.
+- Pendle V2 market callbacks demonstrate the caveat: the market checks post-callback balances, but generic periphery callback handlers still need expected-caller validation.
 
 ## Related Patterns
 

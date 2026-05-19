@@ -147,6 +147,7 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Mixing V2 and V3 assumptions** | Wrong price math or readiness checks | Use cumulative-price windows for V2 pools and tick/liquidity observations for V3 pools |
 | **Same-period V2 overwrite** | Oracle observation window collapses or becomes too recent | Skip updates until the next period bucket |
 | **Unready fixed-window V2 average** | Default zero averages can leak into value-bearing reads | Gate `consult` until the first successful update initializes averages |
+| **Wrapper timestamp masking** | A Chainlink-compatible wrapper can return `updatedAt = block.timestamp` while the underlying TWAP is unready | Check underlying readiness/cardinality and economic timestamp, not only wrapper freshness |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -173,6 +174,10 @@ More accurate for volatile assets (Uniswap V3 uses this):
 // Uniswap V3 accumulates log(price), so the result is geometric mean
 geometricMeanPrice = 1.0001^(averageTick)
 ```
+
+### Maturity Implied-Rate TWAP
+
+Fixed-yield AMMs can accumulate an implied-rate value rather than a direct spot price. The reader derives PT, YT, or LP rates from the average implied rate and time remaining to expiry. In this variant, readiness checks must cover both the observation ring and the market's maturity state.
 
 ### Weighted TWAP
 
@@ -241,6 +246,7 @@ Before using a TWAP for value-bearing operations:
 - [Uniswap V2](https://github.com/Uniswap/v2-core) — cumulative reserve-ratio price accumulators with counterfactual current cumulative reads in periphery
 - PancakeSwap V2 periphery includes a sliding-window oracle that buckets observations by period, rejects missing or too-recent observations, and computes current cumulative prices counterfactually.
 - QuickSwap/Uniswap V2 example fixed-window oracle code illustrates the need to gate `consult` until the first update initializes nonzero averages; its sliding-window example rejects missing observations.
+- Pendle V2 accumulates implied-rate observations and derives PT/YT/LP rates from time-to-expiry, while its Chainlink-compatible wrapper illustrates why callers must check underlying TWAP readiness and not only `updatedAt`.
 - [Euler Finance](https://docs.euler.finance/euler-protocol/getting-started/methodology/oracle-rating) — uses TWAP for price discovery
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
 

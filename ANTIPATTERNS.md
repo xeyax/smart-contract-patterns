@@ -98,7 +98,7 @@ Loop over user-controlled or growing data structure without gas limit.
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without checking balance delta.
 **Risk:** Accounting mismatch, exploitable for value extraction.
-**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. A documented unsupported-token assumption is only sufficient when every market or asset-onboarding path makes the same rejection boundary visible to integrators.
 
 ### Missing Slippage Protection
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
@@ -174,7 +174,7 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation. Cross-contract controllers, vaults, and callback receivers need a shared reentrancy model; a per-contract lock is not sufficient when the callback can re-enter a sibling contract that shares accounting assumptions. Refund callbacks during a temporary privileged execution context need explicit reentrancy reasoning, because the callback target may observe or reuse the still-active frame.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation. Cross-contract controllers, vaults, and callback receivers need a shared reentrancy model; a per-contract lock is not sufficient when the callback can re-enter a sibling contract that shares accounting assumptions. Refund callbacks during a temporary privileged execution context need explicit reentrancy reasoning, because the callback target may observe or reuse the still-active frame. Periphery callback helpers should verify the expected market or pool caller before paying or forwarding assets; post-callback balance checks in the core do not protect unrelated callback entrypoints by themselves.
 
 ### Unkeyed Transient Execution Context
 Transient scratch storage or per-transaction context is shared across callers, wallets, or operations without a key.
@@ -226,7 +226,7 @@ Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot 
 Assumes token transfer delivers exact amount requested.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check, or docs say only standard non-rebasing tokens are supported while onboarding does not reject fee-on-transfer behavior.
 **Risk:** Accounting mismatch with fee-on-transfer tokens, exploitable for value extraction.
-**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. A documented unsupported-token assumption is only sufficient when every market or asset-onboarding path makes the same rejection boundary visible to integrators.
 
 ### Implicit Decimal Assumption
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
@@ -238,7 +238,7 @@ Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
 Protocol requests unlimited approval, approved spender contracts are upgradeable.
 **Symptoms:** `type(uint256).max` approval, no permit2, no session-scoped approvals.
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
-**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance. For bridge hooks or fee dispatchers callable by arbitrary users, prefer per-call allowance that is granted, consumed, and cleared inside the same operation frame.
+**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance. For bridge hooks or fee dispatchers callable by arbitrary users, prefer per-call allowance that is granted, consumed, and cleared inside the same operation frame. Callback-capable vaults should assert that all operation and callback-created approvals are zero before the frame ends.
 
 ### Overwrite-Based Allowance Changes
 Custom transfer budgets or ERC20-like allowances are replaced by a new value without accounting for pending spender use.
@@ -376,4 +376,4 @@ Contract exposes multicall/batch that chains arbitrary internal calls without re
 Anyone can create pools/markets with arbitrary tokens and parameters.
 **Symptoms:** No parameter bounds, no curation, no risk isolation for new markets.
 **Risk:** Malicious token pool drains paired assets. Euler V1: $197M.
-**Fix:** Parameter bounds at protocol level, curated allowlists or risk tiers, isolated risk for permissionless pools. Permissionless markets are safer when oracle, LLTV, and rate-model classes are enabled separately and market assets/debt/bad debt are isolated by market id.
+**Fix:** Parameter bounds at protocol level, curated allowlists or risk tiers, isolated risk for permissionless pools. Permissionless markets are safer when oracle, LLTV, and rate-model classes are enabled separately and market assets/debt/bad debt are isolated by market id. Even then, users still underwrite the specific token and oracle choices for each market.

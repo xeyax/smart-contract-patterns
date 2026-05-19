@@ -52,10 +52,11 @@ The protocol stores balances and totals under the market id, and only accepts ma
 - Make market params immutable once liquidity exists.
 - Keep callbacks and hooks from writing unrelated market state.
 - Prove or test that one market's insolvency cannot reduce another market's assets.
+- Document that enabled parameter classes do not mean governance has underwritten every token/oracle pair; users and curators still evaluate market-specific risk.
 
 ## Source Evidence
 
-- Morpho Blue uses hashed market parameters, enabled IRM/LLTV guards, and formal market-independence checks for permissionless isolated markets.
+- Morpho Blue uses hashed market parameters, enabled IRM/LLTV guards, and formal market-independence checks for permissionless isolated markets; oracle and token safety remain market-specific user assumptions.
 
 ## Related Patterns
 

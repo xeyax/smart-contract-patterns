@@ -52,10 +52,12 @@ Transient storage readers can expose operation-scoped state to trusted periphery
 - Version readers when storage layout changes.
 - Avoid using slot readers as a substitute for authorization or invariant checks.
 - Test every slot calculation against storage-writing code.
+- Warn consumers when raw slot readers expose stale accounting that still needs explicit accrual before value-bearing decisions.
 
 ## Source Evidence
 
 - Uniswap V4 exposes `extsload` and `exttload` style readers and typed state libraries for singleton pool and transient delta storage.
+- Morpho Blue exposes raw `extSloads` plus typed periphery storage libraries for market, position, and singleton state in `/private/tmp/defillama-source/morpho-org__morpho-blue/src/libraries/periphery`, with tests for slot calculations.
 
 ## Related Patterns
 

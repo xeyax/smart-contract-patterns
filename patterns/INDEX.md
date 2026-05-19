@@ -16,6 +16,7 @@
 | pattern-clarity-trait-cohort-validation.md | Validate a caller-supplied cohort of trait-typed Clarity contracts by checking each contract identity against configured roles before using the cohort. | A Clarity entrypoint receives trait-typed token, oracle, or wrapper contracts |
 | pattern-consumer-scoped-rate-limiter.md | Apply token-bucket limits per approved consumer or route so one actor cannot exhaust shared capacity for unrelated flows. | Multiple protocol components share a constrained operation such as instant redemption, bridge egress, or privileged cons |
 | pattern-erc1271-replay-safe-account-signatures.md | Wrap arbitrary external hashes in an account-specific EIP-712 domain before a smart account returns ERC-1271 signature validity. | Smart accounts expose `isValidSignature(bytes32,bytes)` for external protocols |
+| pattern-frame-scoped-callback-capability.md | Authorize a callback only for the current execution frame, then clear the capability as soon as it is consumed. | A protocol intentionally cedes control to an external callback during an operation |
 | pattern-hook-validated-subaccount-ledger.md | Keep multi-asset subaccount balances in a core ledger while managers and asset hooks validate every transfer batch. | Accounts hold many asset balances under one subaccount id; Transfers must be validated by a manager or risk engine |
 | pattern-mutual-parameter-acceptance.md | Require both affected parties to accept shared economic parameters before the new values take effect. | A parameter affects two independent parties, such as manager and user, partner and protocol, or splitter recipients |
 | pattern-mutually-exclusive-entity-protocol-allowlist.md | Separate human or legal-entity eligibility from protocol-contract eligibility so one address cannot silently hold both identities. | Regulated tokens distinguish investor/entity eligibility from protocol-contract eligibility |
@@ -136,6 +137,7 @@
 | pattern-balance-sheet-solvency-gate.md | Gate stablecoin issuance and reserve allocation against protocol-level assets, liabilities, risk-weighted assets, and liquidity ratios. | A protocol issues stablecoin or credit through multiple modules |
 | pattern-band-ranged-soft-liquidation-amm.md | Liquidate collateral gradually by placing it across oracle-priced AMM bands before hard liquidation is needed. | A collateralized debt protocol wants smoother liquidation than a single auction or seizure point |
 | pattern-bounded-rate-source-adapter.md | Convert an external benchmark or savings rate into a lending rate only after applying freshness, bounds, spread, and fallback rules. | Borrow or supply rates should follow an external benchmark |
+| pattern-callback-funded-lending-settlement.md | Let a lending action call a borrower, supplier, or liquidator callback, then atomically pull or verify the owed assets before the action completes. | Lending actions need composable funding from another protocol in the same transaction |
 | pattern-compressed-amount-storage-directional-rounding.md | Store large lending amounts in compressed form only when every rounding direction is explicit, conservative, and tested at dust boundaries. | A lending core packs many amounts into storage-constrained slots; Exact full-precision storage would be too expensive |
 | pattern-comptroller-risk-gate.md | Route market actions through a central risk module that approves borrows, redeems, transfers, and liquidations before state changes. | A lending protocol has multiple collateral and borrow markets |
 | pattern-debt-converting-flash-loan.md | Allow unpaid flash-loan principal to become normal borrow debt only after the same risk, fee, callback, and accounting checks as an ordinary borrow. | Flash borrowers should be able to keep part of the borrowed amount as debt |
@@ -192,6 +194,7 @@
 | pattern-conservative-lst-router-value-preservation.md | Route swaps and liquidity changes across LST reserves only after syncing conservative underlying value and proving pool value does not decrease under the configured calculators. | A pool routes between multiple liquid staking tokens |
 | pattern-constant-product-reserve-delta-amm.md | Price swaps by inferring actual token input from reserve deltas, applying fees, and requiring the constant-product invariant to hold. | A two-asset pool should follow `x * y = k`; The pair contract can read token balances and maintain internal reserves |
 | pattern-discrete-price-bin-liquidity-book.md | Represent AMM liquidity as shares in discrete price bins and route swaps through the next non-empty bin. | Liquidity should sit at discrete price levels instead of continuous tick ranges |
+| pattern-fixed-yield-implied-rate-amm.md | Price fixed-maturity yield claims with implied-rate math instead of a constant-product reserve curve. | The traded asset is a principal token, yield token, or fixed-maturity claim |
 | pattern-hook-governed-dynamic-lp-fee.md | Let a pool mark its LP fee as dynamic, then restrict stored fee updates and per-swap fee overrides to the pool's trusted hook. | Pool fees should react to volatility, inventory, order flow, or external signals |
 | pattern-hook-returned-custom-accounting-deltas.md | Let trusted AMM hooks return signed token deltas that the singleton manager settles through the same net-delta ledger as core swaps. | Hooks need to implement fees, wrappers, curves, or other custom accounting |
 | pattern-invariant-delta-liquidity-accounting.md | Mint and burn LP shares from the change in an AMM invariant, with imbalance fees and slippage bounds around the invariant delta. | A pool supports imbalanced or single-sided deposits and withdrawals |
@@ -264,6 +267,7 @@
 | pattern-threshold-reporter-consensus.md | Require a quorum of permissioned reporters to submit the same oracle payload before mutating accepted protocol state. | A protocol has a trusted reporter set for off-chain observations |
 | pattern-twap-oracle.md | Time-Weighted Average Price from DEX pools — manipulation-resistant on-chain price discovery. | Need manipulation-resistant on-chain price; Asset has sufficient DEX liquidity |
 | pattern-upgrade-slot-pinned-rate-adapter.md | Pin an upgradeable upstream program's last upgrade slot and fail valuation until governance accepts the new slot. | A rate adapter reads state from an upgradeable upstream Solana program |
+| pattern-user-opt-in-pending-oracle-registry.md | Stage oracle replacements behind a delay while allowing selected users or vaults to opt into the pending oracle early. | Oracle migrations need a review delay before global activation |
 
 ### Risks
 
@@ -314,6 +318,7 @@
 | pattern-checkpointed-epoch-reward-buckets.md | Allocate newly received rewards into time buckets and let users claim against historical balance checkpoints for each epoch. | Reward entitlement depends on balances held at epoch boundaries |
 | pattern-cumulative-draft-unstaking-queue.md | Represent delayed unstaking claims as cumulative drafts so users can withdraw prefixes without iterating every pending exit. | Stakers must wait before withdrawn stake becomes claimable; Users can create multiple unstaking requests |
 | pattern-delayed-cumulative-merkle-claims.md | Stage Merkle reward roots behind a delay and let users claim only the cumulative delta above what they have already received. | Rewards are computed off-chain and published periodically |
+| pattern-expiry-bounded-gauge-emission-schedule.md | Schedule gauge emissions for a fixed-maturity market only within the market's active lifetime and under per-second caps. | Liquidity incentives target markets with fixed expiry; Emission rates are set by governance or an operator |
 | pattern-index-to-distributor-reward-routing.md | Route rewards for disabled or restricted accounts from a lazy reward index into a distributor checkpoint, then claim them through a separate proof path. | Most users should accrue through a lazy reward index; Some accounts are not allowed to receive rewards directly |
 | pattern-indexed-merkle-airdrop.md | Distribute a fixed reward set with an indexed Merkle root and bitmap claim tracking so each allocation can be claimed exactly once. | A fixed off-chain allocation should be claimable on-chain; The root will not be updated cumulatively over time |
 | pattern-isolated-vesting-schedule-escrow.md | Create one escrow contract or isolated schedule per vesting grant so vested withdrawals and unvested revocation are tracked independently. | Beneficiaries can have multiple grants with different schedules; Unvested tokens may be revocable by the schedule owner |
@@ -365,12 +370,14 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-fixed-maturity-principal-yield-tokenization.md | Split a yield-bearing asset into principal and yield claims for a specific expiry. | Users need to trade fixed-rate principal exposure separately from floating yield |
 | pattern-historical-basket-redemption-nonces.md | Let users redeem against a recorded basket version so basket changes do not make pending redemption quotes ambiguous. | A redeemable token can switch its backing basket over time |
 | pattern-launch-locked-recipient-scoped-transfer-gate.md | Launch a governance or distribution token as non-transferable, then allow controlled transfers through account allowlists and recipient-scoped spend budgets until full transferability is enabled. | A token has an intentional non-transferable launch or distribution phase |
 | pattern-paired-supply-change-throttle.md | Rate-limit issuance and redemption as paired directions so one side consumes capacity while the opposite side restores it. | A redeemable token can be issued and redeemed directly against backing assets |
 | pattern-principal-reward-split-derivative.md | Represent a staking position with one token for principal and a separate token for accrued rewards. | Principal should remain close to 1:1 with deposited assets |
 | pattern-target-unit-backup-basket-substitution.md | Replace failed basket collateral by target unit so backing intent survives token-level default. | A redeemable or index token represents a basket of economic target units |
 | pattern-timeboxed-idempotency-key-ledger.md | Record operation keys for a bounded retention window so retried mints, burns, transfers, or redemptions execute at most once. | Off-chain operations can be retried after network or operator failures |
+| pattern-token2022-transfer-hook-policy-gate.md | Use Solana Token-2022 transfer hooks and extra account metadata to enforce policy state on every token transfer. | A token needs transfer-time policy checks such as pause, allowlist, or compliance gates |
 
 ## upgrades
 
@@ -432,7 +439,8 @@
 
 | File | Applies To |
 |------|-----------|
-| req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata, R4: Pending Exits Are Not Harvestable Yield |
+| req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata, R4: Pending Exits Are Not Harvestable Yield, R5: Burn-Cover Buckets Are Separate From Ordinary Rewards |
+| req-restaking-slashing-accounting.md | R1: Slash Factors Are Explicit And Composable, R2: Queued Withdrawals Preserve Slash Exposure, R3: Capture Times Are Bounded By Vault Epochs, R4: Veto Or Resolver Delay Is A State Machine |
 | req-stake-pool-epoch-accounting-freshness.md | R1: Validator Records Are Current Before Value Changes, R2: Pool Backing Is Recomputed From Validated Components, R3: Prior-Epoch Snapshots Support Fees And Rewards |
 | req-tiered-loss-waterfall.md | R1: Loss Priority Is Explicit, R2: Tier Capacity Is Measurable, R3: Junior Risk Is Opt-In, R4: Waterfall Execution Preserves Solvency |
 | req-vault-fairness.md | R1: No Value Extraction, R2: Fair Share Price, R3: Cost Attribution, R4: No Timing Advantage |

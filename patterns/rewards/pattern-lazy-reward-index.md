@@ -55,6 +55,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - If a user has zero earning balance, advance their user index cursor to the latest index so future stake cannot backfill historical rewards.
 - Terminal emission cursors should cap accrual at the configured final block or timestamp; setters must reject past cutoffs and avoid silently extending an expired distributor.
 - Reward-per-token math should clamp accrual to the configured emission start/end window before dividing by total stake.
+- For multi-token reward lists, treat reward-token registration and balance-delta reads as a liveness boundary for transfers and exits.
 - Test multiple users entering, exiting, and claiming across emission updates.
 
 ## Source Evidence
@@ -66,6 +67,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Reserve staking audit material highlights precision-scalar and zero-supply accrual hazards in multi-reward lazy indexes.
 - Satoshi Farm computes reward-per-token lazily over the interval clamped by reward start and end timestamps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-farm/src/core/Farm.sol` and `src/core/libraries/FarmMath.sol`.
 - Zest Protocol incentives use reward-program cumulative indexes and per-user cursors before claim and vault routing in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/rewards/incentives.clar`.
+- Pendle V2 uses multi-token lazy reward indexes based on token balance deltas and per-user cursors in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/RewardManager`.
 
 ## Related Patterns
 

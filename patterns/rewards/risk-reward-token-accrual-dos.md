@@ -40,6 +40,7 @@
 ## Source Evidence
 
 - Reserve staking contracts and audit material show multi-reward vaults where deposits, withdrawals, and claims update registered external reward tokens, motivating emergency principal-only exits and owner controls for bad rewards.
+- Pendle V2 updates reward state during token transfer and claim flows across curated reward tokens, making reward-token list quality a liveness boundary in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/RewardManager`.
 
 ## Related Patterns
 

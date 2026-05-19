@@ -71,12 +71,16 @@ RWA NAV feeds may need both an economic timestamp and an effective timestamp. Li
 - Combine with market, redemption, and liquidity checks for collateral use.
 - For RWA feeds, expose the economic data timestamp separately from call-time freshness.
 - For staking reports, keep accounting-rate guardrails separate from market-price safety.
+- For shared price calculators, pause conversions or risk-increasing actions when a report violates age, cadence, or movement thresholds.
+- Simulate complex oracle reports before applying them, and separately account burn-cover buckets from ordinary fee or reward accounting.
 
 ## Source Evidence
 
 - Lagoon's ERC-7540 vault code blocks valuation updates while NAV is valid, applies annualized PPS guardrails to manual reports, and exposes an explicit security-council bypass path.
 - Liquid Collective and Kelp validate staking exchange-rate reports with monotonic counters, validator-count or backing bounds, downside pause behavior, privileged upside overrides, and daily fee-mint caps.
 - Superstate USTB separates NAV economic and effective timestamps, bounds per-checkpoint NAV movement, limits pending future-effective reports, and expires extrapolated prices.
+- Lido simulates oracle reports, caps positive rebases, rejects large consensus-layer losses through sanity checks, and tracks cover/non-cover share-burn buckets in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9`.
+- Aera v3 price reports enforce max price age, monotonic timestamps, minimum update interval, maximum update delay, upward/downward tolerance ratios, and automatic pause on threshold violation in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/PriceAndFeeCalculator.sol`.
 
 ## Related Patterns
 

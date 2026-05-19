@@ -67,9 +67,11 @@ Some staking systems use keeper-provided allocation vectors instead of preferred
 - Stader BNBx uses an operator registry with curated validator membership, separate preferred deposit and withdrawal operators, and dust-gated removal tests.
 - Liquid Collective tracks uploaded, audited, funded, requested-exit, stopped-exit, and active operator state, validates sorted allocation vectors, and ties fundable limits to key snapshots.
 - Kelp enforces pubkey uniqueness across node delegators and gates delegator removal on queue size, balances, and residue checks.
+- Lido's Deposit Security Module gates beacon deposits with guardian attestations over chain/contract-bound block data, deposit root, staking module id, and nonce; execution rechecks the deposit root and module nonce and rejects duplicate or unsorted guardian signatures in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9/DepositSecurityModule.sol`.
 
 ## Related Patterns
 
 - [Operator-Routed Liquid Staking Share](./pattern-operator-routed-liquid-staking-share.md)
 - [Stake Pool Epoch Accounting Freshness Requirements](./req-stake-pool-epoch-accounting-freshness.md)
+- [Restaking Slashing Accounting Requirements](./req-restaking-slashing-accounting.md)
 - [Unrestricted Admin](../../ANTIPATTERNS.md#unrestricted-admin)

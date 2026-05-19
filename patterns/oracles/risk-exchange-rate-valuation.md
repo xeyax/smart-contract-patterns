@@ -41,6 +41,8 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - A multi-LST router preserves value under configured calculators while market prices or withdrawal fees make those rates unrealizable.
 - An upgrade-slot-pinned adapter detects upstream semantic changes but still depends on governance to accept or reject the new valuation semantics.
 - A savings token's internal conversion rate increases deterministically while levered lending markets depend on liquidators realizing secondary-market value.
+- Principal/yield tokens or fixed-maturity LP tokens report accounting rates derived from exchange-rate and maturity math, but liquidation still depends on realizable PT/YT/LP market value.
+- ERC4626 share valuation recursively depends on the underlying asset oracle and redemption semantics, not only `convertToAssets`.
 
 ## Mitigations
 
@@ -53,6 +55,8 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - For AMM LP collateral, combine virtual-price or invariant value with conservative constituent pricing and explicit read-only reentrancy and sequencer checks.
 - Treat calculator value preservation as accounting protection, not market-price protection.
 - Monitor upstream program upgrades and adapter slot acceptance when valuations depend on upgradeable Solana programs.
+- For ERC4626 registries, require the underlying asset to be registered and prevent removal while dependent vault shares remain active.
+- Haircut principal/yield or LP rates when the yield-source exchange rate drops below the stored index, and document whether LP values are approximate accounting values.
 
 ## Source Evidence
 
@@ -62,6 +66,8 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Stake DAO's Curve LP collateral oracle documents conservative stableswap pricing while preserving read-only reentrancy, sequencer, and market-value caveats.
 - Sanctum demonstrates conservative LST router accounting and upgrade-slot-pinned rate adapters, both of which protect internal valuation semantics without proving market-clearing price.
 - Reservoir sRUSD loopers value collateral through internal saving-module conversion paths while Morpho market parameters determine liquidation exposure in `/private/tmp/defillama-source/reservoir-protocol__srusd-loop/src`.
+- Pendle's PT/YT/LP oracle libraries haircut rates when the standardized-yield exchange rate drops below the stored PY index and document LP output as approximate in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/oracles/PtYtLpOracle`.
+- Aera v2 values ERC4626 shares through `convertToAssets` and the underlying asset oracle, requires underlying registration, and blocks removal of active underlying assets in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v2`.
 
 ## Related Patterns
 

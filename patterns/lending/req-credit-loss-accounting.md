@@ -52,7 +52,7 @@
 ## Source Evidence
 
 - Maple tracks impaired principal and interest as unrealized losses, bounds losses against assets under management, and tests refinance/remediation cases that must avoid negative losses.
-- Morpho Blue realizes uncovered liquidation debt by reducing market totals so supplier loss is reflected immediately.
+- Morpho Blue realizes uncovered liquidation debt only after collateral is exhausted, then reduces market totals so supplier loss is reflected immediately.
 - Blend V2 demonstrates a backstop-assigned intermediate bad-debt state before thresholded terminal default.
 
 ## Related Patterns
