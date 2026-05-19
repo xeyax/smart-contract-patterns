@@ -29,12 +29,14 @@ Users with valid burns, withdrawals, or messages may be unable to exit because t
 - Prove migrated custody is surplus above pending exits.
 - Restrict migration calldata and token targets.
 - Test old-exit, new-exit, duplicate-exit, and custody-drain scenarios.
+- Keep historical withdrawal bridge mappings after disabling new deposits so old assets still have an authenticated exit route.
 
 ## Source Evidence
 
 - Polygon PoS portal has explicit token migration status gates and predicate custody migration paths.
 - Polygon withdraw tests cover old-exit behavior around migration cutover.
 - ERC20 predicate migration can execute token-specific calldata, demonstrating why migration targets and amounts need tight review.
+- StarkGate's registry model shows why deposit deactivation and historical withdrawal routing should be separate states.
 
 ## Related Patterns
 

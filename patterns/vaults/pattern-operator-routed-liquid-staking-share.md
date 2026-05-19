@@ -41,6 +41,10 @@ function deposit(uint256 assets, address operator) external returns (uint256 sha
 
 The share token does not rebase. Rewards and losses move the exchange rate instead.
 
+### Directed Stake Overlay Variant
+
+If users or governance can direct stake toward specific validators, track directed stake separately from actual validator stake balances. Deposits and withdrawals should reconcile against directed stake first, then roll residual changes into undirected stake or internal balances so unrelated pool flows do not silently distort directed allocations.
+
 ## Key Points
 
 - Keep delegated stake, undelegated assets, fees, rewards, and slashing in exchange-rate math.
@@ -48,10 +52,13 @@ The share token does not rebase. Rewards and losses move the exchange rate inste
 - Emit delegation routing events for concentration monitoring.
 - Do not treat the internal exchange rate as a liquid market price.
 - Test first deposit, zero supply, reward accrual, slashing, and operator removal.
+- Keep directed-stake overlays separate from actual validator stake balances.
+- Reconcile deposits and withdrawals against directed stake before changing undirected stake.
 
 ## Source Evidence
 
 - Stader BNBx mints a non-rebasing LST share from deposits routed through preferred validator operators and derives the exchange rate from delegated stake and token supply.
+- Jito StakeNet reconciles directed stake for deposits and withdrawals separately from actual validator balances, with unit tests for in-sync, deposit-side, withdrawal-side, and over-withdrawal cases.
 
 ## Related Patterns
 

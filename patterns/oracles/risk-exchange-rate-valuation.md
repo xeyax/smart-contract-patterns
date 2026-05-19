@@ -38,6 +38,8 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - A protocol caps upward movement but ignores downside depeg.
 - A metapool treats base-pool LP virtual price as fair value while secondary market liquidity is thin or cached.
 - A liquid-staking token's internal exchange rate is fresh and bounded, but withdrawals are delayed or market buyers discount the token.
+- A multi-LST router preserves value under configured calculators while market prices or withdrawal fees make those rates unrealizable.
+- An upgrade-slot-pinned adapter detects upstream semantic changes but still depends on governance to accept or reject the new valuation semantics.
 
 ## Mitigations
 
@@ -48,6 +50,8 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Document whether liquidations assume redemption value or market-sale value.
 - For LSTs, separately monitor total supply, delegated backing, exchange-rate drops, and withdrawal queue liveness.
 - For AMM LP collateral, combine virtual-price or invariant value with conservative constituent pricing and explicit read-only reentrancy and sequencer checks.
+- Treat calculator value preservation as accounting protection, not market-price protection.
+- Monitor upstream program upgrades and adapter slot acceptance when valuations depend on upgradeable Solana programs.
 
 ## Source Evidence
 
@@ -55,6 +59,7 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Curve metapools cache and read base-pool LP virtual prices, which are useful fair-value accounting inputs but are not market-clearing prices.
 - Stader BNBx derives a fresh internal LST exchange rate from delegated backing and token supply, which is useful for mint/redeem accounting but still distinct from market-clearing collateral value.
 - Stake DAO's Curve LP collateral oracle documents conservative stableswap pricing while preserving read-only reentrancy, sequencer, and market-value caveats.
+- Sanctum demonstrates conservative LST router accounting and upgrade-slot-pinned rate adapters, both of which protect internal valuation semantics without proving market-clearing price.
 
 ## Related Patterns
 

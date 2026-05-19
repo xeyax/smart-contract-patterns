@@ -31,6 +31,7 @@
 - Refunds remain callable while new deposits are paused.
 - Sending failed settlement funds to an admin or multisig is not a user refund path unless on-chain entitlement and claim semantics define how users recover funds.
 - Split value-transfer/routing-metadata flows need recovery when value is attested or delivered but the metadata sidecar is delayed, malformed, missing, or unpaired.
+- Deposit cancellation or reclaim must bind the exact message envelope and document non-refundable messaging fees.
 
 ## R3: Migration Accounts For In-Flight Messages
 
@@ -71,6 +72,7 @@
 - tBTC v2 redemptions include timeout paths that restore balances or keep timed-out redemptions honor-able, and optimistic mint pauses do not block standard proof-based minting.
 - Tornado Nova's failed external settlement path shows why admin recovery of funds should not be treated as equivalent to user-claimable bridge refund semantics.
 - Noble's CCTP metadata wrapper shows a split value-transfer and routing-metadata flow where liveness depends on pairing the sidecar metadata with the canonical value message.
+- StarkGate shows delayed, depositor-only reclaim for exact bridge message envelopes, with the caveat that the remote message can still be consumed before reclaim and fees may remain spent.
 
 ## Related Patterns
 

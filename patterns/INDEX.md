@@ -15,6 +15,7 @@
 | pattern-consumer-scoped-rate-limiter.md | Apply token-bucket limits per approved consumer or route so one actor cannot exhaust shared capacity for unrelated flows. | Multiple protocol components share a constrained operation such as instant redemption, bridge egress, or privileged cons |
 | pattern-erc1271-replay-safe-account-signatures.md | Wrap arbitrary external hashes in an account-specific EIP-712 domain before a smart account returns ERC-1271 signature validity. | Smart accounts expose `isValidSignature(bytes32,bytes)` for external protocols |
 | pattern-mutual-parameter-acceptance.md | Require both affected parties to accept shared economic parameters before the new values take effect. | A parameter affects two independent parties, such as manager and user, partner and protocol, or splitter recipients |
+| pattern-mutually-exclusive-entity-protocol-allowlist.md | Separate human or legal-entity eligibility from protocol-contract eligibility so one address cannot silently hold both identities. | Regulated tokens distinguish investor/entity eligibility from protocol-contract eligibility |
 | pattern-participant-permission-bitmap.md | Encode participant eligibility as compact policy bits so deposits, borrows, transfers, and exits can enforce both account-level and pool-level access. | A pool has private, public, pool-level, or function-level participation modes |
 | pattern-pda-scoped-protocol-authority.md | Derive Solana protocol authorities and custody accounts from canonical PDA seeds, then verify every account against the stored authority graph. | A Solana program owns token vaults, mints, obligations, or market authority through PDAs |
 | pattern-scoped-chain-id-bypass-for-wallet-maintenance.md | Allow replayable smart-wallet maintenance only through self-calls, selector allowlists, and reserved nonce domains, never through arbitrary value execution. | A smart account needs the same owner-maintenance operation on multiple chains |
@@ -32,6 +33,7 @@
 | File | Description | Use When |
 |------|-------------|----------|
 | pattern-changeable-trigger-gate.md | Require every strategy trigger to pass, then atomically update only the selected mutable trigger state during execution. | Automated strategies depend on multiple trigger conditions |
+| pattern-cranked-validator-set-maintenance.md | Maintain large validator sets through an explicit on-chain phase machine with bounded per-validator cranks and epoch gates. | Validator-set maintenance cannot fit in one transaction or instruction |
 | pattern-hash-anchored-strategy-subscription.md | Store only a wallet-bound strategy hash on-chain while bots supply the full strategy data and must match the committed hash before execution. | Automation strategies contain large trigger and action structs; Users or wallets subscribe to immutable strategy terms |
 | pattern-registry-routed-wallet-recipes.md | Execute user-wallet recipes by resolving stateless action modules from a registry and piping typed outputs between steps. | Users execute multi-step DeFi operations through their own wallet or proxy |
 
@@ -49,6 +51,7 @@
 | pattern-canonical-bridge-counterpart-validation.md | Authenticate both the canonical bridge messenger and the remote application counterpart before finalizing cross-chain messages. | Application contracts receive messages through a canonical rollup or bridge messenger |
 | pattern-chain-bound-request-hash.md | Bind cross-chain requests to source chain, destination chain, nonce, operation, participants, value, and payload before accepting remote confirmation. | A bridge mints, burns, unlocks, or confirms value on another chain |
 | pattern-checkpointed-receipt-exit-proof.md | Finalize exits by proving a source-chain receipt log inside a finalized checkpoint before releasing or minting destination assets. | Users exit from a child chain or rollup by proving a burn or message event |
+| pattern-covenant-gated-bitcoin-staking-output.md | Represent native Bitcoin stake with a Taproot output whose timelock, unbonding, and slashing leaves are validated before app-chain voting power is activated. | A protocol wants native BTC economic security without bridging BTC custody |
 | pattern-custodian-attested-mint-burn.md | Mint and burn wrapped assets through merchant requests that are approved and reconciled by a trusted custodian. | The source asset is not trustlessly verifiable on the destination chain |
 | pattern-deterministic-cross-chain-factory.md | Deploy peer contract systems at predictable addresses across chains so cross-chain configuration can be precomputed and verified. | The same protocol graph is deployed on multiple chains |
 | pattern-dispute-game-gated-withdrawal-finality.md | Finalize rollup withdrawals only after the referenced output root is proven, mature, and accepted by the active dispute-game system. | A rollup bridge releases assets from L2 withdrawal proofs on L1 |
@@ -154,6 +157,7 @@
 | pattern-canonical-amm-pool-factory.md | Create each AMM pool at a deterministic canonical address or id keyed by sorted token pair and immutable pool parameters. | A protocol supports many pools with identical logic |
 | pattern-complementary-outcome-netting.md | Net binary outcome-token orders by minting or merging complete sets when same-side orders cross. | Outcome tokens are complementary claims over the same collateral |
 | pattern-concentrated-liquidity-ranges.md | Represent LP positions as liquidity active only between lower and upper ticks so capital is concentrated around selected prices. | LPs should choose price ranges instead of passively providing across all prices |
+| pattern-conservative-lst-router-value-preservation.md | Route swaps and liquidity changes across LST reserves only after syncing conservative underlying value and proving pool value does not decrease under the configured calculators. | A pool routes between multiple liquid staking tokens |
 | pattern-constant-product-reserve-delta-amm.md | Price swaps by inferring actual token input from reserve deltas, applying fees, and requiring the constant-product invariant to hold. | A two-asset pool should follow `x * y = k`; The pair contract can read token balances and maintain internal reserves |
 | pattern-hook-governed-dynamic-lp-fee.md | Let a pool mark its LP fee as dynamic, then restrict stored fee updates and per-swap fee overrides to the pool's trusted hook. | Pool fees should react to volatility, inventory, order flow, or external signals |
 | pattern-hook-returned-custom-accounting-deltas.md | Let trusted AMM hooks return signed token deltas that the singleton manager settles through the same net-delta ledger as core swaps. | Hooks need to implement fees, wrappers, curves, or other custom accounting |
@@ -223,6 +227,7 @@
 | pattern-permissionless-bridged-source-rate-relay.md | Let anyone relay a deterministic source-chain exchange rate through an authenticated bridge while keeping freshness and deviation checks explicit. | A destination chain needs a source-chain staking or vault exchange rate |
 | pattern-threshold-reporter-consensus.md | Require a quorum of permissioned reporters to submit the same oracle payload before mutating accepted protocol state. | A protocol has a trusted reporter set for off-chain observations |
 | pattern-twap-oracle.md | Time-Weighted Average Price from DEX pools — manipulation-resistant on-chain price discovery. | Need manipulation-resistant on-chain price; Asset has sufficient DEX liquidity |
+| pattern-upgrade-slot-pinned-rate-adapter.md | Pin an upgradeable upstream program's last upgrade slot and fail valuation until governance accepts the new slot. | A rate adapter reads state from an upgradeable upstream Solana program |
 
 ### Risks
 
@@ -240,6 +245,20 @@
 |------|-----------|
 | req-oracle-reliability.md | R1: Freshness, R2: Accuracy, R3: Manipulation Resistance, R4: Availability |
 
+## perps
+
+### Patterns
+
+| File | Description | Use When |
+|------|-------------|----------|
+| pattern-capped-pnl-impact-pool-risk-accounting.md | Compute perps pool value with capped trader PnL, pending fees, and separate price-impact pools before allowing actions that can extract liquidity. | A perpetuals market uses shared long and short liquidity pools |
+
+### Requirements
+
+| File | Applies To |
+|------|-----------|
+| req-adl-reserve-and-funding-risk-controls.md | R1: Reserve And Open Interest Limits Are Explicit, R2: Funding Rounding Cannot Be Avoided By Tiny Updates, R3: ADL Uses Fresh Oracle State And Explicit Thresholds |
+
 ## rewards
 
 ### Patterns
@@ -254,6 +273,7 @@
 | pattern-lazy-reward-index.md | Accrue rewards through a global index and update each user only when they interact or claim. | Rewards accrue continuously or per emission update; The protocol has many suppliers, stakers, or borrowers |
 | pattern-queued-reward-streaming.md | Queue reward tokens from permissioned distributors, carry leftovers forward, and stream rewards over a fixed duration. | Rewards arrive in discrete deposits but should accrue smoothly; Only approved distributors should fund reward streams |
 | pattern-range-liquidity-reward-index.md | Accrue rewards only to concentrated-liquidity positions whose tick ranges are active, using tick-level reward-growth snapshots. | Rewards should incentivize active AMM liquidity, not out-of-range inventory; LP positions have lower and upper ticks |
+| pattern-threshold-principal-reward-waterfall.md | Split unlabeled withdrawal-recipient inflows into principal and rewards by paying tracked principal up to an absolute threshold before routing residual value to rewards. | A staking or validator withdrawal recipient receives unlabeled principal and reward inflows |
 
 ### Risks
 
@@ -287,6 +307,7 @@
 | pattern-adapter-isolated-core-ledger.md | Keep the core accounting ledger free of token calls and route every token-specific behavior through small audited adapters. | A protocol accepts multiple collateral or asset types |
 | pattern-balance-delta-transfer-accounting.md | Account for the actual token amount received by measuring balance changes around transfers. | The protocol accepts arbitrary or curated ERC20 collateral |
 | pattern-extension-gated-transfer-fee-normalization.md | Support deterministic token-program transfer fees by reading canonical extension state, normalizing included/excluded amounts, and rejecting unsupported extensions. | The token program exposes canonical, inspectable transfer-fee extension state |
+| pattern-semi-fungible-slot-reserve-wrapper.md | Wrap ERC-3525 or other slot-scoped semi-fungible positions into one ERC-20 claim token per slot while the pool owns the underlying slot value id. | Underlying positions are semi-fungible by slot; Each slot should become a fungible ERC-20 claim |
 
 ## tokens
 
@@ -337,6 +358,7 @@
 | pattern-proportional-deposit.md | Users deposit and withdraw all vault assets proportionally, eliminating the need for oracle-based NAV calculation. | Multi-asset vault/pool with known composition; Want to avoid oracle dependency entirely |
 | pattern-proportional-zapin.md | External periphery contract converts single-token input into a proportional multi-token deposit, pushing swap slippage to the depositor and eliminating slippage socialisation in managed vaults. | Multi-token vault where a manager rebalances after single-token deposits (slippage socialised across holders) |
 | pattern-rate-bounded-nav-report.md | Accept manual or off-chain NAV reports only after the current NAV expires and only within annualized share-price movement guardrails. | Vault NAV is reported by an off-chain manager, accountant, or security council |
+| pattern-reserve-split-liquid-staking-receipt.md | Track user-owned and protocol-reserved receipt-token supply separately when a liquid-staking or CDP wrapper keeps part of minted receipts in reserve. | A wrapper mints receipt tokens while retaining part of the receipt supply as protocol reserve |
 | pattern-timelock-shares.md | Shares are issued immediately but cannot be transferred or redeemed for a specified period, preventing instant arbitrage profit extraction. | Want instant share issuance (better UX than async); Need to prevent flash loan attacks |
 | pattern-user-owned-proxy-vault.md | Deploy one vault/proxy per user so protocol integrations can be automated while custody and position ownership remain isolated. | Users need individualized positions in an external protocol |
 | pattern-vault-wrapper.md | Thin ERC4626 vault that wraps a base strategy vault, adding fee/access layers without duplicating strategy logic. | Multiple fee tiers needed over a single strategy (e.g. 0%, 10%, 15%) |
@@ -355,7 +377,8 @@
 
 | File | Applies To |
 |------|-----------|
-| req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata |
+| req-liquid-staking-loss-accounting.md | R1: Negative Rewards Are Explicit, R2: Later Rewards Repay Outstanding Penalties First, R3: Migration And Exit Apply Remaining Losses Pro Rata, R4: Pending Exits Are Not Harvestable Yield |
+| req-stake-pool-epoch-accounting-freshness.md | R1: Validator Records Are Current Before Value Changes, R2: Pool Backing Is Recomputed From Validated Components, R3: Prior-Epoch Snapshots Support Fees And Rewards |
 | req-tiered-loss-waterfall.md | R1: Loss Priority Is Explicit, R2: Tier Capacity Is Measurable, R3: Junior Risk Is Opt-In, R4: Waterfall Execution Preserves Solvency |
 | req-vault-fairness.md | R1: No Value Extraction, R2: Fair Share Price, R3: Cost Attribution, R4: No Timing Advantage |
 

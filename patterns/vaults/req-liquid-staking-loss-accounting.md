@@ -40,6 +40,17 @@
 - Existing holders cannot dump unrecovered loss on remaining holders.
 - Tests cover migration with full, partial, and no penalty repayment.
 
+## R4: Pending Exits Are Not Harvestable Yield
+
+**Amounts reserved for unstake or exit requests must be excluded from harvestable yield and free strategy liquidity.**
+
+### What This Means
+
+- Aggregate pending unstake amount and count are tracked.
+- Yield calculations subtract pending exit obligations before reporting surplus.
+- Failed push payments convert to user-specific pull claims rather than becoming yield.
+- Queue settlement is bounded and preserves FIFO or documented ordering.
+
 ## Verification Checklist
 
 | Requirement | Question |
@@ -47,10 +58,12 @@
 | R1 | Is slashing represented in on-chain state? |
 | R2 | Can rewards be distributed before old penalties are repaid? |
 | R3 | Do exits and migrations apply outstanding loss fairly? |
+| R4 | Are pending exits excluded from yield and free liquidity? |
 
 ## Source Evidence
 
 - StakeWise V2 tracks `totalPenalty`, repays penalties from later rewards before distribution, and applies outstanding penalty during migration.
+- Lista's stkBNB strategy aggregates unstake requests, distributes in bounded FIFO batches, converts failed pushes to manual claims, and excludes pending unstake amounts from harvestable yield.
 
 ## Related Patterns
 

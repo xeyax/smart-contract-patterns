@@ -45,6 +45,10 @@ function removeOperator(address operator) external onlyGovernance {
 
 Deposit and withdrawal flows then check the relevant role, not only generic membership.
 
+### Allocation Vector Variant
+
+Some staking systems use keeper-provided allocation vectors instead of preferred operator flags. In that model, the vector should be sorted, nonzero, bounded by committed funds, and checked against each operator's remaining fundable keys before deposits execute.
+
 ## Key Points
 
 - Separate active membership from deposit and withdrawal preference.
@@ -52,12 +56,20 @@ Deposit and withdrawal flows then check the relevant role, not only generic memb
 - Emit old and new role flags on every update.
 - Monitor concentration and stuck delegated balances per operator.
 - Test role toggles around pending deposits and withdrawals.
+- Distinguish uploaded keys, audited/fundable limit, funded count, requested exits, stopped exits, and active status.
+- Tie operator limit increases to an audited key snapshot; reject or skip increases if keys changed after the snapshot.
+- Make pubkeys globally single-use across delegators or operators.
+- Gate operator or delegator removal on residual balances, pending unstaking, and negligible dust.
+- Keep oracle or deposit-critical loops capped or allocation-driven.
 
 ## Source Evidence
 
 - Stader BNBx uses an operator registry with curated validator membership, separate preferred deposit and withdrawal operators, and dust-gated removal tests.
+- Liquid Collective tracks uploaded, audited, funded, requested-exit, stopped-exit, and active operator state, validates sorted allocation vectors, and ties fundable limits to key snapshots.
+- Kelp enforces pubkey uniqueness across node delegators and gates delegator removal on queue size, balances, and residue checks.
 
 ## Related Patterns
 
 - [Operator-Routed Liquid Staking Share](./pattern-operator-routed-liquid-staking-share.md)
+- [Stake Pool Epoch Accounting Freshness Requirements](./req-stake-pool-epoch-accounting-freshness.md)
 - [Unrestricted Admin](../../ANTIPATTERNS.md#unrestricted-admin)

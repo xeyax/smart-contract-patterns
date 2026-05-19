@@ -59,12 +59,16 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - Refund only through authenticated bridge messages.
 - Make refund paths available even while new deposits are paused.
 - Include failed deployment and wrong-peer tests.
+- For async deposit cancellation, bind the reclaim request to the exact message envelope: remote bridge, selector, token, depositor, recipient, amount, payload, and nonce.
+- Make delayed reclaim depositor-only and document whether messaging fees are spent and non-refundable.
+- Treat cancellation as a race with remote consumption; it is not an instant refund guarantee.
 
 ## Source Evidence
 
 - Arbitrum token bridge escrow transfer paths release only from authenticated counterpart messages.
 - L2 gateway finalization validates deployed tokens and `l1Address()` bindings.
 - Gateway fallback handlers trigger refund withdrawals when token deployment or peer validation fails.
+- StarkGate deposit cancellation binds the exact L1-to-L2 message envelope, delays depositor-only reclaim, and leaves messaging fees spent even when escrowed principal is reclaimed.
 
 ## Related Patterns
 

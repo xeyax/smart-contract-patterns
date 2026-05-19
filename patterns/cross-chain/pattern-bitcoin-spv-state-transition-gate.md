@@ -49,13 +49,17 @@ If the system relies on trusted maintainers to submit canonical headers, that tr
 - Reject proof reuse with normalized nullifiers.
 - Keep relay maintainer authority, challenge windows, and emergency replacement procedures explicit.
 - Do not claim proof of work alone proves canonical Bitcoin mainnet inclusion when the relay input is trusted.
+- For BTC staking, distinguish activation finality from exit intent: voting power should require canonical/deep enough staking inclusion, while an unbonding spend proof may revoke stake before deep finality.
+- Large reorg repair must update staking state, voting power, and reward indexes together.
 
 ## Source Evidence
 
 - tBTC v2 gates deposit sweeps and bridge transitions on Bitcoin transaction and relay proofs, with comments documenting that proof submission can prove work but still rely on maintainer trust for canonical mainnet inclusion.
+- Babylon BTC staking documentation distinguishes activation finality from unbonding intent and describes reorg repair across staking, voting-power, and reward indexes.
 
 ## Related Patterns
 
 - [Proof Bridge Exit Safety Requirements](./req-proof-bridge-exit-safety.md)
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
 - [Self-Describing UTXO Deposit Reveal](./pattern-self-describing-utxo-deposit-reveal.md)
+- [Covenant-Gated Bitcoin Staking Output](./pattern-covenant-gated-bitcoin-staking-output.md)

@@ -46,6 +46,21 @@ function updateNav(uint256 nextAssets) external onlyReporter {
 
 The guardrail reduces bad reports and operational mistakes. It does not prove NAV accuracy or market realizability.
 
+### Staking Accounting Report Variant
+
+For LST/LRT accounting reports, the reported value may come from validator counts, cumulative exit/reward counters, coverage balances, and protocol exchange-rate state rather than manual NAV. Apply the same bounded-report principle to those components:
+
+- validate monotonic cumulative counters
+- bound validator-count changes
+- bound total-backing movement before applying rewards, fees, exits, or coverage pulls
+- fail closed or pause risk-increasing paths on large downside moves
+- keep any upside override as an explicit privileged path
+- cap protocol-fee minting from exchange-rate gains separately from report acceptance
+
+### Future-Effective RWA Checkpoints
+
+RWA NAV feeds may need both an economic timestamp and an effective timestamp. Limit pending future-effective checkpoints, bound per-checkpoint NAV deltas, and expire extrapolated prices so Chainlink-style `updatedAt` values do not hide stale economic data.
+
 ## Key Points
 
 - Block ordinary reports while the current NAV is still valid.
@@ -54,10 +69,14 @@ The guardrail reduces bad reports and operational mistakes. It does not prove NA
 - Snapshot NAV inputs used for async request settlement before user-controlled claims.
 - Monitor stale NAV, rejected reports, and bypass use.
 - Combine with market, redemption, and liquidity checks for collateral use.
+- For RWA feeds, expose the economic data timestamp separately from call-time freshness.
+- For staking reports, keep accounting-rate guardrails separate from market-price safety.
 
 ## Source Evidence
 
 - Lagoon's ERC-7540 vault code blocks valuation updates while NAV is valid, applies annualized PPS guardrails to manual reports, and exposes an explicit security-council bypass path.
+- Liquid Collective and Kelp validate staking exchange-rate reports with monotonic counters, validator-count or backing bounds, downside pause behavior, privileged upside overrides, and daily fee-mint caps.
+- Superstate USTB separates NAV economic and effective timestamps, bounds per-checkpoint NAV movement, limits pending future-effective reports, and expires extrapolated prices.
 
 ## Related Patterns
 

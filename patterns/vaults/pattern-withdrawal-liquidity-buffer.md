@@ -90,6 +90,8 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Multi-asset redemption queues should subtract outstanding per-token debt from each token's quota or capacity before accepting new requests.
 - Process multi-asset claims through an explicit cursor, id range, or max-count bound.
 - Per-token pauses and fast-lane reserves are exit-liveness risks; document how they interact with normal queue claims.
+- Instant RWA redemption buffers should cap redeemable shares by actual idle or yield liquidity, round redeemable capacity down, round required input up for exact payout, and fail closed on stale or below-minimum oracle prices.
+- LST delayed exits should maintain aggregate pending-ticket amount and count, and claim paths should check reserve availability before payment.
 
 ## Source Evidence
 
@@ -99,6 +101,8 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Ethena's surplus rescue design highlights that admin withdrawals must be limited to assets above user claims and buffer requirements.
 - An Ondo audit-contest snapshot uses existing USDC first, redeems at least an external minimum lot when necessary, and verifies the external redemption by exact USDC balance delta.
 - Bedrock uniBTC delayed redemption queues subtract per-token debts from quota before accepting requests, process claims through bounded cursor paths, and expose per-token pause and fast-lane reserve trade-offs.
+- Superstate on-chain redemptions cap instant RWA redemptions by available idle or yield liquidity, use conservative rounding, and fail closed on stale or below-minimum oracle prices.
+- Marinade delayed unstake tickets maintain aggregate pending balances and claim from reserve after maturity.
 
 ## Related Patterns
 

@@ -56,6 +56,8 @@ Validate accounts as a cohort, not as isolated types:
 - After validation, use names that preserve semantic account role.
 - Test swapped same-type accounts, wrong mint, wrong authority, wrong market, and wrong program owner.
 - Combine with post-CPI accounting checks when balances can change externally.
+- Validate executable-account cohorts too: configured CPI program ids, program-data metadata where relevant, and deterministic remaining-account partitions.
+- For stake and LST flows, validate account owner/type, mint/authority, and delegated stake amount against protocol records before conversion or CPI.
 
 ## Source Evidence
 
@@ -63,6 +65,8 @@ Validate accounts as a cohort, not as isolated types:
 - Kamino Lend validates PDA-derived lending accounts and post-CPI token states for reserves and obligations.
 - Raydium evidence also shows why later role confusion remains a risk even after initial validation.
 - OnRe's Jupiter integration adapter is useful negative evidence: it length-checks and raw-parses account layouts, which should be paired with owner and discriminator checks in value-bearing programs.
+- Sanctum validates configured calculator and pricing CPI programs, account suffixes, and stake-pool account owners/types for LST value calculators.
+- Marinade rejects extra remaining accounts and validates stake delegation amount and validator identity against protocol records.
 
 ## Related Patterns
 

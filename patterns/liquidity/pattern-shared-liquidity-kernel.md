@@ -68,11 +68,14 @@ This remains a controlled shared-liquidity exception only if the callback is res
 - Provide official resolvers so users do not depend on raw packed storage.
 - Frame this as a controlled exception to generic shared mutable state warnings.
 - For leveraged router flows, authenticate core callback caller and router sender, then verify produced collateral before redepositing it.
+- For PSM-style reserves, exclude accrued fees from spendable stablecoin inventory.
+- Enforce buy/sell limits inside the shared reserve kernel, and route reserve movement through constrained adapter managers.
 
 ## Source Evidence
 
 - Fluid uses a shared liquidity layer for custody and accounting, while fTokens, vaults, and DEX modules route user actions through protocol-scoped liquidity operations.
 - Dolomite's Harvest strategy integration composes leveraged farming actions through a shared margin core with callback restrictions and receipt-token checks; the reusable lesson is the authenticated callback boundary, not the specific farming route.
+- Lista PSM reserve accounting excludes accrued fees from spendable stablecoin inventory, enforces daily buy limits, and routes reserves through a constrained vault manager.
 
 ## Related Patterns
 

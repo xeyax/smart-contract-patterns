@@ -64,7 +64,7 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 Pause blocks ALL operations including withdrawals.
 **Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, and refunds remain available when solvent; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
 
 ## Oracle & Price
 
@@ -174,7 +174,7 @@ Transient scratch storage or per-transaction context is shared across callers, w
 Code validates a set of same-type accounts but later reads or writes one role using another role's variable.
 **Symptoms:** `baseVault` and `quoteVault` both have correct type checks, but later accounting loads both balances from the same account variable; Solana account arrays or long EVM parameter lists reuse adjacent names.
 **Risk:** Accounting, settlement, or authority checks use the wrong account after initial validation, causing mispriced deposits, withdrawals, or custody movement.
-**Fix:** Use role-specific account structs, validate account cohorts together, keep semantic names through execution, and add negative tests that swap same-type accounts.
+**Fix:** Use role-specific account structs, validate account cohorts together, keep semantic names through execution, and add negative tests that swap same-type accounts. Redemption APIs with a `to` receiver must prove the receiver controls actual settlement, not only event fields or validation paths.
 
 ### Unvalidated External Contract
 Protocol integrates with external contracts passed as parameters, validates token addresses but not the contract itself.

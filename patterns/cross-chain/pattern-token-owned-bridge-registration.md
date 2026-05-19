@@ -61,12 +61,14 @@ Remote registry updates are accepted only from the authenticated bridge counterp
 - Reject zero peers and non-contract gateway addresses where possible.
 - Distinguish token-owned registration from trusted owner bulk registration.
 - Test wrong caller, wrong peer, remapping, and unauthenticated remote registration.
+- Separate the active deposit bridge from historical withdrawal bridges so deactivation can stop new deposits without erasing withdrawal routes for previously bridged assets.
 
 ## Source Evidence
 
 - Arbitrum custom gateway registration requires token opt-in and prevents changing an already registered L2 token.
 - Gateway router registration validates gateway contracts and token opt-in before setting custom routes.
 - L2 gateway/router registry updates are accepted only from authenticated L1 counterpart messages.
+- StarkGate registry and manager flows distinguish active deposit bridges from historical withdrawal bridges so tokens can be deactivated for new deposits while preserving old withdrawal routes.
 
 ## Related Patterns
 

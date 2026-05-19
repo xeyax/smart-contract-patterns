@@ -74,6 +74,17 @@ _consume(bucketId, amount);
 
 This prevents inbound liquidity for one route from consuming outbound capacity for another route unless the shared bucket is intentional.
 
+### Route-Key Allowlist Variant
+
+Unset bucket keys can fail closed, making the rate-limit key double as an integration allowlist. In that model, derive keys from the operation and the relevant asset, destination, pool, domain, or recipient rather than from caller identity alone:
+
+```solidity
+bytes32 key = keccak256(abi.encode("TRANSFER_ASSET", asset, destination));
+_consume(key, amount); // reverts when key has zero max capacity
+```
+
+Reverse flows need an explicit policy. Restore capacity only when the reverse action truly returns the same risk capacity; otherwise consume a separate bucket for the reverse direction.
+
 ## Key Points
 
 - Authorize both the caller and the consumer bucket.
@@ -82,14 +93,21 @@ This prevents inbound liquidity for one route from consuming outbound capacity f
 - Do not let untrusted users create unlimited consumers to bypass the limit.
 - Pair with a break-glass role that can lower or zero a compromised consumer's bucket.
 - For bridges, distinguish inbound/outbound direction and source/destination pair in the bucket key when route isolation matters.
+- Use unset-key fail-closed behavior as an allowlist only when missing configuration is visible and tested.
+- Bind route keys to operation plus asset, destination, pool, domain, or recipient.
+- For balance-delta based limiters, reject untrusted hooks or callbacks that can manipulate measured balances during the external call.
+- Bridge outflows may need destination daily caps, per-transfer min/max, per-user daily caps, and per-user attempt caps, with dust normalization before limit checks.
 
 ## Source Evidence
 
 - Ether.fi uses bucket ids plus consumer allowlists to isolate rate-limited usage and tests independent bucket accounting and consumer isolation.
 - Veda's LayerZero teller path applies pairwise inbound and outbound rate limits so bridge capacity is isolated by route.
+- Spark ALM uses route keys as implicit allowlists, binds limiter keys to operation-specific route fields, restores capacity only for selected reverse flows, and avoids hook-enabled liquidity operations where hooks could change balance-delta measurements.
+- Lista OFT combines destination-specific daily caps, per-transfer min/max, per-user daily caps, per-user attempt caps, and dust normalization before debit limit checks.
 
 ## Related Patterns
 
 - [Break-Glass Risk Limiter](./pattern-break-glass-risk-limiter.md)
+- [Bridge Exit Liveness Requirements](../cross-chain/req-bridge-exit-liveness.md)
 - [Withdrawal Liquidity Buffer](../vaults/pattern-withdrawal-liquidity-buffer.md)
 - [Bridge Custodian Concentration](../../ANTIPATTERNS.md#bridge-custodian-concentration)

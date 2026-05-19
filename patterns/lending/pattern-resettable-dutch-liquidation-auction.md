@@ -53,10 +53,14 @@ Buyers submit a maximum acceptable price or cost bound when taking collateral.
 - Reset by time elapsed and price decline thresholds.
 - Bound keeper incentives and disable auction functions by staged breaker levels.
 - Account for dust and active liquidation caps before starting auctions.
+- Throttle active liquidation debt globally and per collateral.
+- Size partial liquidations so they do not leave uneconomic leftover debt or collateral.
+- Expose breaker levels that can separately stop new auctions, auction resets, and auction takes.
 
 ## Source Evidence
 
 - Sky/Maker DSS `Clipper` auctions use feed-buffered start prices, descending price curves, buyer max-price bounds, stale-auction reset by time or price decline, keeper incentives, and breaker levels.
+- Lista CDP liquidation code throttles active liquidation debt globally and per collateral, sizes auctions around dust constraints, and exposes staged breakers for kicks, resets, and takes.
 
 ## Related Patterns
 
