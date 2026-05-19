@@ -66,10 +66,12 @@ Deployment scripts and fork tests call the same checker before and after changes
 - Cover accounting, permissions, dependency wiring, withdrawal liveness, and version state.
 - Use pagination for large instance sets.
 - Treat checker updates as part of protocol upgrades.
+- For liquidators or keepers, expose read-only prechecks that return eligibility and required accounts before sending a state-changing transaction.
 
 ## Source Evidence
 
 - Maple packages protocol health checker contracts and tests that evaluate pools, managers, withdrawal modules, permissions, strategies, and upgrade validation flows through read-only checks.
+- Solana Labs Perpetuals exposes a read-only liquidation-state instruction and a liquidator client that uses it before submitting liquidation transactions in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/instructions/get_liquidation_state.rs` and `/private/tmp/defillama-source/solana-labs_perpetuals/app/src/liquidator.ts`.
 
 ## Related Patterns
 

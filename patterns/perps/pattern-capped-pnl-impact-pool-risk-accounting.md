@@ -51,6 +51,10 @@ are insufficient. In that design, positive unrealized PnL may receive a lower
 asset weight as exposure grows, and settlement should reject stale or divergent
 oracle states before moving value.
 
+Another variant caps payoff per position against a custody or pool-level maximum
+profit ratio. The cap is applied before pool AUM and payout checks so one
+position cannot treat the entire reserve as claimable PnL.
+
 ## Key Points
 
 - Cap positive and negative PnL according to market risk factors.
@@ -59,12 +63,14 @@ oracle states before moving value.
 - Use fresh oracle prices for pool-value and PnL checks.
 - Document that caps constrain pool exposure; they do not remove insolvency risk under stress.
 - Define the order of loss absorption: PnL pool, fee pool, insurance or security module, bankruptcy, and any socialized loss.
+- Apply per-position payoff caps before reserve or AUM checks when the protocol promises a maximum user profit ratio.
 - Test positive PnL caps, negative PnL caps, impact-pool depletion, and action gating.
 
 ## Source Evidence
 
 - GMX Synthetics computes pool value from token inventory, pending fees, capped PnL, and impact pools, validates max-PnL factors, and tests capped-PnL decrease behavior.
 - Drift caps PnL settlement through PnL and fee-pool limits, applies positive-PnL asset-weight discounts, and falls through liquidation, bankruptcy, and socialized-loss paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/controller/pnl.rs` and `controller/liquidation.rs`.
+- Solana Labs Perpetuals caps per-position user profit against custody limits before pool AUM and payout checks, with tests for maximum user profit in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/state/custody.rs`, `programs/perpetuals/src/state/pool.rs`, and `programs/perpetuals/tests/native/tests_suite/position/max_user_profit.rs`.
 
 ## Related Patterns
 

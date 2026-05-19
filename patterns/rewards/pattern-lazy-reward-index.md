@@ -62,6 +62,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Enforce one active pool per staking token when pool supply is derived from `stakingToken.balanceOf(farm)`, or track per-pool principal internally.
 - When LP fees are removed from AMM reserves and claimed separately, hook LP balance changes so per-user fee indexes stay current across transfers.
 - If rewards are funded by calling an external fee-claiming program, whitelist the external program and account index set, then account funding from the reward-vault balance delta.
+- Piecewise reward-rate schedules should be sorted, bounded in size, checkpoint global rewards before mutation, and integrate cumulative emissions over every crossed segment.
 
 ## Source Evidence
 
@@ -77,6 +78,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Velodrome V2 separates AMM fees into `PoolFees` and updates LP fee indexes on balance changes in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Pool.sol`.
 - Meteora Dynamic Fee Sharing funds reward vaults by whitelisted fee-claim CPI and reward-vault balance deltas in `/private/tmp/defillama-source/MeteoraAg_dynamic-fee-sharing/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`.
 - Flare FAssets CollateralPool tracks per-account and global FAsset fee debt so entrants cannot claim historical fees and early withdrawals convert free fees into debt in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/collateralPool/implementation/CollateralPool.sol`.
+- Kamino Farms stores piecewise reward-rate schedules, checkpoints reward state before schedule changes, and integrates cumulative emissions over crossed segments in `/private/tmp/defillama-source/Kamino-Finance_kfarms/programs/kfarms/src/state.rs` and `programs/kfarms/src/farm_operations.rs`.
 
 ## Related Patterns
 

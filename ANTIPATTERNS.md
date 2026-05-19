@@ -122,7 +122,7 @@ Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfe
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection. Multi-leg zaps should carry per-leg swap and liquidity minimums instead of relying only on one final aggregate `minOut`, and residual ledgers do not make a bad internal fill acceptable.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection. Multi-leg zaps should carry per-leg swap and liquidity minimums instead of relying only on one final aggregate `minOut`, and residual ledgers do not make a bad internal fill acceptable. Flash-order or callback-routed settlement must bind minimum output and settle from measured balance deltas, not from an off-chain quote.
 
 ### Duplicate Staking Asset Registration
 MasterChef-style farm registers the same staking token in more than one pool while reward debt reads total token balance from the farm contract.
@@ -140,7 +140,7 @@ Discounts, fee tiers, gauges, or other economic entitlements are keyed by `tx.or
 Quoted helper functions use a different formula than the state-changing execution path.
 **Symptoms:** `getAmountIn` calls output math, previews omit dynamic fees, or off-chain quotes use stale router formulas.
 **Risk:** Users set wrong slippage bounds, integrators route through stale math, or economic checks pass against a quote the execution path never honors.
-**Fix:** Share quote and execution math libraries, test public quote helpers against execution, and treat quote-only fixes as compatibility-sensitive upgrades. For AMMs, snapshot representative pool accounts and execute swaps in a local simulator or fork, then compare quote deltas with executed balance deltas.
+**Fix:** Share quote and execution math libraries, test public quote helpers against execution, and treat quote-only fixes as compatibility-sensitive upgrades. For AMMs, snapshot representative pool accounts and execute swaps in a local simulator or fork, then compare quote deltas with executed balance deltas. For adapter-based routes, derive executable account metas from the same state used for quote validation and fail tests when the simulated balance delta diverges from the quote.
 
 ### Donation Attack Surface
 Share price manipulable via direct token transfer to contract.

@@ -76,6 +76,8 @@ if (cash < requested) {
 
 Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free cash, until all pending claims and low-watermark requirements are satisfied.
 
+For instant unstake pools, count incoming stake accounts as pending liabilities until the stake is deactivated and reclaimed into liquid reserves. Quote redeemable liquidity from `pool_reserves - incoming_stake` or an equivalent predicate, reject locked stake that cannot become reserve liquidity, and reconcile the recorded lamports when the stake account is reclaimed.
+
 ## Key Points
 
 - `claimReserve` must be subtracted from free liquidity; already-promised claims are not deployable capital.
@@ -99,6 +101,8 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Lending pools that deploy idle liquidity into yield adapters need a target buffer ratio, a recall path, and tests proving withdrawals cannot spend accounting balances that remain externally deployed.
 - For validator or nominator pools, block new stake deployment while withdrawal requests are pending, and expose a bounded public drain path so exits do not depend on one operator.
 - Instant withdrawal buffers should subtract low-watermark liquidity before quoting redeemable capacity; the low watermark is not rescueable surplus.
+- Instant unstake pools should track incoming stake as a liability until reclaimed, and utilization fees should be computed from post-unstake reserve liquidity.
+- If LP mint or burn value includes flash-borrowed reserves, include the borrowed amount consistently in liquidity snapshots and enforce instruction-paired repayment.
 
 ## Source Evidence
 
@@ -117,6 +121,9 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - RAAC keeps a lending-pool liquidity buffer ratio, calls `_ensureLiquidity` before withdrawals, and rebalances through `_rebalanceLiquidity` when local liquidity and externally deployed yield positions diverge in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/pools/LendingPool/LendingPool.sol`.
 - TON Nominator Pool stores withdraw requests, lets anyone process bounded batches or single emergency requests, and rejects new stake while withdraws are pending in `/private/tmp/defillama-source/ton-blockchain__nominator-pool/func/pool.fc`, with queue limit and balance tests in `test/withdraw-requests-limit.js`, `withdraw-requests-balance.js`, and `new-stake-has-withdraws.js`.
 - EtherFi beHYPE excludes a low watermark before instant withdrawals in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/WithdrawManager.sol`.
+- Sanctum's unstake program records incoming stake lamports separately from SOL reserves, subtracts incoming stake when quoting instant unstake capacity, rejects locked stake, and reconciles reclaimed stake in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/state/pool.rs`, `instructions/unstake_instructions/unstake_accounts.rs`, and `instructions/reclaim_stake_account.rs`.
+- Sanctum's unstake fee curve charges more as reserves fall toward depletion, and tests exercise fee behavior at different reserve utilization levels in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/state/fee.rs` and `tests/test-unstake-integration.ts`.
+- Sanctum's unstake LP accounting includes flash-borrowed reserve amounts consistently in add/remove liquidity snapshots while paired flash-loan instructions enforce repayment in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/utils.rs`, `instructions/add_liquidity.rs`, `instructions/remove_liquidity.rs`, `instructions/take_flash_loan.rs`, and `instructions/repay_flash_loan.rs`.
 
 ## Related Patterns
 

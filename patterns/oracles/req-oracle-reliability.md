@@ -21,6 +21,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Different use cases have different freshness needs (lending vs. display)
 - Stale data can enable arbitrage or cause incorrect liquidations
 - Wrapper feeds must expose the oldest underlying source timestamp, not a synthetic current timestamp
+- Composite feeds must propagate the oldest or limiting timestamp from every leg used in the price path, including multiplication chains.
 - Bridged rate providers must expose source-chain freshness separately from destination-chain relay execution time
 - Off-chain state reports over block ranges must be finalized and contiguous: each accepted range starts at the previous range's end plus one, ends after it starts, and is older than the configured finalization buffer.
 
@@ -32,6 +33,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Use on-chain TWAP with recent observations
 - Implement staleness checks before using price
 - Reject `latestAnswer()`-only integrations for value-bearing operations
+- For composite feeds, carry the minimum source timestamp through chained calculations instead of stamping derived prices with the refresh time.
 
 ---
 
@@ -51,6 +53,7 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Lending collateral oracles should preserve enough liquidation buffer that an allowed oracle jump cannot instantly push healthy accounts below the intended liquidation threshold.
 - Perps or portfolio-margin systems should define action-specific validity for funding, settlement, liquidation, trigger, margin, and AMM-fill paths instead of relying on one global fresh/stale flag.
 - Confidence intervals and exponent normalization should be checked before converting an oracle report into the protocol's fixed precision.
+- Oracle metadata updates should reject missing mappings, duplicate token mappings, and unsupported source counts before a price path can be refreshed.
 
 ### Violations
 - Large deviation thresholds (e.g., 1% for Chainlink)
@@ -116,6 +119,12 @@ oracle.getPrice() should not revert under normal conditions
 
 ---
 
+## Source Evidence
+
+- Kamino Scope propagates source timestamps through multiplication-chain composites, validates mapping metadata before refresh, and distinguishes most-recent agreement from capped most-recent agreement in `/private/tmp/defillama-source/Kamino-Finance_scope/programs/scope/src/oracles/multiplication_chain.rs`, `handlers/handler_update_mapping_and_metadata.rs`, `handlers/handler_refresh_prices.rs`, `oracles/most_recent_of.rs`, and `oracles/capped_most_recent_of.rs`.
+
+---
+
 ## Verification Checklist
 
 When evaluating an oracle integration, verify:
@@ -132,6 +141,7 @@ When evaluating an oracle integration, verify:
 | Action Scope | Which price-validity flags are required for each value-bearing action? |
 | Confidence | Are confidence ratios, exponent ranges, and feed ids validated before conversion? |
 | Market Dependency | If the core delegates oracle choice to market creators, are scale, no-revert, magnitude, and unsafe-jump assumptions documented? |
+| Composite Metadata | Are source mappings unique and complete before a composite price path can refresh? |
 
 ---
 

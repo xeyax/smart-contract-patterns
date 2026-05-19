@@ -215,6 +215,14 @@ the agreeing adjacent pair.
 This is simpler than diagnosing source type, but it needs tight source-count and
 deviation bounds. A lone valid source is availability, not high confidence.
 
+### Fresh Most-Recent Agreement Variant
+
+Some Solana oracle systems validate all configured sources for freshness and
+deviation, then pick the most recent source among the agreeing set. This reduces
+latency versus averaging every source, but it is fail-closed: a stale or
+divergent minority source can halt the composite rather than being silently
+ignored.
+
 ## Interpretation Table
 
 | Oracle vs TWAP | Oracle vs Spot | TWAP vs Spot | Diagnosis | Recommended Action |
@@ -269,6 +277,7 @@ function getOptimizedPrice() public view returns (uint256) {
 - Liquity V1's `PriceFeed.sol` fallback and last-good-price state machine provides additional evidence that source disagreement needs explicit status transitions instead of silent fallback.
 - Alpha Homora V2's `AggregatorOracle` caps primary sources at three, sorts valid prices, averages agreeing pairs, returns the median when all three agree, and reverts when no pair is within deviation in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/AggregatorOracle.sol`.
 - Satoshi Core's weighted Chainlink aggregator checks source freshness but illustrates why averaging multiple sources should not be described as validation unless it also enforces deviation or quorum semantics.
+- Kamino Scope's most-recent oracle variants check source freshness and deviation before selecting the most recent agreeing value, with capped variants preserving the same fail-closed semantics in `/private/tmp/defillama-source/Kamino-Finance_scope/programs/scope/src/oracles/most_recent_of.rs`, `oracles/capped_most_recent_of.rs`, and `utils/source_entries.rs`.
 
 ## Related Patterns
 

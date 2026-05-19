@@ -56,6 +56,14 @@ function shouldUpdateDebt(address strategy) external view returns (bool, bytes m
 }
 ```
 
+### Allocation-Capped Lending-Reserve Variant
+
+For vaults that allocate into lending reserves or cTokens, derive desired reserve
+weights with per-reserve caps and an unallocated bucket. Increasing a reserve's
+cap should require allowlisted reserve state, stale-reserve and invest-delay
+checks should block unsafe movement, and invest or withdraw CPIs should reconcile
+post-call token and cToken balance deltas.
+
 ## Implementation
 
 ### Key Points
@@ -66,11 +74,14 @@ function shouldUpdateDebt(address strategy) external view returns (bool, bytes m
 - Gate execution on base fee when keeper economics matter.
 - Treat unrealized losses as a guardrail, not only a reporting metric.
 - Return machine-readable trigger data for keepers, but re-check inside execution.
+- For lending-reserve wrappers, cap allocation per reserve, keep an explicit unallocated bucket, and reconcile post-CPI token and receipt-token deltas.
+- Treat reserve allowlisting, stale reserve data, and minimum invest delay as part of allocation safety, not only admin configuration.
 
 ## Source Evidence
 
 - Yearn V3 vault periphery's `DebtAllocator.sol` gates debt updates by change size, wait time, idle buffer, strategy liquidity, max debt, base fee, and unrealized-loss checks in `/private/tmp/defillama-source/yearn_vault-periphery/src/debtAllocators/DebtAllocator.sol`.
 - `src/test/debtAllocators/TestDebtAllocator.t.sol` covers trigger behavior, debt limits, wait periods, and liquidity-dependent updates.
+- Kamino KVault allocates vault assets into whitelisted lending reserves with target allocations, per-reserve caps, an unallocated bucket, stale-reserve and invest-delay checks, and post-CPI balance reconciliation in `/private/tmp/defillama-source/Kamino-Finance_kvault/programs/kvault/src/state.rs`, `handlers/handler_update_reserve_allocation.rs`, `operations/vault_operations.rs`, and `operations/vault_checks.rs`.
 
 ## Real-World Examples
 

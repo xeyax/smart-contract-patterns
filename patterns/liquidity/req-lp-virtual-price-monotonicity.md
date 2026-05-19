@@ -40,11 +40,23 @@
 - Read-only and write-updating paths are clearly separated.
 - Integrators know whether virtual price is fair-value accounting or a market price.
 
+## R4: Transient Borrowed Reserves Are Accounted Consistently
+
+**LP mint and burn math must include or exclude flash-borrowed reserves consistently across both sides of a transaction.**
+
+### What This Means
+
+- Flash-borrowed reserves do not make the pool appear undercollateralized during liquidity operations.
+- Add and remove liquidity snapshots use the same reserve basis while a paired flash loan is open.
+- Repayment checks clear the transient borrowed amount before the transaction ends.
+
 ## Source Evidence
 
 - Curve defines LP virtual price as invariant value per total supply and includes stateful tests that virtual price does not decrease across swaps, liquidity operations, and amplification ramps.
+- Sanctum's unstake pool includes flash-borrowed reserve amounts in pool-value snapshots for add/remove liquidity and resets them through paired borrow/repay instructions in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/utils.rs`, `instructions/add_liquidity.rs`, `instructions/remove_liquidity.rs`, `instructions/take_flash_loan.rs`, and `instructions/repay_flash_loan.rs`.
 
 ## Related Patterns
 
 - [Invariant-Delta Liquidity Accounting](./pattern-invariant-delta-liquidity-accounting.md)
 - [Exchange-Rate Valuation Risk](../oracles/risk-exchange-rate-valuation.md)
+- [Instruction-Paired Rebalance Solvency Record](./pattern-instruction-paired-rebalance-solvency-record.md)

@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 220 across 23 batches.
+- Source repository inspections so far: 237 across 24 batches.
 
 ## First Batch Repositories
 
@@ -309,6 +309,28 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | FAssets | `flare-foundation/fassets` | Bridge custody / oracle / collateral pool |
 | Meteora DLMM | `MeteoraAg/dlmm-sdk` | DLMM quote math / SDK evidence |
 
+## Twenty-Fourth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Kamino Vault | `Kamino-Finance/kvault` | Lending reserve vault wrapper |
+| Kamino Farms | `Kamino-Finance/kfarms` | Farm rewards / staking |
+| Kamino Scope | `Kamino-Finance/scope` | Oracle aggregation |
+| Kamino Distributor | `Kamino-Finance/distributor` | Merkle vesting distributor |
+| Kamino Liquidity SDK | `Kamino-Finance/kliquidity-sdk` | Liquidity integration SDK |
+| Kamino Farms SDK | `Kamino-Finance/farms-sdk` | Farms integration SDK |
+| Kamino Lending SDK | `Kamino-Finance/klend-sdk` | Lending integration SDK |
+| Kamino Limo | `Kamino-Finance/limo` | Flash order settlement |
+| Kamino Limo SDK | `Kamino-Finance/limo-sdk` | Limit-order SDK |
+| Sanctum Unstake Program | `igneous-labs/sanctum-unstake-program` | Instant unstake reserve pool |
+| Sanctum INF 1.5 | `igneous-labs/inf-1.5` | Multi-LST pool / rebalancing |
+| Sanctum INF Jupiter Interface | `igneous-labs/inf-jup-interface` | Adapter quote parity |
+| Sanctum SPL Stake Pool | `igneous-labs/sanctum-spl-stake-pool` | Stake-pool reference |
+| Sanctum SPL Stake Pool SDK | `igneous-labs/sanctum-spl-stake-pool-sdk` | Stake-pool SDK |
+| Sanctum SPL Stake Pool CLI | `igneous-labs/sanctum-spl-stake-pool-cli` | Stake-pool admin CLI |
+| Sanctum Flatslab CLI | `igneous-labs/flatslab-cli` | Pricing/admin CLI |
+| Solana Perpetuals | `solana-labs/perpetuals` | Pool-backed perps reference |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -335,6 +357,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-21-findings.md` — accepted and deferred catalog updates from the eleventh expanded source-discovery batch.
 - `batch-22-findings.md` — accepted and deferred catalog updates from the twelfth expanded source-discovery batch.
 - `batch-23-findings.md` — accepted and deferred catalog updates from the thirteenth expanded source-discovery batch.
+- `batch-24-findings.md` — accepted and deferred catalog updates from the fourteenth expanded source-discovery batch.
 
 ## Notes
 

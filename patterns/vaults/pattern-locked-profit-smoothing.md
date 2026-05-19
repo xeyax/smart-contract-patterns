@@ -114,6 +114,13 @@ If governance sets the unlock period to zero, all remaining locked shares become
 immediately unlocked; document that this intentionally disables smoothing and can
 move price per share immediately.
 
+### Exponential Withheld-Yield Variant
+
+Some pools keep yield in a withheld bucket and release it over time by a per-slot
+or per-period rate. Losses should be absorbed against withheld yield and
+protocol-fee buckets before changing LP-due value, and protocol-fee splits should
+be applied only when yield is actually released.
+
 ## Key Points
 
 - Lock only profit, not principal.
@@ -126,6 +133,7 @@ move price per share immediately.
 - For locked-share variants, model fee and loss offsets explicitly and test weighted-average unlock rollover.
 - Treat zero-duration unlock settings as a value-affecting governance parameter.
 - For donation-smearing savings vaults, test repeated donations, partial accrual, withdrawal during the smoothing window, and max interest-left saturation.
+- For withheld-yield variants, define whether losses consume withheld yield, protocol fees, or LP-due value first, and test release-rate rounding over long idle periods.
 
 ## Source Evidence
 
@@ -137,6 +145,7 @@ move price per share immediately.
 - Yearn V3 tests profit staying out of PPS until unlock and immediate unlock when max unlock time is set to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/tests/unit/vault/test_profit_unlocking.py`.
 - Avant `StakedAvUSD` excludes unvested rewards from `totalAssets()` and vests them over an 8-hour window, with tests around share pricing and delayed reward vesting in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/StakedAvUSD.sol`.
 - Euler Savings Rate smears direct asset donations through `gulf` and `interestLeft`, with tests for repeated donations, partial accrual, and zero remaining interest in `/private/tmp/defillama-source/euler-xyz__euler-vault-kit/src/Synths/EulerSavingsRate.sol` and `test/unit/esr/ESR.Gulp.t.sol`.
+- Sanctum INF releases withheld yield over time, absorbs losses against withheld yield and protocol-fee buckets before LP-due value, and uses release-rate tests in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/core/src/yields/update.rs`, `controller/core/src/yields/release.rs`, and `controller/core/src/typedefs/rps.rs`.
 
 ## Related Patterns
 

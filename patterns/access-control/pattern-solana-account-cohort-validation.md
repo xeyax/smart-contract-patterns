@@ -58,6 +58,7 @@ Validate accounts as a cohort, not as isolated types:
 - Combine with post-CPI accounting checks when balances can change externally.
 - Validate executable-account cohorts too: configured CPI program ids, program-data metadata where relevant, and deterministic remaining-account partitions.
 - For stake and LST flows, validate account owner/type, mint/authority, and delegated stake amount against protocol records before conversion or CPI.
+- When client SDKs derive large account cohorts, treat those derivations as integration assistance only; on-chain instructions still need owner, PDA, mint, authority, and suffix validation.
 
 ## Source Evidence
 
@@ -67,6 +68,7 @@ Validate accounts as a cohort, not as isolated types:
 - OnRe's Jupiter integration adapter is useful negative evidence: it length-checks and raw-parses account layouts, which should be paired with owner and discriminator checks in value-bearing programs.
 - Sanctum validates configured calculator and pricing CPI programs, account suffixes, and stake-pool account owners/types for LST value calculators.
 - Marinade rejects extra remaining accounts and validates stake delegation amount and validator identity against protocol records.
+- Sanctum INF Jupiter integration validates expected account order and program ids for adapter calls, while Sanctum stake-pool SDK helpers show why PDA derivations and account cohort builders should remain corroborating evidence rather than replacing on-chain checks in `/private/tmp/defillama-source/igneous-labs_inf-jup-interface/jup-interface/src/lib.rs` and `/private/tmp/defillama-source/igneous-labs_sanctum-spl-stake-pool-sdk/core/src/instructions`.
 
 ## Related Patterns
 

@@ -204,6 +204,7 @@
 | pattern-fixed-yield-implied-rate-amm.md | Price fixed-maturity yield claims with implied-rate math instead of a constant-product reserve curve. | The traded asset is a principal token, yield token, or fixed-maturity claim |
 | pattern-hook-governed-dynamic-lp-fee.md | Let a pool mark its LP fee as dynamic, then restrict stored fee updates and per-swap fee overrides to the pool's trusted hook. | Pool fees should react to volatility, inventory, order flow, or external signals |
 | pattern-hook-returned-custom-accounting-deltas.md | Let trusted AMM hooks return signed token deltas that the singleton manager settles through the same net-delta ledger as core swaps. | Hooks need to implement fees, wrappers, curves, or other custom accounting |
+| pattern-instruction-paired-rebalance-solvency-record.md | Bracket an external rebalance with start/end instructions that lock the pool, record pre-rebalance value, and reject completion unless solvency is preserved. | A pool must route inventory through external programs to rebalance reserves |
 | pattern-invariant-delta-liquidity-accounting.md | Mint and burn LP shares from the change in an AMM invariant, with imbalance fees and slippage bounds around the invariant delta. | A pool supports imbalanced or single-sided deposits and withdrawals |
 | pattern-lazy-virtual-order-twamm.md | Execute long-term AMM orders lazily in virtual intervals before ordinary pool actions observe reserves. | Users need to split large swaps across time inside an AMM; Executing every interval eagerly would be too expensive |
 | pattern-minimum-liquidity-lock.md | Permanently lock a small amount of initial LP supply so the first depositor cannot fully control or reset pool share price. | AMM LP supply starts at zero; Initial LP shares are minted from deposited reserves or invariant value |
@@ -232,7 +233,7 @@
 |------|-----------|
 | req-concentrated-liquidity-invariants.md | R1: Active Liquidity Matches Tick State, R2: Range Entry and Exit Are Atomic, R3: Position Accounting Uses Range Snapshots |
 | req-constant-product-amm-invariants.md | R1: Reserve State Matches Accounted Balances, R2: Fee-Adjusted Product Does Not Decrease, R3: LP Supply Has First-Deposit And Protocol-Fee Rules, R4: Oracle Accumulators Advance From Prior Reserves |
-| req-lp-virtual-price-monotonicity.md | R1: Fee-Only Operations Do Not Decrease Virtual Price, R2: Share Supply Changes Match Invariant Delta, R3: Cached Virtual Prices Preserve Freshness Semantics |
+| req-lp-virtual-price-monotonicity.md | R1: Fee-Only Operations Do Not Decrease Virtual Price, R2: Share Supply Changes Match Invariant Delta, R3: Cached Virtual Prices Preserve Freshness Semantics, R4: Transient Borrowed Reserves Are Accounted Consistently |
 | req-net-delta-settlement-invariants.md | R1: Operation Frame Bounds All Deltas, R2: Nonzero Delta Count Matches Delta Storage, R3: Token Settlement Uses Fresh Synced Balances, R4: Shared Vault Reserves Are App-Scoped |
 
 ## math
@@ -302,6 +303,7 @@
 | pattern-bounded-orderbook-liquidation-deleveraging.md | Cap per-block orderbook liquidation attempts and fall back to deterministic deleveraging when fills cannot safely absorb risk. | Perpetual positions are liquidated through an orderbook or matching engine |
 | pattern-capped-pnl-impact-pool-risk-accounting.md | Compute perps pool value with capped trader PnL, pending fees, and separate price-impact pools before allowing actions that can extract liquidity. | A perpetuals market uses shared long and short liquidity pools |
 | pattern-fee-pool-capped-asymmetric-funding.md | Cap protocol-paid funding by fee-pool reserves and allow side-specific funding when symmetric rates would overdraw the pool. | Funding can be paid from protocol reserves or a fee pool; Long and short open interest can become materially imbalanced |
+| pattern-initial-maintenance-leverage-gates.md | Enforce stricter leverage bounds when opening or increasing a position, then use maintenance leverage bounds to block unsafe collateral removal and trigger liquidation. | Perpetual positions borrow pool liquidity against user collateral |
 | pattern-manager-owned-derivative-cash-settlement.md | Let asset contracts compute derivative settlement while a risk manager owns the authoritative cash adjustment and settled-cash record. | Derivative assets need settlement, expiry, funding, or exercise logic |
 | pattern-open-interest-scaled-margin-requirement.md | Increase initial margin as market open interest approaches configured caps, reaching full collateralization at the upper bound. | A perpetual market wants soft exposure control rather than a hard open-interest stop |
 | pattern-position-size-scaled-margin-requirement.md | Increase margin requirements and discount positive unrealized PnL as an individual position grows. | Individual large positions are riskier than the same exposure split across smaller traders |
@@ -332,6 +334,7 @@
 | pattern-isolated-vesting-schedule-escrow.md | Create one escrow contract or isolated schedule per vesting grant so vested withdrawals and unvested revocation are tracked independently. | Beneficiaries can have multiple grants with different schedules; Unvested tokens may be revocable by the schedule owner |
 | pattern-lazy-reward-index.md | Accrue rewards through a global index and update each user only when they interact or claim. | Rewards accrue continuously or per emission update; The protocol has many suppliers, stakers, or borrowers |
 | pattern-merkle-instantiated-vesting-escrow-factory.md | Commit a bulk vesting distribution with one Merkle root, then let each recipient instantiate an isolated vesting escrow from a proven leaf. | A large vesting distribution should avoid pre-creating every escrow |
+| pattern-merkle-seeded-linear-vesting-claim-ledger.md | Use a Merkle proof once to instantiate a per-recipient claim ledger, then release the locked portion through deterministic linear vesting. | A fixed off-chain allocation has both immediately claimable and time-vested portions |
 | pattern-nonce-bound-delayed-reward-claim-ledger.md | Separate reward accrual from delayed claim execution by hashing amount, owner, receiver, unlock time, and nonce into a claim id. | Rewards accrue on-chain but should become transferable only after a delay |
 | pattern-queued-reward-streaming.md | Queue reward tokens from permissioned distributors, carry leftovers forward, and stream rewards over a fixed duration. | Rewards arrive in discrete deposits but should accrue smoothly; Only approved distributors should fund reward streams |
 | pattern-range-liquidity-reward-index.md | Accrue rewards only to concentrated-liquidity positions whose tick ranges are active, using tick-level reward-growth snapshots. | Rewards should incentivize active AMM liquidity, not out-of-range inventory; LP positions have lower and upper ticks |
@@ -350,6 +353,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-instruction-paired-flash-order-settlement.md | Settle a routed order across a start/end instruction pair by locking order state, measuring output balance deltas, and validating the paired end instruction before releasing maker inventory. | Makers post on-chain inventory but takers need to route through arbitrary swap legs before final settlement |
 | pattern-instruction-scoped-signed-message-orders.md | Verify signed order messages against the exact instruction, signer, payload fields, expiry, and replay cache before settlement. | Orders are signed off-chain but verified inside an execution instruction |
 | pattern-registry-gated-exchange-fallback.md | Try an allowlisted aggregator route first, then fall back to an allowlisted on-chain wrapper while enforcing final balance-delta slippage. | Off-chain routing can find better prices but cannot be fully trusted |
 | pattern-stateless-callback-validated-swap-router.md | Route swaps through compact path data and callback validation while keeping user slippage, deadline, and payer rules at the router boundary. | Swaps may traverse one or more canonical AMM pools; Pool settlement happens through callbacks |

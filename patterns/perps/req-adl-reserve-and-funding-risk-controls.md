@@ -19,6 +19,7 @@
 - Reserve factors are checked per side and per market.
 - Open interest reserve checks use current pool value and oracle prices.
 - Limit changes are treated as risk parameter changes.
+- Per-position payoff caps, pool AUM limits, and custody reserve limits are applied before value can be extracted from shared liquidity.
 
 ## R2: Funding Rounding Cannot Be Avoided By Tiny Updates
 
@@ -55,9 +56,11 @@
 - GMX Synthetics validates reserves and open-interest reserve factors, implements funding-fee rounding rules, and gates ADL state/order validity on fresh oracle timestamps and pending-PnL thresholds.
 - Drift caps reserve-paid funding, uses liquidation and bankruptcy fallback paths, and supports socialized loss through funding/PnL settlement mechanics without being cited as direct ADL evidence.
 - Derive V2 uses a security module and cash-asset insolvency accounting with tests for socialized losses after backstop exhaustion.
+- Solana Labs Perpetuals applies per-custody reserve and max-user-profit checks before extracting shared pool liquidity in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/state/custody.rs` and `programs/perpetuals/src/state/pool.rs`.
 
 ## Related Patterns
 
 - [Capped PnL Impact Pool Risk Accounting](./pattern-capped-pnl-impact-pool-risk-accounting.md)
+- [Initial And Maintenance Leverage Gates](./pattern-initial-maintenance-leverage-gates.md)
 - [Fee-Pool Capped Asymmetric Funding](./pattern-fee-pool-capped-asymmetric-funding.md)
 - [Oracle Staleness Risk](../oracles/risk-oracle-staleness.md)

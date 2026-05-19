@@ -66,6 +66,7 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - Emergency risk-reduction setters should not require fresh oracle reads unless the reduced state itself depends on that price; stale oracle liveness should not block containment.
 - Treat bypass-threshold increases as risk-increasing even when small transfers bypass monitoring; use one-shot guardians, separate roles, or governance for increases, while allowing monotonic threshold decreases through the limiter.
 - Automated monitors can trigger the limiter, but restoration should remain behind a separate admin path and the paused action matrix must be explicit.
+- Scoped pause matrices should distinguish global pool disable, per-asset input disable, swaps, deposits, withdrawals, admin maintenance, and rebalancing locks.
 
 ## Source Evidence
 
@@ -75,6 +76,7 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - Lombard's bascule controls distinguish replay-monitor bypass threshold increases from monotonic decreases, including one-shot authority for threshold increases.
 - BENQI's PauseGuardian can pause minting and borrowing when proof-of-reserve monitoring detects token supply above reserves, while unpausing remains admin-controlled; the pause scope is visible through Comptroller pause flags in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/lending`.
 - Avant's gatekeeper can disable mint/redeem and revoke hot minter, redeemer, and collateral-manager roles, while restoration remains with admin-controlled setters in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
+- Sanctum INF uses scoped pool and LST-input disable paths with separate authorities and tests that disabled pools or disabled LST inputs block the intended swap flows in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/program/src/instructions/disable_pool` and `controller/program/tests/tests/swap/v2/exact_in/errs.rs`.
 
 ## Related Patterns
 

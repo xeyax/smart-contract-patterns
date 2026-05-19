@@ -48,6 +48,14 @@ compare simulated balance deltas with the quote path. This is not a user-facing
 quote API, but it is a strong regression test against quote/execution formula
 drift.
 
+### Adapter Account-Meta Parity Variant
+
+AMM adapters can keep quote and execution parity by deriving the execution
+account metas from the same adapter state that quote validation uses, then
+testing swaps against a simulator with the real program and representative
+account snapshots. This is integration evidence, not proof that the underlying
+AMM program is correct.
+
 ## Key Points
 
 - Revert before token transfers, state commitments that matter, or external settlement.
@@ -56,11 +64,13 @@ drift.
 - Treat unexpected reverts as failed quotes, not zero-value quotes.
 - Test that the simulated path and real path share all pricing and branch logic.
 - For snapshot parity tests, pin account snapshots, program binaries, and expected deltas so router or AMM math changes fail loudly.
+- For adapter parity tests, assert that quoted routes and executable account metas are generated from the same state snapshot.
 
 ## Source Evidence
 
 - Fluid vault liquidation simulation runs the real liquidation path with a sentinel receiver and reverts with encoded quote data before liquidity payback and withdraw settlement.
 - Jupiter AMM implementation snapshots AMM accounts, loads real program binaries in LiteSVM, executes swaps, and compares execution deltas to quote results in `/private/tmp/defillama-source/jup-ag_jupiter-amm-implementation/jupiter-core/src/amms/test_harness.rs` and `jupiter-core/tests/test_amms.rs`.
+- Sanctum's INF Jupiter adapter derives quote and swap account metas from the same adapter state and tests simulated swaps through account snapshots in `/private/tmp/defillama-source/igneous-labs_inf-jup-interface/jup-interface/src/lib.rs` and `jup-interface/tests/common/swap.rs`.
 
 ## Related Patterns
 
