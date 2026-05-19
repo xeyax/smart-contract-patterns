@@ -256,6 +256,25 @@ function acceptNav(uint256 newNav, uint256 externalPrice, uint256 externalUpdate
 
 This constrains accepted-state movement; it is not a freshness guarantee by itself. The external anchor must still have round freshness, nonzero values, and monotonic update checks.
 
+### Effective-Dated NAV Checkpoints
+
+RWA feeds sometimes need to publish NAV checkpoints that become effective at a
+future timestamp. Bound the number of pending checkpoints, require strictly
+increasing effective times, and reject per-checkpoint value moves outside the
+configured envelope:
+
+```solidity
+function addCheckpoint(uint256 nav, uint256 effectiveAt) external onlyReporter {
+    require(effectiveAt > lastEffectiveAt, "non-monotonic");
+    require(pendingCheckpoints.length < maxPending, "too many pending");
+    require(_withinDelta(nav, lastNav, maxDeltaBps), "nav delta");
+    pendingCheckpoints.push(Checkpoint(nav, effectiveAt));
+}
+```
+
+If the adapter exposes a Chainlink-compatible interface, `updatedAt` should not
+hide the economic age of the active checkpoint.
+
 ### History-Span Bounds
 
 For stateful oracle strategies, a new price can be bounded against both explicit
@@ -305,6 +324,7 @@ This is safer than forcing the price to a constant peg because it does not hide 
 - Do not treat out-of-gas, empty-return, or unexpected-revert fallback paths as valid default prices
 - For LSTs, exchange-rate bounds constrain accepted internal accounting but do not prove market liquidity or redemption value.
 - For multi-source strategies, warning states should still be bounded by effective min/max price and a sufficient history span.
+- For effective-dated NAV checkpoints, bound pending checkpoint count and expose economic freshness separately from the call timestamp.
 
 ## Limitations
 
@@ -369,6 +389,8 @@ contract CircuitBreakerWithBounds {
 - Stader BNBx constrains accepted LST exchange-rate movement and uses monitoring around exchange-rate drops, supply mismatch, and operation cadence.
 - NAVI oracle strategy checks effective min/max price and price history span in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/strategy.move`.
 - Avant MAX `PriceStorage` accepts a write-once price key only when the new price stays within bounds around `lastPrice`; tests cover duplicate keys and upper/lower bound reverts in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/src/PriceStorage.sol` and `test/PriceStorage.t.sol`.
+- Superstate `SuperstateOracle` stores effective-dated NAV checkpoints, limits pending updates, and exposes a Chainlink-compatible view whose freshness needs separate economic interpretation in `/private/tmp/defillama-source/superstateinc__onchain-redemptions/src/oracle/SuperstateOracle.sol`.
+- Kinetiq validates validator performance reports through adapter quorum and sanity checks before accepting accumulated reward/slash metrics in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/OracleManager.sol` and `src/validators/ValidatorSanityChecker.sol`.
 
 ## Related Patterns
 

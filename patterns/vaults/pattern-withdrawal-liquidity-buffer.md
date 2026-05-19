@@ -95,6 +95,8 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - NFT redemption tickets should snapshot maturity, fee, liability, and beneficiary information, and partial redemption should reduce the ticket's remaining liability before paying out.
 - Principal-plus-interest claim paths need funded reserves or enforced liquidity predicates; operator top-up cadence is monitoring, not trust-minimized withdrawal liveness.
 - When lending collateral is deployed into yield vaults, keep a local reserve percentage and recall from priority adapters before withdrawals consume accounting balances the protocol cannot settle.
+- If an L1 or external staking queue has both deposit and withdrawal operations pending, process withdrawal operations before new deposit or rebalance operations consume liquid capacity.
+- Lending pools that deploy idle liquidity into yield adapters need a target buffer ratio, a recall path, and tests proving withdrawals cannot spend accounting balances that remain externally deployed.
 
 ## Source Evidence
 
@@ -109,6 +111,8 @@ Any surplus from a minimum-lot redemption is buffer liquidity, not admin-free ca
 - Frax frxETH V2 represents LST exits as NFT redemption tickets with maturity, fee snapshot, liabilities, and full or partial ETH redemption paths in `/private/tmp/defillama-source/FraxFinance__frxETH-v2-public/src/contracts/frxeth-redemption-queue-v2/FraxEtherRedemptionQueueCore.sol` and `FraxEtherRedemptionQueueV2.sol`.
 - SlowMist's Avalon USDa audit noted that saving-account redemption and interest distribution can leave claims underfunded if the contract lacks enough underlying tokens, a lower-confidence audit-source example for funded claim reserves.
 - Satoshi Core can deploy CDP collateral into vaults while retaining local reserve percentages and recalling through priority adapters when withdrawal demand exceeds local liquidity in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/vault/VaultManager.sol`.
+- Kinetiq queues L1 staking operations, converts withdrawal amounts with withdrawal-favoring rounding, and processes pending L1 withdrawals before deposit and rebalance operations in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/StakingManager.sol`.
+- RAAC keeps a lending-pool liquidity buffer ratio, calls `_ensureLiquidity` before withdrawals, and rebalances through `_rebalanceLiquidity` when local liquidity and externally deployed yield positions diverge in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/pools/LendingPool/LendingPool.sol`.
 
 ## Related Patterns
 

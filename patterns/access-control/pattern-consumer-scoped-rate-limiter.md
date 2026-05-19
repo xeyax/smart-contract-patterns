@@ -85,6 +85,21 @@ _consume(key, amount); // reverts when key has zero max capacity
 
 Reverse flows need an explicit policy. Restore capacity only when the reverse action truly returns the same risk capacity; otherwise consume a separate bucket for the reverse direction.
 
+### Destination-Scoped OFT Variant
+
+Omnichain tokens can throttle outbound transfers by destination endpoint before
+debiting local balances:
+
+```solidity
+bytes32 key = keccak256(abi.encode(token, dstEndpointId));
+_consume(key, amountLD);
+_debit(from, amountLD, minAmountLD, dstEndpointId);
+```
+
+This prevents one destination from consuming capacity intended for another.
+Normalize dust before the limit check if the bridge converts between local and
+shared decimals.
+
 ## Key Points
 
 - Authorize both the caller and the consumer bucket.
@@ -98,6 +113,7 @@ Reverse flows need an explicit policy. Restore capacity only when the reverse ac
 - For balance-delta based limiters, reject untrusted hooks or callbacks that can manipulate measured balances during the external call.
 - Bridge outflows may need destination daily caps, per-transfer min/max, per-user daily caps, and per-user attempt caps, with dust normalization before limit checks.
 - Define whether pause time refills capacity. If accumulated capacity during a pause would surprise operators, reset or checkpoint bucket timestamps on unpause.
+- For OFT-style bridges, consume destination-scoped capacity before burning or locking local supply.
 
 ## Source Evidence
 
@@ -106,6 +122,7 @@ Reverse flows need an explicit policy. Restore capacity only when the reverse ac
 - Spark ALM uses route keys as implicit allowlists, binds limiter keys to operation-specific route fields, restores capacity only for selected reverse flows, and avoids hook-enabled liquidity operations where hooks could change balance-delta measurements.
 - Lista OFT combines destination-specific daily caps, per-transfer min/max, per-user daily caps, per-user attempt caps, and dust normalization before debit limit checks.
 - USDT0 audit reports discuss route-scoped OFT rate limits and pause-aware refill behavior; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
+- Astherus `asBTC` applies transfer-limiter checks from `_debit` before LayerZero OFT debit settlement, with limiter state in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/oft/TransferLimiter.sol` and `contracts/oft/asBTC.sol`.
 
 ## Related Patterns
 

@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 170 across 19 batches.
+- Source repository inspections so far: 182 across 20 batches.
 
 ## First Batch Repositories
 
@@ -257,6 +257,21 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Symbiotic Core | `symbioticfi/core` | Restaking deep pass |
 | Pendle V2 | `pendle-finance/pendle-core-v2-public` | Yield deep pass |
 | Morpho Blue | `morpho-org/morpho-blue` | Lending deep pass |
+
+## Twentieth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Kinetiq kHYPE | `code-423n4/2025-04-kinetiq` | Liquid Staking audit snapshot |
+| RAAC | `ryzen-xp/2025-02-raac` | RWA Lending audit snapshot |
+| Yield Basis | `Peter-Brad/2025-08-yield-basis-Peter-Brad-public` | Leveraged Farming / AMM audit snapshot |
+| Astherus Earn | `astherus-contract/astherus-earn-contract` | Basis / anchor BTC yield |
+| DoubleZero Solana | `doublezerofoundation/doublezero-solana` | Staked SOL / rewards |
+| Euler V2 | `euler-xyz/euler-vault-kit`, `euler-xyz/ethereum-vault-connector` | Lending / synth deep pass |
+| M0 | `m0-foundation/protocol` | Stablecoin issuer deep pass |
+| Kelp | `Kelp-DAO/LRT-rsETH` | Liquid restaking deep pass |
+| Liquid Collective | `liquid-collective/liquid-collective-protocol` | Liquid staking deep pass |
+| Superstate USTB | `superstateinc/ustb`, `superstateinc/onchain-redemptions` | RWA deep pass |
 
 ## Files
 

@@ -118,6 +118,7 @@ Treat wrappers as new oracle implementations:
 - Do not rely on off-chain monitoring as the only guard for on-chain state changes.
 - For bridged rate providers, distinguish source update time from destination relay time; `block.timestamp` on the destination proves only when the message executed.
 - A fallback oracle that triggers only when a source is missing or non-positive is not multi-source validation if it ignores source freshness.
+- A per-asset price store with one global timestamp can make recently updated assets appear as fresh as every other asset, or can make one stale asset force conservative behavior for unrelated assets.
 
 ### Conservative Zeroing Can Still Be Liveness Risk
 
@@ -251,6 +252,8 @@ function isPriceStale() public view returns (bool) {
 - Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
 - Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/adapters` and `src/PegStabilityModule.sol`.
 - Pendle's Chainlink-compatible PT/YT/LP wrapper can return the current block timestamp while the underlying implied-rate TWAP still needs readiness checks, and its trusted-sender cross-chain exchange-rate app accepts newer timestamps without max source-age or deviation bounds.
+- RAAC `RAACHousePrices` stores per-token house prices behind a shared latest timestamp surface, and lending reads `getLatestPrice` before collateral calculations in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/primitives/RAACHousePrices.sol` and `contracts/core/pools/LendingPool/LendingPool.sol`.
+- Superstate `SuperstateOracle.latestRoundData` can return the current block timestamp as the Chainlink `updatedAt` while NAV freshness depends on effective-dated checkpoint state in `/private/tmp/defillama-source/superstateinc__onchain-redemptions/src/oracle/SuperstateOracle.sol`.
 
 ## Related Patterns
 

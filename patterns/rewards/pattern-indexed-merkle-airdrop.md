@@ -50,13 +50,16 @@ function claim(uint256 index, address account, uint256 amount, bytes32[] calldat
 - Validate the off-chain input set for duplicate addresses, duplicate indexes, and zero amounts.
 - Publish the generated claim blob and token total.
 - If unclaimed tokens can be swept, enforce a public deadline or closed state before sweeping.
+- For Solana accounts with fixed base state, store processed bits in explicit remaining-data ranges and test that reward, debt, and write-off bitmaps do not overlap.
 - Test double claims, wrong address, wrong amount, invalid proof, and post-sweep claims.
 
 ## Source Evidence
 
 - SSV uses a fixed Merkle distributor with packed claim bitmap tracking, deterministic off-chain claim generation, and tests for full claims, double claims, and invalid proofs.
+- DoubleZero Solana stores processed reward, debt, and debt-write-off bitmaps in distribution `remaining_data` ranges and tests bitmap boundaries in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/state/distribution.rs` and `tests/distribute_rewards_test.rs`.
 
 ## Related Patterns
 
 - [Delayed Cumulative Merkle Claims](./pattern-delayed-cumulative-merkle-claims.md)
 - [Queued Reward Streaming](./pattern-queued-reward-streaming.md)
+- [Snapshot-Gated Integration Reward Distribution](./pattern-snapshot-gated-integration-reward-distribution.md)

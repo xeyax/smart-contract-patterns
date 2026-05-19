@@ -200,6 +200,38 @@ liability, and beneficiary or receiver semantics. Partial redemption must reduce
 the remaining ticket liability before external payment, and full redemption must
 burn or close the ticket.
 
+### Operator-Finalized Claim Ledger
+
+When withdrawals depend on off-chain settlement or operator-supplied liquidity,
+burn or escrow shares at request time and create a durable request id. The
+operator can later fund explicit request ids, but the user claim must consume the
+fixed entitlement recorded before claim:
+
+```text
+request withdraw
+  -> burn or escrow shares
+  -> record request id, owner, receiver, and fixed entitlement
+operator distribution
+  -> fund selected request ids
+claim
+  -> consume fixed entitlement and pay receiver
+```
+
+This is still an operator-liveness model. It improves traceability and prevents
+claim-time repricing, but it does not remove custody risk if the operator can
+delay, skip, or cancel requests without objective rules.
+
+### Height-Interval Queue Matching
+
+For liquid-staking queues satisfied by discrete withdrawal events, each redeem
+request and withdrawal event can be represented as a cumulative height interval.
+Claim then proves overlap between the request interval and one or more
+withdrawal-event intervals instead of scanning the entire queue.
+
+This supports partial claims and off-chain helper discovery, but the on-chain
+claim must reject mismatched intervals, already claimed requests, and
+out-of-bounds event ids.
+
 ### Public Gas-Bounded Settlement
 
 For queues that need regular processing, make settlement callable by anyone with an explicit maximum:
@@ -332,6 +364,8 @@ Async withdrawals need additional liveness and accounting checks:
 - Deferred-burn exits must fix payout terms before claim and document any exchange-rate drift while shares remain locked but unburned.
 - Beneficiary-bound exit tickets should fix entitlement and maturity, close state before payment, and check reserve liquidity at claim.
 - Failed push distributions in exit queues should become user-specific pull claims rather than harvestable yield.
+- Operator-finalized withdrawal claims should record fixed request entitlements before the operator distribution step and treat unfunded requests as an exit-liveness risk.
+- Height-interval redemption queues should keep cumulative request and withdrawal-event intervals immutable once claimable, and should bound claim input size or search depth.
 
 ## ERC-7540: Async Vault Standard
 
@@ -369,6 +403,8 @@ interface IERC7540 {
 - Marinade — delayed unstake burns mSOL, records beneficiary-bound SOL entitlement and maturity epoch, and claims from reserve while decrementing aggregate pending balances; claim pause remains a liveness caveat
 - Lista stkBNB — batched unstake distribution converts failed pushes to manual pull claims and excludes pending unstake amounts from harvestable yield
 - Ondo audit-contest snapshot — RWA request ids and assigned price ids before claim; lower-confidence evidence because the package is not an official production repository
+- Astherus Earn — request-numbered withdrawals are created before a bot-funded distribution step and user pull claim, showing the operator-finalized claim-ledger variant.
+- Liquid Collective — redeem requests are matched to withdrawal events through cumulative interval logic with full, partial, skipped, out-of-bounds, and already-claimed statuses.
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns
@@ -376,6 +412,8 @@ interface IERC7540 {
 - [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — the problem this solves
 - [Premium Buffer](./pattern-premium-buffer.md) — alternative mitigation (synchronous)
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base pattern
+- [Operator-Finalized Withdrawal Claim](./pattern-operator-finalized-withdrawal-claim.md) — request ids funded by operator distribution
+- [Height-Interval Redemption Queue](./pattern-height-interval-redemption-queue.md) — interval-based claim matching
 
 ## References
 

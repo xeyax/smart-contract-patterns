@@ -46,12 +46,14 @@ For AMM swaps, use rounding that preserves pool solvency: exact-output input amo
 - Check zero denominators before division, including configuration values such as duration or interval length.
 - After full-precision calculation, check final narrowing casts instead of assuming the result fits a smaller integer type.
 - In claim ledgers, consume/check entitlement with conservative rounding and pay/transfer with the opposite conservative direction so one claimant cannot drain escrow dust owed to later claimants.
+- Cross-domain amount conversion should document direction-specific rounding: deposits and outgoing debits usually round down to avoid over-crediting, while withdrawals or externally owed amounts may need to round up to avoid underpaying the user.
 
 ## Source Evidence
 
 - Uniswap V3 uses full-precision `mulDiv` and directed AMM rounding libraries, with Echidna tests for full math and swap-step conservation.
 - Centrifuge liquidity-pool tests and audit notes show why async claim ledgers need explicit rounding direction across fulfillment and claim paths.
 - OnRe's Jupiter integration adapter illustrates why off-chain or adapter quote math should still guard zero interval denominators and final `u128 -> u64` narrowing casts.
+- Kinetiq converts HYPE/kHYPE amounts to the 8-decimal L1 operation format with explicit `roundUp` behavior, rounding deposits down and withdrawal obligations up in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/StakingManager.sol`.
 
 ## Related Patterns
 

@@ -44,6 +44,24 @@ function settleFlashLoan(address borrower, uint256 amount, uint256 repaid) inter
 
 The debt conversion path should be indistinguishable from a normal borrow for collateral, pause, oracle, and accrual checks.
 
+### Virtual AMM Swap Variant
+
+A leveraged AMM can use a flash loan internally to make a virtual swap route
+liquid without exposing unpaid principal as user debt. In that case, the flash
+amount is derived from the AMM state, callback execution performs the pool
+operation, and the wrapper repays from post-swap balances:
+
+```solidity
+function exchange(uint256 i, uint256 j, uint256 amountIn, uint256 minOut) external {
+    uint256 flashAmount = quoteFlashAmount(i, amountIn);
+    flashLoan(address(this), stablecoin, flashAmount, abi.encode(i, j, amountIn, minOut));
+}
+```
+
+This is not a borrower debt-conversion path, but it shares the same audit
+boundary: callback authentication, fee/repayment accounting, reentrancy, and
+post-callback solvency must be checked in one frame.
+
 ## Key Points
 
 - Accrue the market before creating debt.
@@ -53,15 +71,18 @@ The debt conversion path should be indistinguishable from a normal borrow for co
 - Include active flash-loan amounts in exchange-rate cash logic.
 - If debt is opened on behalf of another account, consume borrow delegation or credit allowance during settlement.
 - Test full repay, partial repay, fee-only repay, failed risk checks, and reentrancy.
+- For virtual AMM flash routes, test the calculated flash amount against the final AMM state and prove repayment cannot bypass the pool's solvency check.
 
 ## Source Evidence
 
 - Venus flash loans allow unpaid balances to become borrower debt through the normal borrow path, with market, delegate, fee, repayment, and accounting checks.
 - Aave V2 flash loans require repayment plus premium for mode `NONE`, while nonzero modes route post-callback unpaid principal through ordinary borrow validation and stable or variable debt minting in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPool.sol`; tests cover variable debt conversion and delegated stable debt.
+- Yield Basis `VirtualPool.vy` computes a required flash amount, authenticates the flash lender in `onFlashLoan`, performs the AMM operation, and repays from the post-swap balance in `/private/tmp/defillama-source/Peter-Brad__2025-08-yield-basis-Peter-Brad-public/contracts/VirtualPool.vy`.
 
 ## Related Patterns
 
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
 - [Lazy Borrow Index](./pattern-lazy-borrow-index.md)
 - [Nontransferable Debt Token Delegation](./pattern-nontransferable-debt-token-delegation.md)
+- [Constant-Leverage Solvency AMM](../liquidity/pattern-constant-leverage-solvency-amm.md)
 - [Hook/Callback Trust](../../ANTIPATTERNS.md#hookcallback-trust)

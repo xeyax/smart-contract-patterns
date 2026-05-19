@@ -52,11 +52,13 @@ The relay caller is untrusted. Safety comes from source-chain determinism, bridg
 - Keep bridge peer replacement behind high-scrutiny governance.
 - Document whether consumers should fail closed when relay updates stop.
 - Do not present permissionless relay as reporter consensus.
+- If the destination contract accepts only an authorized source sender, still require consumer-side max age and deviation checks; source authentication alone does not bound relay delay.
 
 ## Source Evidence
 
 - Rocket Pool's Polygon oracle lets any caller submit the source-chain rate through the authenticated root/child tunnel and exposes the bridged value through a Balancer-style rate provider.
 - Pendle's cross-chain exchange-rate app is a contrasting trusted-sender design: it accepts newer source timestamps but lacks max source-age and deviation bounds, so treat it as risk evidence rather than a permissionless relay exemplar.
+- Kelp `CrossChainRateReceiver` authenticates LayerZero endpoint, source chain id, and source rate-provider address before applying relayed rate data, while `CrossChainRateProvider` and `MultiChainRateProvider` expose permissionless `updateRate` relays in `/private/tmp/defillama-source/Kelp-DAO__LRT-rsETH/contracts/cross-chain`.
 
 ## Related Patterns
 

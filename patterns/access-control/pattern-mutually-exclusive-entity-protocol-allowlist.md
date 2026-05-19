@@ -52,12 +52,14 @@ Transfer checks then decide whether the account is eligible as an entity member 
 - Require code at protocol-contract addresses where the chain supports it.
 - Force explicit zeroing before reassigning an address to another entity.
 - Keep fund-specific eligibility separate from global address status.
+- If subscriptions or redemptions accept an explicit receiver, enforce same-entity receiver constraints where regulation requires the investor of record to match.
 - Emit events that include old and new entity or protocol state.
 - Test entity-to-protocol, protocol-to-entity, reassignment, and no-code protocol cases.
 
 ## Source Evidence
 
 - Superstate USTB allowlist logic distinguishes entity eligibility from protocol-contract eligibility, enforces mutual exclusion, requires protocol addresses to have code, and tests reassignment constraints.
+- Superstate token flows also enforce same-entity receiver checks for subscription-style minting, so protocol eligibility and entity eligibility cannot be silently mixed through a different receiver.
 
 ## Related Patterns
 

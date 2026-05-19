@@ -61,12 +61,30 @@ if (backstopCoverageBelowThreshold()) {
 This delays the final supplier haircut while still making the absorbing party and
 terminal default condition explicit.
 
+### Same-Distribution Write-Off Variant
+
+Reward or fee distributions can discover uncollectible debt after the debt set
+has been configured. If pushing the loss into a future distribution would distort
+current rewards, write the bad debt into the same distribution before sweep:
+
+```solidity
+if (debtFinalized && writeOffEnabled && !debtProcessed[index]) {
+    processedDebt[index] = true;
+    processedWriteOff[index] = true;
+    uncollectibleDebt += debtAmount;
+}
+```
+
+This is not a liquidation haircut, but the accounting rule is the same: make the
+absorbing distribution explicit instead of hiding the loss in a later period.
+
 ## Key Points
 
 - Accrue interest before liquidation and bad-debt calculation.
 - Close the borrower's debt only after collateral seizure and repayment are accounted.
 - Define whether reserves absorb loss before suppliers.
 - If a backstop absorbs loss before suppliers, track backstop liabilities separately from terminal defaulted debt.
+- If debt is tied to a reward distribution, finalize the debt set before allowing write-offs and prevent sweep until write-off windows are closed.
 - Emit bad-debt events with market id and amount.
 - Include invariants that no borrower has debt without collateral after terminal liquidation.
 
@@ -75,6 +93,7 @@ terminal default condition explicit.
 - Morpho Blue liquidations realize remaining debt only after all collateral is gone, then reduce total borrow and total supply assets, with integration and formal checks around supplier haircut and no-debt-without-collateral invariants.
 - Blend V2 assigns collateral-free user liabilities to the backstop and later defaults backstop liabilities only below a small-threshold condition in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/pool/bad_debt.rs`, with tests for assignment and default.
 - Fraxlend realizes bad debt during liquidation by reducing both `totalBorrow.amount` and `totalAsset.amount` when collateral cannot cover debt in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
+- DoubleZero Solana supports same-distribution Solana validator debt write-offs after debt finalization and records processed debt and write-off bitmaps in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/processor.rs`, with tests in `tests/write_off_solana_validator_debt_test.rs`.
 
 ## Related Patterns
 

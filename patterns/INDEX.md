@@ -176,7 +176,7 @@
 |------|-----------|
 | req-collateral-threshold-separation.md | R1: Liquidation Threshold Exceeds Borrow Threshold, R2: Action Checks Use The Correct Threshold, R3: Freshness Scope Is Documented, R4: Risk Reductions Preserve Exit Windows, R5: Liquidation Bonus Does Not Invert Collateral Safety |
 | req-credit-loss-accounting.md | R1: Loss State Is Explicit, R2: Losses Cannot Exceed Accounted Assets, R3: Normal Issuance Respects Loss State |
-| req-lending-accounting-freshness.md | R1: Accrue Before Value-Changing Actions, R2: Freshness Scope Is Explicit, R3: Stale Actions Fail Closed, R4: Parameter Changes Accrue First |
+| req-lending-accounting-freshness.md | R1: Accrue Before Value-Changing Actions, R2: Freshness Scope Is Explicit, R3: Stale Actions Fail Closed, R4: Parameter Changes Accrue First, R5: Stale Collateral Reports Have Explicit Consequences |
 
 ## liquidity
 
@@ -192,6 +192,7 @@
 | pattern-complementary-outcome-netting.md | Net binary outcome-token orders by minting or merging complete sets when same-side orders cross. | Outcome tokens are complementary claims over the same collateral |
 | pattern-concentrated-liquidity-ranges.md | Represent LP positions as liquidity active only between lower and upper ticks so capital is concentrated around selected prices. | LPs should choose price ranges instead of passively providing across all prices |
 | pattern-conservative-lst-router-value-preservation.md | Route swaps and liquidity changes across LST reserves only after syncing conservative underlying value and proving pool value does not decrease under the configured calculators. | A pool routes between multiple liquid staking tokens |
+| pattern-constant-leverage-solvency-amm.md | Price swaps through a leveraged debt/collateral AMM while checking that the final virtual solvency value stays inside the allowed envelope. | A pool represents a leveraged collateral/debt position instead of a simple token reserve pair |
 | pattern-constant-product-reserve-delta-amm.md | Price swaps by inferring actual token input from reserve deltas, applying fees, and requiring the constant-product invariant to hold. | A two-asset pool should follow `x * y = k`; The pair contract can read token balances and maintain internal reserves |
 | pattern-discrete-price-bin-liquidity-book.md | Represent AMM liquidity as shares in discrete price bins and route swaps through the next non-empty bin. | Liquidity should sit at discrete price levels instead of continuous tick ranges |
 | pattern-fixed-yield-implied-rate-amm.md | Price fixed-maturity yield claims with implied-rate math instead of a constant-product reserve curve. | The traded asset is a principal token, yield token, or fixed-maturity claim |
@@ -326,6 +327,7 @@
 | pattern-nonce-bound-delayed-reward-claim-ledger.md | Separate reward accrual from delayed claim execution by hashing amount, owner, receiver, unlock time, and nonce into a claim id. | Rewards accrue on-chain but should become transferable only after a delay |
 | pattern-queued-reward-streaming.md | Queue reward tokens from permissioned distributors, carry leftovers forward, and stream rewards over a fixed duration. | Rewards arrive in discrete deposits but should accrue smoothly; Only approved distributors should fund reward streams |
 | pattern-range-liquidity-reward-index.md | Accrue rewards only to concentrated-liquidity positions whose tick ranges are active, using tick-level reward-growth snapshots. | Rewards should incentivize active AMM liquidity, not out-of-range inventory; LP positions have lower and upper ticks |
+| pattern-snapshot-gated-integration-reward-distribution.md | Distribute rewards only after integration state, debt state, and processed bitmaps are finalized for the same distribution snapshot. | Rewards depend on off-chain or cross-program accounting snapshots |
 | pattern-threshold-principal-reward-waterfall.md | Split unlabeled withdrawal-recipient inflows into principal and rewards by paying tracked principal up to an absolute threshold before routing residual value to rewards. | A staking or validator withdrawal recipient receives unlabeled principal and reward inflows |
 
 ### Risks
@@ -370,6 +372,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-circulating-supply-exclusion-ledger.md | Track addresses whose balances are intentionally excluded from circulating supply so mint limits, caps, and accounting views use the right denominator. | A token has escrow, treasury, reserve, or protocol-owned balances that should not count as circulating supply |
 | pattern-fixed-maturity-principal-yield-tokenization.md | Split a yield-bearing asset into principal and yield claims for a specific expiry. | Users need to trade fixed-rate principal exposure separately from floating yield |
 | pattern-historical-basket-redemption-nonces.md | Let users redeem against a recorded basket version so basket changes do not make pending redemption quotes ambiguous. | A redeemable token can switch its backing basket over time |
 | pattern-launch-locked-recipient-scoped-transfer-gate.md | Launch a governance or distribution token as non-transferable, then allow controlled transfers through account allowlists and recipient-scoped spend budgets until full transferability is enabled. | A token has an intentional non-transferable launch or distribution phase |
@@ -411,9 +414,11 @@
 | pattern-delta-nav.md | Calculate vault shares based on proportional change in Net Asset Value. | Single-asset vault (one underlying token) |
 | pattern-dynamic-premium.md | Entry/exit fee that varies based on oracle volatility, providing adaptive protection against oracle arbitrage during high-risk periods. | Vault has varying risk levels over time; Fixed premium would be too high during normal conditions |
 | pattern-exchange-rate-preserving-lst-cutover.md | Migrate a liquid-staking token to a successor manager by moving backing assets without minting and asserting exchange-rate continuity. | A liquid-staking system must migrate manager contracts without changing token claims |
+| pattern-height-interval-redemption-queue.md | Match redemption requests against cumulative withdrawal intervals so claims can be resolved by interval height instead of scanning the full queue. | Redemptions are satisfied by discrete withdrawal events or external unstaking intervals |
 | pattern-high-water-mark-fee.md | Charge performance fee only on new profit above the previous peak, paid via share dilution. | Vault generates yield and protocol needs to capture a share of profits |
 | pattern-liability-backed-erc4626-savings-share.md | Use ERC4626 shares to represent protocol liabilities where deposits burn the base asset and withdrawals mint it back from controlled supply. | A stablecoin or credit protocol wants an ERC4626-compatible savings token |
 | pattern-locked-profit-smoothing.md | Exclude newly harvested profit from strategy value for a fixed window, then release it linearly to prevent timing extraction around harvests. | Strategy profit is realized in discrete harvest transactions; Deposits can occur immediately before or after harvest |
+| pattern-operator-finalized-withdrawal-claim.md | Burn or escrow user shares at request time, then let an operator fund specific request ids so users claim fixed entitlements instead of repricing at claim time. | Withdrawals depend on off-chain settlement, external redemption, or operator-provided liquidity |
 | pattern-operator-routed-liquid-staking-share.md | Mint a non-rebasing liquid-staking share while routing deposits to selected validators or operators behind an exchange-rate ledger. | Users need a transferable non-rebasing claim on delegated stake |
 | pattern-oracle-computed-async-settlement.md | Queue mint or burn requests asynchronously, but compute completion economics from stored request data and oracle state instead of operator-supplied output amounts. | Deposits or redemptions require off-chain processing before completion; A completion operator is needed for liveness |
 | pattern-premium-buffer.md | Charge a fee on deposits/withdrawals that covers potential oracle price deviation, eliminating arbitrage profitability. | Vault uses oracle prices for NAV calculation; Need simple, synchronous deposit/withdraw flow |

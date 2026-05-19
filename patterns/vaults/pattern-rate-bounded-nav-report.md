@@ -61,6 +61,14 @@ For LST/LRT accounting reports, the reported value may come from validator count
 
 RWA NAV feeds may need both an economic timestamp and an effective timestamp. Limit pending future-effective checkpoints, bound per-checkpoint NAV deltas, and expire extrapolated prices so Chainlink-style `updatedAt` values do not hide stale economic data.
 
+### Signed Exchange-Rate Upload Variant
+
+For off-chain exchange-rate uploads, the signed payload should bind the chain,
+contract, exchange rate, deadline, and report timestamp. The on-chain upload path
+should reject expired signatures, excessive per-period update counts, and
+exchange-rate moves outside configured bounds before the rate can affect mint,
+redeem, or withdrawal settlement.
+
 ## Key Points
 
 - Block ordinary reports while the current NAV is still valid.
@@ -73,6 +81,7 @@ RWA NAV feeds may need both an economic timestamp and an effective timestamp. Li
 - For staking reports, keep accounting-rate guardrails separate from market-price safety.
 - For shared price calculators, pause conversions or risk-increasing actions when a report violates age, cadence, or movement thresholds.
 - Simulate complex oracle reports before applying them, and separately account burn-cover buckets from ordinary fee or reward accounting.
+- Signed NAV or exchange-rate reports should bind chain id and verifying contract, enforce signature expiry, and cap update frequency as well as value movement.
 
 ## Source Evidence
 
@@ -81,6 +90,7 @@ RWA NAV feeds may need both an economic timestamp and an effective timestamp. Li
 - Superstate USTB separates NAV economic and effective timestamps, bounds per-checkpoint NAV movement, limits pending future-effective reports, and expires extrapolated prices.
 - Lido simulates oracle reports, caps positive rebases, rejects large consensus-layer losses through sanity checks, and tracks cover/non-cover share-burn buckets in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9`.
 - Aera v3 price reports enforce max price age, monotonic timestamps, minimum update interval, maximum update delay, upward/downward tolerance ratios, and automatic pause on threshold violation in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/PriceAndFeeCalculator.sol`.
+- Astherus `Earn.sol` accepts signed exchange-rate uploads in `uploadExchangeRate`, binding expiry and chain-specific message data while enforcing configured update cadence and deviation limits in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
 
 ## Related Patterns
 

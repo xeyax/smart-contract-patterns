@@ -53,6 +53,24 @@ function liquidationAllowed(Position memory p, AssetState memory asset) internal
 
 The bad-debt branch should be narrow: it should cover accounts whose debt value exceeds collateral value, not merely accounts below the normal liquidation threshold.
 
+### Self-Cure Window Variant
+
+Instead of an asset incident grace period, a lending pool can open a liquidation
+state with a fixed grace period in which the borrower can repay enough debt to
+return above the liquidation threshold or reduce debt to dust. After the window,
+a backstop or stability pool can finalize the liquidation:
+
+```solidity
+function closeLiquidation() external {
+    require(liquidations[msg.sender].active, "not active");
+    require(_isHealthy(msg.sender) || _debtIsDust(msg.sender), "still unsafe");
+    delete liquidations[msg.sender];
+}
+```
+
+The self-cure path should remain risk reducing and must not let the borrower
+withdraw collateral while the position is still unsafe.
+
 ## Implementation
 
 ```solidity
@@ -74,15 +92,19 @@ function liquidate(address borrower, address collateral, uint256 repayAmount) ex
 - Keep grace-period parameters asset-specific when incidents are asset-specific.
 - Let risk-reducing repay paths remain open during the grace period.
 - Monitor grace-period activation and expiry as critical risk events.
+- If borrowers can self-cure, define dust thresholds and require the post-cure position to be healthy or economically closed.
+- Stability-pool or backstop finalization should run only after grace expiry and should account for any borrower repayments during the window.
 
 ## Source Evidence
 
 - Zest Protocol liquidation checks a collateral grace period but bypasses the delay when total borrow value exceeds total collateral value in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/liquidation-manager.clar`.
 - Zest tests cover grace-period liquidation behavior and bad-debt liquidation escape cases in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/tests/borrow/liquidation-2.test.ts`.
+- RAAC `LendingPool.sol` initiates liquidation, allows borrower self-cure through `closeLiquidation`, and restricts finalization to the stability pool after the grace period in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/pools/LendingPool/LendingPool.sol`.
 
 ## Real-World Examples
 
 - Zest Protocol - Clarity lending liquidations include an asset-specific grace-period check with an explicit bad-debt bypass.
+- RAAC - RWA lending liquidation state includes a borrower self-cure window and stability-pool finalization.
 
 ## Related Patterns
 

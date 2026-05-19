@@ -71,6 +71,24 @@ function totalAssets() public view returns (uint256) {
 
 This has the same fairness goal as strategy locked profit: new depositors should not capture rewards that were earned by earlier holders. The vault must still expose enough information for integrators to understand that `totalAssets()` intentionally lags raw token balance during the vesting window.
 
+### Donation-Smearing Savings Variant
+
+Savings vaults can treat unsolicited donations or reward deposits as interest
+left to stream over time. `totalAssets()` includes only the already accrued part
+and leaves the remainder in a smoothing bucket:
+
+```solidity
+function gulp() external {
+    interestLeft += asset.balanceOf(address(this)) - accountedAssets();
+    lastInterestUpdate = block.timestamp;
+}
+```
+
+This is useful when users can donate directly to the vault and the protocol wants
+to avoid a one-block share-price jump. It must be paired with explicit accounting
+for the unsmoothed remainder so withdrawals cannot spend more than realized
+assets.
+
 ### Fixed-Maturity Value Smoothing Variant
 
 For principal tokens or fixed-maturity positions, NAV can otherwise jump as the position approaches deterministic maturity value. Instead of waiting for a maturity cliff, value the position at a conservative discounted maturity amount and release the remaining yield linearly until maturity:
@@ -107,6 +125,7 @@ move price per share immediately.
 - For fixed-maturity positions, use conservative maturity assumptions and update smoothing state whenever principal balance changes.
 - For locked-share variants, model fee and loss offsets explicitly and test weighted-average unlock rollover.
 - Treat zero-duration unlock settings as a value-affecting governance parameter.
+- For donation-smearing savings vaults, test repeated donations, partial accrual, withdrawal during the smoothing window, and max interest-left saturation.
 
 ## Source Evidence
 
@@ -117,6 +136,7 @@ move price per share immediately.
 - Yearn V3 mints vault-owned locked shares on profit or refund reports, offsets fees and losses against locked shares, uses weighted-average unlock rollover, and allows the profit unlock manager to set unlock time to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/contracts/VaultV3.vy`.
 - Yearn V3 tests profit staying out of PPS until unlock and immediate unlock when max unlock time is set to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/tests/unit/vault/test_profit_unlocking.py`.
 - Avant `StakedAvUSD` excludes unvested rewards from `totalAssets()` and vests them over an 8-hour window, with tests around share pricing and delayed reward vesting in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/StakedAvUSD.sol`.
+- Euler Savings Rate smears direct asset donations through `gulf` and `interestLeft`, with tests for repeated donations, partial accrual, and zero remaining interest in `/private/tmp/defillama-source/euler-xyz__euler-vault-kit/src/Synths/EulerSavingsRate.sol` and `test/unit/esr/ESR.Gulp.t.sol`.
 
 ## Related Patterns
 

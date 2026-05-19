@@ -55,6 +55,17 @@ accrualBlock == block.number
 - Joining or configuring a market fails closed if required accumulators are stale.
 - Tests cover parameter changes before and after accrual.
 
+## R5: Stale Collateral Reports Have Explicit Consequences
+
+**If collateral reporting is required to prove solvency, missed or stale updates must either fail closed for risk-increasing actions or apply a documented penalty/default rule.**
+
+### What This Means
+
+- Collateral update timestamps are monotonic and signer-specific where validator signatures are used.
+- Missed update intervals produce an explicit consequence such as freezing, penalty accrual, zero collateral, or action blocking.
+- Penalties accrue from the same indexed debt base as ordinary interest, so stale reporting cannot understate liabilities.
+- Tests cover the transition from fresh, to missed interval, to stale/default state.
+
 ## Verification Checklist
 
 | Requirement | Question |
@@ -63,6 +74,7 @@ accrualBlock == block.number
 | R2 | Are stored snapshot reads clearly documented? |
 | R3 | Can stale accrual be bypassed through a secondary entry point? |
 | R4 | Do rate/index parameter changes force current accrual first? |
+| R5 | Do stale collateral reports fail closed or apply explicit penalties/default rules? |
 
 ## Source Evidence
 
@@ -73,6 +85,7 @@ accrualBlock == block.number
 - Sky/Maker DSS rate accumulator modules require current accumulators before changing duty or savings rates and test stale-parameter-change failures.
 - Compound V2 requires market interest accrual to be current before borrow, repay, redeem, and liquidation state transitions, with debt represented as principal plus borrower interest index in `CToken.sol`.
 - Aave V2 calls reserve `updateState` before deposit, withdraw, borrow, repay, and flash-loan debt conversion paths, with reserve indexes updated from timestamped state in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPool.sol` and `ReserveLogic.sol`.
+- M0's minter gateway validates sorted validator signatures and monotonic signer timestamps for collateral updates, then applies missed-update and undercollateralization penalties through indexed active owed M in `/private/tmp/defillama-source/m0-foundation__protocol/src/MinterGateway.sol` and integration tests under `test/integration/minter-gateway/update-collateral`.
 
 ## Related Patterns
 

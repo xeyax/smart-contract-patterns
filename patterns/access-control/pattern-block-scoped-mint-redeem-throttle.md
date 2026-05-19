@@ -61,6 +61,30 @@ function _consumeRedeemLimit(uint256 amount) internal {
 
 Administrative setters can raise or lower the caps. A separate emergency role can often only lower them or set them to zero.
 
+### Delayed Mint With Validator Veto Variant
+
+When minting depends on collateral reports, a minter can create a proposal that
+is executable only after a delay. Approved validators can cancel the proposal or
+freeze the minter during the delay:
+
+```solidity
+function proposeMint(uint256 amount, address destination) external returns (uint48 id) {
+    id = ++latestMintId;
+    mintProposal[id] = Proposal(msg.sender, amount, destination, block.timestamp + mintDelay);
+}
+
+function mint(uint48 id) external {
+    Proposal memory p = mintProposal[id];
+    require(block.timestamp >= p.executableAt, "delay");
+    require(!_frozen[p.minter], "frozen");
+    _mint(p.destination, p.amount);
+}
+```
+
+This is a stronger control than a same-block cap for reserve-backed issuers. It
+adds liveness and governance dependencies but gives validators a window to react
+to bad collateral or compromised minters.
+
 ## Implementation
 
 ```solidity
@@ -84,15 +108,18 @@ function redeem(RedeemOrder calldata order, bytes calldata sig) external onlyRed
 - Emit old and new cap values on cap changes.
 - Test multiple calls in the same block and the first call in the next block.
 - Pair with reserve, custody, or solvency accounting; a block cap is not proof of backing.
+- If using delayed mint proposals, allow only approved validators to cancel or freeze and test the proposal delay, one-active-proposal rule, and frozen-minter rejection.
 
 ## Source Evidence
 
 - Avant `AvUSDMintingV2` tracks `mintedPerBlock` and `redeemedPerBlock`, enforces `belowMaxMintPerBlock` and `belowMaxRedeemPerBlock`, and lets a gatekeeper disable mint/redeem by setting both caps to zero in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
 - Avant Foundry tests cover same-block mint and redeem limit exhaustion in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/test/foundry/minting/tests/AvUSDMinting.blockLimits.t.sol`.
+- M0 `MinterGateway` creates delayed mint proposals, lets approved validators cancel mint proposals or freeze minters, and tests validator-signature and freeze behavior in `/private/tmp/defillama-source/m0-foundation__protocol/src/MinterGateway.sol` and `test/MinterGateway.t.sol`.
 
 ## Real-World Examples
 
 - Avant avUSD - global per-block mint and redeem caps around signed mint/redeem orders.
+- M0 - reserve-backed minting with delayed mint proposals and validator veto/freeze controls.
 
 ## Related Patterns
 

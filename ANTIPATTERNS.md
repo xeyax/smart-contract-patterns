@@ -86,6 +86,24 @@ Using instantaneously manipulable price (DEX spot, single-block read) for value-
 **Risk:** Flash loan → manipulate price → exploit → repay in same tx.
 **Fix:** TWAP, multi-block averaging, or oracle with manipulation resistance.
 
+### Synthetic Freshness Timestamp
+Oracle wrapper returns `updatedAt = block.timestamp` or another call-time value while the economic source was last updated earlier.
+**Symptoms:** Chainlink-compatible shim passes generic staleness checks even though the underlying NAV, TWAP, bridged rate, or checkpoint has separate freshness.
+**Risk:** Integrations treat stale economic data as fresh and allow deposits, withdrawals, borrowing, or redemptions at an obsolete value.
+**Fix:** Propagate the oldest underlying source timestamp, expose economic and relay timestamps separately, and require consumers to check source age and deviation.
+
+### Global Timestamp For Per-Asset Prices
+Oracle stores many asset prices but exposes one shared timestamp or updates a global timestamp on every per-asset write.
+**Symptoms:** `getLatestPrice(asset)` returns a price and a timestamp that is not guaranteed to be the update time of that asset.
+**Risk:** One fresh asset update can make unrelated stale prices appear fresh, or one stale asset can unnecessarily block unrelated markets.
+**Fix:** Store and return timestamps per asset or per price key, and test that updating asset A does not change freshness for asset B.
+
+### Async Oracle Context Overwrite
+Asynchronous oracle request code stores the pending request id or request subject in a single global slot.
+**Symptoms:** `lastRequestId`, `lastAssetId`, or `lastHouseId` is overwritten by a second request before the first callback is fulfilled.
+**Risk:** A valid callback can update the wrong asset, price, or account, especially when fulfillment order differs from request order.
+**Fix:** Map request id to immutable context, clear it on fulfillment, reject unknown or already fulfilled requests, and test out-of-order callbacks.
+
 ## Economic
 
 ### Unbounded Iteration
