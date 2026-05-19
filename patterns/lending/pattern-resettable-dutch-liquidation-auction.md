@@ -46,6 +46,22 @@ function redo(uint256 id) external {
 
 Buyers submit a maximum acceptable price or cost bound when taking collateral.
 
+### Two-Sided Block-Scaled Fill Variant
+
+A liquidation auction can scale the lot side and bid side separately over block
+age. For example, the lot amount grows during the first window to attract fills,
+then the bid side decreases later as the auction ages:
+
+```rust
+let elapsed = current_block - auction.start_block;
+let lot = scale_lot_up(initial_lot, elapsed.min(LOT_RAMP_BLOCKS));
+let bid = scale_bid_down(initial_bid, elapsed.saturating_sub(LOT_RAMP_BLOCKS));
+```
+
+Partial fills need explicit rounding direction. Round bids up so the buyer pays
+at least the required amount, and round lots down so the auction does not release
+more collateral than the fill earned.
+
 ## Key Points
 
 - Buffer the start price above oracle value to avoid immediate underpricing.
@@ -56,11 +72,13 @@ Buyers submit a maximum acceptable price or cost bound when taking collateral.
 - Throttle active liquidation debt globally and per collateral.
 - Size partial liquidations so they do not leave uneconomic leftover debt or collateral.
 - Expose breaker levels that can separately stop new auctions, auction resets, and auction takes.
+- For two-sided scaling, test each block-age phase, partial fills, and one-unit dust boundaries with the intended rounding directions.
 
 ## Source Evidence
 
 - Sky/Maker DSS `Clipper` auctions use feed-buffered start prices, descending price curves, buyer max-price bounds, stale-auction reset by time or price decline, keeper incentives, and breaker levels.
 - Lista CDP liquidation code throttles active liquidation debt globally and per collateral, sizes auctions around dust constraints, and exposes staged breakers for kicks, resets, and takes.
+- Blend V2 auction fill scales lots upward and bids downward by block age in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/auctions/auction.rs`, with tests for block-age phases, partial fills, rounding direction, and dust.
 
 ## Related Patterns
 

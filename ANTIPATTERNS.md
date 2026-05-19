@@ -250,7 +250,7 @@ Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if t
 Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
 **Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
 **Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
-**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, and replay boundary.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations.
 
 ## Governance
 

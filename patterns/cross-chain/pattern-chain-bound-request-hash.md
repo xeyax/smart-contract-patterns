@@ -76,6 +76,7 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Include both source and destination chain ids.
 - Include the operation type; a burn request must not replay as a mint request.
 - Include all value-bearing fields, including fee, token, sender, receiver, and payload.
+- During collateral or output-asset migrations, include the intended output asset or token semantics so a valid old message cannot claim the wrong asset after cutover.
 - Store confirmations by request hash, not by nonce alone.
 - Consume approvals or validation records before minting, unlocking, or calling external recipients.
 - Validate the destination chain before irreversible actions such as burning.
@@ -121,6 +122,7 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 - Noble's CCTP metadata wrapper pairs an EVM-side metadata message with a canonical CCTP burn nonce, showing why sidecar route data should reference the value-transfer identity rather than replace it.
 - Lombard's bascule flow reports mint request ids, validates each id once, consumes bypassed small-transfer ids, and separates risk-increasing threshold changes from risk-reducing decreases.
 - Axelar binds command id, source chain, source address, destination contract, payload hash, token symbol, and amount in gateway approval keys in `/private/tmp/defillama-source/axelarnetwork__axelar-cgp-solidity/contracts/AxelarGateway.sol`, then consumes approvals in `validateContractCall` and `validateContractCallAndMint` before execution.
+- Gnosis xDAI bridge migration notes and message libraries show why bridge messages must bind intended token/output semantics during DAI-to-USDS collateral migration in `/private/tmp/defillama-source/gnosischain__tokenbridge-contracts-xdaibridge/USDSMigration.md` and `contracts/libraries/Message.sol`.
 
 ## Related Patterns
 

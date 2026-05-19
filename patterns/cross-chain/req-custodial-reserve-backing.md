@@ -65,6 +65,20 @@ custody_balance >= wrapped_token_total_supply
 - Missing feed configuration is documented as operational backing, not enforced on-chain backing.
 - Failing reserve checks block minting but do not silently bless undercollateralized supply.
 
+## R6: Signing Policy Respects Reserve Limits
+
+**When reserve enforcement happens in a signer or custodian layer, signers must reject mint or withdrawal requests that exceed configured reserve, cap, or fee constraints before producing approvals.**
+
+### What This Means
+
+- Signer-side caps are documented as off-chain or committee-enforced controls.
+- Tests cover over-cap minting, withdrawal fee bounds, and insufficient reserve cases.
+- Users can distinguish on-chain proof of backing from signer-side policy checks.
+
+## Source Evidence
+
+- Stacks sBTC signer validation checks mint and withdrawal limits before signing in `/private/tmp/defillama-source/stacks-network__sbtc/signer/src/bitcoin/validation.rs`, with limit tests in the same tree.
+
 ## Related Patterns
 
 - [Custodian-Attested Mint/Burn](./pattern-custodian-attested-mint-burn.md)

@@ -51,6 +51,7 @@ When the current price crosses a tick, the pool flips that tick's outside growth
 ## Source Evidence
 
 - Uniswap V3 and PancakeSwap V3 store position fee-growth snapshots, update tick outside growth on crossing, and test fee splits across overlapping LP ranges.
+- Orca Whirlpools stores tick fee and reward growth outside in `/private/tmp/defillama-source/orca-so__whirlpools/programs/whirlpool/src/state/tick.rs`, flips outside growth in `manager/tick_manager.rs`, and updates ticks, global liquidity, and fee/reward growth in `manager/liquidity_manager.rs`.
 
 ## Related Patterns
 

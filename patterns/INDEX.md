@@ -80,7 +80,7 @@
 | File | Applies To |
 |------|-----------|
 | req-bridge-exit-liveness.md | R1: Pauses Preserve Safe Exit Paths, R2: Failed Destination Settlement Has A Refund Path, R3: Migration Accounts For In-Flight Messages, R4: Admin Overrides Are Explicitly Trusted, R5: Emergency Exit Pauses Are Scoped And Expiring |
-| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed |
+| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits |
 | req-proof-bridge-exit-safety.md | R1: Source Proof Is Finalized, R2: Exit Nullifier Is Unique And Normalized, R3: Emitter And Event Are Authenticated, R4: Custody Is Sufficient Before Release, R5: Migration Cutovers Preserve Pending Exits, R6: Challenge Or Relay Finality Is Explicit |
 
 ## governance
@@ -159,6 +159,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-activation-scoped-launch-fee-scheduler.md | Taper AMM fees after pool activation using time, price-progress, or rate-limited launch schedules. | A new pool needs higher initial fees during launch or price discovery |
 | pattern-address-encoded-hook-permissions.md | Encode a hook contract's lifecycle permissions into its address bits and validate that returned selectors match the invoked hook. | Hook capabilities must be known before pool initialization |
 | pattern-amplified-stable-invariant.md | Use an amplification parameter to make swaps near a peg behave like a high-liquidity constant-sum market while preserving constant-product style safety away from the peg. | Assets should trade close to a shared value, peg, or redemption ratio |
 | pattern-bounded-cranked-orderbook-maintenance.md | Maintain external AMM maker orders through resumable cranks with per-call limits, stored cursors, and cancel/settle fallbacks. | An AMM maintains many external maker orders |
@@ -261,7 +262,10 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-bounded-orderbook-liquidation-deleveraging.md | Cap per-block orderbook liquidation attempts and fall back to deterministic deleveraging when fills cannot safely absorb risk. | Perpetual positions are liquidated through an orderbook or matching engine |
 | pattern-capped-pnl-impact-pool-risk-accounting.md | Compute perps pool value with capped trader PnL, pending fees, and separate price-impact pools before allowing actions that can extract liquidity. | A perpetuals market uses shared long and short liquidity pools |
+| pattern-open-interest-scaled-margin-requirement.md | Increase initial margin as market open interest approaches configured caps, reaching full collateralization at the upper bound. | A perpetual market wants soft exposure control rather than a hard open-interest stop |
+| pattern-proposer-validated-memclob-settlement.md | Settle an appchain orderbook by having the block proposer inject deterministic CLOB operations that consensus validates before state writes. | A dedicated appchain runs an in-memory central limit orderbook |
 
 ### Requirements
 

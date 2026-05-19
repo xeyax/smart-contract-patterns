@@ -83,6 +83,19 @@ function assets() public view returns (uint256) {
 
 Recompute the accrual rate whenever the principal-token balance changes. This is not generic continuous-yield smoothing; it is for known maturity payoff curves with explicit early-exit and loss behavior.
 
+### Locked-Share Fee/Loss Offset Variant
+
+Instead of subtracting locked profit from raw assets, a vault can mint shares to
+itself when profits or refunds are reported. Those vault-owned shares unlock over
+time, gradually increasing price per share for other holders. Losses and fees can
+burn or offset locked shares before affecting free supply.
+
+When a new report arrives before the old lock fully expires, compute a weighted
+average unlock period for the remaining locked shares and the new locked shares.
+If governance sets the unlock period to zero, all remaining locked shares become
+immediately unlocked; document that this intentionally disables smoothing and can
+move price per share immediately.
+
 ## Key Points
 
 - Lock only profit, not principal.
@@ -92,6 +105,8 @@ Recompute the accrual rate whenever the principal-token balance changes. This is
 - Use with actual-received deposit accounting; it does not fix fee-on-transfer tokens.
 - For ERC4626 reward vesting, make sure preview functions use the same vested-asset view as deposits and redemptions.
 - For fixed-maturity positions, use conservative maturity assumptions and update smoothing state whenever principal balance changes.
+- For locked-share variants, model fee and loss offsets explicitly and test weighted-average unlock rollover.
+- Treat zero-duration unlock settings as a value-affecting governance parameter.
 
 ## Source Evidence
 
@@ -99,6 +114,8 @@ Recompute the accrual rate whenever the principal-token balance changes. This is
 - Beefy tests verify a later depositor cannot capture freshly harvested profit and that locked profit unlocks after the duration.
 - Ethena-style ERC4626 reward vaults exclude unvested rewards from `totalAssets()` and release them over time so incoming users do not receive already-earned rewards.
 - infiniFi's Pendle farm values principal tokens at discounted maturity value, subtracts remaining yield, and releases that yield over time to avoid a deterministic maturity NAV cliff.
+- Yearn V3 mints vault-owned locked shares on profit or refund reports, offsets fees and losses against locked shares, uses weighted-average unlock rollover, and allows the profit unlock manager to set unlock time to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/contracts/VaultV3.vy`.
+- Yearn V3 tests profit staying out of PPS until unlock and immediate unlock when max unlock time is set to zero in `/private/tmp/defillama-source/yearn__yearn-vaults-v3/tests/unit/vault/test_profit_unlocking.py`.
 
 ## Related Patterns
 

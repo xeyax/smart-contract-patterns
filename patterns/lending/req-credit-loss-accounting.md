@@ -18,6 +18,7 @@
 
 - Impaired principal and accrued interest are included in loss calculations.
 - Bad debt is written into market totals, reserves, or an explicit loss bucket.
+- If bad debt is assigned to a backstop before final default, backstop liabilities are tracked separately from borrower debt and terminal loss.
 - Position status changes affect accounting, not only UI labels.
 
 ## R2: Losses Cannot Exceed Accounted Assets
@@ -52,6 +53,7 @@
 
 - Maple tracks impaired principal and interest as unrealized losses, bounds losses against assets under management, and tests refinance/remediation cases that must avoid negative losses.
 - Morpho Blue realizes uncovered liquidation debt by reducing market totals so supplier loss is reflected immediately.
+- Blend V2 demonstrates a backstop-assigned intermediate bad-debt state before thresholded terminal default.
 
 ## Related Patterns
 

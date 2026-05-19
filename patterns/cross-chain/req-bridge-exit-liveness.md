@@ -43,6 +43,8 @@
 - Operators define a final accepted source boundary.
 - Pending messages are completed, refunded, or made claimable elsewhere.
 - Custody or mint authority moves only after the old bridge's obligations are bounded.
+- Migration playbooks account for routers, legacy message formats, pending batched messages, liquidity buffers, and direct-route failure modes.
+- Cutovers should pause new sends, drain in-flight batches, clear route credits, update roles, and revalidate accounting invariants before reconnecting.
 
 ## R4: Admin Overrides Are Explicitly Trusted
 
@@ -75,6 +77,8 @@
 - Noble's CCTP metadata wrapper shows a split value-transfer and routing-metadata flow where liveness depends on pairing the sidecar metadata with the canonical value message.
 - StarkGate shows delayed, depositor-only reclaim for exact bridge message envelopes, with the caveat that the remote message can still be consumed before reclaim and fees may remain spent.
 - Linea message service tests show directional pause behavior where sends and claims can be paused independently in `/private/tmp/defillama-source/Consensys__linea-monorepo/contracts/test/hardhat/messaging/l1/L1MessageService.ts`.
+- Gnosis xDAI bridge USDS migration docs and tests cover router compatibility, legacy message handling, direct-route failure cases, and liquidity buffers for claims in `/private/tmp/defillama-source/gnosischain__tokenbridge-contracts-xdaibridge/USDSMigration.md` and bridge tests.
+- Stargate V2 migration tests pause new sends, drain buses, clear credits, revoke mint authority, burn locked supply or credit, reconnect pools, and revalidate invariants in `/private/tmp/defillama-source/stargate-protocol__stargate-v2/packages/stg-evm-v2/test/stargatePoolMigratable/OFTPoolToPoolMigrationTest.t.sol`.
 
 ## Related Patterns
 

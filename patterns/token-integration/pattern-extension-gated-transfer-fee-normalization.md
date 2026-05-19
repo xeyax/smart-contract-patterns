@@ -43,13 +43,17 @@ At onboarding, reject unsupported extensions or require an admin badge/allowlist
 - This is a narrow exception to generic fee-on-transfer rejection.
 - Read canonical token-program extension state; do not infer fees from off-chain metadata.
 - Reject unsupported extensions such as unsafe hooks, confidential behavior, or mutable fee models.
+- Badge or allowlist exceptional token extensions explicitly, and reject native mints or freeze authorities when they violate the pool's policy.
 - Verify inverse fee math and rounding direction.
-- Apply user slippage limits to normalized amounts.
+- Apply user slippage limits to normalized amounts, including partial-fill swaps where only the used input should be converted back to fee-included amount.
 - Keep post-transfer balance reconciliation for integrations where external balance changes are possible.
 
 ## Source Evidence
 
 - Loopscale's cloned DAMM v2 source reads Token-2022 transfer-fee extension state, normalizes swap and liquidity amounts around included/excluded fees, rejects unsupported extensions, and tests fee-aware swap/liquidity paths.
+- Orca Whirlpools rejects unsupported Token-2022 extensions, native mints, and freeze authorities unless badge policy allows them in `/private/tmp/defillama-source/orca-so__whirlpools/programs/whirlpool/src/util/v2/token.rs`, and stores badge policy in `state/token_badge.rs`.
+- Orca Whirlpools normalizes transfer-fee excluded and included amounts in `util/v2/token.rs`.
+- Meteora DAMM v2 normalizes transfer-fee amounts for exact-in, partial-fill, and exact-out swaps in `/private/tmp/defillama-source/MeteoraAg__damm-v2/programs/cp-amm/src/instructions/swap`.
 
 ## Related Patterns
 

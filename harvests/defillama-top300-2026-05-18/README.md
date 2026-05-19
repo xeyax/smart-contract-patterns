@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repositories inspected so far: 123 repositories across 13 batches.
+- Source repositories inspected so far: 134 repositories across 14 batches.
 
 ## First Batch Repositories
 
@@ -189,6 +189,22 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | fx Protocol | `AladdinDAO/fx-protocol-contracts` | Dual-Token Stablecoin |
 | QuickSwap Periphery | `QuickSwap/quickswap-periphery` | DEX |
 
+## Fourteenth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Orca DEX | `orca-so/whirlpools` | DEX |
+| Meteora AMM | `MeteoraAg/damm-v2` | DEX |
+| Drift Protocol | `drift-labs/protocol-v2` | Derivatives |
+| dYdX V4 | `dydxprotocol/v4-chain` | Derivatives |
+| Stacks sBTC | `stacks-network/sbtc` | Bridge |
+| xDAI Stake Bridge | `gnosischain/tokenbridge-contracts` (`xdaibridge`) | Canonical Bridge |
+| Stargate V2 | `stargate-protocol/stargate-v2` | Cross Chain Bridge |
+| fx Protocol | `AladdinDAO/fx-protocol-contracts` | Dual-Token Stablecoin |
+| QuickSwap Periphery | `QuickSwap/quickswap-periphery` | DEX |
+| Yearn V3 | `yearn/yearn-vaults-v3` | Yield Aggregator |
+| Blend Pools V2 | `blend-capital/blend-contracts-v2` | Lending |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -205,6 +221,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-11-findings.md` — accepted and deferred catalog updates from the first expanded source-discovery batch.
 - `batch-12-findings.md` — accepted and deferred catalog updates from the second expanded source-discovery batch.
 - `batch-13-findings.md` — accepted and deferred catalog updates from the third expanded source-discovery batch.
+- `batch-14-findings.md` — accepted and deferred catalog updates from the fourth expanded source-discovery batch.
 
 ## Notes
 

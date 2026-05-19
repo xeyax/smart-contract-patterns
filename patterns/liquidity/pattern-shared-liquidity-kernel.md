@@ -64,6 +64,7 @@ This remains a controlled shared-liquidity exception only if the callback is res
 
 - Keep the core's writer set small and protocol-scoped.
 - Enforce per-protocol borrow and withdrawal limits inside the core.
+- For cross-chain shared pools, scope credits by path or peer so one route cannot consume another route's liquidity.
 - Use callback or balance-delta settlement when adapters source tokens externally.
 - Provide official resolvers so users do not depend on raw packed storage.
 - Frame this as a controlled exception to generic shared mutable state warnings.
@@ -76,6 +77,7 @@ This remains a controlled shared-liquidity exception only if the callback is res
 - Fluid uses a shared liquidity layer for custody and accounting, while fTokens, vaults, and DEX modules route user actions through protocol-scoped liquidity operations.
 - Dolomite's Harvest strategy integration composes leveraged farming actions through a shared margin core with callback restrictions and receipt-token checks; the reusable lesson is the authenticated callback boundary, not the specific farming route.
 - Lista PSM reserve accounting excludes accrued fees from spendable stablecoin inventory, enforces daily buy limits, and routes reserves through a constrained vault manager.
+- Stargate V2 maintains path-scoped credits in `/private/tmp/defillama-source/stargate-protocol__stargate-v2/packages/stg-evm-v2/src/libs/Path.sol` and ties pool balances to credits and pending bus amounts through `StargateBase.sol` and invariant tests in `StargateInvariantTest.t.sol`.
 
 ## Related Patterns
 

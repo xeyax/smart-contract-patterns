@@ -43,6 +43,7 @@
 ## Source Evidence
 
 - Uniswap V3 and PancakeSwap V3 derive active liquidity from initialized tick ranges, update liquidity on tick crossing, and use Echidna/property tests for liquidity-net and active-liquidity invariants.
+- Orca Whirlpools bounds swap steps to the next initialized tick or price limit in `/private/tmp/defillama-source/orca-so__whirlpools/programs/whirlpool/src/manager/swap_manager.rs`, while tick crossing and liquidity updates maintain range accounting in `tick_manager.rs` and `liquidity_manager.rs`.
 
 ## Related Patterns
 
