@@ -47,10 +47,13 @@ This is one verifier path backed by external economic security. It is not the sa
 - Treat already-verified races as safe only when the downstream receive library is idempotent.
 - Monitor the full `sent -> proof -> verify -> commit/execution` path.
 - Document whether this adapter is production-proven, simulation-grade, or experimental.
+- If the external signer set is hash-committed, verify the supplied signer and power arrays against that commitment before checking quorum.
+- Keep emergency signer resets separate from ordinary quorum verification and document them as trusted recovery paths.
 
 ## Source Evidence
 
 - GAIB's Symbiotic Super Sum simulation integrates a Symbiotic-backed LayerZero DVN that verifies an epoch-bound quorum proof before calling the LayerZero receive verification library. The repository labels the setup as high-fidelity but not production-ready.
+- Celer SGN bridge verifies signer and power arrays against a committed signer-set hash, requires more than two-thirds signed power, and provides a delayed owner emergency reset path in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/liquidity-bridge/Signers.sol`.
 
 ## Related Patterns
 

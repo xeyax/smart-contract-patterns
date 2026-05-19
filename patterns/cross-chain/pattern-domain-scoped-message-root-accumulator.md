@@ -73,6 +73,8 @@ function claim(Message calldata message, Proof calldata proof) external {
 - Normalize equivalent proof paths into one nullifier.
 - Set nullifiers before external callbacks or token transfers.
 - Test duplicate claims through alternate proof paths, stale roots, wrong domains, and callback reentrancy.
+- When a packet root combines route-specific message ids, bind the source chain, sibling sender, destination chain, local receiver, and execution params before proving inclusion.
+- For optimistic aggregate roots, document who can propose, who can dispute, and whether switching modes discards queued roots.
 
 ## Source Evidence
 
@@ -81,6 +83,8 @@ function claim(Message calldata message, Proof calldata proof) external {
 - Agglayer combines domain exit roots in `/private/tmp/defillama-source/agglayer__agglayer-contracts/contracts/AgglayerGER.sol` using `contracts/lib/GlobalExitRootLib.sol`.
 - Agglayer bridge claims set nullifiers before callbacks in `AgglayerBridge.sol`, with reentrancy tests in `BridgeV2ClaimMessageReentrancy.test.ts`.
 - Polygon zkEVM/Agglayer contracts update mainnet and rollup exit roots, compute global exit roots, and prove claims against root histories in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerGER.sol` and `contracts/AgglayerBridge.sol`.
+- Connext aggregates spoke-domain message roots into proposed aggregate roots, uses optimistic/watcher-controlled modes, and proves two-level message inclusion in `/private/tmp/defillama-source/connext__monorepo/packages/deployments/contracts/contracts/messaging/RootManager.sol`, `SpokeConnector.sol`, and `MerkleTreeManager.sol`.
+- Socket packs messages into capacitor packet roots, records packet roots by switchboard proposal count, and verifies inclusion before plug execution in `/private/tmp/defillama-source/SocketDotTech__socket-DL/contracts/socket/SocketSrc.sol`, `SocketDst.sol`, and `contracts/capacitors`.
 
 ## Real-World Examples
 
@@ -91,6 +95,7 @@ function claim(Message calldata message, Proof calldata proof) external {
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
 - [Bounded Merkle Root History](../zero-knowledge/pattern-bounded-merkle-root-history.md)
 - [Retryable Cross-Domain Message Ledger](./pattern-retryable-cross-domain-message-ledger.md)
+- [Dispute-Windowed Operator Batch Bridge](./pattern-dispute-windowed-operator-batch-bridge.md)
 
 ## References
 

@@ -68,12 +68,16 @@ function process(bytes calldata metadata, bytes calldata message) external {
 - Define fallback behavior when a recipient has no verifier.
 - Treat verifier changes as critical governance or recipient-admin actions.
 - Test wrong version, wrong destination, duplicate delivery, wrong verifier metadata, and recipient reverts.
+- For plug or route-based recipients, bind the local recipient, remote sibling, inbound verifier, packet root, and executor policy in one route config.
+- If the recipient chooses a threshold verifier policy, document whether the mailbox still owns replay protection or whether the recipient verifier must store its own consumed-message state.
 
 ## Source Evidence
 
 - Hyperlane implements recipient-scoped verification in `/private/tmp/defillama-source/hyperlane-xyz__hyperlane-monorepo/solidity/contracts/Mailbox.sol` through `process` and `recipientIsm`.
 - Hyperlane message encoding lives in `solidity/contracts/libs/Message.sol`.
 - Hyperlane mailbox tests live in `solidity/test/Mailbox.t.sol`.
+- Socket plug configuration binds local plug, sibling plug, inbound switchboard, outbound switchboard, capacitor, and decapacitor before packet-root execution in `/private/tmp/defillama-source/SocketDotTech__socket-DL/contracts/socket/SocketConfig.sol` and `SocketDst.sol`.
+- Nomad routers enroll remote routers and reject messages from unenrolled remote senders before bridge-router handling in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-router/contracts/Router.sol` and `packages/contracts-bridge/contracts/BridgeRouter.sol`.
 
 ## Real-World Examples
 
@@ -82,6 +86,7 @@ function process(bytes calldata metadata, bytes calldata message) external {
 ## Related Patterns
 
 - [Multi-Adapter Message Quorum](./pattern-multi-adapter-message-quorum.md)
+- [Route-Scoped DVN Quorum](./pattern-route-scoped-dvn-quorum.md)
 - [Canonical Bridge Counterpart Validation](./pattern-canonical-bridge-counterpart-validation.md)
 - [Bridge Endpoint Authentication Mismatch](../../ANTIPATTERNS.md#bridge-endpoint-authentication-mismatch)
 

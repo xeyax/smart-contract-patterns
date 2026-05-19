@@ -101,6 +101,8 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - For call forwarders, scope by user, target, and selector; do not rely on selector blacklists.
 - For bridge peer registration, delegated operators may initialize an unset route, but replacing an existing peer should be owner-only or timelocked because it redirects future message authentication.
 - Operator routers that execute AVS or node-management calls should bind the operator, target, and selector; a privileged manager bypass remains a trusted path and should be documented separately.
+- Swap or bridge executors should scope approval-only spenders separately from callable targets when `approveTo` differs from `callTo`.
+- If a cross-chain governance router executes arbitrary target calldata after message authentication, the batch hash protects substitution but does not provide selector-scoped authority.
 
 ## Source Evidence
 
@@ -111,6 +113,8 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - Sophon's custom USDC bridge lets owner or admin initialize an unset chain bridge address, but reserves replacement of an existing chain bridge address to the owner in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 - Aera v3 verifies guardian operations against Merkle leaves that bind target, selector, value flag, callback data, hook configuration, and extracted calldata in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/BaseVault.sol`.
 - EtherFi AVS operator management routes calls by operator, target, and selector in `/private/tmp/defillama-source/etherfi-protocol_avs-smart-contracts/src/AvsOperatorManager.sol`, with operator execution in `src/AvsOperator.sol`.
+- LI.FI allowlists target-selector pairs and uses a special approve-only selector for `approveTo` addresses that differ from swap call targets in `/private/tmp/defillama-source/lifinance__contracts/src/Libraries/LibAllowList.sol` and `src/Helpers/SwapperV2.sol`.
+- Nomad governance router authenticates inbound governance batches but can execute arbitrary target calldata from accepted batches in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-core/contracts/governance/GovernanceRouter.sol`, making selector scoping a separate governance requirement.
 
 ## Related Patterns
 

@@ -84,6 +84,9 @@ function confirm(Request calldata request, bytes calldata proof) external {
 - Historical custodial wrappers may store local request hashes for auditability, but modern cross-chain bridges should bind the full operation and chain domain.
 - Proof-based exits may use a source transaction or log-location nullifier instead of an application request hash only when the checkpoint manager fixes the source domain, the destination contract fixes the peer/emitter, and equivalent proof encodings are normalized before hashing.
 - Cross-chain mint or withdrawal monitors can add a single-use validation ledger around request hashes: requests move from unreported to reported to consumed, and even threshold-bypassed small transfers are marked consumed so they cannot be replayed later.
+- Endpoint-native ledgers should still expose their replay domain clearly: receiver, source endpoint, remote sender, nonce, payload hash, destination chain, and route-specific auto-call fields are all part of the boundary.
+- If a periphery signs or verifies opaque bridge calldata, revalidate the decoded destination route against the signed bytes before handing funds to the bridge.
+- If replay protection is delegated to a canonical token bridge or message bus, document that trust boundary instead of implying the relayer contract owns the consumed-message ledger.
 
 ### Sidecar Metadata Beside Canonical Value Messages
 
@@ -112,6 +115,7 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 | Mutable hash schema | Pending messages become unconfirmable after upgrade | Version request encodings explicitly |
 | Unpaired metadata sidecar | Value settles without route data or route data applies to wrong transfer | Commit sidecar to canonical message id and schema |
 | Bypassed request not consumed | Small transfer can be replayed after threshold changes | Mark every accepted request id consumed, including bypassed paths |
+| Periphery parser drift | Signed bridge calldata proves one route while execution submits another | Bind and re-decode the exact calldata bytes, or pass one typed structure through validation and execution |
 
 ## Source Evidence
 
@@ -125,11 +129,18 @@ The sidecar must not mint, unlock, or release value independently. Destination l
 - Gnosis xDAI bridge migration notes and message libraries show why bridge messages must bind intended token/output semantics during DAI-to-USDS collateral migration in `/private/tmp/defillama-source/gnosischain__tokenbridge-contracts-xdaibridge/USDSMigration.md` and `contracts/libraries/Message.sol`.
 - Lorenzo `MintSecurity` domain-separates guardian mint hashes by chain id and contract address, binds BTC tx hash, token, destination, staking output index, inclusion height, and amount, then consumes hashes and sorts recovered signers to prevent duplicate-signature quorum in `/private/tmp/defillama-source/Lorenzo-Protocol__enzoBTC_contract/src/core/MintSecurity.sol`.
 - Fraxferry v1 commits cross-chain batch ranges and payload hashes before delayed execution in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/Fraxferry/Fraxferry.sol`; the batch hash gives replay and data-integrity structure but not trustless finality.
+- Across V3 binds relay identity to origin chain, destination chain, deposit id, participants, tokens, amounts, deadlines, exclusivity, and message, then hashes with the local chain id in `/private/tmp/defillama-source/across-protocol__contracts/contracts/spoke-pools/SpokePool.sol`.
+- LayerZero V2 records inbound payload hashes by receiver, source endpoint, remote sender, nonce, and payload hash, then clears the verified payload before receiver execution in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol` and `EndpointV2.sol`.
+- deBridge computes submission ids from the debridge asset id, source chain, destination chain, amount, receiver, nonce, auto-call fee, fallback address, data hash, and native sender in `/private/tmp/defillama-source/debridge-finance__debridge-contracts-v1/contracts/transfers/DeBridgeGate.sol`.
+- Socket packs source chain, sibling plug, destination chain, local plug, message id, execution params, and payload before switchboard proof verification in `/private/tmp/defillama-source/SocketDotTech__socket-DL/contracts/socket/SocketDst.sol`.
+- Nomad formats messages with origin, sender, nonce, destination, recipient, and body in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-core/contracts/libs/Message.sol`, while routers validate enrolled remote routers before dispatch.
+- LI.FI Across V4 periphery validates signed bridge calldata against route fields before deposit in `/private/tmp/defillama-source/lifinance__contracts/src/Facets/AcrossV4SwapFacet.sol` and `src/Facets/CalldataVerificationFacet.sol`.
 
 ## Related Patterns
 
 - [Historical Bounds](../oracles/pattern-historical-bounds.md) - guardrails for cross-chain price relays
 - [Checkpointed Receipt Exit Proof](./pattern-checkpointed-receipt-exit-proof.md)
+- [Route-Scoped DVN Quorum](./pattern-route-scoped-dvn-quorum.md)
 - [Break-Glass Risk Limiter](../access-control/pattern-break-glass-risk-limiter.md)
 - [Dispute-Windowed Operator Batch Bridge](./pattern-dispute-windowed-operator-batch-bridge.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay) - anti-pattern this mitigates

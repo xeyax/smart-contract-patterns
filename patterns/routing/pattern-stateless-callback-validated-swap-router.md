@@ -61,6 +61,9 @@ failed subplan cannot strand user funds in the router.
   cleanup commands and test the failure branch, not only the successful route.
 - For multi-hop exact-output routes, test reversed-hop execution and enforce hop
   bounds where intermediate route choices can change execution price.
+- For aggregator swap routers, allowlist both the callable target selector and
+  any separate approval spender; source-side bridge swaps should not inherit a
+  destination executor's broader arbitrary-call surface.
 - Test path decoding, wrong callback sender, expired deadline, and slippage failure.
 
 ## Source Evidence
@@ -77,9 +80,11 @@ failed subplan cannot strand user funds in the router.
   exact-output reversed-hop behavior in `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/uniswap/v3/V3SwapRouter.sol:107`,
   `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/uniswap/v2/V2SwapRouter.sol:44`,
   and `/private/tmp/defillama-source/Uniswap__universal-router/test/foundry-tests/UniswapV3.t.sol:180`.
+- LI.FI swap helpers validate contract-selector allowlists, approve-only spenders, minimum received amounts, no-leftover behavior, and direct ERC20Proxy call rejection in `/private/tmp/defillama-source/lifinance__contracts/src/Libraries/LibAllowList.sol`, `src/Helpers/SwapperV2.sol`, `src/Libraries/LibSwap.sol`, and `src/Periphery/Executor.sol`.
 
 ## Related Patterns
 
 - [Canonical AMM Pool Factory](../liquidity/pattern-canonical-amm-pool-factory.md)
 - [Verified Callback Settlement](../liquidity/pattern-verified-callback-settlement.md)
+- [Selector-Scoped Authority](../access-control/pattern-selector-scoped-authority.md)
 - [Missing Slippage Protection](../../ANTIPATTERNS.md#missing-slippage-protection)

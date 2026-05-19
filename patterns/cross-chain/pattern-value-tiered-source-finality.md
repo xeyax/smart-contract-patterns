@@ -80,6 +80,7 @@ function _tierFor(uint256 amount) internal view returns (uint256 confirmations) 
 - Use the same normalized amount in tier tests and production checks.
 - Emit tier changes and treat threshold reductions as risk-increasing governance actions.
 - Pair with source-chain proof and replay protection; tiering is not a proof system.
+- Keep this separate from post-approval payout delay or validator quorum escalation; those controls reduce different risks and should not be described as source-chain finality.
 
 ## Source Evidence
 
@@ -94,6 +95,8 @@ function _tierFor(uint256 amount) internal view returns (uint256 confirmations) 
 
 - [Bitcoin SPV State Transition Gate](./pattern-bitcoin-spv-state-transition-gate.md)
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md)
+- [Threshold-Delayed Bridge Payout](./pattern-threshold-delayed-bridge-payout.md)
+- [Route-Scoped DVN Quorum](./pattern-route-scoped-dvn-quorum.md)
 - [Trusted SPV Boundary Omitted](../../ANTIPATTERNS.md#trusted-spv-boundary-omitted)
 
 ## References

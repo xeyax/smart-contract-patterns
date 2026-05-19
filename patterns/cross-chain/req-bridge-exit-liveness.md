@@ -34,6 +34,8 @@
 - Split value-transfer/routing-metadata flows need recovery when value is attested or delivered but the metadata sidecar is delayed, malformed, missing, or unpaired.
 - Deposit cancellation or reclaim must bind the exact message envelope and document non-refundable messaging fees.
 - Compose or multihop bridges need explicit failed-message state, retry/refund semantics, and reserved gas or value rules so a malformed second-hop payload does not strand the first-hop value.
+- Fast-liquidity bridges need a slow-fill, canonical-fill, or refund path for deposits that are not competitively filled before their deadline.
+- Delayed large payouts need a public post-delay executor and a pause policy that does not permanently trap already-approved transfers.
 
 ## R3: Migration Accounts For In-Flight Messages
 
@@ -83,10 +85,17 @@
 - Stargate V2 migration tests pause new sends, drain buses, clear credits, revoke mint authority, burn locked supply or credit, reconnect pools, and revalidate invariants in `/private/tmp/defillama-source/stargate-protocol__stargate-v2/packages/stg-evm-v2/test/stargatePoolMigratable/OFTPoolToPoolMigrationTest.t.sol`.
 - Polygon zkEVM/Agglayer emergency mode can block bridge sends and claim finalization in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`, illustrating a broad break-glass exception that must be operationally justified.
 - USDT0 multihop, native-mesh, and deployment audit reports repeatedly discuss composed-message retry/refund handling, malformed payload recovery, and lane preflight checks; these are lower-confidence audit-source examples because the source repository inspected here contains reports, not implementation code.
+- Across V3 exposes slow-fill requests and slow-fill Merkle proof execution when fast relayers do not fill a deposit in `/private/tmp/defillama-source/across-protocol__contracts/contracts/spoke-pools/SpokePool.sol`.
+- Stargate V1 caches failed destination swaps and exposes retry or revert paths in `/private/tmp/defillama-source/stargate-protocol__stargate/contracts/Router.sol`.
+- Celer SGN bridge and pool delay large approved payouts above token thresholds, with public delayed execution after the delay in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/safeguard/DelayedTransfer.sol`, `contracts/liquidity-bridge/Bridge.sol`, and `contracts/liquidity-bridge/Pool.sol`.
+- LI.FI destination receivers catch failed compose execution and refund remaining assets to the receiver or fallback path in `/private/tmp/defillama-source/lifinance__contracts/src/Periphery/ReceiverStargateV2.sol` and `src/Periphery/ReceiverAcrossV4.sol`.
+- Nomad recovery accountants record affected bridge assets and expose pro-rata claim accounting in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-bridge/contracts/BridgeRouter.sol` and accountant contracts.
 
 ## Related Patterns
 
 - [Escrow Mint-Burn Refund Fallback](./pattern-escrow-mint-burn-refund-fallback.md)
 - [Proof Bridge Exit Safety Requirements](./req-proof-bridge-exit-safety.md)
 - [Retryable Cross-Domain Message Ledger](./pattern-retryable-cross-domain-message-ledger.md)
+- [Threshold-Delayed Bridge Payout](./pattern-threshold-delayed-bridge-payout.md)
+- [Relayer-Funded Native Drop Accounting](./pattern-relayer-funded-native-drop-accounting.md)
 - [Pause Traps Funds](../../ANTIPATTERNS.md#pause-traps-funds)

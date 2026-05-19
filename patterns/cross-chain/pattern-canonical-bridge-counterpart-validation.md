@@ -76,6 +76,8 @@ destination domains.
 - Include counterpart updates in governance, deployment, and migration playbooks.
 - Preflight route configuration in both directions before opening bridge sends.
 - If using same-address endpoint authentication, document the deterministic deployment invariant and test wrong-origin-sender cases.
+- For peer-configured messaging, validate both the local endpoint caller and the configured remote peer before trusting the payload.
+- For token-bridge relayers, validate the canonical bridge's reported emitter or foreign contract before applying relayer-specific payload semantics.
 
 ## Source Evidence
 
@@ -86,10 +88,13 @@ destination domains.
 - Avalanche ICM Teleporter requires Warp messages to report `originSenderAddress == address(this)` and documents same-address universal deployment for `TeleporterMessenger` in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/TeleporterMessenger.sol` and `contracts/teleporter/README.md`.
 - Sophon's custom USDC bridge authenticates Bridgehub, chain-scoped L2 bridge addresses, L1-to-L2 alias normalization on L2, and L2 sender proofs on withdrawal finalization in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src`.
 - USDT0 deployment audit reports repeatedly check bidirectional LayerZero peer, DVN, executor, library, enforced-option, and confirmation configuration before activation; this is audit-source evidence, not code-proven behavior from this repository.
+- LayerZero V2 OApps require calls from the local endpoint and reject messages whose origin sender is not the configured peer in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/OAppReceiver.sol` and `OAppCore.sol`.
+- Wormhole's token bridge relayer registers foreign contracts and rejects transfers whose emitter does not match the registered source in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/src/token-bridge-relayer/TokenBridgeRelayerGovernance.sol` and `TokenBridgeRelayer.sol`.
 
 ## Related Patterns
 
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md)
 - [Authenticated Root-Child Tunnel](./pattern-authenticated-root-child-tunnel.md)
 - [Retryable Cross-Domain Message Ledger](./pattern-retryable-cross-domain-message-ledger.md)
+- [Route-Scoped Message Library Migration](./pattern-route-scoped-message-library-migration.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay)

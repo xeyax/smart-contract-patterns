@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 264 across 26 batches.
+- Source repository inspections so far: 276 across 27 batches.
 
 ## First Batch Repositories
 
@@ -368,6 +368,23 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Morpho Blue IRM | `morpho-org/morpho-blue-irm` | Interest-rate models |
 | 1inch Spot Price Aggregator | `1inch/spot-price-aggregator` | Off-chain spot aggregation |
 
+## Twenty-Seventh Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Across | `across-protocol/contracts` | Cross-chain bridge |
+| Hop Protocol | `hop-protocol/contracts` | Cross-chain bridge |
+| LayerZero V2 | `LayerZero-Labs/LayerZero-v2` | Cross-chain messaging |
+| deBridge | `debridge-finance/debridge-contracts-v1` | Cross-chain bridge |
+| Connext | `connext/monorepo` | Cross-chain bridge |
+| Celer SGN | `celer-network/sgn-v2-contracts` | Cross-chain bridge |
+| Synapse | `synapsecns/synapse-contracts` | Cross-chain bridge / AMM |
+| LI.FI | `lifinance/contracts` | Bridge aggregator / routing |
+| Socket | `SocketDotTech/socket-DL` | Cross-chain messaging |
+| Wormhole Relayer Example | `wormhole-foundation/example-token-bridge-relayer` | Cross-chain relayer |
+| Stargate V1 | `stargate-protocol/stargate` | Cross-chain bridge |
+| Nomad | `nomad-xyz/monorepo` | Cross-chain bridge |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -397,6 +414,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-24-findings.md` — accepted and deferred catalog updates from the fourteenth expanded source-discovery batch.
 - `batch-25-findings.md` — accepted and deferred catalog updates from the fifteenth expanded source-discovery batch.
 - `batch-26-findings.md` — accepted and deferred catalog updates from the sixteenth expanded source-discovery batch.
+- `batch-27-findings.md` — accepted and deferred catalog updates from the seventeenth expanded source-discovery batch.
 
 ## Notes
 

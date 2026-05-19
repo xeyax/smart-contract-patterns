@@ -90,6 +90,8 @@ should make the receiver callback return or record an explicit acknowledgement.
 - Scope temporary sender context to the relay call and clear it afterward.
 - Document that retry is not the same as refund; receivers that can never succeed need an application-level recovery path.
 - Distinguish low-level delivery success from semantic receiver acknowledgement.
+- If the message id or payload hash is deleted before the receiver callback to prevent reentrancy, confirm whether a receiver revert restores the state and whether failed execution can be retried.
+- Comments that claim failed application calls are non-blocking must be backed by `try/catch`, explicit failed-message state, or tests; otherwise a revert usually rolls back the pre-call marker.
 
 ## Source Evidence
 
@@ -97,9 +99,14 @@ should make the receiver callback return or record an explicit acknowledgement.
 - Polygon zkEVM/Agglayer treats low-level successful destination calls as delivered and permits EOA value delivery without application execution in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`.
 - Mantle's legacy messenger verifies the original queue element and transaction hash before replaying the same L1-to-L2 cross-domain calldata with a new gas limit in `/private/tmp/defillama-source/mantlenetworkio__mantle/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol`.
 - Avalanche ICM Teleporter marks messages received before destination execution, records failed execution hashes, and permits later `retryMessageExecution` in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/TeleporterMessenger.sol`.
+- LayerZero V2 stores verified inbound payload hashes, supports nilify and burn paths, and clears the exact payload hash before receiver callback in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol` and `EndpointV2.sol`.
+- Across V3 tracks unfilled, requested slow fill, and filled relay statuses so a slow fill request can later be replaced by a fast fill while duplicate fills remain rejected in `/private/tmp/defillama-source/across-protocol__contracts/contracts/spoke-pools/SpokePool.sol`.
+- Celer MessageBus stores message execution status, supports retry/fallback paths, and verifies transfer-with-message ids in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/message/messagebus/MessageBusReceiver.sol`.
+- Socket marks messages executed before proof and plug execution, but the plug call is not caught; failure rolls the marker back, so this is exact-once-on-success rather than a durable failed-message ledger in `/private/tmp/defillama-source/SocketDotTech__socket-DL/contracts/socket/SocketDst.sol`.
 
 ## Related Patterns
 
 - [Chain-Bound Request Hash](./pattern-chain-bound-request-hash.md)
 - [Canonical Bridge Counterpart Validation](./pattern-canonical-bridge-counterpart-validation.md)
+- [Typed Cross-Chain Executor Options](./pattern-typed-cross-chain-executor-options.md)
 - [Bridge Message Replay](../../ANTIPATTERNS.md#bridge-message-replay)

@@ -65,6 +65,8 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - For failed destination execution, record a transaction-data hash or equivalent proof handle that lets users later prove and reclaim the deposit.
 - If the refund handle omits the destination receiver, it must still bind the original depositor, token, amount, and unique destination transaction, and refunds must return only to that depositor.
 - For signer-mediated withdrawals, lock the requested amount plus maximum fee, then make signer acceptance burn the locked amount and refund unused fee while signer rejection unlocks the escrow.
+- For auto-call bridge settlement, make failed external calls fall back to the original receiver or fallback address instead of leaving approved tokens or native value in the executor.
+- When the bridge offers destination native drops, separate recipient principal, relayer/native-drop funding, relayer fee, and refund of excess native value.
 
 ## Source Evidence
 
@@ -75,9 +77,13 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - zkSync Era bridge documentation and integration tests show failed L2 deposit recovery through recorded transaction data hashes and proof paths in `/private/tmp/defillama-source/matter-labs__zksync-era/docs/src/specs/contracts/bridging/overview.md` and `core/tests/ts-integration/tests/l2-erc20.test.ts`.
 - Sophon's custom USDC bridge records an L2 transaction hash to source-side deposit-data hash mapping, requires a canonical failed-transaction proof, deletes the record before transfer, and refunds the original depositor in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 - Stacks sBTC withdrawal escrow locks `amount + max-fee`, burns on signer acceptance with fee refund, and unlocks on signer rejection in `/private/tmp/defillama-source/stacks-network__sbtc/contracts/contracts/sbtc-withdrawal.clar`, with tests in `contracts/tests/sbtc-withdrawal.test.ts`.
+- deBridge auto-call settlement sends leftovers back to reserve, clears approvals, and pays execution fees only around the call proxy frame in `/private/tmp/defillama-source/debridge-finance__debridge-contracts-v1/contracts/periphery/CallProxy.sol` and `/private/tmp/defillama-source/debridge-finance__debridge-contracts-v1/contracts/transfers/DeBridgeGate.sol`.
+- LI.FI destination receivers catch failed compose swaps and route remaining funds to receiver or refund/fallback handling in `/private/tmp/defillama-source/lifinance__contracts/src/Periphery/ReceiverStargateV2.sol` and `src/Periphery/ReceiverAcrossV4.sol`.
+- Wormhole's example token bridge relayer separates self-redemption, relayer-funded native drops, fee recipient payout, and recipient token balance in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/src/token-bridge-relayer/TokenBridgeRelayer.sol`.
 
 ## Related Patterns
 
 - [Bridge Exit Liveness Requirements](./req-bridge-exit-liveness.md)
+- [Relayer-Funded Native Drop Accounting](./pattern-relayer-funded-native-drop-accounting.md)
 - [Balance Delta Transfer Accounting](../token-integration/pattern-balance-delta-transfer-accounting.md)
 - [Canonical Bridge Counterpart Validation](./pattern-canonical-bridge-counterpart-validation.md)

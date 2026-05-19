@@ -70,11 +70,13 @@ When governance changes a route limit, checkpoint the old bucket first so accumu
 - Checkpoint before limit, window, or peer changes.
 - Emit per-route limit updates and consumption failures for monitoring.
 - Document that rate limiting may delay exits and define emergency bypass rules carefully.
+- Per-token epoch caps are a weaker but useful companion when the bridge cannot key limits by route; do not describe them as peer isolation.
 
 ## Source Evidence
 
 - EtherFi's weETH cross-chain contracts define per-peer inbound and outbound buckets in `/private/tmp/defillama-source/etherfi-protocol_weETH-cross-chain/contracts/PairwiseRateLimiter.sol`.
 - `EtherfiOFTUpgradeable.sol` integrates the limiter with LayerZero OFT send/receive paths, and `test/OFTDeployment.t.sol` covers inbound and outbound limits.
+- Celer SGN volume control enforces per-token epoch caps before bridge relay and withdrawal payout in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/safeguard/VolumeControl.sol`, `contracts/liquidity-bridge/Bridge.sol`, and `contracts/liquidity-bridge/Pool.sol`; this is burst containment, not route-specific isolation.
 
 ## Real-World Examples
 
@@ -84,6 +86,7 @@ When governance changes a route limit, checkpoint the old bucket first so accumu
 
 - [Canonical Bridge Counterpart Validation](./pattern-canonical-bridge-counterpart-validation.md)
 - [Version-Gated Message Endpoint Registry](./pattern-version-gated-message-endpoint-registry.md)
+- [Threshold-Delayed Bridge Payout](./pattern-threshold-delayed-bridge-payout.md)
 - [Bridge Exit Liveness Requirements](./req-bridge-exit-liveness.md)
 
 ## References

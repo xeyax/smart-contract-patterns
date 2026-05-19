@@ -47,7 +47,7 @@ Owner/admin can change critical parameters instantly without timelock, bounds, o
 Setter validates an old stored value or unrelated state instead of the proposed new parameter.
 **Symptoms:** `require(currentFee <= MAX_FEE)` inside `setFee(newFee)`, tests cover only existing valid values, or events emit the proposed value while bounds check another variable.
 **Risk:** A critical parameter can be set outside intended bounds even though the setter appears guarded.
-**Fix:** Validate proposed inputs directly, test failing over-limit proposals from both valid and invalid current states, and emit old/new values.
+**Fix:** Validate proposed inputs directly, test failing over-limit proposals from both valid and invalid current states, and emit old/new values. For packet or batch limits, test constructor and update paths with proposals above the maximum; checking the stored packet length before assigning the new value is not a guard.
 
 ### Fixed-Window Revocation Blind Spot
 Permission revocation scans only a small recent window of a linked list or append-only log.
@@ -116,7 +116,7 @@ Loop over user-controlled or growing data structure without gas limit.
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without checking balance delta.
 **Risk:** Accounting mismatch, exploitable for value extraction.
-**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. Direct-to-custodian top-ups, bridge settlements, Token-2022 escrow funding, and CPI fee harvests need the same actual-received or explicit-rejection boundary. A documented unsupported-token assumption is only sufficient when every market or asset-onboarding path makes the same rejection boundary visible to integrators.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. Direct-to-custodian top-ups, bridge settlements, Token-2022 escrow funding, and CPI fee harvests need the same actual-received or explicit-rejection boundary. A documented unsupported-token assumption is only sufficient when every market, pool, token, or bridge route-onboarding path makes the same rejection boundary visible to integrators.
 
 ### Missing Slippage Protection
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
@@ -250,7 +250,7 @@ Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot 
 Assumes token transfer delivers exact amount requested.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check, or docs say only standard non-rebasing tokens are supported while onboarding does not reject fee-on-transfer behavior.
 **Risk:** Accounting mismatch with fee-on-transfer tokens, exploitable for value extraction.
-**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. Direct-to-custodian top-ups, bridge settlements, Token-2022 escrow funding, and CPI fee harvests need the same actual-received or explicit-rejection boundary. A documented unsupported-token assumption is only sufficient when every market or asset-onboarding path makes the same rejection boundary visible to integrators.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. Direct-to-custodian top-ups, bridge settlements, Token-2022 escrow funding, and CPI fee harvests need the same actual-received or explicit-rejection boundary. A documented unsupported-token assumption is only sufficient when every market, asset, pool, or bridge route-onboarding path makes the same rejection boundary visible to integrators.
 
 ### Implicit Decimal Assumption
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
@@ -280,7 +280,7 @@ Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if t
 Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
 **Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
 **Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
-**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations. Executor-supplied custody routes are acceptable only when the unsigned route cannot change user price, asset, receiver, fee, or claim semantics and is still checked against on-chain allowlists. A recovered route signer is only context until downstream code checks the expected signer, signed data, and intended action.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations. Executor-supplied custody routes are acceptable only when the unsigned route cannot change user price, asset, receiver, fee, or claim semantics and is still checked against on-chain allowlists. A recovered route signer is only context until downstream code checks the expected signer, signed data, and intended action. Gas-packed bridge paths that deliberately skip destination-refund or receiver validation must be documented as a weaker path and should not share signatures with the fully validated path.
 
 ### Bitmap Nonce Domain Truncation
 Signed-order nonce storage narrows a wider signed nonce into a smaller bitmap index without enforcing the supported range.
@@ -300,7 +300,7 @@ Governance token = voting token, no snapshot, no minimum holding period.
 Governor contract executes arbitrary calldata against any target.
 **Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism. Operator or receiver contract can hold funds and execute arbitrary calldata.
 **Risk:** Passed proposal becomes unrestricted execution primitive. Can drain treasury, brick protocol.
-**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift. Treat whitelisted vaults, adapters, or bridge helpers that can execute arbitrary calldata, retain unlimited approvals, or mint/burn through callbacks as privileged execution surfaces, not as harmless integrations.
+**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift. Treat whitelisted vaults, adapters, or bridge helpers that can execute arbitrary calldata, retain unlimited approvals, or mint/burn through callbacks as privileged execution surfaces, not as harmless integrations. Cross-chain governance batches also need selector and target constraints; a message hash proves the batch was authorized, not that arbitrary targets are safe to call.
 
 ### Privileged Supply Mutation
 Minter or burner roles can arbitrarily change user balances or total supply.
@@ -362,19 +362,19 @@ Upgradeable contracts without namespaced storage, no layout diffing in CI.
 Cross-chain message lacks chain ID binding, replay protection depends on single nonce.
 **Symptoms:** No per-chain deduplication, shared small validator set.
 **Risk:** Valid message on Chain A replayed on Chain B. Wormhole, Ronin, Nomad exploits.
-**Fix:** Bind operation, source chain, destination chain, nonce, participants, value, and payload into the request hash; keep per-chain deduplication and independent validator sets. Price relays also need source-feed keyed freshness and monotonic timestamp checks.
+**Fix:** Bind operation, source chain, destination chain, nonce, participants, value, and payload into the request hash; keep per-chain deduplication and independent validator sets. Price relays also need source-feed keyed freshness and monotonic timestamp checks. Initialization must not pre-approve zero or default roots, and owner recovery setters must not be able to mark the zero root valid except to delete it. If a relayer delegates replay prevention to a canonical token bridge or message bus, document that dependency and test double redemption at the actual consumed-message boundary.
 
 ### Bridge Endpoint Authentication Mismatch
 Bridge adapter authenticates the wrong endpoint because it assumes `msg.sender`, source address, or bridge validation semantics match another bridge's model.
 **Symptoms:** Adapter checks only local caller, ignores the bridge-reported source chain/address, or treats a forwarder as the remote app without verifying the bridge's validation primitive.
 **Risk:** Messages from the wrong chain, adapter, or remote application can execute as trusted bridge payloads.
-**Fix:** Authenticate the local bridge adapter, the bridge-provided source chain, the bridge-provided source address, and the expected remote application. Test wrong chain, wrong sender, wrong adapter, and spoofed forwarder cases for every bridge transport.
+**Fix:** Authenticate the local bridge adapter, the bridge-provided source chain, the bridge-provided source address, and the expected remote application. Test wrong chain, wrong sender, wrong adapter, and spoofed forwarder cases for every bridge transport. External bridge adapters used as verifiers must preserve the route's confirmation and domain policy; an adapter that forwards `MAX_CONFIRMATIONS` or normalizes endpoint ids differently has a different trust boundary than the route config suggests.
 
 ### Divergent Message Parsing Between Authorization And Execution
 Cross-chain payload authorization decodes one shape while execution reads another shape.
 **Symptoms:** Fixed offsets are used for allowlist or opcode checks, then a later decoder sanitizes, strips, or interprets the payload differently; one parser validates hidden metadata while another executes user-visible fields.
 **Risk:** A payload can pass authorization for one route, peer, or opcode while executing a different transfer, compose call, or receiver.
-**Fix:** Decode once into a typed structure and pass that structure through validation and execution. If multiple runtimes or encoders are unavoidable, bind the exact encoded bytes or canonical typed hash into the authorization decision and test malformed, padded, alternate-encoder, and hidden-field payloads.
+**Fix:** Decode once into a typed structure and pass that structure through validation and execution. If multiple runtimes or encoders are unavoidable, bind the exact encoded bytes or canonical typed hash into the authorization decision and test malformed, padded, alternate-encoder, and hidden-field payloads. For bridge peripheries, do not validate one copy of opaque calldata and submit another; for verifier adapters, document endpoint-id normalization and confirmation-depth translation as part of the parser boundary.
 
 ### Bridge Custodian Concentration
 Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.

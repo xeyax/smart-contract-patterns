@@ -47,11 +47,13 @@ The registry controls which modules are valid; the recipe controls sequence and 
 - Keep action modules stateless or storage-layout compatible with wallet execution.
 - Validate injected parameters and typed return values.
 - Enforce action-level slippage, receiver, deadline, and approval bounds.
+- If a recipe performs swaps or bridge calls, require target-selector allowlists and exact approval spenders for every external call in the recipe.
 - Test delegatecall context, registry replacement, and parameter piping failures.
 
 ## Source Evidence
 
 - Defi Saver V3 executes recipes through registry-resolved action modules in user-wallet context and supports return-value/sub-parameter piping between actions.
+- LI.FI executor-style bridge and swap composition illustrates why multi-step recipes need per-step target, selector, approval, receiver, and slippage boundaries in `/private/tmp/defillama-source/lifinance__contracts/src/Periphery/Executor.sol` and `src/Helpers/SwapperV2.sol`.
 
 ## Related Patterns
 
