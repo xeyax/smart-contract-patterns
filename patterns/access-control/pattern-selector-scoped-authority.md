@@ -97,6 +97,7 @@ The leaf should include decoded sensitive arguments such as token, spender, prot
 - Prefer timelocks for selectors that change assets, upgrade code, alter fees, or pause exits.
 - Keep emergency selectors separate from routine maintenance selectors.
 - For call forwarders, scope by user, target, and selector; do not rely on selector blacklists.
+- For bridge peer registration, delegated operators may initialize an unset route, but replacing an existing peer should be owner-only or timelocked because it redirects future message authentication.
 
 ## Source Evidence
 
@@ -104,6 +105,7 @@ The leaf should include decoded sensitive arguments such as token, spender, prot
 - Cap stores selector-scoped access rules and includes deployment checks that emit an observed access manifest.
 - Ether.fi migrated call forwarding toward allowlisted user, target, and selector checks after identifying bypassable blacklist behavior.
 - Veda uses a Merkle permission manifest for manager calls and includes target, selector, and decoded argument constraints for sensitive operations.
+- Sophon's custom USDC bridge lets owner or admin initialize an unset chain bridge address, but reserves replacement of an existing chain bridge address to the owner in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 
 ## Related Patterns
 

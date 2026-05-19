@@ -54,6 +54,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Use an explicit high-precision scalar independent of reward token decimals, and carry forward or recover rewards that accrue while total stake is zero.
 - If a user has zero earning balance, advance their user index cursor to the latest index so future stake cannot backfill historical rewards.
 - Terminal emission cursors should cap accrual at the configured final block or timestamp; setters must reject past cutoffs and avoid silently extending an expired distributor.
+- Reward-per-token math should clamp accrual to the configured emission start/end window before dividing by total stake.
 - Test multiple users entering, exiting, and claiming across emission updates.
 
 ## Source Evidence
@@ -63,6 +64,7 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Dolomite's leveraged pot pool updates reward indexes before router-driven stake changes and liquidation balance deltas in an external margin ledger.
 - Girin/Doppler-style reward distributors show terminal emission cursors that cap accrual at a final block and need guarded cutoff changes.
 - Reserve staking audit material highlights precision-scalar and zero-supply accrual hazards in multi-reward lazy indexes.
+- Satoshi Farm computes reward-per-token lazily over the interval clamped by reward start and end timestamps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-farm/src/core/Farm.sol` and `src/core/libraries/FarmMath.sol`.
 
 ## Related Patterns
 

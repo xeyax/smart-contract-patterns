@@ -61,6 +61,7 @@ external prices before dividing by LP supply.
 
 - Stake DAO's Curve stableswap collateral oracle uses conservative pool pricing with external feed hops and explicitly documents flash-manipulation, read-only reentrancy, and L2 sequencer caveats.
 - Alpha Homora V2 prices Uniswap V2 LP collateral from the square-root reserve invariant, Balancer LP collateral from fair reserves, and Curve LP collateral from the minimum underlying price times virtual price in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle`.
+- Satoshi Core's Uniswap V2 LP feed normalizes reserve and feed decimals before applying a square-root reserve invariant, while its Curve LP feed reads virtual price after a zero-liquidity removal checkpoint in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/dependencies/priceFeed`.
 
 ## Related Patterns
 

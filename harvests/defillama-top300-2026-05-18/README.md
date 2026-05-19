@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 145 across 16 batches.
+- Source repository inspections so far: 152 across 17 batches.
 
 ## First Batch Repositories
 
@@ -226,6 +226,15 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Avalon USDa | `avalonfinancexyz/USDa-audit-slowmist` | CDP / audit source |
 | Avalanche ICM | `ava-labs/icm-contracts` | Cross-chain messaging |
 
+## Seventeenth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Satoshi Protocol | `Satoshi-Protocol/satoshi-core`, `Satoshi-Protocol/satoshi-farm` | CDP / rewards |
+| Reservoir Protocol | `reservoir-protocol/reservoir`, `reservoir-protocol/srusd`, `reservoir-protocol/srusd-loop` | Stablecoin / savings / leverage |
+| Sophon Bridge | `sophon-org/custom-usdc-bridge` | Canonical bridge |
+| USDT0 | `Everdawn-Labs/usdt0-audit-reports` | Cross-chain stablecoin audit source |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -245,6 +254,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-14-findings.md` — accepted and deferred catalog updates from the fourth expanded source-discovery batch.
 - `batch-15-findings.md` — accepted and deferred catalog updates from the fifth expanded source-discovery batch.
 - `batch-16-findings.md` — accepted and deferred catalog updates from the sixth expanded source-discovery batch.
+- `batch-17-findings.md` — accepted and deferred catalog updates from the seventh expanded source-discovery batch.
 
 ## Notes
 

@@ -270,7 +270,7 @@ Governance token = voting token, no snapshot, no minimum holding period.
 Governor contract executes arbitrary calldata against any target.
 **Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism. Operator or receiver contract can hold funds and execute arbitrary calldata.
 **Risk:** Passed proposal becomes unrestricted execution primitive. Can drain treasury, brick protocol.
-**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift.
+**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift. Treat whitelisted vaults, adapters, or bridge helpers that can execute arbitrary calldata, retain unlimited approvals, or mint/burn through callbacks as privileged execution surfaces, not as harmless integrations.
 
 ### Privileged Supply Mutation
 Minter or burner roles can arbitrarily change user balances or total supply.
@@ -294,7 +294,7 @@ Multiple collateral types are highly correlated but treated as independent.
 
 ### Price Feed Asymmetric Staleness
 Two oracle feeds for a pair with different update frequencies.
-**Symptoms:** Collateral price from Chainlink (hourly), debt price from DEX TWAP (per-block).
+**Symptoms:** Collateral price from Chainlink (hourly), debt price from DEX TWAP (per-block), or an exchange-rate wrapper checks one leg's freshness while silently trusting the base price leg.
 **Risk:** During fast moves, stale feed creates mispricing window. Borrow against overvalued collateral.
 **Fix:** Symmetric oracle architecture, maximum staleness gap enforcement, pause on divergence.
 
@@ -339,6 +339,12 @@ Bridge adapter authenticates the wrong endpoint because it assumes `msg.sender`,
 **Symptoms:** Adapter checks only local caller, ignores the bridge-reported source chain/address, or treats a forwarder as the remote app without verifying the bridge's validation primitive.
 **Risk:** Messages from the wrong chain, adapter, or remote application can execute as trusted bridge payloads.
 **Fix:** Authenticate the local bridge adapter, the bridge-provided source chain, the bridge-provided source address, and the expected remote application. Test wrong chain, wrong sender, wrong adapter, and spoofed forwarder cases for every bridge transport.
+
+### Divergent Message Parsing Between Authorization And Execution
+Cross-chain payload authorization decodes one shape while execution reads another shape.
+**Symptoms:** Fixed offsets are used for allowlist or opcode checks, then a later decoder sanitizes, strips, or interprets the payload differently; one parser validates hidden metadata while another executes user-visible fields.
+**Risk:** A payload can pass authorization for one route, peer, or opcode while executing a different transfer, compose call, or receiver.
+**Fix:** Decode once into a typed structure and pass that structure through validation and execution. If multiple runtimes or encoders are unavoidable, bind the exact encoded bytes or canonical typed hash into the authorization decision and test malformed, padded, alternate-encoder, and hidden-field payloads.
 
 ### Bridge Custodian Concentration
 Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.

@@ -72,6 +72,7 @@ the product becomes very small.
 - Carry rounding error forward instead of leaking it to the next liquidation.
 - Test repeated small liquidations, full depletion, scale changes, and all-depositor withdrawal after fuzzed liquidation sequences.
 - Keep loss accounting separate from collateral-gain distribution.
+- For multi-collateral systems, snapshot and claim each collateral gain accumulator independently and bound user-selected collateral gain claims so one transaction cannot loop over every market.
 
 ## Source Evidence
 
@@ -79,6 +80,7 @@ the product becomes very small.
 - Liquity includes rounding and withdrawal tests in `StabilityPoolTest.js`, `StabilityPool_RoundingErrors.js`, and `PoolManager_AllDepositorsCanWithdrawTest.js`.
 - Liquity's repository includes `papers/Scalable_Reward_Distribution_with_Compounding_Stakes.tex`, documenting the accumulator approach.
 - Liquity V2/Bold keeps the same stability-pool family of accounting mechanics in `/private/tmp/defillama-source/liquity__bold`.
+- Satoshi Core extends the family to multi-collateral gains with epoch/scale/product `P`, per-collateral `S`, reward `G`, and caller-bounded collateral gain claims in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/StabilityPool.sol`.
 
 ## Real-World Examples
 

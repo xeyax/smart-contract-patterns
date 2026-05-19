@@ -55,6 +55,11 @@ function finalize(bytes calldata payload) external {
 
 For bridges that alias L1 senders on L2, normalize through the bridge's official sender-recovery primitive instead of comparing raw `msg.sender`.
 
+For OFT, native-mesh, or peer-configured bridges, treat lane activation as a
+counterpart-validation event. Before enabling sends, verify both peer
+directions, token or OFT linkage, executor and receive libraries, DVN or
+verifier sets, enforced options, and block-confirmation policy for that route.
+
 Some transports deliberately deploy the same immutable messenger bytecode to the
 same address on every chain. In that model, the local endpoint can authenticate
 the remote endpoint by requiring the bridge-provided origin sender to equal
@@ -69,6 +74,7 @@ destination domains.
 - Reject messages from the default gateway, router, or owner unless that exact address is the configured peer.
 - Do not use this pattern as a substitute for bridge-layer replay protection.
 - Include counterpart updates in governance, deployment, and migration playbooks.
+- Preflight route configuration in both directions before opening bridge sends.
 - If using same-address endpoint authentication, document the deterministic deployment invariant and test wrong-origin-sender cases.
 
 ## Source Evidence
@@ -78,6 +84,8 @@ destination domains.
 - Foundry tests reject non-bridge callers, wrong counterpart gateways, and missing outbox sender context.
 - Optimism Bedrock standard bridges validate the local messenger and the remote bridge sender, while L2 messenger paths normalize L1-to-L2 address aliasing before accepting the counterpart.
 - Avalanche ICM Teleporter requires Warp messages to report `originSenderAddress == address(this)` and documents same-address universal deployment for `TeleporterMessenger` in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/TeleporterMessenger.sol` and `contracts/teleporter/README.md`.
+- Sophon's custom USDC bridge authenticates Bridgehub, chain-scoped L2 bridge addresses, L1-to-L2 alias normalization on L2, and L2 sender proofs on withdrawal finalization in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src`.
+- USDT0 deployment audit reports repeatedly check bidirectional LayerZero peer, DVN, executor, library, enforced-option, and confirmation configuration before activation; this is audit-source evidence, not code-proven behavior from this repository.
 
 ## Related Patterns
 

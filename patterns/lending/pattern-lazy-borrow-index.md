@@ -53,6 +53,7 @@ On borrow or repay, write the borrower's new principal and current index.
 - Include reserves in global accrual so accounting stays balanced.
 - Pair with [Lending Accounting Freshness Requirements](./req-lending-accounting-freshness.md).
 - If debt is represented by tokens, consider [Scaled Balance Token Accounting](./pattern-scaled-balance-token-accounting.md) so token balances derive from the same index.
+- When a CDP also accrues protocol rewards, checkpoint debt interest and reward cursors before debt, collateral, liquidation, redemption, or claim paths mutate the position.
 
 ## Source Evidence
 
@@ -60,6 +61,7 @@ On borrow or repay, write the borrower's new principal and current index.
 - Global borrow index, total borrows, and reserves update once per accrual.
 - Compound V2 stores borrower debt as principal plus interest index and updates debt through `/private/tmp/defillama-source/compound-finance__compound-protocol/contracts/CToken.sol` functions `accrueInterest`, `borrowBalanceStored`, `borrowFresh`, `repayBorrowFresh`, and `liquidateBorrowFresh`.
 - Compound tests borrow accrual, repayment, and liquidation freshness in `tests/Tokens/accrueInterestTest.js`, `borrowAndRepayTest.js`, and `liquidateTest.js`.
+- Satoshi Core lazily applies trove debt interest and OSHI reward indexes around trove state changes in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/logic/TroveManagerLogic.sol`.
 
 ## Related Patterns
 

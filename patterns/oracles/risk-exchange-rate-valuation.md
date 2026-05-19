@@ -40,6 +40,7 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - A liquid-staking token's internal exchange rate is fresh and bounded, but withdrawals are delayed or market buyers discount the token.
 - A multi-LST router preserves value under configured calculators while market prices or withdrawal fees make those rates unrealizable.
 - An upgrade-slot-pinned adapter detects upstream semantic changes but still depends on governance to accept or reject the new valuation semantics.
+- A savings token's internal conversion rate increases deterministically while levered lending markets depend on liquidators realizing secondary-market value.
 
 ## Mitigations
 
@@ -60,6 +61,7 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Stader BNBx derives a fresh internal LST exchange rate from delegated backing and token supply, which is useful for mint/redeem accounting but still distinct from market-clearing collateral value.
 - Stake DAO's Curve LP collateral oracle documents conservative stableswap pricing while preserving read-only reentrancy, sequencer, and market-value caveats.
 - Sanctum demonstrates conservative LST router accounting and upgrade-slot-pinned rate adapters, both of which protect internal valuation semantics without proving market-clearing price.
+- Reservoir sRUSD loopers value collateral through internal saving-module conversion paths while Morpho market parameters determine liquidation exposure in `/private/tmp/defillama-source/reservoir-protocol__srusd-loop/src`.
 
 ## Related Patterns
 

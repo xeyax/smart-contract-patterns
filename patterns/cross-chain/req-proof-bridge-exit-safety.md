@@ -40,6 +40,7 @@
 - A valid receipt from the wrong child token, tunnel, or gateway is rejected.
 - The destination contract verifies event signature, source token, and peer mapping.
 - Generic proof dispatch cannot call arbitrary token finalizers.
+- Payload schema is fixed before release: selector, byte length, token, amount, and receiver are decoded by the same semantics used for authorization.
 
 ## R4: Custody Is Sufficient Before Release
 
@@ -79,6 +80,7 @@
 - Optimism Bedrock gates withdrawal finalization on proven output roots, proof maturity, and dispute-game validity.
 - tBTC v2 gates Bitcoin-side bridge transitions on SPV and relay proofs while documenting maintainer trust in canonical chain data.
 - Polygon zkEVM/Agglayer validates canonical global indexes before using claim nullifiers in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`, with tests for invalid global-index encodings.
+- Sophon's custom USDC bridge keys duplicate withdrawal finalization by chain, batch, and message index; verifies the L2 sender for the chain; and accepts only the expected withdrawal selector and payload length in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 
 ## Related Patterns
 

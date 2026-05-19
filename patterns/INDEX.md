@@ -57,6 +57,7 @@
 | pattern-custodian-attested-mint-burn.md | Mint and burn wrapped assets through merchant requests that are approved and reconciled by a trusted custodian. | The source asset is not trustlessly verifiable on the destination chain |
 | pattern-deterministic-cross-chain-factory.md | Deploy peer contract systems at predictable addresses across chains so cross-chain configuration can be precomputed and verified. | The same protocol graph is deployed on multiple chains |
 | pattern-dispute-game-gated-withdrawal-finality.md | Finalize rollup withdrawals only after the referenced output root is proven, mature, and accepted by the active dispute-game system. | A rollup bridge releases assets from L2 withdrawal proofs on L1 |
+| pattern-domain-scoped-bridge-custody-ledger.md | Hold shared source-chain bridge custody while accounting each destination domain's spendable balance separately. | One bridge escrow holds the same token for multiple destination domains |
 | pattern-domain-scoped-message-root-accumulator.md | Accumulate cross-chain message roots by domain and checkpoint combined roots for replay-safe inclusion proofs. | Messages are batched into roots before being proven on another domain |
 | pattern-escrow-mint-burn-refund-fallback.md | Pair source escrow or burn with destination validation and automatic refund when bridge settlement cannot safely mint or release. | Bridge deposits lock or burn assets before destination settlement |
 | pattern-fraud-window-gated-message-finality.md | Finalize optimistic rollup withdrawals only after the referenced state root is outside the fraud window and the message-passer storage proof verifies. | A legacy optimistic rollup bridge releases L1 assets from L2 withdrawal proofs |
@@ -85,7 +86,7 @@
 | File | Applies To |
 |------|-----------|
 | req-bridge-exit-liveness.md | R1: Pauses Preserve Safe Exit Paths, R2: Failed Destination Settlement Has A Refund Path, R3: Migration Accounts For In-Flight Messages, R4: Admin Overrides Are Explicitly Trusted, R5: Emergency Exit Pauses Are Scoped And Expiring |
-| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits |
+| req-custodial-reserve-backing.md | R1: Full Backing, R2: Public Verifiability, R3: Settlement Traceability, R4: Operational Liveness, R5: Reserve-Gated Minting Fails Closed, R6: Signing Policy Respects Reserve Limits, R7: Migration Preserves Backing |
 | req-proof-bridge-exit-safety.md | R1: Source Proof Is Finalized, R2: Exit Nullifier Is Unique And Normalized, R3: Emitter And Event Are Authenticated, R4: Custody Is Sufficient Before Release, R5: Migration Cutovers Preserve Pending Exits, R6: Challenge Or Relay Finality Is Explicit |
 
 ## governance
@@ -125,6 +126,7 @@
 
 | File | Description | Use When |
 |------|-------------|----------|
+| pattern-balance-sheet-solvency-gate.md | Gate stablecoin issuance and reserve allocation against protocol-level assets, liabilities, risk-weighted assets, and liquidity ratios. | A protocol issues stablecoin or credit through multiple modules |
 | pattern-band-ranged-soft-liquidation-amm.md | Liquidate collateral gradually by placing it across oracle-priced AMM bands before hard liquidation is needed. | A collateralized debt protocol wants smoother liquidation than a single auction or seizure point |
 | pattern-bounded-rate-source-adapter.md | Convert an external benchmark or savings rate into a lending rate only after applying freshness, bounds, spread, and fallback rules. | Borrow or supply rates should follow an external benchmark |
 | pattern-compressed-amount-storage-directional-rounding.md | Store large lending amounts in compressed form only when every rounding direction is explicit, conservative, and tested at dust boundaries. | A lending core packs many amounts into storage-constrained slots; Exact full-precision storage would be too expensive |
@@ -151,6 +153,7 @@
 | pattern-reward-indexed-erc1155-collateral-wrapper.md | Wrap ERC20 deposits or reward-bearing pool positions into ERC1155 ids that encode the underlying asset, pool, and reward-index snapshot used for collateral valuation. | A lending protocol accepts many ERC20 or LP positions as collateral |
 | pattern-risk-bucketed-position-ticks.md | Group debt positions by risk-ratio buckets so redemptions, rebalances, and liquidations can process the riskiest buckets first. | Positions can be ordered by a discrete debt ratio, collateral ratio, or similar risk metric |
 | pattern-risk-priority-liquidation-sequencing.md | Force liquidations in multi-asset accounts to address the riskiest debt and weakest collateral before safer legs. | Borrower accounts can hold multiple debt and collateral assets |
+| pattern-rolling-fixed-maturity-debt-tokens.md | Issue tokenized debt claims whose ids encode rolling maturities, burn discounted stablecoin at mint, and mint face value after maturity. | A stablecoin or credit protocol wants fixed-maturity funding instruments |
 | pattern-scaled-balance-token-accounting.md | Store token balances scaled by a liquidity or debt index so interest accrues globally while user balances update lazily. | A lending protocol represents supplied or borrowed positions as transferable or account-bound tokens |
 | pattern-share-denominated-lending-accounting.md | Track supply and borrow positions as market shares against total assets so interest and losses are allocated proportionally. | A lending market needs proportional supply or borrow accounting |
 | pattern-single-borrow-asset-market.md | Build each lending market around one borrowable base asset with separate collateral assets, reducing cross-asset borrow complexity. | The protocol wants one borrow asset per market |
@@ -305,6 +308,7 @@
 | pattern-indexed-merkle-airdrop.md | Distribute a fixed reward set with an indexed Merkle root and bitmap claim tracking so each allocation can be claimed exactly once. | A fixed off-chain allocation should be claimable on-chain; The root will not be updated cumulatively over time |
 | pattern-isolated-vesting-schedule-escrow.md | Create one escrow contract or isolated schedule per vesting grant so vested withdrawals and unvested revocation are tracked independently. | Beneficiaries can have multiple grants with different schedules; Unvested tokens may be revocable by the schedule owner |
 | pattern-lazy-reward-index.md | Accrue rewards through a global index and update each user only when they interact or claim. | Rewards accrue continuously or per emission update; The protocol has many suppliers, stakers, or borrowers |
+| pattern-nonce-bound-delayed-reward-claim-ledger.md | Separate reward accrual from delayed claim execution by hashing amount, owner, receiver, unlock time, and nonce into a claim id. | Rewards accrue on-chain but should become transferable only after a delay |
 | pattern-queued-reward-streaming.md | Queue reward tokens from permissioned distributors, carry leftovers forward, and stream rewards over a fixed duration. | Rewards arrive in discrete deposits but should accrue smoothly; Only approved distributors should fund reward streams |
 | pattern-range-liquidity-reward-index.md | Accrue rewards only to concentrated-liquidity positions whose tick ranges are active, using tick-level reward-growth snapshots. | Rewards should incentivize active AMM liquidity, not out-of-range inventory; LP positions have lower and upper ticks |
 | pattern-threshold-principal-reward-waterfall.md | Split unlabeled withdrawal-recipient inflows into principal and rewards by paying tracked principal up to an absolute threshold before routing residual value to rewards. | A staking or validator withdrawal recipient receives unlabeled principal and reward inflows |
@@ -387,6 +391,7 @@
 | pattern-dynamic-premium.md | Entry/exit fee that varies based on oracle volatility, providing adaptive protection against oracle arbitrage during high-risk periods. | Vault has varying risk levels over time; Fixed premium would be too high during normal conditions |
 | pattern-exchange-rate-preserving-lst-cutover.md | Migrate a liquid-staking token to a successor manager by moving backing assets without minting and asserting exchange-rate continuity. | A liquid-staking system must migrate manager contracts without changing token claims |
 | pattern-high-water-mark-fee.md | Charge performance fee only on new profit above the previous peak, paid via share dilution. | Vault generates yield and protocol needs to capture a share of profits |
+| pattern-liability-backed-erc4626-savings-share.md | Use ERC4626 shares to represent protocol liabilities where deposits burn the base asset and withdrawals mint it back from controlled supply. | A stablecoin or credit protocol wants an ERC4626-compatible savings token |
 | pattern-locked-profit-smoothing.md | Exclude newly harvested profit from strategy value for a fixed window, then release it linearly to prevent timing extraction around harvests. | Strategy profit is realized in discrete harvest transactions; Deposits can occur immediately before or after harvest |
 | pattern-operator-routed-liquid-staking-share.md | Mint a non-rebasing liquid-staking share while routing deposits to selected validators or operators behind an exchange-rate ledger. | Users need a transferable non-rebasing claim on delegated stake |
 | pattern-premium-buffer.md | Charge a fee on deposits/withdrawals that covers potential oracle price deviation, eliminating arbitrage profitability. | Vault uses oracle prices for NAV calculation; Need simple, synchronous deposit/withdraw flow |

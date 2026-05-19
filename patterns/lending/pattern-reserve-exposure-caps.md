@@ -53,15 +53,19 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - Pair caps with correlated collateral limits when assets share the same failure mode.
 - Monitor cap utilization before listing changes or rate model updates.
 - Allow risk-reducing deltas even when an account or market is already above a cap, as long as the action reduces debt, exposure, or unsafe collateralization.
+- For stablecoin issuers, cap each issuance channel and combine those caps with global balance-sheet ratios; per-channel headroom alone is not solvency.
 
 ## Source Evidence
 
 - Aave V3 uses reserve-level supply and borrow caps, isolation-mode debt ceilings, and exposure controls alongside liquidation parameters.
 - Sky/Maker DSS risk checks allow position changes that improve safety even when debt ceilings or collateralization constraints would reject risk-increasing changes.
+- Satoshi Core applies per-market CDP debt caps and Nexus total/daily mint caps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/core/NexusYieldManager.sol`.
+- Reservoir combines PSM, savings, and fixed-maturity term debt caps with global balance-sheet ratio checks in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/CreditEnforcer.sol`.
 
 ## Related Patterns
 
 - [Comptroller Risk Gate](./pattern-comptroller-risk-gate.md)
+- [Balance-Sheet Solvency Gate](./pattern-balance-sheet-solvency-gate.md)
 - [Kinked Utilization Rate Model](./pattern-kinked-utilization-rate-model.md)
 - [Dust-Aware Liquidation Cap](./pattern-dust-aware-liquidation-cap.md)
 - [Correlated Collateral Basket](../../ANTIPATTERNS.md#correlated-collateral-basket)

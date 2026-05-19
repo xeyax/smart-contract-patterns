@@ -63,6 +63,7 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - Make delayed reclaim depositor-only and document whether messaging fees are spent and non-refundable.
 - Treat cancellation as a race with remote consumption; it is not an instant refund guarantee.
 - For failed destination execution, record a transaction-data hash or equivalent proof handle that lets users later prove and reclaim the deposit.
+- If the refund handle omits the destination receiver, it must still bind the original depositor, token, amount, and unique destination transaction, and refunds must return only to that depositor.
 - For signer-mediated withdrawals, lock the requested amount plus maximum fee, then make signer acceptance burn the locked amount and refund unused fee while signer rejection unlocks the escrow.
 
 ## Source Evidence
@@ -72,6 +73,7 @@ function finalizeInbound(address token, address to, uint256 amount) external onl
 - Gateway fallback handlers trigger refund withdrawals when token deployment or peer validation fails.
 - StarkGate deposit cancellation binds the exact L1-to-L2 message envelope, delays depositor-only reclaim, and leaves messaging fees spent even when escrowed principal is reclaimed.
 - zkSync Era bridge documentation and integration tests show failed L2 deposit recovery through recorded transaction data hashes and proof paths in `/private/tmp/defillama-source/matter-labs__zksync-era/docs/src/specs/contracts/bridging/overview.md` and `core/tests/ts-integration/tests/l2-erc20.test.ts`.
+- Sophon's custom USDC bridge records an L2 transaction hash to source-side deposit-data hash mapping, requires a canonical failed-transaction proof, deletes the record before transfer, and refunds the original depositor in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 - Stacks sBTC withdrawal escrow locks `amount + max-fee`, burns on signer acceptance with fee refund, and unlocks on signer rejection in `/private/tmp/defillama-source/stacks-network__sbtc/contracts/contracts/sbtc-withdrawal.clar`, with tests in `contracts/tests/sbtc-withdrawal.test.ts`.
 
 ## Related Patterns

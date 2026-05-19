@@ -75,9 +75,20 @@ custody_balance >= wrapped_token_total_supply
 - Tests cover over-cap minting, withdrawal fee bounds, and insufficient reserve cases.
 - Users can distinguish on-chain proof of backing from signer-side policy checks.
 
+## R7: Migration Preserves Backing
+
+**Bridge migration, blocked-fund destruction, and local supply mutation must preserve the relationship between outstanding wrapped supply and claimable reserves.**
+
+### What This Means
+
+- Migration receivers are new adapters, lockboxes, or user-claim contracts, not operator wallets without claim semantics.
+- Local burns and blocked-fund destruction are reconciled against outstanding supply and pending exits.
+- New mint and burn roles are activated only after reserve, peer, and migration boundaries are verified.
+
 ## Source Evidence
 
 - Stacks sBTC signer validation checks mint and withdrawal limits before signing in `/private/tmp/defillama-source/stacks-network__sbtc/signer/src/bitcoin/validation.rs`, with limit tests in the same tree.
+- USDT0 audit reports discuss child-token supply mutation, bridge migration receivers, and reserve/backing preservation during OFT and adapter migrations; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
 
 ## Related Patterns
 

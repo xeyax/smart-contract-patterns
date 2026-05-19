@@ -52,6 +52,7 @@ For withdrawal addresses, keep the old address active until the new address conf
 - For withdrawal addresses, distinguish "current address approved" from "new address confirmed".
 - Disable or constrain `renounceOwnership()` when the system requires continuing authority for minting, burning, pausing, or upgrades.
 - For risk-bearing account ownership transfers, consider a three-party flow: current owner initiates, protocol admin or risk manager approves, and the pending owner accepts after checks prove no active orders, unsafe CPI context, or incompatible companion instructions.
+- If multiple current authorities can overwrite the same pending role, define priority or require atomic stage-and-accept for forced replacements; otherwise an incumbent can grief the handoff by restaging another pending address.
 
 ## Source Evidence
 
@@ -59,6 +60,7 @@ For withdrawal addresses, keep the old address active until the new address conf
 - Rocket Pool node withdrawal addresses can be set through a pending confirmation path and reject confirmations from unrelated addresses.
 - WBTC disables ownership renounce paths where continuing controller authority is required.
 - Kamino Lend stages obligation ownership transfers through initiate, approve, accept, and abort states with transaction-context restrictions.
+- Sophon's custom USDC bridge comments that owner-forced admin replacement must stage and accept atomically because the current admin can overwrite `pendingAdmin` in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
 
 ## Related Anti-Patterns
 

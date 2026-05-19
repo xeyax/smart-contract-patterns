@@ -97,6 +97,7 @@ Reverse flows need an explicit policy. Restore capacity only when the reverse ac
 - Bind route keys to operation plus asset, destination, pool, domain, or recipient.
 - For balance-delta based limiters, reject untrusted hooks or callbacks that can manipulate measured balances during the external call.
 - Bridge outflows may need destination daily caps, per-transfer min/max, per-user daily caps, and per-user attempt caps, with dust normalization before limit checks.
+- Define whether pause time refills capacity. If accumulated capacity during a pause would surprise operators, reset or checkpoint bucket timestamps on unpause.
 
 ## Source Evidence
 
@@ -104,6 +105,7 @@ Reverse flows need an explicit policy. Restore capacity only when the reverse ac
 - Veda's LayerZero teller path applies pairwise inbound and outbound rate limits so bridge capacity is isolated by route.
 - Spark ALM uses route keys as implicit allowlists, binds limiter keys to operation-specific route fields, restores capacity only for selected reverse flows, and avoids hook-enabled liquidity operations where hooks could change balance-delta measurements.
 - Lista OFT combines destination-specific daily caps, per-transfer min/max, per-user daily caps, per-user attempt caps, and dust normalization before debit limit checks.
+- USDT0 audit reports discuss route-scoped OFT rate limits and pause-aware refill behavior; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
 
 ## Related Patterns
 

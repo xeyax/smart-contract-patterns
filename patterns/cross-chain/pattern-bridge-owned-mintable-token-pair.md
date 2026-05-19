@@ -57,11 +57,13 @@ The bridge validates both local token class and remote-token pairing before chan
 - Support an interface marker so the bridge can reject arbitrary ERC20s pretending to be mintable bridge tokens.
 - Keep token factory deployment deterministic where users need predictable addresses.
 - Treat bridge upgrades as mint-authority migrations that must preserve pending exits.
+- During bridge migration, activate new minter and burner roles only after reserve backing, peer configuration, and pending-exit boundaries are reconciled.
 
 ## Source Evidence
 
 - Optimism's mintable ERC20 stores immutable bridge and remote token fields, restricts mint and burn to the bridge, and the standard bridge checks the local token's remote-pair identity before finalizing.
 - Polygon zkEVM/Agglayer wrapped tokens store bridge authority while the bridge keeps origin token identity in mappings and deterministic deployment salts in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol` and `contracts/lib/TokenWrappedBridgeUpgradeable.sol`.
+- USDT0 audit reports provide lower-confidence audit-source support for treating child-token minter/burner changes and bridge migrations as reserve-backing events, not only role-management events.
 
 ## Related Patterns
 

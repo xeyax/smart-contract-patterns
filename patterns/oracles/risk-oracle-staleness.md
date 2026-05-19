@@ -123,6 +123,13 @@ Treat wrappers as new oracle implementations:
 
 Some voting-power or validator-set calculators fail closed by returning zero when a price is stale or unavailable. This is safer than overvaluing assets for solvency, but it can still distort quorum, validator-set fairness, or chain representation if one component unexpectedly drops to zero.
 
+### Stale-To-Peg Fallback
+
+Stable-asset adapters sometimes return par value when an upstream price is stale
+or unavailable. That can preserve liveness for low-risk views, but it is
+fail-open for mint, redeem, borrow, and allocation paths because it masks both
+oracle outages and real depegs.
+
 ### Emergency Containment Blocked By Stale Reads
 
 Fail-closed stale-price checks are appropriate for value-bearing user actions, but they can be counterproductive on pure risk-reduction setters. If lowering a borrow cap, LTV, mint limit, or route limit does not need the current price, requiring a fresh oracle read can block containment during the exact outage the limiter is meant to handle.
@@ -160,6 +167,7 @@ Example (1% deviation threshold):
 | Source Timestamp Propagation | Prevents wrappers from hiding stale inputs | Requires wrapper-specific integration |
 | L2 Action Sentinel | Blocks borrow/liquidation paths during sequencer downtime or grace period | Can delay liquidations unless a severe-risk exception exists |
 | Conservative Zeroing | Avoids overvaluing stale-priced components | Can change quorum or validator-set composition abruptly |
+| Reject Stale-To-Peg Fallbacks | Prevents stable-asset adapters from silently blessing outages at par | May block actions during benign oracle downtime |
 | Risk-Reduction Setter Exemption | Lets emergency actions lower exposure during oracle outages | Must be limited to monotonic reductions that do not depend on price |
 
 ### Implementation: Staleness Check
@@ -231,6 +239,7 @@ function isPriceStale() public view returns (bool) {
 - **Arbitrum Sequencer Outage** — multiple protocols affected by stale prices
 - Rocket Pool's Polygon rate relay and Symbiotic Relay's voting-power calculators show wrapper-specific freshness hazards: the former can confuse source and destination timestamps, while the latter can zero voting power on stale prices.
 - Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
+- Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/adapters` and `src/PegStabilityModule.sol`.
 
 ## Related Patterns
 

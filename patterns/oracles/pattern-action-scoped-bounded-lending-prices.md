@@ -91,6 +91,7 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - If using status flags, document the required flag mask for each action and test that missing action-required flags fail closed.
 - If allowing stale-price collateral withdrawals, test the no-debt and with-debt branches separately.
 - For perps, test each oracle action class separately; do not assume a funding-safe price is liquidation-safe or settlement-safe.
+- For stable-asset mint/redeem paths, choose conservative peg bounds by action: minting can use the lower of oracle and par, while redemption can use the higher of oracle and par only if reserves and caps absorb the difference.
 
 ## Source Evidence
 
@@ -100,6 +101,7 @@ fn oracle_valid_for(action: Action, oracle: OracleStatus) -> bool {
 - fx Protocol uses min/mid/max bounded prices and action modes for exchange, redeem, and liquidation in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/contracts/price-oracle` and `contracts/core/PoolConfiguration.sol`.
 - Drift uses action-scoped oracle validity for funding, settlement, liquidation, margin, trigger, and AMM-fill paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/math/oracle.rs`.
 - Alpha Homora V2 uses token-specific borrow, collateral, and liquidation factors around a shared source oracle in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/ProxyOracle.sol` and applies them in HomoraBank health and liquidation checks.
+- Satoshi Nexus prices stable-asset minting with conservative peg caps and redemptions with the opposite conservative bound in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/NexusYieldManager.sol`.
 
 ## Related Patterns
 

@@ -71,6 +71,7 @@ This remains a controlled shared-liquidity exception only if the callback is res
 - For leveraged router flows, authenticate core callback caller and router sender, then verify produced collateral before redepositing it.
 - For PSM-style reserves, exclude accrued fees from spendable stablecoin inventory.
 - Enforce buy/sell limits inside the shared reserve kernel, and route reserve movement through constrained adapter managers.
+- For leveraged callback helpers, authenticate the market callback, bind user position ownership, and verify the borrowed asset, minted collateral, and repayment deltas before returning control.
 
 ## Source Evidence
 
@@ -78,6 +79,7 @@ This remains a controlled shared-liquidity exception only if the callback is res
 - Dolomite's Harvest strategy integration composes leveraged farming actions through a shared margin core with callback restrictions and receipt-token checks; the reusable lesson is the authenticated callback boundary, not the specific farming route.
 - Lista PSM reserve accounting excludes accrued fees from spendable stablecoin inventory, enforces daily buy limits, and routes reserves through a constrained vault manager.
 - Stargate V2 maintains path-scoped credits in `/private/tmp/defillama-source/stargate-protocol__stargate-v2/packages/stg-evm-v2/src/libs/Path.sol` and ties pool balances to credits and pending bus amounts through `StargateBase.sol` and invariant tests in `StargateInvariantTest.t.sol`.
+- Reservoir sRUSD loopers compose Morpho borrow/supply callbacks with sRUSD mint/redeem and repay flows in `/private/tmp/defillama-source/reservoir-protocol__srusd-loop/src`, illustrating a leveraged callback helper variant that must remain tightly settlement-checked.
 
 ## Related Patterns
 

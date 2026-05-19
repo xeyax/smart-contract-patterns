@@ -64,12 +64,14 @@ function migrate(uint256 liquidity, uint256 minA, uint256 minB, uint256 deadline
 - Validate token ordering and target pool identity.
 - Refund unused assets to the user or explicit receiver.
 - Avoid retaining residual LP or underlying balances after migration.
+- For savings-vault or receipt-token migrations, redeem the old position under user authorization, measure the actual base-asset balance delta, then deposit into the new vault for the same user.
 - Test slippage failure, deadline failure, partial asset use, refund behavior, and token ordering.
 
 ## Source Evidence
 
 - QuickSwap periphery includes a V2 migrator that pulls old LP tokens, removes liquidity, adds liquidity to the target pool with user bounds, and refunds leftovers in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/contracts/UniswapV2Migrator.sol`.
 - QuickSwap tests cover migrator behavior in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/test/UniswapV2Migrator.spec.ts`.
+- Reservoir's sRUSD migration contract pulls old sRUSD from the user, redeems through the old saving module, measures actual rUSD received, and deposits into the new ERC4626 vault for the user in `/private/tmp/defillama-source/reservoir-protocol__srusd/src/Migration.sol`.
 
 ## Real-World Examples
 

@@ -238,6 +238,7 @@ deviation bounds. A lone valid source is availability, not high confidence.
 - Volatile assets: loosen to 5-10%
 - If using a warning state, cap both maximum deviation and maximum warning duration, then fail closed after expiry.
 - If accepting a single valid source, make that fallback explicit in action-scoped policy and avoid treating it as equal to multi-source agreement.
+- Weighted averaging is not validation by itself. If all sources are simply averaged, still enforce per-source freshness plus deviation, quorum, median, or adjacent-agreement rules before treating the output as validated.
 
 ## Gas Optimization
 
@@ -267,6 +268,7 @@ function getOptimizedPrice() public view returns (uint256) {
 - NAVI validates primary/secondary oracle divergence with warning and rejection states in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/oracle_pro.move` and `oracle/sources/strategy.move`.
 - Liquity V1's `PriceFeed.sol` fallback and last-good-price state machine provides additional evidence that source disagreement needs explicit status transitions instead of silent fallback.
 - Alpha Homora V2's `AggregatorOracle` caps primary sources at three, sorts valid prices, averages agreeing pairs, returns the median when all three agree, and reverts when no pair is within deviation in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/AggregatorOracle.sol`.
+- Satoshi Core's weighted Chainlink aggregator checks source freshness but illustrates why averaging multiple sources should not be described as validation unless it also enforces deviation or quorum semantics.
 
 ## Related Patterns
 

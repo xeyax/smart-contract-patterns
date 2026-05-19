@@ -33,6 +33,7 @@
 - Sending failed settlement funds to an admin or multisig is not a user refund path unless on-chain entitlement and claim semantics define how users recover funds.
 - Split value-transfer/routing-metadata flows need recovery when value is attested or delivered but the metadata sidecar is delayed, malformed, missing, or unpaired.
 - Deposit cancellation or reclaim must bind the exact message envelope and document non-refundable messaging fees.
+- Compose or multihop bridges need explicit failed-message state, retry/refund semantics, and reserved gas or value rules so a malformed second-hop payload does not strand the first-hop value.
 
 ## R3: Migration Accounts For In-Flight Messages
 
@@ -81,6 +82,7 @@
 - Gnosis xDAI bridge USDS migration docs and tests cover router compatibility, legacy message handling, direct-route failure cases, and liquidity buffers for claims in `/private/tmp/defillama-source/gnosischain__tokenbridge-contracts-xdaibridge/USDSMigration.md` and bridge tests.
 - Stargate V2 migration tests pause new sends, drain buses, clear credits, revoke mint authority, burn locked supply or credit, reconnect pools, and revalidate invariants in `/private/tmp/defillama-source/stargate-protocol__stargate-v2/packages/stg-evm-v2/test/stargatePoolMigratable/OFTPoolToPoolMigrationTest.t.sol`.
 - Polygon zkEVM/Agglayer emergency mode can block bridge sends and claim finalization in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`, illustrating a broad break-glass exception that must be operationally justified.
+- USDT0 multihop, native-mesh, and deployment audit reports repeatedly discuss composed-message retry/refund handling, malformed payload recovery, and lane preflight checks; these are lower-confidence audit-source examples because the source repository inspected here contains reports, not implementation code.
 
 ## Related Patterns
 

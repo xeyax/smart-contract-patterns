@@ -58,6 +58,7 @@ slots or registry entries, and return ownership to the final owner.
 - Combine with selector-scoped authority for any retained factory or operator permissions.
 - For cross-chain factories, assert proxy admin, upgrade executor, beacon owner, implementation initialization, and gateway roles after both local and remote deployments.
 - For temporary upgrade authorities, verify implementation bytecode or address inputs before writing storage, then return ownership in the same runbook.
+- For cross-chain deployments, review the final authority matrix before activation: owner, delegate, proxy admin, Safe threshold, signer set, bytecode/compiler identity, queued Safe transactions, peer links, and route libraries.
 
 ## Source Evidence
 
@@ -65,6 +66,7 @@ slots or registry entries, and return ownership to the final owner.
 - Tests assert final owner and pauser placement after factory deployment.
 - Arbitrum token bridge deployment tests assert proxy admin, upgrade executor, beacon, owner, and initialized-logic placement after factory-driven bridge deployment.
 - Mantle's legacy deployment includes `ChugSplashDictator` and `AddressDictator` contracts that temporarily receive authority, check an implementation code hash or set exact address-manager entries, then return ownership to the final owner.
+- USDT0 deployment audit reports repeatedly verify final owner/delegate/proxy-admin placement, Safe threshold and signer composition, bytecode identity, and queued transaction state; this is audit-source evidence for the runbook checklist rather than implementation proof.
 
 ## Related Patterns
 

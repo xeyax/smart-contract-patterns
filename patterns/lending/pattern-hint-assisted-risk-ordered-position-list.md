@@ -61,6 +61,7 @@ function findInsertPosition(uint256 ratio, address upper, address lower) public 
 - Keep insert and reinsert paths symmetric.
 - Reposition when collateral, debt, rate, or any ordering field changes.
 - Provide helper views that return approximate hints for integrators.
+- For multi-collateral CDPs, keep one ordered list per collateral or market so hints cannot cross risk domains.
 - Test head, tail, equal-key, stale-hint, and removal cases.
 
 ## Source Evidence
@@ -69,6 +70,7 @@ function findInsertPosition(uint256 ratio, address upper, address lower) public 
 - Liquity V1 helper logic in `HintHelpers.sol` exposes `getApproxHint` and `getRedemptionHints`.
 - Liquity tests include `SortedTrovesTest.js` for ordering and list behavior.
 - Liquity V2/Bold uses analogous sorted trove machinery in `/private/tmp/defillama-source/liquity__bold/contracts/src/SortedTroves.sol`.
+- Satoshi Core uses per-collateral NICR-ordered trove lists with caller hints and redemption hint helpers in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/SortedTroves.sol` and `src/helpers/MultiCollateralHintHelpers.sol`.
 
 ## Real-World Examples
 
