@@ -38,6 +38,12 @@ struct Account {
 
 Supplying the base asset increases principal; borrowing decreases it. Supplying collateral affects only collateral balances and risk capacity.
 
+### Account-Scoped Siloed Debt Variant
+
+Multi-asset lending pools can emulate a single-borrow-asset boundary at the
+account level. Once an account borrows a siloed asset, it cannot borrow unrelated
+assets until that siloed debt is cleared.
+
 ## Key Points
 
 - Keep base supply/borrow accounting separate from collateral token accounting.
@@ -45,10 +51,16 @@ Supplying the base asset increases principal; borrowing decreases it. Supplying 
 - Curate each base market independently.
 - Define how protocol reserves absorb base-asset bad debt.
 - Document that collateral-only transfers may rely on threshold buffers rather than full cross-market accrual.
+- For account-scoped siloed debt, test the transition into and out of siloed debt
+  and reject unrelated new debt while the siloed borrow remains open.
 
 ## Source Evidence
 
 - Compound III Comet defines one borrowable base token per market, stores signed base principal separately from collateral, and routes base supply/borrow separately from collateral transfers.
+- Aave V3 marks siloed borrowing assets in reserve configuration and validates
+  that accounts with siloed debt cannot add unrelated borrows in `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/configuration/ReserveConfiguration.sol:260`,
+  `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/configuration/UserConfiguration.sol:137`,
+  and `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/logic/ValidationLogic.sol:297`.
 
 ## Related Patterns
 

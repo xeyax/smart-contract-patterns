@@ -56,6 +56,13 @@ testing swaps against a simulator with the real program and representative
 account snapshots. This is integration evidence, not proof that the underlying
 AMM program is correct.
 
+### Swap Callback Quote Variant
+
+AMM quoters can call the real swap entry point, receive the swap callback, and
+revert from the callback with encoded amount, post-swap price, initialized tick
+crossings, or gas estimate data. Callers must distinguish the expected quote
+revert selector from ordinary swap failures.
+
 ## Key Points
 
 - Revert before token transfers, state commitments that matter, or external settlement.
@@ -63,6 +70,8 @@ AMM program is correct.
 - Make simulation mode impossible to reach from normal execution with user funds.
 - Treat unexpected reverts as failed quotes, not zero-value quotes.
 - Test that the simulated path and real path share all pricing and branch logic.
+- For swap-callback quotes, include post-swap price or tick metadata when
+  integrators need to evaluate price impact, not only amount in/out.
 - For snapshot parity tests, pin account snapshots, program binaries, and expected deltas so router or AMM math changes fail loudly.
 - For adapter parity tests, assert that quoted routes and executable account metas are generated from the same state snapshot.
 
@@ -71,6 +80,11 @@ AMM program is correct.
 - Fluid vault liquidation simulation runs the real liquidation path with a sentinel receiver and reverts with encoded quote data before liquidity payback and withdraw settlement.
 - Jupiter AMM implementation snapshots AMM accounts, loads real program binaries in LiteSVM, executes swaps, and compares execution deltas to quote results in `/private/tmp/defillama-source/jup-ag_jupiter-amm-implementation/jupiter-core/src/amms/test_harness.rs` and `jupiter-core/tests/test_amms.rs`.
 - Sanctum's INF Jupiter adapter derives quote and swap account metas from the same adapter state and tests simulated swaps through account snapshots in `/private/tmp/defillama-source/igneous-labs_inf-jup-interface/jup-interface/src/lib.rs` and `jup-interface/tests/common/swap.rs`.
+- Uniswap V3 quoters run the swap path and revert from the callback with encoded
+  quote data, including V2 metadata for post-swap price, initialized ticks
+  crossed, and gas estimate in `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/lens/Quoter.sol:37`,
+  `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/lens/QuoterV2.sol:40`,
+  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/QuoterV2.spec.ts:266`.
 
 ## Related Patterns
 

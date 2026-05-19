@@ -99,6 +99,9 @@ For instant unstake pools, count incoming stake accounts as pending liabilities 
 - When lending collateral is deployed into yield vaults, keep a local reserve percentage and recall from priority adapters before withdrawals consume accounting balances the protocol cannot settle.
 - If an L1 or external staking queue has both deposit and withdrawal operations pending, process withdrawal operations before new deposit or rebalance operations consume liquid capacity.
 - Lending pools that deploy idle liquidity into yield adapters need a target buffer ratio, a recall path, and tests proving withdrawals cannot spend accounting balances that remain externally deployed.
+- Lending-market vault allocators should bound supply and withdrawal queues,
+  validate queue edits, and keep forced-removal recovery paths so users can exit
+  a market that governance has removed from normal allocation.
 - For validator or nominator pools, block new stake deployment while withdrawal requests are pending, and expose a bounded public drain path so exits do not depend on one operator.
 - Instant withdrawal buffers should subtract low-watermark liquidity before quoting redeemable capacity; the low watermark is not rescueable surplus.
 - Instant unstake pools should track incoming stake as a liability until reclaimed, and utilization fees should be computed from post-unstake reserve liquidity.
@@ -124,6 +127,10 @@ For instant unstake pools, count incoming stake accounts as pending liabilities 
 - Sanctum's unstake program records incoming stake lamports separately from SOL reserves, subtracts incoming stake when quoting instant unstake capacity, rejects locked stake, and reconciles reclaimed stake in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/state/pool.rs`, `instructions/unstake_instructions/unstake_accounts.rs`, and `instructions/reclaim_stake_account.rs`.
 - Sanctum's unstake fee curve charges more as reserves fall toward depletion, and tests exercise fee behavior at different reserve utilization levels in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/state/fee.rs` and `tests/test-unstake-integration.ts`.
 - Sanctum's unstake LP accounting includes flash-borrowed reserve amounts consistently in add/remove liquidity snapshots while paired flash-loan instructions enforce repayment in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/utils.rs`, `instructions/add_liquidity.rs`, `instructions/remove_liquidity.rs`, `instructions/take_flash_loan.rs`, and `instructions/repay_flash_loan.rs`.
+- MetaMorpho bounds market supply and withdraw queues, validates queue removal,
+  and documents forced market-removal recovery in `/private/tmp/defillama-source/morpho-org__metamorpho/src/libraries/ConstantsLib.sol:15`,
+  `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:308`,
+  and `/private/tmp/defillama-source/morpho-org__metamorpho/README.md:158`.
 
 ## Related Patterns
 

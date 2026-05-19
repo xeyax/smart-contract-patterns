@@ -54,10 +54,16 @@ Use opposite conservative rounding directions for assets owed to the protocol an
 - Check narrowing casts after index multiplication.
 - Pair optimized math with reference-model fuzzing or formal equivalence checks.
 - Native-width arithmetic is acceptable only when every range and cast is proven or exhaustively tested.
+- If using a fixed-point exponential for adaptive rates rather than account
+  balances, clip exponent inputs to the approximation's proven range and test the
+  error envelope around both positive and negative bounds.
 
 ## Source Evidence
 
 - M0 updates continuous indexes before rate changes, computes `e^(rate*time)` with bounded fixed-point math, rounds earning-token index multiplication down and owed-debt multiplication up, and tests/explores math equivalence against reference models.
+- Morpho Blue IRM clips `wExp` inputs and tests approximation error for adaptive
+  interest-rate math in `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/adaptive-curve-irm/libraries/ExpLib.sol:17`
+  and `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/test/ExpLibTest.sol:19`.
 
 ## Related Patterns
 

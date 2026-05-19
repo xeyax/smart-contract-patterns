@@ -18,6 +18,8 @@
 
 - `virtualPrice = invariant / totalSupply` should be non-decreasing across ordinary swaps.
 - Fees should accrue to LPs, not disappear through rounding.
+- Virtual price should derive from stored/internal balances, not raw balances
+  that a third party can increase through donation.
 - Tests should cover swap, deposit, withdrawal, and parameter-ramp sequences.
 
 ## R2: Share Supply Changes Match Invariant Delta
@@ -53,6 +55,10 @@
 ## Source Evidence
 
 - Curve defines LP virtual price as invariant value per total supply and includes stateful tests that virtual price does not decrease across swaps, liquidity operations, and amplification ramps.
+- Curve StableSwap NG computes virtual price from invariant value and stored
+  balances and tests monotonicity plus donation resistance in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1737-1755`,
+  `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/general/test_virtual_price.py:8-84`,
+  and `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/general/test_donation_get_D.py:7-30`.
 - Sanctum's unstake pool includes flash-borrowed reserve amounts in pool-value snapshots for add/remove liquidity and resets them through paired borrow/repay instructions in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/utils.rs`, `instructions/add_liquidity.rs`, `instructions/remove_liquidity.rs`, `instructions/take_flash_loan.rs`, and `instructions/repay_flash_loan.rs`.
 
 ## Related Patterns

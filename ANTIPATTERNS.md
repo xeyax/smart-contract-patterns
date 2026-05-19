@@ -64,13 +64,13 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 Pause blocks ALL operations including withdrawals.
 **Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, repayments, liquidations, interest accrual, and refunds remain available when solvent or risk-reducing; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. Pausing an operator-finalized claim queue after the operator has fixed entitlements traps funds just as surely as pausing the request path. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, repayments, liquidations, interest accrual, and refunds remain available when solvent or risk-reducing; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. Pausing an operator-finalized claim queue after the operator has fixed entitlements traps funds just as surely as pausing the request path. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. For lending reserves, distinguish freeze/new-risk gates from full pause: a freeze can block new supply/borrow while still allowing repay, withdraw, and liquidation. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
 
 ### EOA Gate as Security Boundary
 Contract rejects contract callers with `tx.origin`, `isContract`, or both and presents that as security.
 **Symptoms:** `require(tx.origin == msg.sender)`, `Address.isContract(msg.sender)` checks, or README language claiming bots/MEV/bridges are blocked by EOA-only access.
 **Risk:** Constructor calls and account abstraction can bypass or invalidate the assumption; smart wallets and routers are broken; users lose explicit recipient and signed-intent protections.
-**Fix:** Use explicit recipients, signed intent, allowlists, bridge-aware receiver checks, slippage bounds, and action-specific authorization. EOA gates can be a UX guardrail only when documented as such and tested against smart-account flows. A signed RFQ order may bind `tx.origin` only as a maker-chosen origin filter paired with maker signature, taker checks, expiry, fill state, and an origin registry; it is still not a standalone authorization primitive and harms smart-account or relayer compatibility.
+**Fix:** Use explicit recipients, signed intent, allowlists, bridge-aware receiver checks, slippage bounds, and action-specific authorization. EOA gates can be a UX or governance anti-tokenization policy only when documented as such, paired with explicit checker exceptions where needed, and tested against smart-account flows. A signed RFQ order may bind `tx.origin` only as a maker-chosen origin filter paired with maker signature, taker checks, expiry, fill state, and an origin registry; it is still not a standalone authorization primitive and harms smart-account or relayer compatibility.
 
 ## Oracle & Price
 
@@ -84,13 +84,13 @@ Single oracle source, no fallback, no validation.
 Using instantaneously manipulable price (DEX spot, single-block read) for value-bearing operations.
 **Symptoms:** Price read from AMM pool in same transaction as value transfer.
 **Risk:** Flash loan → manipulate price → exploit → repay in same tx.
-**Fix:** TWAP, multi-block averaging, or oracle with manipulation resistance.
+**Fix:** TWAP, multi-block averaging, or oracle with manipulation resistance. Spot aggregators that are documented as off-chain-only remain unsafe for on-chain value transfer even when they combine many DEX sources.
 
 ### Synthetic Freshness Timestamp
 Oracle wrapper returns `updatedAt = block.timestamp` or another call-time value while the economic source was last updated earlier.
 **Symptoms:** Chainlink-compatible shim passes generic staleness checks even though the underlying NAV, TWAP, bridged rate, or checkpoint has separate freshness.
 **Risk:** Integrations treat stale economic data as fresh and allow deposits, withdrawals, borrowing, or redemptions at an obsolete value.
-**Fix:** Propagate the oldest underlying source timestamp, expose economic and relay timestamps separately, and require consumers to check source age and deviation.
+**Fix:** Propagate the oldest underlying source timestamp, expose economic and relay timestamps separately, and require consumers to check source age and deviation. Chainlink-compatible wrappers that return zero timestamps or omit staleness/min-max checks need wrapper-specific integration assumptions, not inherited Chainlink semantics.
 
 ### Global Timestamp For Per-Asset Prices
 Oracle stores many asset prices but exposes one shared timestamp or updates a global timestamp on every per-asset write.
@@ -122,7 +122,7 @@ Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfe
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection. Multi-leg zaps should carry per-leg swap and liquidity minimums instead of relying only on one final aggregate `minOut`, and residual ledgers do not make a bad internal fill acceptable. Flash-order or callback-routed settlement must bind minimum output and settle from measured balance deltas, not from an off-chain quote.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection. Multi-leg zaps should carry per-leg swap and liquidity minimums instead of relying only on one final aggregate `minOut`, and residual ledgers do not make a bad internal fill acceptable. Flash-order or callback-routed settlement must bind minimum output and settle from measured balance deltas, not from an off-chain quote. Command routers that allow partial failure need explicit sweep or balance-check commands on failed branches so residual balances cannot be stranded.
 
 ### Duplicate Staking Asset Registration
 MasterChef-style farm registers the same staking token in more than one pool while reward debt reads total token balance from the farm contract.
@@ -140,7 +140,7 @@ Discounts, fee tiers, gauges, or other economic entitlements are keyed by `tx.or
 Quoted helper functions use a different formula than the state-changing execution path.
 **Symptoms:** `getAmountIn` calls output math, previews omit dynamic fees, or off-chain quotes use stale router formulas.
 **Risk:** Users set wrong slippage bounds, integrators route through stale math, or economic checks pass against a quote the execution path never honors.
-**Fix:** Share quote and execution math libraries, test public quote helpers against execution, and treat quote-only fixes as compatibility-sensitive upgrades. For AMMs, snapshot representative pool accounts and execute swaps in a local simulator or fork, then compare quote deltas with executed balance deltas. For adapter-based routes, derive executable account metas from the same state used for quote validation and fail tests when the simulated balance delta diverges from the quote.
+**Fix:** Share quote and execution math libraries, test public quote helpers against execution, and treat quote-only fixes as compatibility-sensitive upgrades. For AMMs, snapshot representative pool accounts and execute swaps in a local simulator or fork, then compare quote deltas with executed balance deltas. Revert-encoded quote paths should distinguish the expected quote selector from ordinary failures and can include post-swap price, tick, or gas metadata when integrators need price-impact checks. For adapter-based routes, derive executable account metas from the same state used for quote validation and fail tests when the simulated balance delta diverges from the quote.
 
 ### Donation Attack Surface
 Share price manipulable via direct token transfer to contract.
@@ -224,7 +224,7 @@ Protocol integrates with external contracts passed as parameters, validates toke
 ERC-4626 vault with no virtual offset, totalAssets reads balance directly, no minimum initial deposit.
 **Symptoms:** No dead shares, no _decimalsOffset, no internal accounting.
 **Risk:** Attacker deposits 1 wei, donates tokens to inflate share price, subsequent depositors get 0 shares. sDOLA: $239K.
-**Fix:** Virtual share offset (OpenZeppelin _decimalsOffset), internal asset accounting, minimum initial deposit.
+**Fix:** Virtual share offset (OpenZeppelin _decimalsOffset), internal asset accounting, minimum initial deposit. Choose offset strength for the asset/share precision domain; a small offset can still leave donation grief or weak protection for high-decimal assets.
 
 ### Withdrawal Queue Starvation
 Vault strategy locks all funds in external protocols, no reserved liquidity buffer.
@@ -262,7 +262,7 @@ Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
 Protocol requests unlimited approval, approved spender contracts are upgradeable.
 **Symptoms:** `type(uint256).max` approval, no permit2, no session-scoped approvals.
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
-**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. For stored route templates, validate approved router and calldata before granting allowance. For bridge hooks or fee dispatchers callable by arbitrary users, prefer per-call allowance that is granted, consumed, and cleared inside the same operation frame. Callback-capable vaults should assert that all operation and callback-created approvals are zero before the frame ends.
+**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. Permit2-style approvals still need spender, token, amount, expiration, and nonce scope; witness-bound transfer permits are safer when a one-time transfer must commit to extra route or action context. For stored route templates, validate approved router and calldata before granting allowance. For bridge hooks or fee dispatchers callable by arbitrary users, prefer per-call allowance that is granted, consumed, and cleared inside the same operation frame. Callback-capable vaults should assert that all operation and callback-created approvals are zero before the frame ends.
 
 ### Overwrite-Based Allowance Changes
 Custom transfer budgets or ERC20-like allowances are replaced by a new value without accounting for pending spender use.
@@ -280,13 +280,13 @@ Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if t
 Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
 **Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
 **Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
-**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations. Executor-supplied custody routes are acceptable only when the unsigned route cannot change user price, asset, receiver, fee, or claim semantics and is still checked against on-chain allowlists.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations. Executor-supplied custody routes are acceptable only when the unsigned route cannot change user price, asset, receiver, fee, or claim semantics and is still checked against on-chain allowlists. A recovered route signer is only context until downstream code checks the expected signer, signed data, and intended action.
 
 ### Bitmap Nonce Domain Truncation
 Signed-order nonce storage narrows a wider signed nonce into a smaller bitmap index without enforcing the supported range.
 **Symptoms:** `uint256 nonce` is cast to `uint64`, `uint8`, or another smaller type for bitmap word/bit selection, while signatures accept arbitrary-width nonces.
 **Risk:** Different signed nonces can collide in storage or make replay and griefing behavior differ from what signers expect.
-**Fix:** Define the nonce domain explicitly, reject values outside it before casting, and test high-bit collision cases as well as ordinary duplicate nonces.
+**Fix:** Define the nonce domain explicitly, reject values outside it before casting, and test high-bit collision cases as well as ordinary duplicate nonces. If using an unordered nonce bitmap, partition the nonce into explicit word and bit fields and test word-boundary and high-word invalidation behavior.
 
 ## Governance
 
@@ -306,7 +306,7 @@ Governor contract executes arbitrary calldata against any target.
 Minter or burner roles can arbitrarily change user balances or total supply.
 **Symptoms:** Role-gated `mint` or `burn` with no per-window cap, recipient scope, debt/backing condition, or user-specific authorization; guardian/quorum paths exist but an admin or DAO mint path bypasses them.
 **Risk:** Key compromise, governance error, or signer coercion can dilute holders, erase balances, or break reserve accounting even if the role is held by a multisig.
-**Fix:** Enforce protocol-level supply and balance-mutation bounds, tie emergency minting to realized debt or backing proofs, require user consent for burns except narrow slashing/settlement cases, and monitor every budget-consuming path.
+**Fix:** Enforce protocol-level supply and balance-mutation bounds, tie emergency minting to realized debt or backing proofs, require user consent for burns except narrow slashing/settlement cases, and monitor every budget-consuming path. Per-facilitator mint buckets and zero-cap offboarding reduce blast radius, but bucket caps are not reserve solvency proof.
 
 ## Lending / Borrowing
 
@@ -400,7 +400,7 @@ Multiple independent pools/strategies share single token vault.
 Contract exposes multicall/batch that chains arbitrary internal calls without restriction.
 **Symptoms:** `multicall()` or `cook()` with no whitelist on composable actions, or payable delegatecall batching where the same `msg.value` is visible to multiple subcalls.
 **Risk:** Individually valid calls composed to break invariants. Abracadabra `cook()` exploit.
-**Fix:** Whitelist composable actions, re-validate invariants after entire batch, disallow dangerous combinations. For payable multicall, account from actual contract balance deltas or consume value exactly once instead of trusting `msg.value` in each subcall.
+**Fix:** Whitelist composable actions, re-validate invariants after entire batch, disallow dangerous combinations. For payable multicall, account from actual contract balance deltas or consume value exactly once instead of trusting `msg.value` in each subcall. If a batch format permits individual commands to fail, require explicit cleanup commands and final balance checks for every allowed-failure branch.
 
 ### Permissionless Market Without Guardrails
 Anyone can create pools/markets with arbitrary tokens and parameters.

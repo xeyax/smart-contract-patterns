@@ -60,11 +60,19 @@ function vote(address[] calldata gauges, uint16[] calldata bps) external {
 If aggregate gauge totals are used on-chain, update affected gauges incrementally
 or through bounded public maintenance rather than looping all voters.
 
+Vote-escrow gauge controllers can schedule gauge weight changes by week and use
+decaying user slopes from lock-end voting power. In that variant, user votes
+should be capped at 10,000 bps, revotes should have a delay, and gauges should
+checkpoint slope changes by epoch rather than scanning all voters.
+
 ## Implementation
 
 - Enforce a total allocation cap, usually 10,000 basis points.
 - Define whether pending or claimable voting power participates in gauge totals.
 - Keep per-gauge aggregation bounded, cached, or cursor-driven.
+- For decaying voting escrow, schedule gauge weights by epoch and checkpoint
+  slope changes at lock ends.
+- Enforce revote delays so users cannot rapidly redirect the same voting power.
 - Emit allocation changes with old and new weights.
 - Test voting-power accrual, vote updates, over-allocation, zero-power users, and voter-list growth.
 
@@ -72,6 +80,11 @@ or through bounded public maintenance rather than looping all voters.
 
 - BENQI's `GaugeController` stores user allocation weights in basis points and derives node votes from current and pending veQI balances in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/veQI/GaugeController.sol`.
 - BENQI's implementation also illustrates the risk of aggregating node voters with loops, which should be bounded or kept off critical on-chain paths.
+- Curve DAO GaugeController schedules weekly gauge weights, applies decaying
+  slopes, checks lock end, enforces a 10-day revote delay, and caps user power at
+  10,000 bps in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:188-285`,
+  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:345-380`,
+  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:485-553`.
 
 ## Real-World Examples
 

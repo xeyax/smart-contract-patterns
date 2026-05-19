@@ -73,10 +73,18 @@ Any config queued while a shorter delay is pending should still use the active d
 - Bound claim, cooldown, and processing-period setters with hard upper limits when they affect exit liveness, not only fee or rate economics.
 - A wrapper that timelocks only ownership transfer is not a timelock for forwarded economic setters; delay the sensitive calls themselves.
 - Split emergency halt, routine operator, governor, and root/sudo powers so immediate roles cannot exercise delayed root authority.
+- Treat risk expansion and risk reduction asymmetrically: cap increases and
+  timelock decreases should be delayed, while cap decreases or market revokes
+  may execute immediately when they can only reduce exposure.
+- Cooldown-bounded steward updates that execute immediately and then block the
+  next update are rate limits, not user-observable queued timelocks.
 
 ## Source Evidence
 
-- Curve pool templates commit and apply fee/admin changes behind a delay and bound amplification ramps by duration and maximum factor changes.
+- Curve Crypto commits and applies parameter changes behind a delay and bounds
+  A/gamma ramps by duration and maximum factor changes; StableSwap NG has
+  bounded immediate fee setters, so Curve evidence should not be generalized to
+  every Curve template.
 - An Ondo audit-contest snapshot showed setter checks that appeared to validate current fee variables rather than proposed inputs, a reusable stale-state bound-check failure mode.
 - StakeWise V2 audit material flagged a protocol-fee bound just below 100 percent as economically weak despite being numerically bounded.
 - tBTC v2 shows that immediate trust-list changes depend on the outer owner or governance path when no internal delay is present.
@@ -85,6 +93,18 @@ Any config queued while a shorter delay is pending should still use the active d
 - SlowMist's Avalon USDa audit flagged an unbounded saving-account process-period setter as an exit-liveness risk, reinforcing that time parameters need hard upper bounds.
 - VVS `CraftsmanAdmin` illustrates a weak wrapper shape: ownership handoff is delayed, but reward-economic calls such as `add`, `set`, `distributeSupply`, and `updateStakingRatio` are forwarded immediately in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/CraftsmanAdmin.sol`.
 - TON liquid staking separates halter, approver, interest manager, governor, and sudoer roles, with delayed governor and sudoer requests in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/contracts/governor_requests.func` and `sudoer_requests.func`.
+- MetaMorpho delays timelock decreases and market-cap increases while allowing
+  cap decreases and guardian revokes as immediate risk reductions in `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:213`
+  and `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:420`.
+- GHO stewards use bounded cooldown/debounce controls after immediate execution,
+  which is useful for limiting update cadence but is weaker than a queued
+  timelock in `/private/tmp/defillama-source/aave__gho-core/src/contracts/misc/GhoAaveSteward.sol:80`,
+  `/private/tmp/defillama-source/aave__gho-core/src/contracts/misc/GhoGsmSteward.sol:52`,
+  and `/private/tmp/defillama-source/aave__gho-core/docs/gho-stewards.md`.
+- Curve Crypto delayed parameter commits and bounded ramps are implemented in
+  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:1121-1268`,
+  while StableSwap NG's immediate bounded fee setter appears in
+  `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1861-1875`.
 
 ## Related Patterns
 

@@ -53,10 +53,17 @@ The protocol stores balances and totals under the market id, and only accepts ma
 - Keep callbacks and hooks from writing unrelated market state.
 - Prove or test that one market's insolvency cannot reduce another market's assets.
 - Document that enabled parameter classes do not mean governance has underwritten every token/oracle pair; users and curators still evaluate market-specific risk.
+- If a market parameter is initialized permissionlessly only once, key that
+  initialization to immutable market parameters and reject subsequent changes.
+  One-shot public setup is only safe when the initializer cannot choose someone
+  else's market economics.
 
 ## Source Evidence
 
 - Morpho Blue uses hashed market parameters, enabled IRM/LLTV guards, and formal market-independence checks for permissionless isolated markets; oracle and token safety remain market-specific user assumptions.
+- Morpho Blue fixed-rate IRM allows public one-shot rate initialization keyed by
+  market parameters and rejects later changes in `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/fixed-rate-irm/interfaces/IFixedRateIrm.sol:24`
+  and `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/fixed-rate-irm/FixedRateIrm.sol:40`.
 
 ## Related Patterns
 

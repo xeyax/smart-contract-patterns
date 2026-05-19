@@ -179,6 +179,14 @@ geometricMeanPrice = 1.0001^(averageTick)
 
 Fixed-yield AMMs can accumulate an implied-rate value rather than a direct spot price. The reader derives PT, YT, or LP rates from the average implied rate and time remaining to expiry. In this variant, readiness checks must cover both the observation ring and the market's maturity state.
 
+### AMM EMA Oracle
+
+Some AMMs maintain an exponential moving average of pool state, such as a
+stable-swap price oracle or crypto-pool price scale. This is useful for execution
+logic and monitoring, but it is not the same as a trade-volume TWAP and should
+not be promoted to a manipulation-resistant collateral oracle without separate
+liquidity, update, and action-scope analysis.
+
 ### Weighted TWAP
 
 Give more weight to recent observations:
@@ -193,6 +201,14 @@ function getWeightedTWAP() public view returns (uint256) {
     return (recentPrice * 70 + olderPrice * 30) / 100;
 }
 ```
+
+### Execution Slippage Guard Variant
+
+A router can use current ticks and TWAP ticks as an execution guard rather than
+as a standalone collateral oracle. For multi-hop or split routes, compute a
+synthetic path tick from the hops and weights, then reject execution when current
+or TWAP tick deviates beyond the user or protocol bound. The guard must fail
+closed if a pool lacks the observation history required for the requested window.
 
 ## Observation Array Requirements
 
@@ -219,6 +235,8 @@ Before using a TWAP for value-bearing operations:
 - Check the returned harmonic mean liquidity against a minimum threshold for value-bearing use.
 - Use a separate initialization phase or circuit breaker until readiness is true.
 - Reject fallback-to-shorter-window behavior unless the shorter window is explicitly configured and audited.
+- For synthetic path guards, verify every hop's observation cardinality and
+  weight math before treating the path-level tick as a slippage bound.
 
 ## Attack Vectors
 
@@ -249,6 +267,14 @@ Before using a TWAP for value-bearing operations:
 - Pendle V2 accumulates implied-rate observations and derives PT/YT/LP rates from time-to-expiry, while its Chainlink-compatible wrapper illustrates why callers must check underlying TWAP readiness and not only `updatedAt`.
 - [Euler Finance](https://docs.euler.finance/euler-protocol/getting-started/methodology/oracle-rating) — uses TWAP for price discovery
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
+- Uniswap swap-router contracts use synthetic path and weighted-route tick
+  guards for slippage checks, including observation-cardinality failure tests, in
+  `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/base/OracleSlippage.sol:17`
+  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/OracleSlippage.spec.ts:339`.
+- Curve StableSwap NG and Curve Crypto maintain AMM EMA/oracle state for pool
+  execution and monitoring in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1295-1461`,
+  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:538-607`,
+  and `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:610-721`; this is AMM state evidence, not a standalone collateral oracle guarantee.
 
 ## Related Patterns
 

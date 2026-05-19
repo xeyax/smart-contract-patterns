@@ -27,6 +27,8 @@ block.timestamp - lastUpdateTime <= maxStaleness
 - Oracle node graphs must normalize leaf price and timestamp data and make
   staleness checks explicit at the consuming node, not implicit in a leaf that
   may use unsafe reads.
+- Execution-time TWAP guards must prove the observation window is actually
+  available for every pool or hop used in the path.
 
 ### Violations
 - [Oracle Staleness Risk](./risk-oracle-staleness.md) — using outdated price data
@@ -123,6 +125,8 @@ oracle.getPrice() should not revert under normal conditions
 - Chainlink L2 sequencer uptime feed
 - For off-chain lookup or pull-oracle feeds, stale data should revert with enough
   machine-readable query data for keepers or clients to refresh the source.
+- For router slippage guards, unavailable observation cardinality or missing
+  path history should fail closed instead of silently falling back to spot.
 
 ---
 
@@ -136,6 +140,9 @@ oracle.getPrice() should not revert under normal conditions
   `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/StalenessCircuitBreakerNode.sol:14-66`,
   `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/PriceDeviationCircuitBreakerNode.sol:17-67`,
   and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/pyth/PythOffchainLookupNode.sol:18-68`.
+- Uniswap swap-router TWAP slippage checks reject paths whose observation data is
+  unavailable or insufficient in `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/base/OracleSlippage.sol:17`
+  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/OracleSlippage.spec.ts:339`.
 
 ---
 
@@ -157,6 +164,7 @@ When evaluating an oracle integration, verify:
 | Market Dependency | If the core delegates oracle choice to market creators, are scale, no-revert, magnitude, and unsafe-jump assumptions documented? |
 | Composite Metadata | Are source mappings unique and complete before a composite price path can refresh? |
 | Node Graphs | Are leaf values normalized and guarded by explicit staleness/deviation/fallback nodes before value-bearing use? |
+| Execution TWAP | Does every route hop have enough observation history before the path is accepted? |
 
 ---
 

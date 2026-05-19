@@ -91,6 +91,9 @@ contract VirtualOffsetVault {
 - The virtual values are not withdrawable assets; they only affect conversion math.
 - Use enough virtual shares to make donation attacks economically unattractive at expected deposit sizes.
 - Virtual offsets can prevent profitable theft while still allowing loss-making donation grief if the offset is too small or zero-share mints are not rejected.
+- Do not treat any nonzero offset as complete protection. The offset's strength
+  depends on asset decimals, share decimals, expected first deposits, and whether
+  direct donations can still distort previews or oracles.
 - If direct asset transfers are later counted as rewards, seed initial liquidity atomically with deployment or enforce a minimum first deposit.
 
 ## Source Evidence
@@ -98,6 +101,9 @@ contract VirtualOffsetVault {
 - EigenLayer `StrategyBase` uses virtual `SHARES_OFFSET` and `BALANCE_OFFSET` in deposit conversion math and rejects zero-share mints.
 - EigenLayer tests validate asset/share conversion integrity with non-zero total shares.
 - Firelight and Reserve staking audit/test material show that insufficient offsets or missing zero-share checks can still allow donation-based griefing or dust-denial before a vault is seeded.
+- MetaMorpho applies ERC4626 conversion offsets but warns that 18-decimal assets
+  receive weak inflation protection from the chosen offset in `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:526`
+  and `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:646`.
 
 ## Real-World Examples
 

@@ -87,6 +87,8 @@ This keeps emergency inflation tied to realized system debt instead of discretio
 - For backstop minting, net surplus against debt and enforce delay before starting dilution.
 - Multisig or role gating is not a substitute for protocol-level supply and balance-mutation bounds; every mint and burn role should still be constrained by amount, recipient, reason, or window.
 - If tokenomics are calendar-denominated, avoid hardcoded block-time conversions unless drift is acceptable and monitored. Timestamp or epoch budgets track annual supply limits more directly.
+- Epoch inflation can reduce the emission rate on a fixed schedule while also
+  capping mintable supply to the amount available in the current epoch.
 
 ## Source Evidence
 
@@ -94,6 +96,10 @@ This keeps emergency inflation tied to realized system debt instead of discretio
 - Sky/Maker DSS delays debt-backed MKR dilution until debt is queued, surplus is netted, and fixed-size debt auctions can be started.
 - SlowMist's Avalon USDa audit identified arbitrary role-gated mint and burn functions as excessive authority, showing that multisig custody alone does not bound supply mutation.
 - VVS Farm converts annual supply targets to per-block emissions through a fixed 6-second block-time assumption in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/VVSInitMintable.sol`, illustrating calendar drift risk for per-block farms.
+- CRV token inflation reduces the rate by epoch, caps minting to available
+  supply, and guards mints in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:61-132`,
+  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:167-220`,
+  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:333-340`.
 
 ## Related Patterns
 

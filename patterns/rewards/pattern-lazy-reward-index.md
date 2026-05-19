@@ -59,6 +59,9 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Reward-per-token math should clamp accrual to the configured emission start/end window before dividing by total stake.
 - For multi-token reward lists, treat reward-token registration and balance-delta reads as a liveness boundary for transfers and exits.
 - Test multiple users entering, exiting, and claiming across emission updates.
+- Separate accrual math from transfer strategy. The reward index can compute
+  user entitlement while pluggable transfer strategies decide whether rewards
+  are pulled, staked, or routed elsewhere.
 - Enforce one active pool per staking token when pool supply is derived from `stakingToken.balanceOf(farm)`, or track per-pool principal internally.
 - When LP fees are removed from AMM reserves and claimed separately, hook LP balance changes so per-user fee indexes stay current across transfers.
 - If rewards are funded by calling an external fee-claiming program, whitelist the external program and account index set, then account funding from the reward-vault balance delta.
@@ -79,6 +82,10 @@ Call `updateUser` before changing the user's stake and before claiming.
 - Meteora Dynamic Fee Sharing funds reward vaults by whitelisted fee-claim CPI and reward-vault balance deltas in `/private/tmp/defillama-source/MeteoraAg_dynamic-fee-sharing/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`.
 - Flare FAssets CollateralPool tracks per-account and global FAsset fee debt so entrants cannot claim historical fees and early withdrawals convert free fees into debt in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/collateralPool/implementation/CollateralPool.sol`.
 - Kamino Farms stores piecewise reward-rate schedules, checkpoints reward state before schedule changes, and integrates cumulative emissions over crossed segments in `/private/tmp/defillama-source/Kamino-Finance_kfarms/programs/kfarms/src/state.rs` and `programs/kfarms/src/farm_operations.rs`.
+- Aave V3 periphery separates reward accrual in `RewardsDistributor` from
+  transfer strategies used by `RewardsController` in `/private/tmp/defillama-source/aave__aave-v3-periphery/contracts/rewards/RewardsDistributor.sol:284`,
+  `/private/tmp/defillama-source/aave__aave-v3-periphery/contracts/rewards/RewardsController.sol:214`,
+  and `/private/tmp/defillama-source/aave__aave-v3-periphery/contracts/rewards/transfer-strategies/TransferStrategyBase.sol:23`.
 
 ## Related Patterns
 

@@ -55,6 +55,9 @@ Intermediate outputs are sent to the next pair, while the final output goes to t
 - Carry per-hop pool version, tier, or bin-step metadata when canonical pool
   identity is wider than token pair alone, and suppress unsafe or ignored pools
   in quote and execution paths.
+- For complex multi-hop exact-in and exact-out paths, do not rely only on one
+  aggregate final bound when intermediate hop limits or reversed execution can
+  change settlement economics.
 
 ## Source Evidence
 
@@ -66,6 +69,9 @@ Intermediate outputs are sent to the next pair, while the final output goes to t
   `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:394-408`,
   `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:775-807`,
   and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBQuoter.sol:43-60`.
+- Uniswap Universal Router V2 swap paths show per-hop bound handling and
+  exact-output reverse execution tests in `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/uniswap/v2/V2SwapRouter.sol:44`
+  and `/private/tmp/defillama-source/Uniswap__universal-router/test/foundry-tests/UniswapV3.t.sol:180`.
 
 ## Related Patterns
 

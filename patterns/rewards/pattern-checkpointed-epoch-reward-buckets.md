@@ -56,6 +56,8 @@ claim += rewardsPerEpoch[epoch] * balanceAt(user, epochStart) / supplyAt(epochSt
 - Define what happens when total supply is zero for an epoch.
 - Use exact-transfer curated reward tokens or balance-delta accounting.
 - Store user claim cursors so partial claims can resume.
+- For vote-escrow reward distributors, checkpoint both token buckets and
+  historical voting-escrow supply so claims can use the correct epoch supply.
 - Test stale checkpoint catch-up, zero-supply epochs, multiple reward arrivals, and partial claims.
 - Provide an emergency recovery path for unclaimable or mis-sent rewards.
 - Keep missed-epoch catch-up bounded in both checkpoint and claim paths; long inactivity should require a cursor or keeper maintenance, not an unbounded user claim loop.
@@ -63,7 +65,12 @@ claim += rewardsPerEpoch[epoch] * balanceAt(user, epochStart) / supplyAt(epochSt
 ## Source Evidence
 
 - Stake DAO's `FeeDistributor` distributes fees by epoch, uses historical balance checkpoints for claims, documents zero-supply epoch loss, and bounds both checkpoint and claim loops with integration tests for partial catch-up.
-- Velodrome V2 epoch reward accounting includes claim-time epoch scans and a bounded global checkpoint catch-up path in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Reward.sol`, illustrating why missed-epoch loops need caps or cursors.
+- Velodrome V2 epoch reward accounting includes claim-time epoch scans and a bounded global checkpoint catch-up path in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/rewards/Reward.sol`, illustrating why missed-epoch loops need caps or cursors.
+- Curve DAO FeeDistributor buckets received tokens by week, checkpoints
+  vote-escrow supply, stores per-user cursors, and bounds claim loops in
+  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/FeeDistributor.vy:99-140`,
+  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/FeeDistributor.vy:193-224`,
+  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/FeeDistributor.vy:296-365`.
 
 ## Related Patterns
 

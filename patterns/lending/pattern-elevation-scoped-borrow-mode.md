@@ -1,6 +1,6 @@
 # Elevation-Scoped Borrow Mode
 
-> Allow higher borrow power only inside a constrained collateral group with one debt asset and explicit group-level risk limits.
+> Allow higher borrow power only inside a constrained collateral group with bounded debt assets and explicit group-level risk limits.
 
 ## Metadata
 
@@ -15,7 +15,7 @@
 ## Use When
 
 - A lending market wants higher LTV for tightly related collateral
-- The risk mode can restrict collateral assets, debt asset, and collateral count
+- The risk mode can restrict collateral assets, debt assets, and collateral count
 - Group-level exposure can be tracked separately from ordinary reserves
 - Liquidation math can validate the mode's thresholds and close factors
 
@@ -43,18 +43,19 @@ An account opts into a risk group. The protocol enforces that group on every col
 
 ```solidity
 struct RiskGroup {
-    address debtAsset;
+    uint256 debtCategory;
     uint256 maxCollateralCount;
     uint256 debtLimit;
     mapping(address => bool) allowedCollateral;
 }
 ```
 
-Borrowing under the group is allowed only for the group debt asset, only while collateral belongs to the group, and only below group exposure limits.
+Borrowing under the group is allowed only for assets in the group debt category,
+only while collateral belongs to the group, and only below group exposure limits.
 
 ## Key Points
 
-- Validate group parameters before activation: LTV, liquidation threshold, bonus, debt asset, and asset count.
+- Validate group parameters before activation: LTV, liquidation threshold, bonus, debt asset set, and asset count.
 - Track group debt separately from ordinary reserve debt.
 - Recompute group eligibility on collateral deposit, withdrawal, borrow, repay, and price refresh.
 - Define how accounts exit elevated mode before borrowing unrelated assets.
@@ -66,6 +67,10 @@ Borrowing under the group is allowed only for the group debt asset, only while c
 - Borrow and deposit refresh paths enforce group membership and group debt rules.
 - Market update handlers validate new elevation-group parameters before use.
 - Zest Protocol e-mode checks collateral and debt asset type membership when entering the mode, rejects borrows outside the active mode type, and tests mode entry, borrow, and disable-health behavior in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar` and `onchain/tests/borrow/emode.test.ts`.
+- Aave V3 eMode supports a bounded category of correlated debt assets rather
+  than a single debt token, with validation and tests in `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/logic/GenericLogic.sol:76`,
+  `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/logic/ValidationLogic.sol:214`,
+  and `/private/tmp/defillama-source/aave__aave-v3-core/test-suites/emode.spec.ts:71`.
 
 ## Related Patterns
 

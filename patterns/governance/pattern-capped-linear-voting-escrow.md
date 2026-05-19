@@ -81,6 +81,7 @@ function unstake(uint256 amount) external {
 
 ## Related Patterns
 
+- [Time-Decaying Lock Voting Escrow](./pattern-time-decaying-lock-voting-escrow.md)
 - [Composable Voting-Power Calculator](./pattern-composable-voting-power-calculator.md)
 - [Bounded Token Inflation](./pattern-bounded-token-inflation.md)
 - [Flash Loan Governance](../../ANTIPATTERNS.md#flash-loan-governance)

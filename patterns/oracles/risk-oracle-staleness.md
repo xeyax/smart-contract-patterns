@@ -119,6 +119,9 @@ Treat wrappers as new oracle implementations:
 - For bridged rate providers, distinguish source update time from destination relay time; `block.timestamp` on the destination proves only when the message executed.
 - A fallback oracle that triggers only when a source is missing or non-positive is not multi-source validation if it ignores source freshness.
 - A per-asset price store with one global timestamp can make recently updated assets appear as fresh as every other asset, or can make one stale asset force conservative behavior for unrelated assets.
+- Some Chainlink-compatible adapters intentionally return zero timestamps or omit
+  staleness/min-max checks by assumption. Treat those as integration
+  assumptions, not as Chainlink freshness semantics.
 
 ### Conservative Zeroing Can Still Be Liveness Risk
 
@@ -178,6 +181,7 @@ Example (1% deviation threshold):
 | Reject Stale-To-Peg Fallbacks | Prevents stable-asset adapters from silently blessing outages at par | May block actions during benign oracle downtime |
 | Risk-Reduction Setter Exemption | Lets emergency actions lower exposure during oracle outages | Must be limited to monotonic reductions that do not depend on price |
 | Stale Price Degradation | Keeps conservative views available during feed failure | Must not be used as a generic fresh price for all actions |
+| Interface-Specific Timestamp Checks | Avoids assuming Chainlink semantics for wrappers | Requires wrapper-by-wrapper review |
 
 ### Implementation: Staleness Check
 
@@ -238,6 +242,13 @@ function isPriceStale() public view returns (bool) {
 - Alert when `updatedAt` exceeds threshold
 - Monitor deviation between Chainlink and DEX prices
 - Track sequencer status on L2s
+
+## Source Evidence
+
+- Morpho Blue oracle libraries document no-staleness/min-max assumptions for
+  Chainlink-compatible feeds in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
+- Morpho's wstETH exchange-rate adapter returns zero timestamps through a
+  Chainlink-compatible interface in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/wsteth-exchange-rate-adapter/WstEthStEthExchangeRateChainlinkAdapter.sol:23`.
 - For voting-power calculators, alert when stale or missing feeds zero a component that contributes to quorum.
 - For emergency playbooks, test that stale or unavailable price feeds do not block monotonic risk reductions that do not use the price.
 - For degraded price ranges, test which actions remain enabled and prove the degraded range is conservative for those actions.

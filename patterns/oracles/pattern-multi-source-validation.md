@@ -223,6 +223,14 @@ latency versus averaging every source, but it is fail-closed: a stale or
 divergent minority source can halt the composite rather than being silently
 ignored.
 
+### Off-Chain Spot Aggregation Boundary
+
+Aggregating many spot sources can improve off-chain routing and monitoring, but
+it is not on-chain multi-source validation when every source can be manipulated
+inside the same transaction. Keep off-chain quote aggregators out of value-moving
+oracle paths unless they add TWAP, signed reports, delayed settlement, or another
+manipulation-resistant boundary.
+
 ## Interpretation Table
 
 | Oracle vs TWAP | Oracle vs Spot | TWAP vs Spot | Diagnosis | Recommended Action |
@@ -247,6 +255,8 @@ ignored.
 - If using a warning state, cap both maximum deviation and maximum warning duration, then fail closed after expiry.
 - If accepting a single valid source, make that fallback explicit in action-scoped policy and avoid treating it as equal to multi-source agreement.
 - Weighted averaging is not validation by itself. If all sources are simply averaged, still enforce per-source freshness plus deviation, quorum, median, or adjacent-agreement rules before treating the output as validated.
+- Off-chain spot aggregation should remain an advisory input unless the on-chain
+  consumer has independent manipulation resistance.
 
 ## Gas Optimization
 
@@ -278,6 +288,10 @@ function getOptimizedPrice() public view returns (uint256) {
 - Alpha Homora V2's `AggregatorOracle` caps primary sources at three, sorts valid prices, averages agreeing pairs, returns the median when all three agree, and reverts when no pair is within deviation in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/AggregatorOracle.sol`.
 - Satoshi Core's weighted Chainlink aggregator checks source freshness but illustrates why averaging multiple sources should not be described as validation unless it also enforces deviation or quorum semantics.
 - Kamino Scope's most-recent oracle variants check source freshness and deviation before selecting the most recent agreeing value, with capped variants preserving the same fail-closed semantics in `/private/tmp/defillama-source/Kamino-Finance_scope/programs/scope/src/oracles/most_recent_of.rs`, `oracles/capped_most_recent_of.rs`, and `utils/source_entries.rs`.
+- 1inch Spot Price Aggregator is explicitly off-chain-only despite aggregating
+  DEX sources, and its contract-level warning preserves the spot-manipulation
+  boundary in `/private/tmp/defillama-source/1inch__spot-price-aggregator/README.md:11`
+  and `/private/tmp/defillama-source/1inch__spot-price-aggregator/contracts/OffchainOracle.sol:241`.
 
 ## Related Patterns
 

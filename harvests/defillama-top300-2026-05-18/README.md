@@ -8,7 +8,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - Entries with direct `github` metadata in DefiLlama: 40.
 - GitHub handles queried for source candidates: 41.
 - Candidate repository rows found by metadata scoring: 235.
-- Source repository inspections so far: 250 across 25 batches.
+- Source repository inspections so far: 264 across 26 batches.
 
 ## First Batch Repositories
 
@@ -349,6 +349,25 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 | Angle Transmuter | `angleprotocol/angle-transmuter` | Collateral-ratio redemptions |
 | Abracadabra MIM | `abracadabra-money/magic-internet-money` | Cauldron / whitelisting |
 
+## Twenty-Sixth Batch Repositories
+
+| Protocol | Repository | Category |
+|----------|------------|----------|
+| Aave GHO | `aave/gho-core` | Stablecoin |
+| Aave V3 Core | `aave/aave-v3-core` | Lending |
+| Aave V3 Periphery | `aave/aave-v3-periphery` | Rewards |
+| Uniswap Permit2 | `Uniswap/permit2` | Permit / approvals |
+| Uniswap Universal Router | `Uniswap/universal-router` | Routing |
+| Uniswap Swap Router Contracts | `Uniswap/swap-router-contracts` | Routing / quoting |
+| Uniswap V3 Staker | `Uniswap/v3-staker` | Liquidity incentives |
+| Curve StableSwap NG | `curvefi/stableswap-ng` | Stable AMM |
+| Curve Crypto | `curvefi/curve-crypto-contract` | Crypto AMM |
+| Curve DAO | `curvefi/curve-dao-contracts` | Governance / gauges |
+| MetaMorpho | `morpho-org/metamorpho` | Curated lending vault |
+| Morpho Blue Oracles | `morpho-org/morpho-blue-oracles` | Oracles |
+| Morpho Blue IRM | `morpho-org/morpho-blue-irm` | Interest-rate models |
+| 1inch Spot Price Aggregator | `1inch/spot-price-aggregator` | Off-chain spot aggregation |
+
 ## Files
 
 - `top300-source-map.csv` — top-300 protocol map with DefiLlama metadata and best GitHub source candidate when available.
@@ -377,6 +396,7 @@ Source snapshot: `https://api.llama.fi/protocols`, sorted by descending `tvl`.
 - `batch-23-findings.md` — accepted and deferred catalog updates from the thirteenth expanded source-discovery batch.
 - `batch-24-findings.md` — accepted and deferred catalog updates from the fourteenth expanded source-discovery batch.
 - `batch-25-findings.md` — accepted and deferred catalog updates from the fifteenth expanded source-discovery batch.
+- `batch-26-findings.md` — accepted and deferred catalog updates from the sixteenth expanded source-discovery batch.
 
 ## Notes
 

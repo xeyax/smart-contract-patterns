@@ -47,11 +47,17 @@ Withdrawals mirror the same structure with `maxBurnAmount` or minimum token outp
 - Make all user-facing paths specify minimum minted shares, minimum outputs, or maximum burned shares.
 - Use internal balances so donations do not change invariant accounting.
 - Define rounding direction for invariant delta and fee calculation.
+- Keep stored/internal balances separate from raw token balances so donations,
+  rebases, or external transfers do not mint free LP shares.
 - Test balanced, imbalanced, one-coin, dust, and max-size operations.
 
 ## Source Evidence
 
 - Curve pool templates compute `D0`, `D1`, fee-adjusted `D2`, then mint or burn LP shares from the invariant delta for imbalanced liquidity operations.
+- Curve StableSwap NG computes `D0`, `D1`, and fee-adjusted liquidity deltas for
+  deposits and withdrawals while using stored balances for donation-resistant
+  accounting in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1077-1125`
+  and `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1185-1205`.
 
 ## Related Patterns
 

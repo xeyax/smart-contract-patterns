@@ -56,6 +56,9 @@ For isolated assets, aggregate exposure can be capped separately from the market
 - For stablecoin issuers, cap each issuance channel and combine those caps with global balance-sheet ratios; per-channel headroom alone is not solvency.
 - For proof-based or allowlisted borrowing, cap the resulting debt after fees,
   interest, and market cap math, not just the requested action amount.
+- For facilitator-style stablecoin minters, enforce per-facilitator bucket
+  capacity and expose zero-cap offboarding; bucket caps constrain mint authority
+  but are not proof of reserve solvency.
 
 ## Source Evidence
 
@@ -69,6 +72,10 @@ For isolated assets, aggregate exposure can be capped separately from the market
   in `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/WhitelistedCauldronV3.sol:278-292`,
   `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/WhitelistedCauldronV3.sol:488-490`,
   and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/Whitelister.sol:24-35`.
+- GHO caps stablecoin issuance by facilitator buckets and tests bucket-cap
+  minting and zero-cap behavior in `/private/tmp/defillama-source/aave__gho-core/src/contracts/gho/GhoToken.sol:34`,
+  `/private/tmp/defillama-source/aave__gho-core/src/contracts/gho/GhoToken.sol:84`,
+  and `/private/tmp/defillama-source/aave__gho-core/src/test/TestGhoToken.t.sol:171`.
 
 ## Related Patterns
 

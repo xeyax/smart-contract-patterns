@@ -118,6 +118,7 @@
 | pattern-local-settlement-rage-quit-escrow.md | Resolve a governance dispute by moving locked stakeholder claims into an immutable local exit escrow while the main system continues with a fresh signaling escrow. | A veto or dispute mechanism must offer an exit without globally shutting down the protocol |
 | pattern-proposal-embedded-execution-guards.md | Include guard calls inside executable governance proposals so final dynamic conditions are checked atomically at execution time. | Proposal validity depends on dynamic state at execution time |
 | pattern-stakeholder-extensible-governance-timelock.md | Let economically exposed stakeholders lock claims into a signaling escrow that extends proposal delay and can escalate to an exit path. | Token governance can execute actions that affect another stakeholder class |
+| pattern-time-decaying-lock-voting-escrow.md | Mint non-transferable voting power from locked tokens where power decays linearly toward zero as the selected unlock time approaches. | Governance wants longer explicit lock commitments to receive more voting power |
 
 ### Risks
 
@@ -149,7 +150,7 @@
 | pattern-deferred-status-check-frame.md | Batch lending operations can defer account and vault status checks until the outer execution frame exits, then validate every touched account before state is released. | Users need batch operations that temporarily move through an unsafe intermediate state |
 | pattern-dual-asset-stability-buffer.md | Hold both volatile collateral and stable liquidity so redemptions, rebalances, or liquidations can consume the safest buffer first. | A stablecoin or lending pool holds yield-bearing or volatile collateral |
 | pattern-dust-aware-liquidation-cap.md | Bound in-flight liquidation debt and fail partial liquidations that would leave uneconomic dust positions or null auctions. | Liquidations create auctions or protocol inventory that has operational capacity |
-| pattern-elevation-scoped-borrow-mode.md | Allow higher borrow power only inside a constrained collateral group with one debt asset and explicit group-level risk limits. | A lending market wants higher LTV for tightly related collateral |
+| pattern-elevation-scoped-borrow-mode.md | Allow higher borrow power only inside a constrained collateral group with bounded debt assets and explicit group-level risk limits. | A lending market wants higher LTV for tightly related collateral |
 | pattern-explicit-bad-debt-realization.md | When liquidation cannot cover debt, reduce market supply and borrow totals immediately so insolvency is visible instead of hidden in stale accounting. | Liquidation can leave debt uncovered after seizing all collateral |
 | pattern-hint-assisted-risk-ordered-position-list.md | Maintain liquidation or redemption priority in a sorted position list while callers supply hints to avoid full scans. | Position priority depends on a sortable risk metric such as collateral ratio or interest rate |
 | pattern-isolated-permissionless-market.md | Let anyone create lending markets only when each market's collateral, debt, oracle, and interest-rate state is isolated from every other market. | The protocol wants permissionless market creation |
@@ -191,6 +192,7 @@
 | File | Description | Use When |
 |------|-------------|----------|
 | pattern-activation-scoped-launch-fee-scheduler.md | Taper AMM fees after pool activation using time, price-progress, or rate-limited launch schedules. | A new pool needs higher initial fees during launch or price discovery |
+| pattern-adaptive-price-scale-crypto-invariant.md | Maintain a crypto-asset AMM invariant while adjusting the internal price scale only after profit-gated evidence that the pool can absorb the move. | Assets are volatile but the AMM still wants concentrated liquidity around an |
 | pattern-address-encoded-hook-permissions.md | Encode a hook contract's lifecycle permissions into its address bits and validate that returned selectors match the invoked hook. | Hook capabilities must be known before pool initialization |
 | pattern-amplified-stable-invariant.md | Use an amplification parameter to make swaps near a peg behave like a high-liquidity constant-sum market while preserving constant-product style safety away from the peg. | Assets should trade close to a shared value, peg, or redemption ratio |
 | pattern-bonding-curve-terminal-liquidity-cutover.md | Migrate a completed bonding curve into an AMM pool by computing the terminal price, seeding liquidity, collecting protocol fees, and marking the curve migrated atomically. | A launch token trades on a bonding curve before graduating to AMM liquidity |

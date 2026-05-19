@@ -90,6 +90,13 @@ If governance changes the limit or per-block debt cap, initialize the cap as
 fully used for the current block so a limit increase cannot be consumed
 atomically before monitoring reacts.
 
+### Adaptive Target-Rate Variant
+
+An interest-rate model can update a target rate from utilization error over time
+instead of storing a fixed kink curve. The adaptation must bound the exponential
+rate change, clamp minimum and maximum target rates, and make elapsed time part
+of the state update so the curve cannot jump outside tested limits.
+
 ## Key Points
 
 - Define utilization denominator carefully when reserves are present.
@@ -104,6 +111,8 @@ atomically before monitoring reacts.
   around the boundary and ensure exits remain possible when new borrows revert.
 - When per-block debt caps change, test same-block borrow attempts immediately
   after the limit update.
+- For adaptive curves, bound the target-rate state, utilization error, elapsed
+  time, and exponential approximation before the curve can affect borrowing.
 
 ## Source Evidence
 
@@ -117,6 +126,9 @@ atomically before monitoring reacts.
   `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/LinearInterestRateModelV3.sol:92-142`,
   `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/PoolV3.sol:425-469`,
   and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:856-877`.
+- Morpho Blue adaptive curve IRM updates a bounded target rate from utilization
+  error through bounded exponential adaptation in `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/adaptive-curve-irm/AdaptiveCurveIrm.sol:76`
+  and `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/adaptive-curve-irm/libraries/ConstantsLib.sol:8`.
 
 ## Related Patterns
 

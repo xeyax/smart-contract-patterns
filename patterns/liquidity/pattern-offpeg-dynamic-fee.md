@@ -37,17 +37,26 @@ require(dynamicFee <= maxFee, "fee too high");
 
 The fee applies to swaps and liquidity operations that create or increase imbalance.
 
+Crypto-invariant pools can also scale fees by balance concentration. Instead of
+a simple peg deviation, the fee rises as liquidity concentrates on one side of
+the invariant, then falls as balances return to the target range.
+
 ## Key Points
 
 - Bound fee multipliers and maximum fees.
 - Quote dynamic fees before execution and enforce user slippage limits.
 - Apply the fee consistently to swaps, imbalanced deposits, and imbalanced withdrawals.
+- For concentration-based fees, test fee behavior at balanced, mildly
+  imbalanced, and severely concentrated states.
 - Avoid using fee increases to hide permanent depeg; pair with circuit breakers or caps.
 - Test balanced, mildly off-peg, severely off-peg, and parameter-change cases.
 
 ## Source Evidence
 
 - Curve Aave-style pools scale fees by balance imbalance and test bounded fee multiplier changes.
+- Curve StableSwap NG applies off-peg fee multipliers in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:885-900`.
+- Curve Crypto applies a balance-concentration dynamic fee in
+  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:515-530`.
 
 ## Related Patterns
 

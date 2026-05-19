@@ -46,6 +46,9 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - AMM vaults scale raw balances by token decimals and rate providers for pool
   math, yield fees, or LP-rate views; those scaled balances are accounting inputs
   and should not be treated as market-clearing collateral prices.
+- Chainlink-compatible oracles that sample ERC4626 `convertToAssets` inherit
+  vault donation, offset, and share-price semantics; interface compatibility
+  does not turn a vault conversion into a market-clearing price.
 
 ## Mitigations
 
@@ -63,6 +66,8 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - For AMM vault rate providers, separate "pool math and fee accounting rate" from
   "oracle price for liquidation" and document whether BPT/share rates are
   monotonic, cached, or hook-adjusted.
+- When ERC4626 share price feeds are used, separately evaluate donation
+  sensitivity, offset strength, and the underlying asset oracle.
 
 ## Source Evidence
 
@@ -82,6 +87,9 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Balancer V2 composable stable pools expose rate-derived BPT math in
   `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/pool-stable/contracts/ComposableStablePoolRates.sol:38-65`
   and `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/pool-stable/contracts/ComposableStablePoolRates.sol:197-280`.
+- Morpho Blue oracle wrappers sample ERC4626 conversions and warn about donation
+  effects in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/MorphoChainlinkOracleV2.sol:52`
+  and `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/VaultLib.sol:11`.
 
 ## Related Patterns
 

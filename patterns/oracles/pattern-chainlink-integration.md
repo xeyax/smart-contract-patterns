@@ -129,6 +129,9 @@ Interface compatibility is not the same as Chainlink freshness or round semantic
 - Inspect the source of `answer`, `updatedAt`, `roundId`, and `answeredInRound`.
 - Prefer `latestRoundData()` over `latestAnswer()` so the caller can validate timestamp and round completeness.
 - If the wrapper composes multiple sources, propagate the oldest underlying timestamp.
+- Do not assume Chainlink-compatible contracts enforce Chainlink heartbeat,
+  min/max answer, or timestamp semantics; those may be explicit assumptions of
+  the wrapper.
 - Reject wrappers that return a fresh timestamp while the underlying source has no freshness signal.
 - For primary/backup adapters, validate freshness on the selected feed and fail closed if both feeds are stale.
 - Normalize decimals after reading the feed, and reject negative or zero answers.
@@ -233,11 +236,14 @@ The severe-health-factor exception is a policy choice: it can contain obvious ba
 | **Missing previous round** | `roundId - 1` reads | Check historical depth before adjacent-round or interpolation logic |
 | **Interpolation divide-by-zero** | timestamps | Require strictly increasing round timestamps |
 | **Sequencer grace ignored by lending actions** | L2 sentinel | Gate borrow/liquidation paths, not only raw oracle reads |
+| **Interface-compatible non-Chainlink feed** | wrapper assumptions | Audit heartbeat, min/max, and timestamp semantics instead of inheriting Chainlink defaults |
 
 ## Real-World Examples
 
 - [Aave](https://docs.aave.com/developers/core-contracts/aaveoracle) — Chainlink for all price feeds
 - [Compound](https://docs.compound.finance/v2/prices/) — Chainlink with fallbacks
+- Morpho Blue oracle libraries intentionally leave Chainlink staleness and
+  min/max checks to integration assumptions in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
 - [MakerDAO](https://docs.makerdao.com/smart-contract-modules/oracle-module) — Chainlink + median
 
 ## Related Patterns
