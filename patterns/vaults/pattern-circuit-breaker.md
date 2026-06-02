@@ -244,6 +244,19 @@ uint256 public depositThreshold;   // e.g., 2%
 uint256 public withdrawThreshold;  // e.g., 5% (more permissive for exits)
 ```
 
+For stablecoin, lending, or treasury systems, the response matrix may be richer
+than deposit/withdraw. Borrow, redeem, funding, stable repayment, buyback, and
+stabilization can each have different behavior under peg, depeg, or stale-oracle
+states. Document the matrix as part of the circuit breaker; a global pause is the
+least informative version and can accidentally block the safest recovery path.
+
+### Hysteretic Swap Freezer
+
+Stablecoin stability modules can freeze swaps when an oracle or peg monitor
+crosses an unsafe threshold and unfreeze only after a separate recovery threshold
+is met. The two thresholds prevent rapid freeze/unfreeze flapping and should be
+covered by exclusivity tests.
+
 ### Emergency Override
 
 Allow governance to temporarily disable:
@@ -271,6 +284,11 @@ function setCircuitBreakerEnabled(bool enabled) external onlyGovernance {
 - [Chainlink Circuit Breakers](https://blog.chain.link/circuit-breakers-and-client-diversity-within-the-chainlink-network/) — price feed safety mechanisms
 - [Aave Price Oracle](https://docs.aave.com/developers/core-contracts/aaveoracle) — price sanity checks
 - [MakerDAO OSM](https://docs.makerdao.com/smart-contract-modules/oracle-module/oracle-security-module-osm-detailed-documentation) — delayed price updates with bounds
+- fx Protocol uses peg and stable-token depeg state to gate borrow, redeem, funding, stable-repay, buyback, and stabilization paths across its core pool and market contracts.
+- GHO GSM uses an oracle-triggered swap freezer with separate freeze/unfreeze
+  thresholds and formal freeze/unfreeze exclusivity properties in `/private/tmp/defillama-source/aave__gho-core/src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol:123`,
+  `/private/tmp/defillama-source/aave__gho-core/src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol:147`,
+  and `/private/tmp/defillama-source/aave__gho-core/src/contracts/facilitators/gsm/Gsm.sol:209`.
 
 ## Related Patterns
 

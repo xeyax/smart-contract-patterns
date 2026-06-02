@@ -128,6 +128,43 @@ contract VolatilityBasedPremiumVault {
 
 ## Variations
 
+### Liquidity Utilization Premium
+
+For instant withdrawals from a finite liquidity buffer, scale the fee by post-withdrawal utilization instead of oracle volatility:
+
+```solidity
+function instantWithdrawalFee(uint256 amount) public view returns (uint256 feeBps) {
+    uint256 available = withdrawalBuffer.available();
+    require(amount <= available, "insufficient buffer");
+
+    uint256 postAvailable = available - amount;
+    require(postAvailable >= drawdownFloor, "below floor");
+    if (postAvailable >= bufferTarget) return minFeeBps;
+
+    uint256 usedCapacity = bufferTarget - postAvailable;
+    feeBps = minFeeBps + usedCapacity * (maxFeeBps - minFeeBps) / (bufferTarget - drawdownFloor);
+}
+```
+
+This variant charges more as the buffer approaches its drawdown floor, discouraging users from draining scarce instant liquidity while keeping slower queued withdrawals available.
+
+If one withdrawal crosses from the minimum-fee zone into the premium zone, split the fee calculation across the two segments instead of charging the whole withdrawal at one side of the threshold.
+
+### Allocation Imbalance Premium
+
+For basket vaults, scale mint/burn fees by how far the operation moves the basket from target allocation:
+
+```solidity
+function imbalanceFeeBps(int256 beforeImbalance, int256 afterImbalance) public view returns (uint256) {
+    if (abs(afterImbalance) <= abs(beforeImbalance)) return minFeeBps;
+
+    uint256 excess = abs(afterImbalance) - abs(beforeImbalance);
+    return minFeeBps + _kinkedSlope(excess);
+}
+```
+
+This variant charges more when a mint or burn worsens allocation health and can charge less when the user helps rebalance the basket. Pair it with user slippage/deadline bounds because the premium is part of the execution price.
+
 ### Time-Decaying Premium
 
 Higher premium right after large price moves:
@@ -163,6 +200,7 @@ function calculatePremium() public view returns (uint256) {
 ## Related Patterns
 
 - [Premium Buffer](./pattern-premium-buffer.md) — fixed premium (simpler version)
+- [Withdrawal Liquidity Buffer](./pattern-withdrawal-liquidity-buffer.md) — liquidity reserve that can drive utilization premiums
 - [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — the problem this solves
 - [Circuit Breaker](./pattern-circuit-breaker.md) — complementary protection
 
@@ -170,3 +208,4 @@ function calculatePremium() public view returns (uint256) {
 
 - [Set Protocol Premium Mechanism](https://docs.tokensets.com/developers/contracts/protocol/modules/nav-issuance-module)
 - [Balancer Dynamic Fees](https://docs.balancer.fi/concepts/pools/dynamic-swap-fees.html)
+- SolanaVault liquid unstaker CLI computes a minimum fee above a SOL liquidity threshold, a rising fee below it, and split-threshold fees in `/private/tmp/defillama-source/SolanaVault_liquid-unstaker-client/cli/src/fee.rs`; this is lower-confidence integration evidence because the checkout contains an IDL and CLI, not the full on-chain implementation.

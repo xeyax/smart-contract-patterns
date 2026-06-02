@@ -36,6 +36,10 @@ Idea → Vision → Requirements → ADR (+ Research) → Plan → Implementatio
 
 See [process/README.md](process/README.md) for the full process description and prompts.
 
+## Knowledge Harvesting
+
+Use the `harvest-patterns` skill to analyze another repository and extract reusable patterns, risks, requirements, and decisions back into this catalog. The skill is evidence-first: each accepted addition must cite source code, tests, ADRs, audit notes, or docs from the analyzed repo, then compare against the existing catalog before writing updates.
+
 ---
 
 ## Pattern Categories

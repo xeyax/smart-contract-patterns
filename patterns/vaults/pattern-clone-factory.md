@@ -147,6 +147,7 @@ contract FeeVaultFactory {
 - **Events as registry.** `VaultCreated` events provide a complete on-chain history of all vaults. Subgraph or indexer can build a dashboard from events alone — no need to query `deployedVaults[]` array on-chain.
 - **`initialize()` is one-shot.** OpenZeppelin's `initializer` modifier prevents re-initialization. Even if someone calls `initialize()` on a clone, it reverts after first call.
 - **Implementation contract must not be usable directly.** Call `_disableInitializers()` in implementation's constructor to prevent direct initialization of the template.
+- **Deactivation should affect future creation, not existing clones.** If a product line is deprecated, disable new clone deployment while leaving existing user-owned clones able to withdraw or migrate.
 
 ## Variations
 
@@ -180,6 +181,14 @@ After upgrade:
 
 Trade-off: ~100K gas per deploy (vs ~45K for EIP-1167), but all clones upgrade atomically when beacon implementation changes. Extra trust assumption — beacon owner can change all vaults at once.
 
+Safer beacon variants reduce blast radius:
+
+- Use one beacon per strategy, asset, risk cohort, or product family instead of one global beacon.
+- Store the beacon immutably in each proxy so creation-time beacon selection is auditable.
+- Use deterministic deployment when integrations need stable addresses before creation.
+- Require fork tests for every shared-beacon upgrade across multiple live instances.
+- Pair shared beacons with timelocks, high-threshold multisigs, and upgrade monitoring.
+
 ## Real-World Examples
 
 - [Morpho MetaMorpho VaultFactory](https://github.com/morpho-org/metamorpho/blob/main/src/MetaMorphoFactory.sol) — CREATE2 factory for MetaMorpho vaults
@@ -189,6 +198,7 @@ Trade-off: ~100K gas per deploy (vs ~45K for EIP-1167), but all clones upgrade a
 ## Related Patterns
 
 - [Vault Wrapper](./pattern-vault-wrapper.md) — the vault being cloned by this factory
+- [User-Owned Proxy Vault](./pattern-user-owned-proxy-vault.md) — per-user clone custody boundary
 - [Vault Composability Risk](./risk-vault-composability.md) — risks of many wrappers sharing one base vault
 
 ## References

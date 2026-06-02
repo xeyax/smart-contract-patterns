@@ -57,6 +57,11 @@ price = (sqrtPriceX96 / 2^96)^2
 
 **Warning:** This price can be manipulated within a single transaction!
 
+Spot aggregation across many DEXes can be useful for off-chain quoting and
+monitoring, but "off-chain only" is a security boundary. A public `view` function
+that returns aggregated spot data is still unsafe for on-chain value transfer if
+the implementation itself warns that the result is manipulable on-chain.
+
 ## Requirements Satisfied
 
 This pattern satisfies [Oracle Reliability Requirements](./req-oracle-reliability.md):
@@ -238,6 +243,13 @@ Spot price can be used safely when:
 - [Uniswap V3 Pool](https://docs.uniswap.org/contracts/v3/reference/core/UniswapV3Pool) — `slot0()` for current price
 - [SushiSwap](https://docs.sushi.com/) — spot price for routing estimates
 
+## Source Evidence
+
+- 1inch Spot Price Aggregator states it is intended for off-chain use only in
+  `/private/tmp/defillama-source/1inch__spot-price-aggregator/README.md:11`.
+- Its oracle contract exposes public view aggregation while warning about
+  on-chain manipulation in `/private/tmp/defillama-source/1inch__spot-price-aggregator/contracts/OffchainOracle.sol:241`.
+
 ## Related Patterns
 
 - [TWAP Oracle](./pattern-twap-oracle.md) — manipulation-resistant alternative
@@ -249,4 +261,3 @@ Spot price can be used safely when:
 - [Uniswap V3 slot0](https://docs.uniswap.org/contracts/v3/reference/core/interfaces/pool/IUniswapV3PoolState#slot0)
 - [Flash Loan Attacks Explained](https://blog.chain.link/flash-loans/)
 - [MEV and Oracle Manipulation](https://writings.flashbots.net/)
-

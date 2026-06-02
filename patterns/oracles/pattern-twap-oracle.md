@@ -48,7 +48,26 @@ TWAP calculates the average price over a time window by accumulating price-secon
 TWAP = (cumulativePrice_now - cumulativePrice_past) / (time_now - time_past)
 ```
 
-Uniswap V3 stores tick (log-price) accumulators that can be queried for any historical point:
+Uniswap V2-style pools store cumulative fixed-point prices, while Uniswap V3 stores tick (log-price) accumulators that can be queried for historical points.
+
+For V2-style accumulators:
+
+```
+price0Cumulative += reserve1 / reserve0 * secondsElapsed
+price1Cumulative += reserve0 / reserve1 * secondsElapsed
+TWAP = (priceCumulative_now - priceCumulative_past) / elapsed
+```
+
+The accumulator uses the previous reserve ratio over elapsed time. Periphery readers can compute a counterfactual current cumulative value without forcing a pool state update.
+
+For V2-style sliding windows, store observations in epoch buckets and avoid overwriting the same bucket twice. A usable observation should be old enough to cover the requested window, recent enough to be inside the configured window, and paired with counterfactual current cumulative prices rather than requiring a pool sync.
+
+For fixed-window V2 readers, initialize and gate the average before value-bearing
+`consult` calls. A reader that stores zero averages until the first update should
+fail closed or expose an explicit readiness flag so callers do not treat zero as
+a valid price.
+
+For V3-style accumulators:
 
 ```
 tickCumulative grows by: currentTick × secondsElapsed
@@ -76,7 +95,8 @@ Use Uniswap's official [OracleLibrary](https://github.com/Uniswap/v3-periphery/b
 import {OracleLibrary} from "@uniswap/v3-periphery/contracts/libraries/OracleLibrary.sol";
 
 function getTWAPPrice(address pool, uint32 twapWindow) external view returns (uint256) {
-    (int24 arithmeticMeanTick, ) = OracleLibrary.consult(pool, twapWindow);
+    (int24 arithmeticMeanTick, uint128 harmonicMeanLiquidity) = OracleLibrary.consult(pool, twapWindow);
+    require(harmonicMeanLiquidity >= minLiquidity, "low liquidity");
     
     // Convert tick to price — use OracleLibrary.getQuoteAtTick
     return OracleLibrary.getQuoteAtTick(arithmeticMeanTick, baseAmount, baseToken, quoteToken);
@@ -122,6 +142,12 @@ For tick-to-price conversion, copy [TickMath.getSqrtRatioAtTick()](https://githu
 | **Overflow when squaring sqrtRatioX96** | Revert on extreme ticks | Check `sqrtRatioX96 <= type(uint128).max` before squaring |
 | **Wrong token order** | Inverted prices | Verify which token is token0 in the pool |
 | **Decimal mismatch** | Orders of magnitude error | Normalize all prices to consistent decimals |
+| **Uninitialized observation history** | TWAP silently covers a shorter period than intended or reverts | Gate reads until cardinality and oldest observation cover the full window |
+| **Ignoring harmonic mean liquidity** | TWAP can include thin or zero-liquidity manipulation windows | Require minimum windowed harmonic mean liquidity |
+| **Mixing V2 and V3 assumptions** | Wrong price math or readiness checks | Use cumulative-price windows for V2 pools and tick/liquidity observations for V3 pools |
+| **Same-period V2 overwrite** | Oracle observation window collapses or becomes too recent | Skip updates until the next period bucket |
+| **Unready fixed-window V2 average** | Default zero averages can leak into value-bearing reads | Gate `consult` until the first successful update initializes averages |
+| **Wrapper timestamp masking** | A Chainlink-compatible wrapper can return `updatedAt = block.timestamp` while the underlying TWAP is unready | Check underlying readiness/cardinality and economic timestamp, not only wrapper freshness |
 
 Use [OracleLibrary](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol) to avoid most of these issues.
 
@@ -149,6 +175,18 @@ More accurate for volatile assets (Uniswap V3 uses this):
 geometricMeanPrice = 1.0001^(averageTick)
 ```
 
+### Maturity Implied-Rate TWAP
+
+Fixed-yield AMMs can accumulate an implied-rate value rather than a direct spot price. The reader derives PT, YT, or LP rates from the average implied rate and time remaining to expiry. In this variant, readiness checks must cover both the observation ring and the market's maturity state.
+
+### AMM EMA Oracle
+
+Some AMMs maintain an exponential moving average of pool state, such as a
+stable-swap price oracle or crypto-pool price scale. This is useful for execution
+logic and monitoring, but it is not the same as a trade-volume TWAP and should
+not be promoted to a manipulation-resistant collateral oracle without separate
+liquidity, update, and action-scope analysis.
+
 ### Weighted TWAP
 
 Give more weight to recent observations:
@@ -164,6 +202,14 @@ function getWeightedTWAP() public view returns (uint256) {
 }
 ```
 
+### Execution Slippage Guard Variant
+
+A router can use current ticks and TWAP ticks as an execution guard rather than
+as a standalone collateral oracle. For multi-hop or split routes, compute a
+synthetic path tick from the hops and weights, then reject execution when current
+or TWAP tick deviates beyond the user or protocol bound. The guard must fail
+closed if a pool lacks the observation history required for the requested window.
+
 ## Observation Array Requirements
 
 Uniswap V3 pools have a limited observation array. Ensure sufficient history:
@@ -177,6 +223,20 @@ function ensureObservationCapacity(address pool, uint16 minCardinality) external
 **Cardinality needed:**
 - For 30-min TWAP: ~30 observations (assuming 1 trade/min average)
 - Default is often 1 — must be increased!
+
+### Readiness Gate
+
+Increasing `observationCardinalityNext` does not backfill history. A pool is ready only after enough swaps or observations have populated the ring buffer and the oldest usable observation is at least `twapWindow` seconds old.
+
+Before using a TWAP for value-bearing operations:
+
+- Check that current cardinality is at least the required cardinality, not just `cardinalityNext`.
+- Verify the pool has an observation older than the requested window.
+- Check the returned harmonic mean liquidity against a minimum threshold for value-bearing use.
+- Use a separate initialization phase or circuit breaker until readiness is true.
+- Reject fallback-to-shorter-window behavior unless the shorter window is explicitly configured and audited.
+- For synthetic path guards, verify every hop's observation cardinality and
+  weight math before treating the path-level tick as a slippage bound.
 
 ## Attack Vectors
 
@@ -201,8 +261,20 @@ function ensureObservationCapacity(address pool, uint16 minCardinality) external
 ## Real-World Examples
 
 - [Uniswap V3 Oracle](https://docs.uniswap.org/concepts/protocol/oracle) — native TWAP implementation
+- [Uniswap V2](https://github.com/Uniswap/v2-core) — cumulative reserve-ratio price accumulators with counterfactual current cumulative reads in periphery
+- PancakeSwap V2 periphery includes a sliding-window oracle that buckets observations by period, rejects missing or too-recent observations, and computes current cumulative prices counterfactually.
+- QuickSwap/Uniswap V2 example fixed-window oracle code illustrates the need to gate `consult` until the first update initializes nonzero averages; its sliding-window example rejects missing observations.
+- Pendle V2 accumulates implied-rate observations and derives PT/YT/LP rates from time-to-expiry, while its Chainlink-compatible wrapper illustrates why callers must check underlying TWAP readiness and not only `updatedAt`.
 - [Euler Finance](https://docs.euler.finance/euler-protocol/getting-started/methodology/oracle-rating) — uses TWAP for price discovery
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
+- Uniswap swap-router contracts use synthetic path and weighted-route tick
+  guards for slippage checks, including observation-cardinality failure tests, in
+  `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/base/OracleSlippage.sol:17`
+  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/OracleSlippage.spec.ts:339`.
+- Curve StableSwap NG and Curve Crypto maintain AMM EMA/oracle state for pool
+  execution and monitoring in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1295-1461`,
+  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:538-607`,
+  and `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:610-721`; this is AMM state evidence, not a standalone collateral oracle guarantee.
 
 ## Related Patterns
 
@@ -216,4 +288,4 @@ function ensureObservationCapacity(address pool, uint16 minCardinality) external
 - [Uniswap V3 Oracle Documentation](https://docs.uniswap.org/concepts/protocol/oracle)
 - [Uniswap V3 TWAP Deep Dive](https://blog.uniswap.org/uniswap-v3-oracles)
 - [OracleLibrary.sol](https://github.com/Uniswap/v3-periphery/blob/main/contracts/libraries/OracleLibrary.sol)
-
+- [Uniswap V2 Oracle Library](https://github.com/Uniswap/v2-periphery/blob/master/contracts/libraries/UniswapV2OracleLibrary.sol)

@@ -47,7 +47,7 @@ The core principle: shares represent proportional ownership of total assets.
 
 **Deposit (mint shares):**
 ```
-shares = deposit_amount * total_supply / total_assets
+shares = actual_assets_received * total_supply / total_assets
 ```
 
 **Withdraw (burn shares):**
@@ -82,7 +82,8 @@ Why:
 
 **Pattern:**
 ```
-User deposits USDC → Vault allocates to: 40% Aave, 30% Compound, 30% ETH
+User deposits USDC → Vault measures actual USDC received
+                  → Vault allocates to: 40% Aave, 30% Compound, 30% ETH
                   → Vault manages rebalancing internally
 User withdraws   → Receives USDC (vault liquidates proportionally)
 ```
@@ -106,10 +107,11 @@ contract DeltaNavVault {
     function deposit(uint256 amount) external returns (uint256 sharesToMint) {
         uint256 navBefore = totalNav();
 
-        _acceptDeposit(amount);  // transfer, deploy to strategies, etc.
+        uint256 actualReceived = _acceptDeposit(amount);  // transfer, deploy to strategies, etc.
 
         uint256 navAfter = totalNav();
         uint256 deltaNav = navAfter - navBefore;
+        require(deltaNav > 0 && actualReceived > 0, "zero deposit");
 
         if (totalShares == 0) {
             sharesToMint = deltaNav;  // first deposit: 1:1
@@ -136,7 +138,7 @@ contract DeltaNavVault {
     // --- Abstract functions (implementation varies by vault type) ---
 
     function _calculateNav() internal view returns (uint256);
-    function _acceptDeposit(uint256 amount) internal;
+    function _acceptDeposit(uint256 amount) internal returns (uint256 actualReceived);
     function _processWithdrawal(uint256 navAmount) internal returns (uint256);
 }
 ```
@@ -144,12 +146,15 @@ contract DeltaNavVault {
 ### Key Points
 
 - `totalNav()` — vault-specific: balances, oracle prices, strategy values
-- `_acceptDeposit()` — receive assets, deploy to strategies
+- `_acceptDeposit()` — receive assets, deploy to strategies, return actual received amount
 - `_processWithdrawal()` — liquidate positions, return assets to user
 - Core pattern: `navBefore` → action → `navAfter` → `deltaNav`
+- **Actual received:** Measure balance delta for fee-on-transfer or rebasing tokens, or explicitly reject them
 - **Rounding:** Always round down for minting (favor vault), round down for burning (favor vault)
 - **First deposit:** Usually 1:1 ratio, but vulnerable to inflation attack
 - **Zero check:** Prevent minting zero shares on small deposits
+- **Preview consistency:** Public preview and conversion helpers should use the same accrued accounting basis as mint/redeem, or be explicitly labeled as stale estimates.
+- **Minimum size:** Minimum deposit checks should cover downstream share, rate-index, and reward-index precision, not only nonzero token transfer amount.
 
 ## Security Considerations
 
@@ -162,6 +167,12 @@ An attacker can exploit the first deposit:
 
 **Mitigation:** Use virtual offset (see related patterns) or require minimum first deposit.
 
+### Fee-on-Transfer Tokens
+
+If the vault uses the requested `amount` instead of the actual balance delta, a fee-on-transfer token can mint too many shares for the value received. This violates fair share pricing even if NAV math is otherwise correct.
+
+**Mitigation:** Measure balance before and after transfer and use the delta in share accounting, or reject fee-on-transfer tokens at the asset allowlist boundary.
+
 ### Direct Transfer to Vault
 
 Anyone can send tokens directly to vault without calling `deposit()`. This increases `totalAssets` without minting new shares, raising `price_per_share`.
@@ -173,13 +184,34 @@ Anyone can send tokens directly to vault without calling `deposit()`. This incre
 
 **Risk:** This is the basis of the **inflation attack** — attacker donates to manipulate rounding.
 
-**Mitigation:** Track assets internally instead of using `balanceOf()`, or use virtual shares offset.
+**Mitigation:** Track assets internally instead of using `balanceOf()`, or use [Virtual Share Offset](./pattern-virtual-share-offset.md).
 
 ### Oracle Arbitrage
 
 When NAV is calculated using oracle prices, stale prices create arbitrage opportunities. Attackers can deposit when oracle shows inflated prices or withdraw when oracle shows deflated prices.
 
 **See:** [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) for detailed analysis and mitigations.
+
+### Preview / Execution Drift
+
+If `previewDeposit`, `convertToShares`, or similar helpers omit accrued yield,
+pending interest, locked profit, or rate-index updates that the state-changing
+path applies, integrators can set limits against a price the execution path will
+not honor.
+
+**Mitigation:** Share the accounting basis between previews and execution, force
+a freshness update before both paths, or label the helper as a stale estimate and
+avoid using it for user protection.
+
+### Minimum Deposit Precision
+
+A nonzero transfer amount can still mint zero shares or zero rate-index units
+after downstream precision loss. Minimum deposits should be calibrated against
+the narrowest precision boundary in the full mint/redeem path.
+
+## Source Evidence
+
+- SlowMist's Avalon USDa audit flagged preview/conversion freshness, minimum deposit precision, and interest accounting issues in saving-account flows. This is audit-report evidence rather than production-proven positive pattern evidence.
 
 ## Real-World Examples
 
@@ -192,8 +224,9 @@ When NAV is calculated using oracle prices, stale prices create arbitrage opport
 - [Oracle Arbitrage Risk](./risk-oracle-arbitrage.md) — risk inherent to oracle-based NAV
 - [Premium Buffer](./pattern-premium-buffer.md) — mitigation via entry/exit fees
 - [Async Deposit/Withdrawal](./pattern-async-deposit.md) — mitigation via delayed settlement
+- [Locked Profit Smoothing](./pattern-locked-profit-smoothing.md) — prevents harvest-timing extraction
 - [Proportional Deposit/Withdrawal](./pattern-proportional-deposit.md) — alternative without oracles
-- Virtual Offset Share Accounting — inflation attack protection (TODO)
+- [Virtual Share Offset](./pattern-virtual-share-offset.md) — inflation attack protection
 
 ## References
 

@@ -199,12 +199,20 @@ contract FeeWrapperVault is ERC4626, Initializable {
 - **Delegate `maxDeposit` to base vault.** Wrapper's capacity is bounded by base vault's remaining capacity: `maxDeposit = baseVault.maxDeposit(address(this))`. If base vault is paused or full, wrapper returns 0.
 - **Base vault must whitelist wrapper.** If base vault has access control, each wrapper address needs to be whitelisted. Automate this via [Clone Factory](./pattern-clone-factory.md).
 - **`previewDeposit` may diverge.** Wrapper's preview depends on `baseVault.previewDeposit()`, which ERC4626 spec allows to differ from actual `deposit()`. Wrapper should not guarantee exact preview match — use it as estimate.
+- **Pin wrapper assets at initialization.** Registries or buffers that wrap
+  ERC4626 vaults should remember the wrapper's underlying asset when the wrapper
+  is added, reject later additions if `asset()` changes, and use the pinned asset
+  for exits so a malicious or upgraded wrapper cannot trap removals by changing
+  its reported asset.
 
 ## Security Considerations
 
 - **Double rounding:** Both base vault and wrapper round in vault's favor. Cumulative error is ~2 wei per operation — negligible for normal amounts, but set a minimum deposit threshold to prevent dust griefing.
 - **Pause propagation:** When base vault is paused, wrapper cannot deposit or redeem. Wrapper should expose `maxDeposit() == 0` in this case, not revert with a confusing error.
 - **Base vault upgrade:** If base vault is UUPS-upgradeable and changes behavior (e.g. different rounding, new fees, changed `convertToAssets`), wrapper continues operating on new logic without any update. This can silently change wrapper's economics. Monitor base vault upgrades.
+- **Allowance cleanup:** Wrapper operations that approve the base vault or buffer
+  should leave no residual allowance after the operation frame. This is especially
+  important when the approved wrapper or vault can invoke callbacks.
 
 See [Vault Composability Risk](./risk-vault-composability.md) for comprehensive risk analysis.
 
@@ -213,12 +221,18 @@ See [Vault Composability Risk](./risk-vault-composability.md) for comprehensive 
 - [Yearn V3 Vaults](https://github.com/yearn/yearn-vaults-v3) — "Allocator" vaults deposit into underlying strategy vaults, adding management/performance fees on top
 - [ERC-4626 Alliance](https://erc4626.info/) — composability catalog showing multi-layer vault deployments
 - [Morpho MetaMorpho](https://github.com/morpho-org/metamorpho) — meta-vault allocating across multiple Morpho Blue markets
+- Balancer V3 buffers pin ERC4626 wrapper underlying assets, reject changed
+  `asset()` values on later adds, avoid external `asset()` calls during removal,
+  and test residual allowance cleanup in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultAdmin.sol:466-579`,
+  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultAdmin.sol:625-773`,
+  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/test/foundry/BufferVaultPrimitive.t.sol:212-240`.
 
 ## Related Patterns
 
 - [High-Water Mark Performance Fee](./pattern-high-water-mark-fee.md) — fee accounting logic reused in wrapper
 - [Delta NAV Share Accounting](./pattern-delta-nav.md) — base vault's share calculation that wrapper delegates to
 - [Clone Factory](./pattern-clone-factory.md) — mass deployment of parameterized wrappers
+- [Balance Delta Transfer Accounting](../token-integration/pattern-balance-delta-transfer-accounting.md) — actual-received token accounting
 - [Vault Composability Risk](./risk-vault-composability.md) — risks introduced by layered composition
 
 ## References

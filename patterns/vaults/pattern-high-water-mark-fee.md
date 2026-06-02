@@ -206,6 +206,17 @@ If fee accrual happens only via a public heartbeat (not inline in deposit/redeem
 
 Mitigation: accrue fees inline in deposit/redeem, not only via external heartbeat.
 
+### Fee-Share Clawback Is Not HWM
+
+Some externally reported profit/loss systems mint fee shares to the protocol on reported profit and burn those fee shares on later reported losses. This can be a provisional fee-share reserve, but it is not the same as a high-water-mark fee unless fee recovery is guaranteed:
+
+- Fee shares intended for clawback should be escrowed, non-transferable, or capped to the current fee reserve.
+- The loss path must define what happens if the fee recipient lacks enough shares to burn.
+- NAV, virtual assets, and fee-share accounting must not double-count the same `feeAmount`.
+- Tests should cover profit, loss, insufficient fee-reserve shares, and fee-recipient transfer before clawback.
+
+If the fee recipient can move or redeem fee shares before later losses, users can still bear losses after fees escaped.
+
 ## Variants
 
 ### Management Fee (Time-Based)
@@ -235,6 +246,8 @@ profitPerShare = currentPPS - hwm * (1 + hurdleRate * elapsed / YEAR)
 - [Enzyme Finance V4](https://github.com/enzymefinance/protocol) — share-based performance fee with HWM and crystallization period; HWM set to post-fee PPS via two-step settle/update
 - [MetaMorpho](https://github.com/morpho-org/metamorpho) — performance fee via share dilution; uses `lastTotalAssets` baseline (equivalent to post-fee HWM)
 - [Yearn V2 Vaults](https://github.com/yearn/yearn-vaults/blob/main/contracts/Vault.vy) — performance fee on per-strategy reported gains (no vault-level HWM, different approach)
+- AFI/afiUSD uses externally reported profit/loss with fee-share minting on profit and fee-share burning on loss, which is useful evidence for clawback caveats rather than a pure HWM design.
+- Aera v3 supports delayed, dispute-windowed fee snapshots and high-profit baselines in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/DelayedFeeCalculator.sol`; treat it as lower-confidence supporting evidence because the fee report is operationally submitted.
 
 ## Related Patterns
 

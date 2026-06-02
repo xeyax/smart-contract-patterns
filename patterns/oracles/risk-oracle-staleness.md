@@ -17,6 +17,13 @@ Oracle prices become stale when the data source hasn't been updated recently. Th
 - Incorrect liquidations (too early or too late)
 - Unfair pricing for deposits/withdrawals
 
+## Applies When
+
+- Price or rate data has a heartbeat, deviation threshold, relay delay, or manual update cadence
+- Contracts accept Chainlink-compatible wrappers, bridged rates, or internal exchange-rate feeds
+- Value-bearing actions do not reject stale or synthetic timestamps
+- Oracle downtime can affect deposits, withdrawals, borrowing, liquidation, or voting power
+
 ## Requirements Violated
 
 This risk violates [Oracle Reliability Requirements](./req-oracle-reliability.md):
@@ -97,6 +104,46 @@ On L2s (Arbitrum, Optimism):
 - Sequencer goes offline
 - No transactions processed, including oracle updates
 - When sequencer restarts, prices are stale
+- Lending protocols may need action-level sentinels that block borrows and liquidations during the downtime and post-restart grace period.
+
+### Chainlink-Compatible Shims
+
+Some contracts expose a Chainlink-like interface while deriving the answer from a staking exchange rate, DEX TWAP, bridged price, or internal conversion. If the shim returns `updatedAt = block.timestamp`, a generic staleness check passes even when the underlying source has no freshness guarantee.
+
+Treat wrappers as new oracle implementations:
+
+- Inspect how the answer is computed.
+- Propagate the oldest underlying timestamp through `updatedAt`.
+- Reject `latestAnswer()` integrations for value-bearing operations because they cannot check freshness.
+- Do not rely on off-chain monitoring as the only guard for on-chain state changes.
+- For bridged rate providers, distinguish source update time from destination relay time; `block.timestamp` on the destination proves only when the message executed.
+- A fallback oracle that triggers only when a source is missing or non-positive is not multi-source validation if it ignores source freshness.
+- A per-asset price store with one global timestamp can make recently updated assets appear as fresh as every other asset, or can make one stale asset force conservative behavior for unrelated assets.
+- Some Chainlink-compatible adapters intentionally return zero timestamps or omit
+  staleness/min-max checks by assumption. Treat those as integration
+  assumptions, not as Chainlink freshness semantics.
+
+### Conservative Zeroing Can Still Be Liveness Risk
+
+Some voting-power or validator-set calculators fail closed by returning zero when a price is stale or unavailable. This is safer than overvaluing assets for solvency, but it can still distort quorum, validator-set fairness, or chain representation if one component unexpectedly drops to zero.
+
+### Stale-To-Peg Fallback
+
+Stable-asset adapters sometimes return par value when an upstream price is stale
+or unavailable. That can preserve liveness for low-risk views, but it is
+fail-open for mint, redeem, borrow, and allocation paths because it masks both
+oracle outages and real depegs.
+
+### Stale Price Degradation Without Clear Action Scope
+
+Some systems degrade stale or broken price ranges toward conservative extremes
+instead of reverting immediately. This can be useful when the degraded range
+forces conservative accounting, but it must be paired with action-specific rules
+that say which actions can continue under degraded prices and which must stop.
+
+### Emergency Containment Blocked By Stale Reads
+
+Fail-closed stale-price checks are appropriate for value-bearing user actions, but they can be counterproductive on pure risk-reduction setters. If lowering a borrow cap, LTV, mint limit, or route limit does not need the current price, requiring a fresh oracle read can block containment during the exact outage the limiter is meant to handle.
 
 ## Conditions That Increase Risk
 
@@ -128,6 +175,13 @@ Example (1% deviation threshold):
 | [TWAP Oracle](./pattern-twap-oracle.md) | On-chain source updates every block | Lags during volatility |
 | Staleness Check | Reject stale prices | May block operations |
 | Premium Buffer | Fee covers potential staleness | Cost to users |
+| Source Timestamp Propagation | Prevents wrappers from hiding stale inputs | Requires wrapper-specific integration |
+| L2 Action Sentinel | Blocks borrow/liquidation paths during sequencer downtime or grace period | Can delay liquidations unless a severe-risk exception exists |
+| Conservative Zeroing | Avoids overvaluing stale-priced components | Can change quorum or validator-set composition abruptly |
+| Reject Stale-To-Peg Fallbacks | Prevents stable-asset adapters from silently blessing outages at par | May block actions during benign oracle downtime |
+| Risk-Reduction Setter Exemption | Lets emergency actions lower exposure during oracle outages | Must be limited to monotonic reductions that do not depend on price |
+| Stale Price Degradation | Keeps conservative views available during feed failure | Must not be used as a generic fresh price for all actions |
+| Interface-Specific Timestamp Checks | Avoids assuming Chainlink semantics for wrappers | Requires wrapper-by-wrapper review |
 
 ### Implementation: Staleness Check
 
@@ -166,6 +220,12 @@ function getL2Price() internal view returns (uint256) {
 }
 ```
 
+For lending, also gate the value-changing action:
+
+```solidity
+require(oracleSentinel.isBorrowAllowed(), "sequencer grace");
+```
+
 ## Detection
 
 ### On-Chain Detection
@@ -183,11 +243,28 @@ function isPriceStale() public view returns (bool) {
 - Monitor deviation between Chainlink and DEX prices
 - Track sequencer status on L2s
 
+## Source Evidence
+
+- Morpho Blue oracle libraries document no-staleness/min-max assumptions for
+  Chainlink-compatible feeds in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
+- Morpho's wstETH exchange-rate adapter returns zero timestamps through a
+  Chainlink-compatible interface in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/wsteth-exchange-rate-adapter/WstEthStEthExchangeRateChainlinkAdapter.sol:23`.
+- For voting-power calculators, alert when stale or missing feeds zero a component that contributes to quorum.
+- For emergency playbooks, test that stale or unavailable price feeds do not block monotonic risk reductions that do not use the price.
+- For degraded price ranges, test which actions remain enabled and prove the degraded range is conservative for those actions.
+
 ## Real-World Incidents
 
 - **Venus Protocol (2021)** — stale price for XVS allowed borrowing at wrong rate
 - **Compound (2020)** — DAI oracle manipulation during flash crash
 - **Arbitrum Sequencer Outage** — multiple protocols affected by stale prices
+- Rocket Pool's Polygon rate relay and Symbiotic Relay's voting-power calculators show wrapper-specific freshness hazards: the former can confuse source and destination timestamps, while the latter can zero voting power on stale prices.
+- Reserve Protocol collateral plugins cache price bounds and degrade stale or broken prices toward conservative low/high extremes while collateral default handling is delayed, as implemented under `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/plugins/assets`.
+- Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
+- Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/adapters` and `src/PegStabilityModule.sol`.
+- Pendle's Chainlink-compatible PT/YT/LP wrapper can return the current block timestamp while the underlying implied-rate TWAP still needs readiness checks, and its trusted-sender cross-chain exchange-rate app accepts newer timestamps without max source-age or deviation bounds.
+- RAAC `RAACHousePrices` stores per-token house prices behind a shared latest timestamp surface, and lending reads `getLatestPrice` before collateral calculations in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/primitives/RAACHousePrices.sol` and `contracts/core/pools/LendingPool/LendingPool.sol`.
+- Superstate `SuperstateOracle.latestRoundData` can return the current block timestamp as the Chainlink `updatedAt` while NAV freshness depends on effective-dated checkpoint state in `/private/tmp/defillama-source/superstateinc__onchain-redemptions/src/oracle/SuperstateOracle.sol`.
 
 ## Related Patterns
 
@@ -205,4 +282,3 @@ function isPriceStale() public view returns (bool) {
 - [Chainlink Deviation and Heartbeat](https://docs.chain.link/data-feeds)
 - [L2 Sequencer Uptime Feeds](https://docs.chain.link/data-feeds/l2-sequencer-feeds)
 - [Oracle Security Best Practices](https://blog.openzeppelin.com/secure-oracle-design)
-

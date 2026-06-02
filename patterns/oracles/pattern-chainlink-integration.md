@@ -120,6 +120,23 @@ contract ChainlinkOracle {
 
 **Note:** Chainlink USD pairs typically use 8 decimals. Normalize prices before use.
 
+### Chainlink-Compatible Wrappers
+
+Some contracts implement `AggregatorV3Interface` but are not Chainlink feeds. They may derive values from DEX TWAPs, staking exchange rates, bridged messages, or internal accounting, and may synthesize `updatedAt` as `block.timestamp`.
+
+Interface compatibility is not the same as Chainlink freshness or round semantics. For every wrapper:
+
+- Inspect the source of `answer`, `updatedAt`, `roundId`, and `answeredInRound`.
+- Prefer `latestRoundData()` over `latestAnswer()` so the caller can validate timestamp and round completeness.
+- If the wrapper composes multiple sources, propagate the oldest underlying timestamp.
+- Do not assume Chainlink-compatible contracts enforce Chainlink heartbeat,
+  min/max answer, or timestamp semantics; those may be explicit assumptions of
+  the wrapper.
+- Reject wrappers that return a fresh timestamp while the underlying source has no freshness signal.
+- Treat wrappers that store heartbeat values but do not apply them on the read path as wrapper-specific trust assumptions, not as Chainlink freshness.
+- For primary/backup adapters, validate freshness on the selected feed and fail closed if both feeds are stale.
+- Normalize decimals after reading the feed, and reject negative or zero answers.
+
 ### With Fallback Oracle
 
 ```solidity
@@ -174,6 +191,27 @@ contract L2ChainlinkOracle {
 }
 ```
 
+### Lending Action Sentinel
+
+For lending markets on L2s, sequencer checks can be applied at the action level instead of only inside a price read. A sentinel can block borrows and liquidations while the sequencer is down or inside the post-recovery grace period:
+
+```solidity
+function borrow(uint256 amount) external {
+    require(oracleSentinel.isBorrowAllowed(), "sequencer grace");
+    _borrow(amount);
+}
+
+function liquidate(address account) external {
+    require(
+        oracleSentinel.isLiquidationAllowed() || _isSeverelyUnhealthy(account),
+        "sequencer grace"
+    );
+    _liquidate(account);
+}
+```
+
+The severe-health-factor exception is a policy choice: it can contain obvious bad debt, but it must be documented because it allows some liquidations while the sentinel blocks normal ones.
+
 ## Staleness Configuration
 
 | Asset Type | Heartbeat | Deviation | Suggested maxStaleness |
@@ -194,11 +232,22 @@ contract L2ChainlinkOracle {
 | **L2 sequencer down** | Sequencer feed | Check `answer == 0` and grace period on L2s |
 | **Wrong decimals** | `decimals()` | Normalize to 18 decimals (most USD pairs use 8) |
 | **Negative price** | `price` | `require(price > 0)` |
+| **Fresh-timestamp shim** | wrapper source | Do not trust `updatedAt = block.timestamp` unless the underlying source is fresh |
+| **Stored heartbeat ignored** | wrapper read path | Verify the heartbeat is enforced where `latestRoundData()` is consumed |
+| **`latestAnswer()` only** | missing timestamp | Use `latestRoundData()`; off-chain monitoring is not an on-chain guard |
+| **Missing previous round** | `roundId - 1` reads | Check historical depth before adjacent-round or interpolation logic |
+| **Interpolation divide-by-zero** | timestamps | Require strictly increasing round timestamps |
+| **Sequencer grace ignored by lending actions** | L2 sentinel | Gate borrow/liquidation paths, not only raw oracle reads |
+| **Interface-compatible non-Chainlink feed** | wrapper assumptions | Audit heartbeat, min/max, and timestamp semantics instead of inheriting Chainlink defaults |
 
 ## Real-World Examples
 
 - [Aave](https://docs.aave.com/developers/core-contracts/aaveoracle) — Chainlink for all price feeds
 - [Compound](https://docs.compound.finance/v2/prices/) — Chainlink with fallbacks
+- Morpho Blue oracle libraries intentionally leave Chainlink staleness and
+  min/max checks to integration assumptions in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
+- Silo Chainlink-compatible adapters include wrapper-specific timestamp and heartbeat assumptions in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-oracles/contracts/_common/Aggregator.sol` and `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-oracles/contracts/chainlinkV3/ChainlinkV3Oracle.sol`.
+- Moonwell documents delayed Chainlink OEV wrapper semantics in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/docs/OEV.md` and implements wrapper reads in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/src/oracles/ChainlinkOEVWrapper.sol`.
 - [MakerDAO](https://docs.makerdao.com/smart-contract-modules/oracle-module) — Chainlink + median
 
 ## Related Patterns
@@ -213,4 +262,3 @@ contract L2ChainlinkOracle {
 - [Chainlink Feed Addresses](https://docs.chain.link/data-feeds/price-feeds/addresses)
 - [Chainlink L2 Sequencer Feeds](https://docs.chain.link/data-feeds/l2-sequencer-feeds)
 - [Using Data Feeds Safely](https://docs.chain.link/data-feeds/using-data-feeds)
-

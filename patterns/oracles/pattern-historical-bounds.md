@@ -189,6 +189,122 @@ contract RateLimitedBoundsOracle {
 }
 ```
 
+### Rate-Limited Accepted State
+
+For stateful oracle reports, validate both cadence and magnitude before mutating the accepted value:
+
+```solidity
+function acceptReport(uint256 newValue, uint256 reportTime) external {
+    require(reportTime > lastReportTime, "non-monotonic");
+    require(block.timestamp - reportTime <= maxReportAge, "stale");
+    require(reportTime <= block.timestamp + maxFutureDrift, "future report");
+    require(block.timestamp >= lastAcceptedAt + minUpdateInterval, "too soon");
+    require(_withinDeviation(newValue, lastAcceptedValue, maxDeltaBps), "too far");
+
+    lastAcceptedValue = newValue;
+    lastAcceptedAt = block.timestamp;
+    lastReportTime = reportTime;
+}
+```
+
+This variant is useful for reporter-quorum systems and cross-chain price relays where each accepted update becomes protocol state. Reject zero values, undercollateralized rates, non-monotonic timestamps, excessive deltas, stale reports, and future-dated reports before minting, borrowing, or accepting deposits against the value.
+
+### Anchor-Capped Accepted State
+
+For reporter-fed prices, cap updates against an anchor over a fixed period:
+
+```solidity
+function validateReporterUpdate(uint256 reporterPrice, uint256 anchorPrice) internal view {
+    uint256 deviation = _deviationBps(reporterPrice, anchorPrice);
+    require(deviation <= maxSwingBps, "anchor deviation");
+    require(block.number >= lastAnchorBlock + anchorPeriod, "anchor period active");
+}
+```
+
+This reduces the chance that a reporter can move accepted state too far from a reference source in one update window. The anchor can be a TWAP, median, or prior accepted state, but it must have its own freshness and manipulation-resistance checks.
+
+### LST Exchange-Rate Accepted State
+
+For liquid-staking exchange rates, accepted-state bounds should cap changes to internal accounting while preserving the distinction between internal backing and market value:
+
+```solidity
+function acceptExchangeRate(uint256 newRate) external {
+    require(newRate >= minRate, "below floor");
+    require(_withinDelta(newRate, lastRate, maxRateMoveBps), "rate move");
+    lastRate = newRate;
+}
+```
+
+Fees should be charged only on positive stake growth, and off-chain monitoring should still watch for market depeg, supply mismatch, and redemption impairment.
+
+### External-Anchor Accepted State
+
+For RWA or NAV-style feeds, accepted-state updates can require both a fresh external reference and a bounded move from the previous accepted value:
+
+```solidity
+function acceptNav(uint256 newNav, uint256 externalPrice, uint256 externalUpdatedAt) external {
+    require(externalPrice > 0, "bad anchor");
+    require(block.timestamp - externalUpdatedAt <= maxAnchorAge, "stale anchor");
+    require(block.timestamp >= lastAcceptedAt + minCadence, "too soon");
+    require(_withinAbsBound(newNav, externalPrice, maxAnchorDeltaBps), "anchor delta");
+    require(_withinDelta(newNav, lastAcceptedValue, maxStateDeltaBps), "state delta");
+
+    lastAcceptedValue = newNav;
+    lastAcceptedAt = block.timestamp;
+}
+```
+
+This constrains accepted-state movement; it is not a freshness guarantee by itself. The external anchor must still have round freshness, nonzero values, and monotonic update checks.
+
+### Effective-Dated NAV Checkpoints
+
+RWA feeds sometimes need to publish NAV checkpoints that become effective at a
+future timestamp. Bound the number of pending checkpoints, require strictly
+increasing effective times, and reject per-checkpoint value moves outside the
+configured envelope:
+
+```solidity
+function addCheckpoint(uint256 nav, uint256 effectiveAt) external onlyReporter {
+    require(effectiveAt > lastEffectiveAt, "non-monotonic");
+    require(pendingCheckpoints.length < maxPending, "too many pending");
+    require(_withinDelta(nav, lastNav, maxDeltaBps), "nav delta");
+    pendingCheckpoints.push(Checkpoint(nav, effectiveAt));
+}
+```
+
+If the adapter exposes a Chainlink-compatible interface, `updatedAt` should not
+hide the economic age of the active checkpoint.
+
+### History-Span Bounds
+
+For stateful oracle strategies, a new price can be bounded against both explicit
+min/max values and a recent history span:
+
+```solidity
+function validatePrice(uint256 price) internal view {
+    require(price >= minEffectivePrice, "below min");
+    require(price <= maxEffectivePrice, "above max");
+    require(history.length >= minHistoryLength, "short history");
+    require(_withinHistoryEnvelope(price, history, maxHistoryDeviationBps), "history");
+}
+```
+
+History-span checks are strongest when the stored history itself has freshness,
+source-quality, and monotonic-time guarantees.
+
+### One-Sided Stablecoin Cap
+
+For assets intended not to exceed a peg, a one-sided cap can preserve downside depeg while preventing upward overvaluation:
+
+```solidity
+function cappedPrice() external view returns (uint256) {
+    uint256 price = source.price();
+    return price > maxPegPrice ? maxPegPrice : price;
+}
+```
+
+This is safer than forcing the price to a constant peg because it does not hide downside moves. It should be used only when upward premium should not increase borrowing power, mint value, or collateral value.
+
 ## Calibration
 
 | Asset Type | Suggested Max Deviation | Rationale |
@@ -201,6 +317,14 @@ contract RateLimitedBoundsOracle {
 - Too tight: rejects legitimate price moves
 - Too loose: doesn't catch anomalies
 - Consider asset-specific volatility patterns
+- Bound both value movement and update cadence for accepted-state oracles
+- Accepted-state bounds constrain mutations, but do not prove source liveness unless the anchor or reporter timestamp is also fresh
+- For bridged prices, authenticate the remote sender and reject stale, future-dated, or non-monotonic timestamps
+- For stable or pegged collateral, prefer one-sided caps that limit upward overvaluation without masking downside depeg
+- Do not treat out-of-gas, empty-return, or unexpected-revert fallback paths as valid default prices
+- For LSTs, exchange-rate bounds constrain accepted internal accounting but do not prove market liquidity or redemption value.
+- For multi-source strategies, warning states should still be bounded by effective min/max price and a sufficient history span.
+- For effective-dated NAV checkpoints, bound pending checkpoint count and expose economic freshness separately from the call timestamp.
 
 ## Limitations
 
@@ -260,15 +384,22 @@ contract CircuitBreakerWithBounds {
 
 - [MakerDAO OSM](https://docs.makerdao.com/smart-contract-modules/oracle-module/oracle-security-module-osm-detailed-documentation) — price bounds with delay
 - [Chainlink Circuit Breakers](https://blog.chain.link/circuit-breakers-and-client-diversity-within-the-chainlink-network/) — built-in bounds checking
+- SparkLend Advanced uses one-sided capped stablecoin-style oracle logic so upward overvaluation is limited without hiding downside depeg.
+- An Ondo audit-contest snapshot combines fresh Chainlink round checks, daily cadence, absolute bounds, and anchor-delta bounds before accepting RWA oracle state.
+- Stader BNBx constrains accepted LST exchange-rate movement and uses monitoring around exchange-rate drops, supply mismatch, and operation cadence.
+- NAVI oracle strategy checks effective min/max price and price history span in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/strategy.move`.
+- Avant MAX `PriceStorage` accepts a write-once price key only when the new price stays within bounds around `lastPrice`; tests cover duplicate keys and upper/lower bound reverts in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/src/PriceStorage.sol` and `test/PriceStorage.t.sol`.
+- Superstate `SuperstateOracle` stores effective-dated NAV checkpoints, limits pending updates, and exposes a Chainlink-compatible view whose freshness needs separate economic interpretation in `/private/tmp/defillama-source/superstateinc__onchain-redemptions/src/oracle/SuperstateOracle.sol`.
+- Kinetiq validates validator performance reports through adapter quorum and sanity checks before accepting accumulated reward/slash metrics in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/OracleManager.sol` and `src/validators/ValidatorSanityChecker.sol`.
 
 ## Related Patterns
 
 - [Multi-Source Validation](./pattern-multi-source-validation.md) — combine bounds with source validation
 - [Chainlink Integration](./pattern-chainlink-integration.md) — primary oracle to validate
 - [TWAP Oracle](./pattern-twap-oracle.md) — reference for bounds
+- [Peg Ratio Monitor](./pattern-peg-ratio-monitor.md) — monitor market/fair-value divergence
 
 ## References
 
 - [MakerDAO Oracle Security Module](https://docs.makerdao.com/smart-contract-modules/oracle-module)
 - [Price Oracle Best Practices](https://blog.openzeppelin.com/secure-oracle-design)
-

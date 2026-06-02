@@ -17,7 +17,7 @@ Contract A depends on B, B depends on A (directly or through chain).
 ### Shared Mutable State
 Multiple contracts read/write the same storage slot or external state without clear ownership.
 **Symptoms:** Race conditions, unexpected state changes, hard to reason about invariants.
-**Fix:** Single owner per state, others read via view functions.
+**Fix:** Single owner per state, others read via view functions. A shared custody vault can be acceptable only when it is immutable, has explicit internal ledgers, and has a restricted writer set.
 
 ### Missing Abstraction
 Direct coupling to external protocol without adapter/interface layer.
@@ -29,13 +29,31 @@ Internal implementation details exposed through contract interfaces.
 **Symptoms:** Callers need to know internal state layout, function parameters expose internal concepts.
 **Fix:** Interface describes WHAT not HOW. Hide internal mechanics.
 
+### Prose-Only Security Guardrail
+Documentation, deployment scripts, or comments describe a security limit that the contract never enforces.
+**Symptoms:** README says withdrawals are capped, minimums apply, or unsafe amounts are rejected, but no runtime check or invariant test exists. Constants or comments declare risk bounds, but privileged setters assign the proposed value without checking those bounds.
+**Risk:** Operators, users, and auditors rely on a nonexistent control; later code changes preserve the prose while behavior remains unsafe.
+**Fix:** Encode the guard in contract logic or tests, or explicitly mark it as an operational policy outside the trust-minimized path.
+
 ## Access Control
 
 ### Unrestricted Admin
 Owner/admin can change critical parameters instantly without timelock, bounds, or multi-sig.
-**Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner.
+**Symptoms:** Setter functions with no delay, no upper/lower bounds on parameters, single EOA as owner. Reserve configuration, oracle thresholds, guardian quorums, signer sets, and liquidity or bridge maintainer allowlists can be changed instantly. Timelock wrappers delay only ownership handoff while forwarding economic setters immediately.
 **Risk:** Rug pull, accidental misconfiguration, governance attack.
-**Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin.
+**Fix:** Timelock on critical changes, hard-coded bounds on parameters, multi-sig or governance for admin. Delegated operator modules help only when targets, selectors, and parameter caps are hard-bounded or timelocked. Treat allowlist, maintainer, vault-status, bridge-trust-list, bridge module/ISM, collateral-flow, pricing module, strike selector, premium pricer, gauge/factory, guard, and principal-rewrite changes as critical even when they are not numeric parameters.
+
+### Stale-State Bound Check
+Setter validates an old stored value or unrelated state instead of the proposed new parameter.
+**Symptoms:** `require(currentFee <= MAX_FEE)` inside `setFee(newFee)`, tests cover only existing valid values, or events emit the proposed value while bounds check another variable.
+**Risk:** A critical parameter can be set outside intended bounds even though the setter appears guarded.
+**Fix:** Validate proposed inputs directly, test failing over-limit proposals from both valid and invalid current states, and emit old/new values. For packet or batch limits, test constructor and update paths with proposals above the maximum; checking the stored packet length before assigning the new value is not a guard.
+
+### Fixed-Window Revocation Blind Spot
+Permission revocation scans only a small recent window of a linked list or append-only log.
+**Symptoms:** Helper revokes "all" permissions but stops after N entries, or older approvals are unreachable without manual iteration.
+**Risk:** Stale authority remains active after users or operators believe it was revoked.
+**Fix:** Store indexed permission state, expose cursor-based revocation, or require callers to revoke exact entries while making incomplete revocation visible.
 
 ### Missing Pause
 No emergency stop mechanism. If exploit found, no way to stop bleeding.
@@ -44,9 +62,15 @@ No emergency stop mechanism. If exploit found, no way to stop bleeding.
 
 ### Pause Traps Funds
 Pause blocks ALL operations including withdrawals.
-**Symptoms:** Pause disables both deposit and withdraw/redeem.
+**Symptoms:** Pause disables both deposit and withdraw/redeem, or bridge pause blocks exits/refunds after users have burned or escrowed assets.
 **Risk:** Users cannot exit during emergency.
-**Fix:** Pause blocks deposits only. Withdrawals always available.
+**Fix:** Pause blocks new inflows and unsafe state transitions first. Withdrawals, claims, repayments, liquidations, interest accrual, and refunds remain available when solvent or risk-reducing; claim/redeem pauses need narrower permissions, monitoring, expiry, or an explicit emergency playbook. Pausing an operator-finalized claim queue after the operator has fixed entitlements traps funds just as surely as pausing the request path. Batch-finalized LST/LRT exits, vault withdrawal claims, and burn-to-claim queues need at least one documented emergency claim route or expiry when ordinary claims are paused. If not every exit path is safe, keep the safest solvent exit path open, such as proportional withdrawal while swaps and imbalanced exits are paused. AMM swap-only pauses can be acceptable when liquidity exits, claims, and fee withdrawals remain open. For lending reserves, distinguish freeze/new-risk gates from full pause: a freeze can block new supply/borrow while still allowing repay, withdraw, and liquidation. For redeemable RWA tokens, distinguish ordinary transfer pause from accounting, burn, or off-chain redemption pause so transfer restrictions do not automatically block book-entry exits. For veto or rage-quit governance, document whether paused withdrawal queues, oracles, or bridges can deadlock proposal liveness.
+
+### EOA Gate as Security Boundary
+Contract rejects contract callers with `tx.origin`, `isContract`, or both and presents that as security.
+**Symptoms:** `require(tx.origin == msg.sender)`, `Address.isContract(msg.sender)` checks, or README language claiming bots/MEV/bridges are blocked by EOA-only access.
+**Risk:** Constructor calls and account abstraction can bypass or invalidate the assumption; smart wallets and routers are broken; users lose explicit recipient and signed-intent protections.
+**Fix:** Use explicit recipients, signed intent, allowlists, bridge-aware receiver checks, slippage bounds, and action-specific authorization. EOA gates can be a UX, fee-funding, bot-delay, or governance anti-tokenization policy only when documented as such, paired with explicit checker exceptions where needed, and tested against smart-account, router, and relayer flows. A signed RFQ order may bind `tx.origin` only as a maker-chosen origin filter paired with maker signature, taker checks, expiry, fill state, and an origin registry; it is still not a standalone authorization primitive and harms smart-account or relayer compatibility.
 
 ## Oracle & Price
 
@@ -60,7 +84,25 @@ Single oracle source, no fallback, no validation.
 Using instantaneously manipulable price (DEX spot, single-block read) for value-bearing operations.
 **Symptoms:** Price read from AMM pool in same transaction as value transfer.
 **Risk:** Flash loan → manipulate price → exploit → repay in same tx.
-**Fix:** TWAP, multi-block averaging, or oracle with manipulation resistance.
+**Fix:** TWAP, multi-block averaging, or oracle with manipulation resistance. Spot aggregators that are documented as off-chain-only remain unsafe for on-chain value transfer even when they combine many DEX sources.
+
+### Synthetic Freshness Timestamp
+Oracle wrapper returns `updatedAt = block.timestamp` or another call-time value while the economic source was last updated earlier.
+**Symptoms:** Chainlink-compatible shim passes generic staleness checks even though the underlying NAV, TWAP, bridged rate, or checkpoint has separate freshness.
+**Risk:** Integrations treat stale economic data as fresh and allow deposits, withdrawals, borrowing, or redemptions at an obsolete value.
+**Fix:** Propagate the oldest underlying source timestamp, expose economic and relay timestamps separately, and require consumers to check source age and deviation. Chainlink-compatible wrappers that return zero timestamps, synthesize call-time timestamps, store heartbeat values without enforcing them, or omit staleness/min-max checks need wrapper-specific integration assumptions, not inherited Chainlink semantics. Consumers that call `latestRoundData` but discard every field except price have the same practical freshness problem as wrappers that synthesize timestamps. OEV wrappers that intentionally delay ordinary reads should document the delayed-read path separately from any paid fresh-update liquidation path.
+
+### Global Timestamp For Per-Asset Prices
+Oracle stores many asset prices but exposes one shared timestamp or updates a global timestamp on every per-asset write.
+**Symptoms:** `getLatestPrice(asset)` returns a price and a timestamp that is not guaranteed to be the update time of that asset.
+**Risk:** One fresh asset update can make unrelated stale prices appear fresh, or one stale asset can unnecessarily block unrelated markets.
+**Fix:** Store and return timestamps per asset or per price key, and test that updating asset A does not change freshness for asset B.
+
+### Async Oracle Context Overwrite
+Asynchronous oracle request code stores the pending request id or request subject in a single global slot.
+**Symptoms:** `lastRequestId`, `lastAssetId`, or `lastHouseId` is overwritten by a second request before the first callback is fulfilled.
+**Risk:** A valid callback can update the wrong asset, price, or account, especially when fulfillment order differs from request order.
+**Fix:** Map request id to immutable context, clear it on fulfillment, reject unknown or already fulfilled requests, and test out-of-order callbacks.
 
 ## Economic
 
@@ -68,33 +110,57 @@ Using instantaneously manipulable price (DEX spot, single-block read) for value-
 Loop over user-controlled or growing data structure without gas limit.
 **Symptoms:** Array that grows with users/deposits, loop in core operation.
 **Risk:** Gas DoS — operation becomes too expensive as data grows.
-**Fix:** Bounded batch processing, pagination, or restructure to avoid loops.
+**Fix:** Bounded batch processing, pagination, or restructure to avoid loops. Lazy time-bucket catchup loops need a max backlog, public batching, or keeper incentives. If users can append entries to another account's array, require a minimum economic size, owner-only append semantics, or pagination so attackers cannot gas-DoS a victim's aggregate views or withdrawals. Relay-style view aggregators over operators, keys, vaults, reward addresses, pools, or validator sets can be acceptable for off-chain indexing, but should not become on-chain dependencies without pagination or hard caps. Search loops such as option-strike stepping need an iteration cap or prevalidated bracket. Loop-limit helpers must bound the actual loop cardinality; checking half of a later full-length loop is a false guard.
 
 ### Fee-on-Transfer Blindness
 Assumes token transfer delivers exact amount. Doesn't account for fee-on-transfer or rebasing tokens.
 **Symptoms:** `transferFrom(amount)` followed by using `amount` directly without checking balance delta.
 **Risk:** Accounting mismatch, exploitable for value extraction.
-**Fix:** Measure actual balance change, or explicitly reject fee-on-transfer tokens.
+**Fix:** Measure actual balance change and account using the received amount, or explicitly reject fee-on-transfer tokens at onboarding. Direct-to-custodian top-ups, bridge settlements, Token-2022 escrow funding, and CPI fee harvests need the same actual-received or explicit-rejection boundary. Balance-delta equality can enforce a rejection boundary, but exact-input router support does not make liquidity add/remove, repayment, or withdrawal paths fee-on-transfer safe automatically. A documented unsupported-token assumption is only sufficient when every market, pool, token, or bridge route-onboarding path makes the same rejection boundary visible to integrators.
 
 ### Missing Slippage Protection
 Value-bearing operation (swap, deposit, mint) without user-specified bounds on acceptable outcome.
 **Symptoms:** No `minAmountOut`, no `maxSlippage`, no `deadline` parameter.
 **Risk:** Sandwich attack, stale transaction execution at unfavorable price.
-**Fix:** User-provided slippage bounds + deadline.
+**Fix:** User-provided slippage bounds + deadline. For dynamic pricing, require max-cost bounds and quote expiry; for admin-configured swap templates, validate router allowlists, selectors, calldata insertion offsets, and approval scope. For delta-derived liquidity mints or increases, cap token inputs and require a minimum liquidity or position delta, because max token amounts alone do not prove the user received enough position value. Maintenance, fee-converter, or treasury swaps still need slippage bounds; `tx.origin` or EOA gates are not price-impact or sandwich protection. Multi-leg zaps and complex-asset withdrawals should carry per-leg swap, liquidity, or unwind minimums instead of relying only on one final aggregate `minOut`, and residual ledgers do not make a bad internal fill acceptable. Flash-order or callback-routed settlement must bind minimum output and settle from measured balance deltas, not from an off-chain quote. Command routers that allow partial failure need explicit sweep or balance-check commands on failed branches so residual balances cannot be stranded.
+
+### Duplicate Staking Asset Registration
+MasterChef-style farm registers the same staking token in more than one pool while reward debt reads total token balance from the farm contract.
+**Symptoms:** `lpToken.balanceOf(address(this))` is used as pool supply, pool creation lacks a uniqueness check, or docs say duplicate LP pools should not be added without an enforced registry.
+**Risk:** Rewards for one pool can be diluted, amplified, or cross-accounted by deposits in another pool with the same staking token.
+**Fix:** Enforce one active pool per staking asset, or track internal per-pool principal instead of deriving supply from the farm's aggregate token balance.
+
+### tx.origin-Keyed Economic Entitlement
+Discounts, fee tiers, gauges, or other economic entitlements are keyed by `tx.origin`.
+**Symptoms:** Fee module checks `tx.origin` for a discount or privileged path, while routers and smart accounts call through intermediary contracts.
+**Risk:** Users lose intended protections through routers, relayers can create inconsistent economics, and phishing-style call chains can inherit a user's origin-bound entitlement.
+**Fix:** Key economic privileges by `msg.sender`, explicit receiver, signed account, or authenticated session context. If router support is required, bind the beneficiary in calldata or a signature and test smart-account, multicall, and relayer paths. Keep the narrow RFQ-origin exception separate from economic entitlements: a maker-signed order can choose an origin filter, but protocol discounts, gauges, fees, and admin privileges should not inherit from `tx.origin`.
+
+### Quote Execution Formula Drift
+Quoted helper functions use a different formula than the state-changing execution path.
+**Symptoms:** `getAmountIn` calls output math, previews omit dynamic fees, or off-chain quotes use stale router formulas.
+**Risk:** Users set wrong slippage bounds, integrators route through stale math, or economic checks pass against a quote the execution path never honors.
+**Fix:** Share quote and execution math libraries, test public quote helpers against execution, and treat quote-only fixes as compatibility-sensitive upgrades. For AMMs, snapshot representative pool accounts and execute swaps in a local simulator or fork, then compare quote deltas with executed balance deltas; stable pools may need stable-specific add-liquidity quote helpers rather than constant-product reserve ratios. Revert-encoded quote paths should distinguish the expected quote selector from ordinary failures and can include post-swap price, tick, or gas metadata when integrators need price-impact checks. For adapter-based routes, derive executable account metas from the same state used for quote validation and fail tests when the simulated balance delta diverges from the quote.
 
 ### Donation Attack Surface
 Share price manipulable via direct token transfer to contract.
 **Symptoms:** `totalAssets()` reads token balance directly, no virtual offset or internal accounting.
 **Risk:** Attacker donates tokens → inflates share price → first depositor gets ~0 shares.
-**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance.
+**Fix:** Virtual shares/assets offset, minimum first deposit, or internal accounting not based on balance. Also check lifecycle predicates that depend on zero token balance; donations can grief removal or cleanup flows even without share inflation. For 1:1 wrappers, surplus accounting plus a controlled skim receiver can neutralize donations. Donation recovery sweeps should be capped to proven excess and ordered before syncing internal cash to the external balance.
 
 ## State & Lifecycle
 
 ### Uninitialized Proxy
 Upgradeable proxy without initializer protection.
-**Symptoms:** `initialize()` without `initializer` modifier, or no initialization check.
+**Symptoms:** `initialize()` without `initializer` modifier, no initialization check, or a diamond/facet implementation whose initializer can be called directly outside the proxy.
 **Risk:** Attacker calls initialize on implementation, takes ownership.
-**Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor.
+**Fix:** OpenZeppelin `initializer` modifier, or `_disableInitializers()` in constructor. For diamond or governed facet systems, mark implementation contracts initialized in the constructor with an unusable governance value and keep initializer entrypoints internal or proxy-only. For reinitializers, gate each revision once and test that repeated or skipped revision initializers cannot overwrite authority, storage namespaces, or version state.
+
+### Latched Invalid Initialization
+One-shot initializer records partial or invalid configuration before validating all required fields.
+**Symptoms:** `initialized = true` or equivalent latch can be set while required addresses, chain ids, or limits are zero.
+**Risk:** Contract becomes permanently bricked or deploys peers with unusable configuration.
+**Fix:** Validate all required fields before setting irreversible initialization state; test zero/partial configs.
 
 ### Missing Migration Path
 Immutable contract with no plan for upgrade/migration.
@@ -114,13 +180,13 @@ Entity with lifecycle states but undefined transitions or unreachable states.
 External call to untrusted contract before state is finalized.
 **Symptoms:** State read → external call → state write pattern (violates CEI).
 **Risk:** Callback re-enters contract, reads stale state, extracts value.
-**Fix:** Checks-Effects-Interactions pattern, reentrancy guard, or state finalization before external calls.
+**Fix:** Checks-Effects-Interactions pattern, reentrancy guard, or state finalization before external calls. For bridge claims, consume nullifiers or message ids before external callbacks and test that reentrant independent claims cannot reuse the same proof.
 
 ### Unchecked External Return
 External call without checking return value or handling revert.
 **Symptoms:** `token.transfer()` without return value check, `externalContract.call()` without success check.
 **Risk:** Silent failure, incorrect accounting.
-**Fix:** Use SafeERC20, check return values, handle reverts explicitly.
+**Fix:** Use SafeERC20, check return values, handle reverts explicitly. Fallback adapters must not treat out-of-gas, empty returndata, unexpected selectors, or arbitrary reverts as valid default values unless the default is explicitly conservative and monitored. When funding rewards through external CPI or hooks, whitelist the program and account set, check CPI success, and measure the receiving balance delta. Approval-bearing callbacks should grant per-call allowance, clear it in the same frame, and check the callback result.
 
 ### Composability Assumption
 Architecture assumes external protocol behavior that may change.
@@ -132,7 +198,19 @@ Architecture assumes external protocol behavior that may change.
 Protocol calls external hooks/callbacks (Uniswap V4 hooks, ERC-777 receivers, flash loan callbacks) without restricting what the hook can do.
 **Symptoms:** External hook can re-enter or call back into protocol state. No hook sandboxing.
 **Risk:** Malicious hooks manipulate protocol state mid-execution. Uniswap V4 hook exploits: $11M+.
-**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance.
+**Fix:** Restrict hook capabilities (read-only where possible), reentrancy locks spanning entire operation, whitelist hooks through governance. Bind callback caller/context to the expected pool, market, or order; advisory hooks should be bounded-gas/best-effort and must not control critical invariants. Token-2022 transfer-hook integrations should parse typed remaining-account slices and reject unsupported extension combinations before CPI. If callbacks are allowed, prove or test that no critical storage writes happen after the external callback. Validate hook interfaces and trust boundaries on replacement paths, not only at initial setup. Append-only per-asset callback lists need purge, caps, or pagination before they run in repay, withdraw, or liquidation flows. Block periphery operations such as position transfer, subscribe, or unsubscribe while the core manager is unlocked, and clear subscription state before external notification so gas griefing cannot pin stale callbacks. For flash-loan automation, grant temporary wallet permissions only around the callback and assert lender, initiator, and post-callback revocation. Cross-contract controllers, vaults, and callback receivers need a shared reentrancy model; a per-contract lock is not sufficient when the callback can re-enter a sibling contract that shares accounting assumptions. Refund callbacks during a temporary privileged execution context need explicit reentrancy reasoning, because the callback target may observe or reuse the still-active frame. Periphery callback helpers should verify the expected market or pool caller before paying or forwarding assets; post-callback balance checks in the core do not protect unrelated callback entrypoints by themselves. Order-settlement hooks and interactions should be signed or trait-gated, invalidation should happen before callbacks, callback stages should be explicit, and solver/taker interactions must not be able to call allowance-bearing relayers or privileged transfer helpers. Hook receivers that can perform `call` or `delegatecall` through a market, share token, or distributor authority are privileged execution surfaces and need selector, target, and reentrancy constraints.
+
+### Unkeyed Transient Execution Context
+Transient scratch storage or per-transaction context is shared across callers, wallets, or operations without a key.
+**Symptoms:** Action A writes a scratch value that action B can read, or nested recipe/flash-loan execution reuses global transient slots.
+**Risk:** A malicious module can poison later steps, read another operation's context, or bypass assumptions about one-frame isolation.
+**Fix:** Key transient state by caller, wallet, operation id, or execution frame, and clear or settle it at the end of the frame. Transient storage is acceptable when state is keyed and invariants prove no unsettled delta crosses the operation boundary.
+
+### Account Role Confusion
+Code validates a set of same-type accounts but later reads or writes one role using another role's variable.
+**Symptoms:** `baseVault` and `quoteVault` both have correct type checks, but later accounting loads both balances from the same account variable; Solana account arrays or long EVM parameter lists reuse adjacent names.
+**Risk:** Accounting, settlement, or authority checks use the wrong account after initial validation, causing mispriced deposits, withdrawals, or custody movement.
+**Fix:** Use role-specific account structs, validate account cohorts together, keep semantic names through execution, and add negative tests that swap same-type accounts. Redemption APIs with a `to` receiver must prove the receiver controls actual settlement, not only event fields or validation paths.
 
 ### Unvalidated External Contract
 Protocol integrates with external contracts passed as parameters, validates token addresses but not the contract itself.
@@ -146,13 +224,19 @@ Protocol integrates with external contracts passed as parameters, validates toke
 ERC-4626 vault with no virtual offset, totalAssets reads balance directly, no minimum initial deposit.
 **Symptoms:** No dead shares, no _decimalsOffset, no internal accounting.
 **Risk:** Attacker deposits 1 wei, donates tokens to inflate share price, subsequent depositors get 0 shares. sDOLA: $239K.
-**Fix:** Virtual share offset (OpenZeppelin _decimalsOffset), internal asset accounting, minimum initial deposit.
+**Fix:** Virtual share offset (OpenZeppelin _decimalsOffset), internal asset accounting, minimum initial deposit. Choose offset strength for the asset/share precision domain; a small offset can still leave donation grief or weak protection for high-decimal assets.
 
 ### Withdrawal Queue Starvation
 Vault strategy locks all funds in external protocols, no reserved liquidity buffer.
 **Symptoms:** No liquidity reserve, FIFO withdrawal queue, no forced unwind trigger.
 **Risk:** During stress, liquid reserves depleted. Late withdrawers stuck indefinitely. Bank-run dynamics.
-**Fix:** Liquidity buffer (10-20% TVL always liquid), pro-rata withdrawal during stress, forced unwind triggers.
+**Fix:** Liquidity buffer (10-20% TVL always liquid), pro-rata withdrawal during stress, forced unwind triggers. Queue processing must be gas-bounded and mass exits must not brick finalization. Manual pull redemptions should fix entitlement or enforce queue order so users cannot wait for a favorable later price while others exit.
+
+### Permissioned Exit Custody
+Withdrawal or migration escrow lets only an owner or operator release user funds without user-specific entitlement or queue semantics.
+**Symptoms:** Owner-only escrow withdrawal, no recorded beneficiary balance, migration custody that relies on social process, or an on-chain burn/claim that only emits an off-chain destination while the real asset release is operational.
+**Risk:** Users cannot independently claim assets and must trust the operator not to delay, reorder, or redirect exits.
+**Fix:** Record user entitlements, queue order, and claim conditions on-chain. Beneficiary-specific pending redemptions improve traceability, but they do not remove custody risk if only an operator can execute or cancel and there is no timeout, queue, or user claim path. If permissioned custody is temporary for migration, publish the migration boundary, operator trust assumptions, and final user claim path.
 
 ### Rebasing Token Accounting
 Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot model.
@@ -162,23 +246,44 @@ Protocol holds rebasing tokens (stETH, AMPL, aTokens) but uses balance-snapshot 
 
 ## Token Integration
 
-### Fee-on-Transfer Blindness
-Assumes token transfer delivers exact amount requested.
-**Symptoms:** `transferFrom(amount)` followed by using `amount` directly without balance delta check.
-**Risk:** Accounting mismatch with fee-on-transfer tokens, exploitable for value extraction.
-**Fix:** Measure actual balance change, or explicitly reject fee-on-transfer tokens.
+### Fee-on-Transfer Blindness (see Economic)
+See [Economic > Fee-on-Transfer Blindness](#fee-on-transfer-blindness) for the canonical entry. Token onboarding and transfer paths should apply the same actual-received or explicit-rejection boundary.
 
 ### Implicit Decimal Assumption
 Protocol hardcodes 18 decimals or assumes all tokens have same decimals.
-**Symptoms:** No per-token decimal normalization, share math doesn't account for decimal differences.
+**Symptoms:** No per-token decimal normalization, share math doesn't account for decimal differences, or native-token sentinels flow into ERC20 `decimals()` calls before native handling.
 **Risk:** USDC (6 decimals) valued as 1e12× correct amount. Common in multi-token vaults.
-**Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals.
+**Fix:** Read and normalize decimals per token, scale to canonical precision, fuzz with varying decimals. If the system only supports 18-decimal accounting, reject non-18-decimal tokens and feeds at every onboarding path. Oracle adapters that compute `10 ** (18 - decimals)` need an explicit `decimals <= 18` guard or onboarding rejection.
 
 ### Approval Persistence
 Protocol requests unlimited approval, approved spender contracts are upgradeable.
 **Symptoms:** `type(uint256).max` approval, no permit2, no session-scoped approvals.
 **Risk:** Compromised or maliciously upgraded contract drains all users. Multichain exploit.
-**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals.
+**Fix:** Permit2 or ERC-7674 transient approvals, exact-amount approvals, time-bound approvals. Permit2-style approvals still need spender, token, amount, expiration, and nonce scope; witness-bound transfer permits are safer when a one-time transfer must commit to extra route or action context. For stored route templates, validate approved router and calldata before granting allowance. For bridge hooks, fee dispatchers, reward distributors, or callback adapters callable by arbitrary users, prefer per-call allowance that is granted, consumed, and cleared inside the same operation frame. Callback-capable vaults should assert that all operation and callback-created approvals are zero before the frame ends.
+
+### Overwrite-Based Allowance Changes
+Custom transfer budgets or ERC20-like allowances are replaced by a new value without accounting for pending spender use.
+**Symptoms:** Admin calls `setAllowance(spender, newAmount)`, or a decrease reverts if the current allowance has already changed.
+**Risk:** A spender can consume the old budget before the new value lands, or grief reductions by changing the current allowance.
+**Fix:** Prefer increase/decrease APIs, zero-first replacement, exact expected-current checks, or saturating reduction to zero when the goal is revocation.
+
+### Permit Front-run Griefing
+Protocol bundles an EIP-2612 permit with a value-bearing action and reverts if the permit nonce was already consumed.
+**Symptoms:** `permit()` is called first, then deposit/withdraw/repay assumes the permit succeeded.
+**Risk:** An observer front-runs the same permit, consumes the nonce, and makes the user's bundled action revert or miss a deadline.
+**Fix:** Treat permit failure as non-fatal when allowance is already sufficient for the action. Permit-forwarding helpers inside multicall routers should tolerate already-consumed, front-run, or expired permits, then check final allowance before proceeding while still enforcing amount and deadline bounds. Use strict permit wrappers only when the action explicitly requires fresh permit consumption rather than sufficient allowance.
+
+### Signature Scope Drift
+Signature or permit authorizes a token allowance but omits the exact vault, pool, asset, route, action, or domain that will consume it.
+**Symptoms:** One tranche/share token can be used through multiple vaults or assets, but signatures bind only owner, spender, and token amount.
+**Risk:** A valid signature for one path is replayed or redirected into another path with different economics or restrictions.
+**Fix:** Bind signatures to chain id, verifying contract, nonce, deadline, action, vault/pool id, asset, receiver, and route-specific parameters. Reject signatures that rely on shared token allowance when multiple settlement contexts exist. Cross-chain systems may use stable domain substitutes only when the substitute explicitly commits to the subnetwork, verifier context, replay boundary, and intended output asset during collateral migrations. Executor-supplied custody routes are acceptable only when the unsigned route cannot change user price, asset, receiver, fee, or claim semantics and is still checked against on-chain allowlists. A recovered route signer is only context until downstream code checks the expected signer, signed data, and intended action. Gas-packed bridge paths that deliberately skip destination-refund or receiver validation must be documented as a weaker path and should not share signatures with the fully validated path.
+
+### Bitmap Nonce Domain Truncation
+Signed-order nonce storage narrows a wider signed nonce into a smaller bitmap index without enforcing the supported range.
+**Symptoms:** `uint256 nonce` is cast to `uint64`, `uint8`, or another smaller type for bitmap word/bit selection, while signatures accept arbitrary-width nonces.
+**Risk:** Different signed nonces can collide in storage or make replay and griefing behavior differ from what signers expect.
+**Fix:** Define the nonce domain explicitly, reject values outside it before casting, and test high-bit collision cases as well as ordinary duplicate nonces. If using an unordered nonce bitmap, partition the nonce into explicit word and bit fields and test word-boundary and high-word invalidation behavior.
 
 ## Governance
 
@@ -186,13 +291,19 @@ Protocol requests unlimited approval, approved spender contracts are upgradeable
 Governance token = voting token, no snapshot, no minimum holding period.
 **Symptoms:** No snapshot mechanism, proposal execution without timelock, emergency bypass.
 **Risk:** Flash loan borrow governance tokens → pass malicious proposal in one tx. Beanstalk: $182M.
-**Fix:** Snapshot voting at prior block, time-weighted voting power, mandatory timelock on all paths.
+**Fix:** Snapshot voting at prior block, time-weighted voting power, mandatory timelock on all paths. Vote-weight caps and post-vote transfer locks reduce token reuse but are not a full snapshot substitute.
 
 ### Governance as Arbitrary Execution
 Governor contract executes arbitrary calldata against any target.
-**Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism.
+**Symptoms:** No target/function whitelist, weak community monitoring, no veto mechanism. Operator or receiver contract can hold funds and execute arbitrary calldata.
 **Risk:** Passed proposal becomes unrestricted execution primitive. Can drain treasury, brick protocol.
-**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role.
+**Fix:** Whitelist targets/selectors, separate parameter changes from code upgrades, veto/guardian role. Critical parameter and auth changes should emit events with old and new values so monitoring can detect silent configuration drift. Treat whitelisted vaults, adapters, module managers, or bridge helpers that can execute arbitrary calldata, retain unlimited approvals, or mint/burn through callbacks as privileged execution surfaces, not as harmless integrations. Cross-chain governance batches also need selector and target constraints; a message hash proves the batch was authorized, not that arbitrary targets are safe to call.
+
+### Privileged Supply Mutation
+Minter or burner roles can arbitrarily change user balances or total supply.
+**Symptoms:** Role-gated `mint` or `burn` with no per-window cap, recipient scope, debt/backing condition, or user-specific authorization; guardian/quorum paths exist but an admin or DAO mint path bypasses them.
+**Risk:** Key compromise, governance error, or signer coercion can dilute holders, erase balances, or break reserve accounting even if the role is held by a multisig.
+**Fix:** Enforce protocol-level supply and balance-mutation bounds, tie emergency minting to realized debt or backing proofs, require user consent for burns except narrow slashing/settlement cases, and monitor every budget-consuming path. Epoch minters and emission governors still need hard caps, rate-change bounds, and killed-destination handling. Per-facilitator mint buckets and zero-cap offboarding reduce blast radius, but bucket caps are not reserve solvency proof.
 
 ## Lending / Borrowing
 
@@ -200,7 +311,7 @@ Governor contract executes arbitrary calldata against any target.
 Lending protocol allows illiquid collateral, fixed liquidation bonus, no circuit breaker.
 **Symptoms:** No liquidity-aware parameters, no cascading liquidation protection, no bad-debt backstop.
 **Risk:** Liquidations push prices down → more liquidations → bad debt. Aave V2: $1.7M bad CRV debt.
-**Fix:** Liquidity-aware listing, graduated liquidation, bad-debt backstop, halt beyond LTV threshold.
+**Fix:** Liquidity-aware listing, graduated liquidation, bad-debt backstop, halt beyond LTV threshold. Avoid broad liquidation/seize pauses unless there is a separate bad-debt containment plan.
 
 ### Correlated Collateral Basket
 Multiple collateral types are highly correlated but treated as independent.
@@ -210,7 +321,7 @@ Multiple collateral types are highly correlated but treated as independent.
 
 ### Price Feed Asymmetric Staleness
 Two oracle feeds for a pair with different update frequencies.
-**Symptoms:** Collateral price from Chainlink (hourly), debt price from DEX TWAP (per-block).
+**Symptoms:** Collateral price from Chainlink (hourly), debt price from DEX TWAP (per-block), or an exchange-rate wrapper checks one leg's freshness while silently trusting the base price leg.
 **Risk:** During fast moves, stale feed creates mispricing window. Borrow against overvalued collateral.
 **Fix:** Symmetric oracle architecture, maximum staleness gap enforcement, pause on divergence.
 
@@ -226,15 +337,21 @@ User-facing swap/deposit broadcasts exact amounts to public mempool.
 
 ### Beacon Proxy Single Point of Failure
 Many instances share single Beacon, Beacon owner is EOA or low-threshold multisig.
-**Symptoms:** One global beacon for all vaults/pools, no upgrade monitoring.
+**Symptoms:** One global beacon for all vaults/pools, no upgrade monitoring, or a chain module can upgrade many plan/proxy instances through one shared beacon authority.
 **Risk:** Compromising Beacon owner upgrades ALL instances simultaneously.
-**Fix:** Timelock + high-threshold multisig, per-cohort beacons, upgrade monitoring with auto-pause.
+**Fix:** Timelock + high-threshold multisig, per-cohort beacons, upgrade monitoring with auto-pause. Consider instance-owned delegates, rollback paths, or version-gated upgrade registries when blast-radius control matters. Restaking operator, staker, or validator modules that share one beacon should document slash/exit blast radius, not only code-upgrade risk.
+
+### Delegatecall Context Confusion
+A contract can be called through `delegatecall` even though its logic assumes `address(this)` is the original deployed contract.
+**Symptoms:** Functions rely on immutables, self-address checks, pool identity, or storage context, but can be reached through arbitrary proxies.
+**Risk:** Code executes against unexpected storage or caller context, bypassing assumptions about pool identity or contract state.
+**Fix:** Add no-delegatecall guards to functions that depend on original contract context, such as an immutable self-address comparison, or make delegatecall support explicit with shared storage-layout tests. EIP-7702-style implementation delegation should be treated as delegatecall support and tested against the wallet/account storage context it will actually run in.
 
 ### Storage Layout Drift
 Upgradeable contracts without namespaced storage, no layout diffing in CI.
 **Symptoms:** No EIP-7201, variables inserted between existing ones, multiple inheritance.
 **Risk:** Storage collision corrupts critical state (owner, balances). Silently catastrophic.
-**Fix:** EIP-7201 namespaced storage, layout compatibility checks in CI, append-only with gap slots.
+**Fix:** EIP-7201 namespaced storage, typed storage accessors, layout compatibility checks in CI, append-only with gap slots.
 
 ## Cross-Chain
 
@@ -242,7 +359,19 @@ Upgradeable contracts without namespaced storage, no layout diffing in CI.
 Cross-chain message lacks chain ID binding, replay protection depends on single nonce.
 **Symptoms:** No per-chain deduplication, shared small validator set.
 **Risk:** Valid message on Chain A replayed on Chain B. Wormhole, Ronin, Nomad exploits.
-**Fix:** (sourceChain, destChain, nonce) tuples, per-chain deduplication, independent validator sets.
+**Fix:** Bind operation, source chain, destination chain, nonce, participants, value, and payload into the request hash; keep per-chain deduplication and independent validator sets. Price relays also need source-feed keyed freshness and monotonic timestamp checks. Initialization must not pre-approve zero or default roots, and owner recovery setters must not be able to mark the zero root valid except to delete it. If a relayer delegates replay prevention to a canonical token bridge or message bus, document that dependency and test double redemption at the actual consumed-message boundary.
+
+### Bridge Endpoint Authentication Mismatch
+Bridge adapter authenticates the wrong endpoint because it assumes `msg.sender`, source address, or bridge validation semantics match another bridge's model.
+**Symptoms:** Adapter checks only local caller, ignores the bridge-reported source chain/address, or treats a forwarder as the remote app without verifying the bridge's validation primitive.
+**Risk:** Messages from the wrong chain, adapter, or remote application can execute as trusted bridge payloads.
+**Fix:** Authenticate the local bridge adapter, the bridge-provided source chain, the bridge-provided source address, and the expected remote application. Test wrong chain, wrong sender, wrong adapter, and spoofed forwarder cases for every bridge transport. External bridge adapters used as verifiers must preserve the route's confirmation and domain policy; an adapter that forwards `MAX_CONFIRMATIONS` or normalizes endpoint ids differently has a different trust boundary than the route config suggests.
+
+### Divergent Message Parsing Between Authorization And Execution
+Cross-chain payload authorization decodes one shape while execution reads another shape.
+**Symptoms:** Fixed offsets are used for allowlist or opcode checks, then a later decoder sanitizes, strips, or interprets the payload differently; one parser validates hidden metadata while another executes user-visible fields.
+**Risk:** A payload can pass authorization for one route, peer, or opcode while executing a different transfer, compose call, or receiver.
+**Fix:** Decode once into a typed structure and pass that structure through validation and execution. If multiple runtimes or encoders are unavoidable, bind the exact encoded bytes or canonical typed hash into the authorization decision and test malformed, padded, alternate-encoder, and hidden-field payloads. For bridge peripheries, do not validate one copy of opaque calldata and submit another; for verifier adapters, document endpoint-id normalization and confirmation-depth translation as part of the parser boundary.
 
 ### Bridge Custodian Concentration
 Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.
@@ -250,22 +379,28 @@ Bridge holds all locked assets in single custodian, no withdrawal rate-limiting.
 **Risk:** Key compromise drains entire bridge. Ronin: $624M, Harmony: $100M, Multichain: $126M.
 **Fix:** Rate-limit withdrawals, anomaly detection with auto-pause, distributed key management (MPC/TSS).
 
+### Trusted SPV Boundary Omitted
+Bridge documentation or code presents SPV proofs as fully trustless while the relay or proof submitter set is trusted to provide canonical source-chain data.
+**Symptoms:** Bitcoin or external-chain proof verifies merkle inclusion and work, but header submission, chain selection, validator-finality checks, or maintainer admission is centralized or owner-controlled. A "light client" may verify header linkage and receipt roots while allowlisted submitters decide which headers enter the system.
+**Risk:** Users and integrators overestimate finality guarantees, and governance can admit false or stale source-chain state as canonical.
+**Fix:** Document relay maintainer trust, challenge windows, replacement rules, and emergency procedures. Bind bridge state transitions to authenticated relay state and monitor maintainer or allowlist changes as critical governance events.
+
 ## DeFi Architecture
 
 ### Shared Pool Sink
 Multiple independent pools/strategies share single token vault.
 **Symptoms:** One vault contract holds funds for all strategies, one set of access controls.
 **Risk:** Single vulnerability drains all connected pools. Balancer V2: $128M across all chains.
-**Fix:** Isolate funds per pool/strategy, per-pool withdrawal caps, independent access control.
+**Fix:** Isolate funds per pool/strategy, per-pool withdrawal caps, independent access control. A singleton can be acceptable only when market accounting is keyed by immutable market id and formal or invariant tests prove one market cannot drain another.
 
 ### Unguarded Batch Composition
 Contract exposes multicall/batch that chains arbitrary internal calls without restriction.
-**Symptoms:** `multicall()` or `cook()` with no whitelist on composable actions.
+**Symptoms:** `multicall()` or `cook()` with no whitelist on composable actions, or payable delegatecall batching where the same `msg.value` is visible to multiple subcalls.
 **Risk:** Individually valid calls composed to break invariants. Abracadabra `cook()` exploit.
-**Fix:** Whitelist composable actions, re-validate invariants after entire batch, disallow dangerous combinations.
+**Fix:** Whitelist composable actions, re-validate invariants after entire batch, disallow dangerous combinations. For payable multicall, account from actual contract balance deltas or consume value exactly once instead of trusting `msg.value` in each subcall. If a batch format permits individual commands to fail, require explicit cleanup commands and final balance checks for every allowed-failure branch.
 
 ### Permissionless Market Without Guardrails
 Anyone can create pools/markets with arbitrary tokens and parameters.
 **Symptoms:** No parameter bounds, no curation, no risk isolation for new markets.
 **Risk:** Malicious token pool drains paired assets. Euler V1: $197M.
-**Fix:** Parameter bounds at protocol level, curated allowlists or risk tiers, isolated risk for permissionless pools.
+**Fix:** Parameter bounds at protocol level, curated allowlists or risk tiers, isolated risk for permissionless pools. Permissionless markets are safer when oracle, LLTV, and rate-model classes are enabled separately and market assets/debt/bad debt are isolated by market id. Even then, users still underwrite the specific token and oracle choices for each market.

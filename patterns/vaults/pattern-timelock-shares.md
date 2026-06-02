@@ -247,6 +247,8 @@ function deposit(uint256 assets) external returns (uint256 shares) {
 }
 ```
 
+**Caveat:** A single per-account unlock timestamp can also shorten older locks if governance reduces the global lock period, or if a small new deposit overwrites state in a way that changes the effective unlock for an existing balance. If lock terms can change, snapshot the lock duration per mint or ensure updates can only extend existing locks.
+
 ## Combination with Other Patterns
 
 Timelock alone is insufficient. Combine with:
@@ -258,6 +260,11 @@ Timelock alone is insufficient. Combine with:
 | Timelock + Circuit Breaker | Circuit breaker blocks during deviation; timelock adds holding requirement |
 
 **Recommended:** Timelock + Premium Buffer for comprehensive protection.
+
+## Source Evidence
+
+- Enzyme-style vault shares use a per-account lock to prevent immediate redemption.
+- Veda's teller-style share lock surfaced the parameter-drift risk when unlock state is per account and global share-lock periods can change.
 
 ## Real-World Examples
 

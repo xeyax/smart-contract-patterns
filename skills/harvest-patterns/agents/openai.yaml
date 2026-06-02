@@ -1,0 +1,4 @@
+interface:
+  display_name: "Harvest Patterns"
+  short_description: "Harvest repo knowledge, review catalog branches, and audit anti-patterns."
+  default_prompt: "Harvest reusable smart-contract knowledge from a target repo, review whether branch changes improve the catalog, and audit anti-patterns before updating pattern, risk, and requirement docs."
