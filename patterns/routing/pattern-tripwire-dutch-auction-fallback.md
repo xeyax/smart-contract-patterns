@@ -79,8 +79,8 @@ function openTrade(TradeRequest memory req) external returns (address trade) {
 
 ## Source Evidence
 
-- Reserve Protocol Dutch trades can report violations; `Broker.reportViolation` disables future Dutch auctions for implicated tokens and future trade openings can use batch auctions in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/p1/Broker.sol` and `contracts/plugins/trading/DutchTrade.sol`.
-- Reserve recollateralization and broker tests cover Dutch auction disablement and fallback behavior in `/private/tmp/defillama-source/reserve-protocol__protocol/test`.
+- Reserve Protocol Dutch trades can report violations; `Broker.reportViolation` disables future Dutch auctions for implicated tokens and future trade openings can use batch auctions in [`contracts/p1/Broker.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/p1/Broker.sol) and `contracts/plugins/trading/DutchTrade.sol`.
+- Reserve recollateralization and broker tests cover Dutch auction disablement and fallback behavior in [`test`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/test).
 
 ## Real-World Examples
 

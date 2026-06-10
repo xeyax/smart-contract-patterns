@@ -26,6 +26,21 @@
 - Fast exits are provided by liquidity providers and do not rely on canonical proof finality
 - The bridge cannot verify the message-passer storage slot for the withdrawal payload
 
+## Trade-offs
+
+**Pros:**
+- The acceptance predicate is a simple elapsed window, easier to implement and audit than active dispute-game resolution.
+- Dual verification (state-root inclusion plus message-passer storage proof) binds release to the exact recorded message.
+- Finalized-hash tracking before external calls blocks replay of the same withdrawal.
+- Honest users never interact with a challenge process; only fraud verifiers do.
+
+**Cons:**
+- Every exit pays the full fixed fraud window regardless of value or risk.
+- The fraud window is a governance-set safety parameter; unbounded or undelayed changes directly weaken exit safety or liveness.
+- Batch deletion inside the window invalidates pending proofs, and the recovery/resubmission behavior must be explicitly specified.
+- Safety rests on at least one honest, funded fraud verifier actually watching every state batch.
+- Legacy fraud-window semantics do not compose with dispute-game or validity-proof systems, complicating later upgrades.
+
 ## How It Works
 
 The bridge verifies two facts before releasing custody or executing the L1
@@ -68,8 +83,8 @@ on the stored state root and message-passer proof.
 
 ## Source Evidence
 
-- Mantle's legacy L1 messenger accepts an L2-to-L1 message only when `insideFraudProofWindow` is false and state-root plus storage proofs verify in `/private/tmp/defillama-source/mantlenetworkio__mantle/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol`.
-- Mantle's `StateCommitmentChain` permits fraud-verifier deletion only while a batch is inside the fraud-proof window in `/private/tmp/defillama-source/mantlenetworkio__mantle/packages/contracts/contracts/L1/rollup/StateCommitmentChain.sol`.
+- Mantle's legacy L1 messenger accepts an L2-to-L1 message only when `insideFraudProofWindow` is false and state-root plus storage proofs verify in [`packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol`](https://github.com/mantlenetworkio/mantle/blob/5cda5f811f73d9f331e6168617f87d3e19e6db6b/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol).
+- Mantle's `StateCommitmentChain` permits fraud-verifier deletion only while a batch is inside the fraud-proof window in [`packages/contracts/contracts/L1/rollup/StateCommitmentChain.sol`](https://github.com/mantlenetworkio/mantle/blob/5cda5f811f73d9f331e6168617f87d3e19e6db6b/packages/contracts/contracts/L1/rollup/StateCommitmentChain.sol).
 
 ## Related Patterns
 

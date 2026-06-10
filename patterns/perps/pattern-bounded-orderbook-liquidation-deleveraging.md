@@ -70,7 +70,7 @@ func EndBlockLiquidations(ctx Context) {
 
 ## Source Evidence
 
-- dYdX v4 caps orderbook liquidation attempts in `/private/tmp/defillama-source/dydxprotocol__v4-chain/protocol/x/clob/keeper/liquidations.go` through `LiquidateSubaccountsAgainstOrderbook`.
+- dYdX v4 caps orderbook liquidation attempts in [`protocol/x/clob/keeper/liquidations.go`](https://github.com/dydxprotocol/v4-chain/blob/5ee9766351ef864856a309a971b13fdd98cae2c5/protocol/x/clob/keeper/liquidations.go) through `LiquidateSubaccountsAgainstOrderbook`.
 - dYdX computes liquidation order, bankruptcy price, fillable price, and insurance-fund delta in the same file.
 - dYdX bounds liquidation position size, notional, insurance loss, and min/max notional in `liquidations.go`.
 - dYdX deleveraging logic lives in `protocol/x/clob/keeper/deleveraging.go`, including eligibility, offsetting positions, and iteration caps.

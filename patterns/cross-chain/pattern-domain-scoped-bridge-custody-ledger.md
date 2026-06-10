@@ -82,8 +82,8 @@ depositor.
 
 ## Source Evidence
 
-- Sophon's custom USDC shared bridge stores `chainBalance[chainId][token]` to prevent spending across hyperchains until hyperbridging is enabled in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
-- Sophon credits the chain balance on `bridgehubDeposit`, debits it on failed-deposit claims and L2-to-L1 withdrawal finalization, and tests insufficient per-chain balance failures in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/test/l1USDCBridge/L1USDCBridgeFails.t.sol`.
+- Sophon's custom USDC shared bridge stores `chainBalance[chainId][token]` to prevent spending across hyperchains until hyperbridging is enabled in [`src/L1USDCBridge.sol`](https://github.com/sophon-org/custom-usdc-bridge/blob/72b36f11fb6c901380836043a43c738c434d5c12/src/L1USDCBridge.sol).
+- Sophon credits the chain balance on `bridgehubDeposit`, debits it on failed-deposit claims and L2-to-L1 withdrawal finalization, and tests insufficient per-chain balance failures in [`test/l1USDCBridge/L1USDCBridgeFails.t.sol`](https://github.com/sophon-org/custom-usdc-bridge/blob/72b36f11fb6c901380836043a43c738c434d5c12/test/l1USDCBridge/L1USDCBridgeFails.t.sol).
 
 ## Related Patterns
 

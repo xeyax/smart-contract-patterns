@@ -73,8 +73,8 @@ minimum-output checks.
 
 ## Source Evidence
 
-- fx Protocol's fxUSD base pool holds both fxUSD/stable balances and protocol collateral, values deposits through stable oracle paths, consumes stable inventory during rebalance and liquidation paths, and enforces `minCollOut` style protections in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/contracts/core/FxUSDBasePool.sol` and `contracts/core/PoolManager.sol`.
-- fx Protocol tests cover mixed collateral/stable rebalance behavior in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/test/core/FxUSDBasePool.spec.ts`.
+- fx Protocol's fxUSD base pool holds both fxUSD/stable balances and protocol collateral, values deposits through stable oracle paths, consumes stable inventory during rebalance and liquidation paths, and enforces `minCollOut` style protections in [`contracts/core/FxUSDBasePool.sol`](https://github.com/AladdinDAO/fx-protocol-contracts/blob/5e198e93657db008a57129e7eea21a996618f17f/contracts/core/FxUSDBasePool.sol) and `contracts/core/PoolManager.sol`.
+- fx Protocol tests cover mixed collateral/stable rebalance behavior in [`test/core/FxUSDBasePool.spec.ts`](https://github.com/AladdinDAO/fx-protocol-contracts/blob/5e198e93657db008a57129e7eea21a996618f17f/test/core/FxUSDBasePool.spec.ts).
 
 ## Real-World Examples
 

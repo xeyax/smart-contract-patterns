@@ -75,8 +75,8 @@ If reports are stale, recalculate using conservative current floor or ceiling pr
 
 ## Source Evidence
 
-- Tokemak Autopool exposes global, deposit, and withdrawal total-asset purposes that use midpoint, maximum, and minimum debt ranges in `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/vault/libs/Autopool4626.sol`.
-- Tokemak stores destination midpoint/min/max debt reports, recalculates stale reports conservatively, and pulls withdrawal liquidity from ordered destination debt in `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/vault/libs/AutopoolDebt.sol`.
+- Tokemak Autopool exposes global, deposit, and withdrawal total-asset purposes that use midpoint, maximum, and minimum debt ranges in [`src/vault/libs/Autopool4626.sol`](https://github.com/Tokemak/v2-core-pub/blob/de163d5a1edf99281d7d000783b4dc8ade03591e/src/vault/libs/Autopool4626.sol).
+- Tokemak stores destination midpoint/min/max debt reports, recalculates stale reports conservatively, and pulls withdrawal liquidity from ordered destination debt in [`src/vault/libs/AutopoolDebt.sol`](https://github.com/Tokemak/v2-core-pub/blob/de163d5a1edf99281d7d000783b4dc8ade03591e/src/vault/libs/AutopoolDebt.sol).
 
 ## Real-World Examples
 

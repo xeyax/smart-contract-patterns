@@ -114,10 +114,10 @@ function redeem(RedeemOrder calldata order, bytes calldata sig) external onlyRed
 
 ## Source Evidence
 
-- Avant `AvUSDMintingV2` tracks `mintedPerBlock` and `redeemedPerBlock`, enforces `belowMaxMintPerBlock` and `belowMaxRedeemPerBlock`, and lets a gatekeeper disable mint/redeem by setting both caps to zero in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
-- Avant Foundry tests cover same-block mint and redeem limit exhaustion in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/test/foundry/minting/tests/AvUSDMinting.blockLimits.t.sol`.
-- M0 `MinterGateway` creates delayed mint proposals, lets approved validators cancel mint proposals or freeze minters, and tests validator-signature and freeze behavior in `/private/tmp/defillama-source/m0-foundation__protocol/src/MinterGateway.sol` and `test/MinterGateway.t.sol`.
-- Ethena's 2023 Code4rena snapshot applies `belowMaxRedeemPerBlock` to the burned USDe amount while collateral transfer uses a separately signed collateral amount, and its README notes that the per-block cap does not bound redeemer-key compromise in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol` and `/private/tmp/defillama-source/code-423n4__2023-10-ethena/README.md`.
+- Avant `AvUSDMintingV2` tracks `mintedPerBlock` and `redeemedPerBlock`, enforces `belowMaxMintPerBlock` and `belowMaxRedeemPerBlock`, and lets a gatekeeper disable mint/redeem by setting both caps to zero in [`contracts/AvUSDMintingV2.sol`](https://github.com/Avant-Protocol/avUSD-Contracts/blob/43858abc5a3c481e3b2d02790d168b88e630e7b1/contracts/AvUSDMintingV2.sol).
+- Avant Foundry tests cover same-block mint and redeem limit exhaustion in [`test/foundry/minting/tests/AvUSDMinting.blockLimits.t.sol`](https://github.com/Avant-Protocol/avUSD-Contracts/blob/43858abc5a3c481e3b2d02790d168b88e630e7b1/test/foundry/minting/tests/AvUSDMinting.blockLimits.t.sol).
+- M0 `MinterGateway` creates delayed mint proposals, lets approved validators cancel mint proposals or freeze minters, and tests validator-signature and freeze behavior in [`src/MinterGateway.sol`](https://github.com/m0-foundation/protocol/blob/b42fe5bc13b14202c684f78aaa15be284664834d/src/MinterGateway.sol) and `test/MinterGateway.t.sol`.
+- Ethena's 2023 Code4rena snapshot applies `belowMaxRedeemPerBlock` to the burned USDe amount while collateral transfer uses a separately signed collateral amount, and its README notes that the per-block cap does not bound redeemer-key compromise in [`contracts/EthenaMinting.sol`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/contracts/EthenaMinting.sol) and [`README.md`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/README.md).
 
 ## Real-World Examples
 

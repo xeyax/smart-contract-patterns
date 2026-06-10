@@ -26,6 +26,21 @@
 - Managers can change receipt rates or reserve addresses without bounds
 - The wrapper cannot reconcile receipt balance drift deterministically
 
+## Trade-offs
+
+**Pros:**
+- User claims and protocol reserve are accounted separately, so reserve operations cannot silently dilute user redemption rights.
+- Per-user reserved tracking preserves exact attribution even as the aggregate reserve moves.
+- Atomic reserve migration keeps tracked totals and the holder address from diverging mid-move.
+- Deterministic drift sync gives a defined reconciliation path instead of ad hoc balance fixes.
+
+**Cons:**
+- Two parallel ledgers (per-user reserved map plus aggregate reserve) must agree with actual token balances; every mint, burn, and migration is a consistency obligation.
+- Sync-before-mutate ordering is load-bearing: any path that burns or migrates without reconciling drift first corrupts reserve accounting.
+- Extra storage writes per provide/redeem (per-user reserved plus total) raise gas on hot paths.
+- Reserve-address migration and rate updates are powerful admin levers; without bounds and timelocks they become a drain vector, so governance hardening is part of the pattern's cost.
+- Receipt balances visible on-chain no longer equal user-redeemable amounts, complicating integrations and explorer-level reasoning.
+
 ## How It Works
 
 Track per-user reserved receipts and aggregate reserve supply:

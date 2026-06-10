@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | vaults |
-| Tags | EIP-1167, factory, clones, deployment, referral |
+| Tags | EIP-1167, factory, clone, deployment, referral |
 | Complexity | Low |
 | Gas Efficiency | High |
 | Audit Risk | Low |

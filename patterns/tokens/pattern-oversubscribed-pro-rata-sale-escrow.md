@@ -70,7 +70,7 @@ fn claim(ctx: Context) -> Result<()> {
 
 ## Source Evidence
 
-- Meteora Presale computes oversubscribed pro-rata claims in `/private/tmp/defillama-source/MeteoraAg_presale/programs/presale/src/presale_mode_handler/prorata_presale.rs` and `programs/presale/src/math/claim_math.rs`.
+- Meteora Presale computes oversubscribed pro-rata claims in [`programs/presale/src/presale_mode_handler/prorata_presale.rs`](https://github.com/MeteoraAg/presale/blob/2acd7c9c20bada425e9ff493260be4328b350b57/programs/presale/src/presale_mode_handler/prorata_presale.rs) and `programs/presale/src/math/claim_math.rs`.
 - Its sale state tracks deposit, claim, refund, and remaining-quote withdrawal behavior in `programs/presale/src/state/presale.rs`, with tests in `tests/test_withdraw_remaining_quote.rs`.
 
 ## Real-World Examples

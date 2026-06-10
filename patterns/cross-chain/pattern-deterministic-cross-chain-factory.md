@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | cross-chain |
-| Tags | bridge, factory, create2, create3, deterministic-address, peers |
+| Tags | bridge, factory, create2, create3, deterministic-address, peer |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -83,8 +83,8 @@ chains; otherwise use explicit counterpart registration instead.
 - Wormhole NTT uses deterministic deployment for factory and NTT components across chains.
 - Its salts bind version, deployer, role labels, token metadata, manager address, and external salt, with tests for collisions and successful different-salt deployments.
 - Arbitrum's atomic token bridge deployment flow uses retryable-ticket deployment, dedicated retryable sender contracts, idempotent resend logic, and tests for failed deployment, frontrun, and already-existing deterministic contracts.
-- Polygon zkEVM/Agglayer deploys wrapped-token proxies deterministically with constructor-agnostic bytecode and initializes bridge-owned token metadata through the bridge in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/lib/TokenWrappedTransparentProxy.sol` and `contracts/AgglayerBridge.sol`.
-- Avalanche ICM Teleporter documents universal same-address deployment for `TeleporterMessenger` and uses that invariant in endpoint authentication in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/README.md` and `contracts/teleporter/TeleporterMessenger.sol`.
+- Polygon zkEVM/Agglayer deploys wrapped-token proxies deterministically with constructor-agnostic bytecode and initializes bridge-owned token metadata through the bridge in [`contracts/lib/TokenWrappedTransparentProxy.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/110bda5a03e70ee7331bc06407a8e79226d3e520/contracts/lib/TokenWrappedTransparentProxy.sol) and `contracts/AgglayerBridge.sol`.
+- Avalanche ICM Teleporter documents universal same-address deployment for `TeleporterMessenger` and uses that invariant in endpoint authentication in [`contracts/teleporter/README.md`](https://github.com/ava-labs/icm-contracts/blob/0b68b03c906d17850712b49aa20f2dc18ed55568/contracts/teleporter/README.md) and `contracts/teleporter/TeleporterMessenger.sol`.
 
 ## Related Patterns
 

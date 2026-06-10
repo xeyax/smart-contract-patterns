@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | tokens |
+| Platform | solana |
 | Tags | solana, token-2022, transfer-hook, pda, compliance |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
@@ -71,8 +72,8 @@ pub fn transfer_hook(ctx: Context<TransferHook>, amount: u64) -> Result<()> {
 
 ## Source Evidence
 
-- OpenEden's Solana TBILL program initializes Token-2022 extra-account metadata, dispatches transfer-hook calls through fallback decoding, and checks a pause PDA during transfers in `/private/tmp/defillama-source/OpenEdenHQ__openeden.tbill.solana/programs/tbill/src/lib.rs`, with Anchor tests for extra-account metadata, frozen accounts, transfers, and unauthorized mint/freeze/thaw paths.
-- Jupiter Lock and Meteora Presale both parse transfer-hook remaining accounts before Token-2022 CPI in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/util/remaining_accounts.rs` and `/private/tmp/defillama-source/MeteoraAg_presale/programs/presale/src/token2022.rs`.
+- OpenEden's Solana TBILL program initializes Token-2022 extra-account metadata, dispatches transfer-hook calls through fallback decoding, and checks a pause PDA during transfers in [`programs/tbill/src/lib.rs`](https://github.com/OpenEdenHQ/openeden.tbill.solana/blob/948bb2bb1c224c51ef7aeec7fc1d2bee3dcc24d4/programs/tbill/src/lib.rs), with Anchor tests for extra-account metadata, frozen accounts, transfers, and unauthorized mint/freeze/thaw paths.
+- Jupiter Lock and Meteora Presale both parse transfer-hook remaining accounts before Token-2022 CPI in [`programs/locker/src/util/remaining_accounts.rs`](https://github.com/jup-ag/jup-lock/blob/f1535b4067b1d90fd682edc94ac693496b0a9812/programs/locker/src/util/remaining_accounts.rs) and [`programs/presale/src/token2022.rs`](https://github.com/MeteoraAg/presale/blob/2acd7c9c20bada425e9ff493260be4328b350b57/programs/presale/src/token2022.rs).
 
 ## Real-World Examples
 

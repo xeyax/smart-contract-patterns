@@ -87,12 +87,12 @@ accrualBlock == block.number
 - Aave V3 updates reserve state before value-changing reserve actions and represents user balances through indexes that depend on current reserve accounting.
 - Sky/Maker DSS rate accumulator modules require current accumulators before changing duty or savings rates and test stale-parameter-change failures.
 - Compound V2 requires market interest accrual to be current before borrow, repay, redeem, and liquidation state transitions, with debt represented as principal plus borrower interest index in `CToken.sol`.
-- Aave V2 calls reserve `updateState` before deposit, withdraw, borrow, repay, and flash-loan debt conversion paths, with reserve indexes updated from timestamped state in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPool.sol` and `ReserveLogic.sol`.
-- M0's minter gateway validates sorted validator signatures and monotonic signer timestamps for collateral updates, then applies missed-update and undercollateralization penalties through indexed active owed M in `/private/tmp/defillama-source/m0-foundation__protocol/src/MinterGateway.sol` and integration tests under `test/integration/minter-gateway/update-collateral`.
+- Aave V2 calls reserve `updateState` before deposit, withdraw, borrow, repay, and flash-loan debt conversion paths, with reserve indexes updated from timestamped state in [`contracts/protocol/lendingpool/LendingPool.sol`](https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/lendingpool/LendingPool.sol) and `ReserveLogic.sol`.
+- M0's minter gateway validates sorted validator signatures and monotonic signer timestamps for collateral updates, then applies missed-update and undercollateralization penalties through indexed active owed M in [`src/MinterGateway.sol`](https://github.com/m0-foundation/protocol/blob/b42fe5bc13b14202c684f78aaa15be284664834d/src/MinterGateway.sol) and integration tests under `test/integration/minter-gateway/update-collateral`.
 - Abracadabra Cauldron V3 demonstrates why cached-price fallback during
   liquidation needs an explicit stale-price policy: exchange-rate updates and
-  liquidation paths interact through `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:203-217`
-  and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:500-508`.
+  liquidation paths interact through [`contracts/CauldronV3.sol:203-217`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/CauldronV3.sol#L203-L217)
+  and [`contracts/CauldronV3.sol:500-508`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/CauldronV3.sol#L500-L508).
 
 ## Related Patterns
 

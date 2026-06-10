@@ -74,10 +74,10 @@ fn claim_locked(ctx: Context<ClaimLocked>, now: i64) -> Result<()> {
 
 ## Source Evidence
 
-- Kamino Distributor stores distributor caps, Merkle root, vesting window, and clawback parameters in `/private/tmp/defillama-source/Kamino-Finance_distributor/programs/merkle-distributor/src/state/merkle_distributor.rs`.
-- Kamino Distributor initializes distributor state and verifies new claims in `/private/tmp/defillama-source/Kamino-Finance_distributor/programs/merkle-distributor/src/instructions/new_distributor.rs` and `instructions/new_claim.rs`.
-- Kamino Distributor tracks per-recipient claim status and locked-claim deltas in `/private/tmp/defillama-source/Kamino-Finance_distributor/programs/merkle-distributor/src/state/claim_status.rs` and `instructions/claim_locked.rs`.
-- Kamino Distributor implements clawback behavior in `/private/tmp/defillama-source/Kamino-Finance_distributor/programs/merkle-distributor/src/instructions/clawback.rs`.
+- Kamino Distributor stores distributor caps, Merkle root, vesting window, and clawback parameters in [`programs/merkle-distributor/src/state/merkle_distributor.rs`](https://github.com/Kamino-Finance/distributor/blob/aecda23a7363f448fae37543ab5a9f4662e50e50/programs/merkle-distributor/src/state/merkle_distributor.rs).
+- Kamino Distributor initializes distributor state and verifies new claims in [`programs/merkle-distributor/src/instructions/new_distributor.rs`](https://github.com/Kamino-Finance/distributor/blob/aecda23a7363f448fae37543ab5a9f4662e50e50/programs/merkle-distributor/src/instructions/new_distributor.rs) and `instructions/new_claim.rs`.
+- Kamino Distributor tracks per-recipient claim status and locked-claim deltas in [`programs/merkle-distributor/src/state/claim_status.rs`](https://github.com/Kamino-Finance/distributor/blob/aecda23a7363f448fae37543ab5a9f4662e50e50/programs/merkle-distributor/src/state/claim_status.rs) and `instructions/claim_locked.rs`.
+- Kamino Distributor implements clawback behavior in [`programs/merkle-distributor/src/instructions/clawback.rs`](https://github.com/Kamino-Finance/distributor/blob/aecda23a7363f448fae37543ab5a9f4662e50e50/programs/merkle-distributor/src/instructions/clawback.rs).
 
 ## Related Patterns
 

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | governance |
-| Tags | governance, gauges, voting-power, rewards, allocation |
+| Tags | governance, gauge, voting-power, rewards, allocation |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -80,15 +80,15 @@ checkpoint slope changes by epoch rather than scanning all voters.
 
 ## Source Evidence
 
-- BENQI's `GaugeController` stores user allocation weights in basis points and derives node votes from current and pending veQI balances in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/veQI/GaugeController.sol`.
+- BENQI's `GaugeController` stores user allocation weights in basis points and derives node votes from current and pending veQI balances in [`veQI/GaugeController.sol`](https://github.com/benqi-fi/BENQI-Smart-Contracts/blob/e0cfd244726719dfe027c9740878d64d1cad98f2/veQI/GaugeController.sol).
 - BENQI's implementation also illustrates the risk of aggregating node voters with loops, which should be bounded or kept off critical on-chain paths.
 - Curve DAO GaugeController schedules weekly gauge weights, applies decaying
   slopes, checks lock end, enforces a 10-day revote delay, and caps user power at
-  10,000 bps in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:188-285`,
-  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:345-380`,
-  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/GaugeController.vy:485-553`.
-- Aerodrome V1 normalizes gauge vote weights by current veNFT balance, caps vote count, and updates managed lock voting state in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Voter.sol`.
-- Premia Mining combines pool votes with utilization-rate multipliers to compute allocation points in `/private/tmp/defillama-source/premiafinance__premia-contracts/contracts/mining/PremiaMining.sol`.
+  10,000 bps in [`contracts/GaugeController.vy:188-285`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/GaugeController.vy#L188-L285),
+  [`contracts/GaugeController.vy:345-380`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/GaugeController.vy#L345-L380),
+  and [`contracts/GaugeController.vy:485-553`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/GaugeController.vy#L485-L553).
+- Aerodrome V1 normalizes gauge vote weights by current veNFT balance, caps vote count, and updates managed lock voting state in [`contracts/Voter.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Voter.sol).
+- Premia Mining combines pool votes with utilization-rate multipliers to compute allocation points in [`contracts/mining/PremiaMining.sol`](https://github.com/premiafinance/premia-contracts/blob/0ed54a91c6b69b17a8cc9d6208aadb442218a07f/contracts/mining/PremiaMining.sol).
 
 ## Real-World Examples
 

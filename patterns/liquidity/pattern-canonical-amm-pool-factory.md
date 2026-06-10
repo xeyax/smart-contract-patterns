@@ -25,6 +25,21 @@
 - Governance cannot curate fee tiers or tick spacing
 - Pool address derivation depends on mutable configuration
 
+## Trade-offs
+
+**Pros:**
+- Routers and callbacks verify pool identity by recomputing the CREATE2 address — no registry storage read and no trust in `msg.sender` claims.
+- One canonical pool per pair/parameter set concentrates liquidity instead of fragmenting it across duplicate pools.
+- Deterministic addresses simplify off-chain indexing, cross-chain address prediction, and integration code.
+- Immutable init parameters remove a whole class of post-deployment reconfiguration attacks.
+
+**Cons:**
+- Address derivation is welded to the exact pool bytecode (init code hash); any pool implementation change breaks every derived-address consumer and effectively requires a new factory.
+- Immutability cuts both ways: a bug in pool logic cannot be patched in place, only mitigated by migrating liquidity to a new canonical deployment.
+- Configurable vault/bin systems need a carefully widened canonical key (hooks, rate providers, bin step, version); choosing it too narrow blocks legitimate pools, too wide reintroduces duplicates.
+- Fee tiers and tick spacings require ongoing governance curation, and each added tier multiplies the pool set routers must consider.
+- Multiple approved factory paths over time fragment canonicality, so migration and reapproval constraints become part of the security model.
+
 ## How It Works
 
 The factory sorts tokens and derives a pool address or pool id from immutable parameters:
@@ -69,18 +84,18 @@ factory should define exactly which immutable configuration makes a pool unique.
 - Balancer V3 factory and vault registration show why configurable vault pools
   cannot be reduced to one canonical pool per token pair: hook config, rate
   providers, token types, pause windows, roles, and initialization are part of
-  the accepted pool configuration in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/pool-utils/contracts/BasePoolFactory.sol:13-42`,
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/pool-utils/contracts/BasePoolFactory.sol:96-167`,
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultExtension.sol:181-341`.
+  the accepted pool configuration in [`pkg/pool-utils/contracts/BasePoolFactory.sol:13-42`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/pool-utils/contracts/BasePoolFactory.sol#L13-L42),
+  [`pkg/pool-utils/contracts/BasePoolFactory.sol:96-167`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/pool-utils/contracts/BasePoolFactory.sol#L96-L167),
+  and [`pkg/vault/contracts/VaultExtension.sol:181-341`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/VaultExtension.sol#L181-L341).
 - Balancer V2 pool registration validates ordered tokens and duplicates through
-  `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/vault/contracts/PoolRegistry.sol:24-36`
-  and `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/vault/contracts/PoolTokens.sol:30-145`.
+  [`pkg/vault/contracts/PoolRegistry.sol:24-36`](https://github.com/balancer/balancer-v2-monorepo/blob/316ded078ddc2f1b28da5804d25752af67453435/pkg/vault/contracts/PoolRegistry.sol#L24-L36)
+  and [`pkg/vault/contracts/PoolTokens.sol:30-145`](https://github.com/balancer/balancer-v2-monorepo/blob/316ded078ddc2f1b28da5804d25752af67453435/pkg/vault/contracts/PoolTokens.sol#L30-L145).
 - Trader Joe V2 keys canonical Liquidity Book pairs by sorted tokens and bin
   step, gates pair creation through presets and quote assets, and carries
-  version/bin-step metadata through routing in `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:52-68`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:184-225`,
-  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:330-390`.
-- Aerodrome V1 creates deterministic sorted-token pools in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/factories/PoolFactory.sol` and constrains factory-path migration in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/factories/FactoryRegistry.sol`.
+  version/bin-step metadata through routing in [`src/LBFactory.sol:52-68`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBFactory.sol#L52-L68),
+  [`src/LBFactory.sol:184-225`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBFactory.sol#L184-L225),
+  and [`src/LBFactory.sol:330-390`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBFactory.sol#L330-L390).
+- Aerodrome V1 creates deterministic sorted-token pools in [`contracts/factories/PoolFactory.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/factories/PoolFactory.sol) and constrains factory-path migration in [`contracts/factories/FactoryRegistry.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/factories/FactoryRegistry.sol).
 
 ## Related Patterns
 

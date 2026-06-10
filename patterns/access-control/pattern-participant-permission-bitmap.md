@@ -102,7 +102,7 @@ For redeemable or claim-bearing vault shares, endpoint checks must cover the cal
 - Karpatkey's KPK token intentionally lets an allowlisted sender delegate transfers through ERC20 approval, illustrating that delegated-spender checks are policy-dependent and must be explicit.
 - Firelight's regulated vault-share flow checks transfer endpoints and includes frozen-account rescue mechanics for claim-ledger periods and amounts.
 - SlowMist's Avalon USDa audit reported an endpoint blocklist predicate that used `||` over negated sender/receiver checks, illustrating why one-sided negative tests are required for transfer policies.
-- Jupiter Lock stores creator and recipient permission flags on vesting escrows in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/state/vesting_escrow.rs` and tests cancel and recipient-update authorization in `tests/test_cancel.ts` and `tests/test_update_recipient.ts`.
+- Jupiter Lock stores creator and recipient permission flags on vesting escrows in [`programs/locker/src/state/vesting_escrow.rs`](https://github.com/jup-ag/jup-lock/blob/f1535b4067b1d90fd682edc94ac693496b0a9812/programs/locker/src/state/vesting_escrow.rs) and tests cancel and recipient-update authorization in `tests/test_cancel.ts` and `tests/test_update_recipient.ts`.
 
 ## Related Patterns
 

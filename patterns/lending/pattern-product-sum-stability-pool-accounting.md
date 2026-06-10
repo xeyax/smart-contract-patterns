@@ -76,11 +76,11 @@ the product becomes very small.
 
 ## Source Evidence
 
-- Liquity V1 implements product/sum accounting in `/private/tmp/defillama-source/liquity__dev/packages/contracts/contracts/StabilityPool.sol` through `offset`, `_computeRewardsPerUnitStaked`, `_updateRewardSumAndProduct`, and `_getCompoundedStakeFromSnapshots`.
+- Liquity V1 implements product/sum accounting in [`packages/contracts/contracts/StabilityPool.sol`](https://github.com/liquity/dev/blob/3e64ee1b52c50d51587c64c1cf75e0ba82934979/packages/contracts/contracts/StabilityPool.sol) through `offset`, `_computeRewardsPerUnitStaked`, `_updateRewardSumAndProduct`, and `_getCompoundedStakeFromSnapshots`.
 - Liquity includes rounding and withdrawal tests in `StabilityPoolTest.js`, `StabilityPool_RoundingErrors.js`, and `PoolManager_AllDepositorsCanWithdrawTest.js`.
 - Liquity's repository includes `papers/Scalable_Reward_Distribution_with_Compounding_Stakes.tex`, documenting the accumulator approach.
-- Liquity V2/Bold keeps the same stability-pool family of accounting mechanics in `/private/tmp/defillama-source/liquity__bold`.
-- Satoshi Core extends the family to multi-collateral gains with epoch/scale/product `P`, per-collateral `S`, reward `G`, and caller-bounded collateral gain claims in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/StabilityPool.sol`.
+- Liquity V2/Bold keeps the same stability-pool family of accounting mechanics in [`liquity/bold`](https://github.com/liquity/bold/tree/3fcaf602eb36541dd298c73710e067dcad42d8ae).
+- Satoshi Core extends the family to multi-collateral gains with epoch/scale/product `P`, per-collateral `S`, reward `G`, and caller-bounded collateral gain claims in [`src/core/StabilityPool.sol`](https://github.com/Satoshi-Protocol/satoshi-core/blob/7f5eddaed965904fde10ea1d40c4c4b3ea118ada/src/core/StabilityPool.sol).
 
 ## Real-World Examples
 

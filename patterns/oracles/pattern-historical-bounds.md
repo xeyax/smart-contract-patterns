@@ -387,10 +387,10 @@ contract CircuitBreakerWithBounds {
 - SparkLend Advanced uses one-sided capped stablecoin-style oracle logic so upward overvaluation is limited without hiding downside depeg.
 - An Ondo audit-contest snapshot combines fresh Chainlink round checks, daily cadence, absolute bounds, and anchor-delta bounds before accepting RWA oracle state.
 - Stader BNBx constrains accepted LST exchange-rate movement and uses monitoring around exchange-rate drops, supply mismatch, and operation cadence.
-- NAVI oracle strategy checks effective min/max price and price history span in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/strategy.move`.
-- Avant MAX `PriceStorage` accepts a write-once price key only when the new price stays within bounds around `lastPrice`; tests cover duplicate keys and upper/lower bound reverts in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/src/PriceStorage.sol` and `test/PriceStorage.t.sol`.
-- Superstate `SuperstateOracle` stores effective-dated NAV checkpoints, limits pending updates, and exposes a Chainlink-compatible view whose freshness needs separate economic interpretation in `/private/tmp/defillama-source/superstateinc__onchain-redemptions/src/oracle/SuperstateOracle.sol`.
-- Kinetiq validates validator performance reports through adapter quorum and sanity checks before accepting accumulated reward/slash metrics in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/OracleManager.sol` and `src/validators/ValidatorSanityChecker.sol`.
+- NAVI oracle strategy checks effective min/max price and price history span in [`oracle/sources/strategy.move`](https://github.com/naviprotocol/navi-smart-contracts/blob/473b0934235d6dc1357fa4309308167c6d175fd1/oracle/sources/strategy.move).
+- Avant MAX `PriceStorage` accepts a write-once price key only when the new price stays within bounds around `lastPrice`; tests cover duplicate keys and upper/lower bound reverts in [`src/PriceStorage.sol`](https://github.com/Avant-Protocol/Avant-Contracts-Max/blob/ee40a93ea19831e86b2c8581541206f461488828/src/PriceStorage.sol) and `test/PriceStorage.t.sol`.
+- Superstate `SuperstateOracle` stores effective-dated NAV checkpoints, limits pending updates, and exposes a Chainlink-compatible view whose freshness needs separate economic interpretation in [`src/oracle/SuperstateOracle.sol`](https://github.com/superstateinc/onchain-redemptions/blob/59534af26d209ff5d3da5fda311c3a98471c1e71/src/oracle/SuperstateOracle.sol).
+- Kinetiq validates validator performance reports through adapter quorum and sanity checks before accepting accumulated reward/slash metrics in [`src/OracleManager.sol`](https://github.com/code-423n4/2025-04-kinetiq/blob/a3913ca2b9d021df45a428e0185ee4f4f45509ae/src/OracleManager.sol) and `src/validators/ValidatorSanityChecker.sol`.
 
 ## Related Patterns
 

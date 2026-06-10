@@ -25,6 +25,21 @@
 - Adapters can mutate core state outside a narrow ledger interface
 - Asset onboarding cannot review adapter behavior
 
+## Trade-offs
+
+**Pros:**
+- The core ledger makes no external calls, so reentrancy and weird-token behavior cannot reach core invariants.
+- Token quirks (decimals, fees, rebasing, native assets) are contained in small per-asset adapters that are individually auditable.
+- New asset shapes onboard by adding an adapter without touching or re-auditing core accounting.
+- Unit normalization happens once at the adapter boundary, keeping internal math uniform.
+
+**Cons:**
+- Adapters are fully trusted: an authorized adapter can credit or debit core balances, so every onboarding is a critical review.
+- The extra hop per deposit/withdraw adds gas and another authorization layer to manage.
+- Adapter proliferation creates operational sprawl — versioning, deprecation, and auth lists to govern per asset.
+- Overkill for single-token protocols; the indirection costs more than it isolates.
+- Sign or scale bugs at the adapter/ledger interface silently corrupt normalized balances.
+
 ## How It Works
 
 The core ledger stores normalized internal balances and exposes only accounting primitives:

@@ -26,6 +26,21 @@
 - The exchange cannot atomically mint or merge complete sets
 - Fees and refunds cannot be reconciled per matched order
 
+## Trade-offs
+
+**Pros:**
+- Same-side buy/buy and sell/sell orders cross through the complement, deepening effective liquidity beyond direct counterparties.
+- Mint/merge keeps the system collateral-conserving by construction — complete sets always equal one unit of collateral.
+- Matching needs no AMM inventory or price oracle; settlement is pure order-vs-order accounting.
+- Atomic pull-mint/merge-deliver settlement leaves no open exchange exposure between legs.
+
+**Cons:**
+- Correctness hinges on the complement registry: an unregistered or wrongly registered pair lets matches mint claims that do not conserve collateral.
+- Fee and surplus-refund accounting per matched order is intricate — fees must apply after complete-set math, and refund rounding paths are easy to get wrong.
+- Fill state must be recorded before external token transfers, or reentrant/failed transfers desynchronize order bookkeeping.
+- Only works for mutually exhaustive binary (or complete-set) outcomes; scalar or non-exhaustive markets cannot use the transform.
+- Settlement gas is heavier than a direct swap: collateral pulls, set mint/merge, two-sided delivery, and dust refunds per match.
+
 ## How It Works
 
 For a binary market, `YES + NO = collateral`. An exchange can match same-side orders by transforming collateral and outcome inventory:

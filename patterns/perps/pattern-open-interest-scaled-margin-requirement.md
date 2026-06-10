@@ -71,7 +71,7 @@ succeed.
 
 ## Source Evidence
 
-- dYdX v4 describes lower and upper open-interest caps in `/private/tmp/defillama-source/dydxprotocol__v4-chain/proto/dydxprotocol/perpetuals/perpetual.proto`.
+- dYdX v4 describes lower and upper open-interest caps in [`proto/dydxprotocol/perpetuals/perpetual.proto`](https://github.com/dydxprotocol/v4-chain/blob/5ee9766351ef864856a309a971b13fdd98cae2c5/proto/dydxprotocol/perpetuals/perpetual.proto).
 - dYdX computes adjusted initial margin in `protocol/x/perpetuals/types/liquidity_tier.go`.
 - dYdX derives and applies open-interest deltas in `protocol/x/subaccounts/lib/oimf.go` and `protocol/x/subaccounts/keeper/subaccount.go`.
 - dYdX tests OI-scaled margin behavior in `protocol/x/perpetuals/types/liquidity_tier_test.go` and subaccount keeper tests.

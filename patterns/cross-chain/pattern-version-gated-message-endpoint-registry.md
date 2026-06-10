@@ -26,6 +26,21 @@
 - The registry update path lacks source-chain, sender, destination, and version-increment checks
 - Version numbers can be reused, decreased, or skipped without explicit migration rules
 
+## Trade-offs
+
+**Pros:**
+- Immutable per-version endpoints avoid the storage-collision and upgrade risks of a single proxy endpoint.
+- Per-endpoint pause isolates a compromised version without redeploying or migrating applications.
+- Monotonic minimum versions let applications force migration off vulnerable endpoints.
+- Authenticated registry updates with version-increment checks block rogue endpoint registration.
+
+**Cons:**
+- Minimum-version bumps can strand in-flight messages sent through older endpoints — a real liveness hazard requiring migration coordination.
+- Every receive pays registry lookups (version resolution plus pause check), adding gas and an external-call dependency per message.
+- Pre-registered deterministic future addresses must be bytecode-verified separately before they can be trusted.
+- Migration choreography — pin vs latest, grace windows, route-scoped library overlap — is complex to operate and easy to misconfigure.
+- The registry becomes a critical shared dependency: if its authenticated update path breaks, endpoint evolution halts protocol-wide.
+
 ## How It Works
 
 The registry stores a bidirectional mapping between endpoint versions and
@@ -79,9 +94,9 @@ endpoints, they should be treated as critical liveness parameters.
 
 ## Source Evidence
 
-- Avalanche ICM Teleporter's registry accepts verified Warp off-chain messages for new protocol versions, stores version/address mappings, advances `latestVersion`, and allows future protocol addresses to be registered before deployment in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/registry/TeleporterRegistry.sol`.
-- `TeleporterRegistryApp` accepts messages only from registry-known Teleporter addresses at or above a monotonic minimum version and can pause individual endpoint addresses in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/registry/TeleporterRegistryApp.sol`.
-- LayerZero V2's per-route message library migration in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol` is related but distinct: the endpoint address stays fixed while OApps migrate send and receive libraries.
+- Avalanche ICM Teleporter's registry accepts verified Warp off-chain messages for new protocol versions, stores version/address mappings, advances `latestVersion`, and allows future protocol addresses to be registered before deployment in [`contracts/teleporter/registry/TeleporterRegistry.sol`](https://github.com/ava-labs/icm-contracts/blob/0b68b03c906d17850712b49aa20f2dc18ed55568/contracts/teleporter/registry/TeleporterRegistry.sol).
+- `TeleporterRegistryApp` accepts messages only from registry-known Teleporter addresses at or above a monotonic minimum version and can pause individual endpoint addresses in [`contracts/teleporter/registry/TeleporterRegistryApp.sol`](https://github.com/ava-labs/icm-contracts/blob/0b68b03c906d17850712b49aa20f2dc18ed55568/contracts/teleporter/registry/TeleporterRegistryApp.sol).
+- LayerZero V2's per-route message library migration in [`packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol) is related but distinct: the endpoint address stays fixed while OApps migrate send and receive libraries.
 
 ## Related Patterns
 

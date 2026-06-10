@@ -26,6 +26,21 @@
 - LP collateral must be liquidated into thin secondary markets
 - The oracle cannot handle read-only reentrancy or pool-specific edge cases
 
+## Trade-offs
+
+**Pros:**
+- Fair-reserve and min-constituent math resists same-transaction reserve manipulation that breaks naive spot-ratio LP pricing.
+- Conservative floor systematically under-values collateral, biasing errors toward protocol solvency.
+- Combines pool invariants with fresh external feeds, so no trust is placed in the pool's current reserve split.
+- Formulas are reusable per pool family (stableswap, constant-product, weighted) once derived and tested.
+
+**Cons:**
+- Each pool family needs custom invariant math, read-safety checks, and regression tests — onboarding a pool is real engineering work, not configuration.
+- The fair-value floor is not exit value: thin LP liquidity or redemption delays can still leave liquidations short of the quoted price.
+- Read-only reentrancy and pool-specific view quirks are subtle, pool-by-pool audit traps.
+- Conservative `min(price_i)` pricing reduces borrower capital efficiency versus mid-price valuation.
+- Multi-feed wrappers must propagate the oldest underlying timestamp, or downstream staleness checks inherit fake freshness.
+
 ## How It Works
 
 Use the most conservative constituent value and multiply by a checked LP fair-value input:
@@ -62,10 +77,10 @@ external prices before dividing by LP supply.
 ## Source Evidence
 
 - Stake DAO's Curve stableswap collateral oracle uses conservative pool pricing with external feed hops and explicitly documents flash-manipulation, read-only reentrancy, and L2 sequencer caveats.
-- Alpha Homora V2 prices Uniswap V2 LP collateral from the square-root reserve invariant, Balancer LP collateral from fair reserves, and Curve LP collateral from the minimum underlying price times virtual price in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle`.
-- Satoshi Core's Uniswap V2 LP feed normalizes reserve and feed decimals before applying a square-root reserve invariant, while its Curve LP feed reads virtual price after a zero-liquidity removal checkpoint in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/dependencies/priceFeed`.
-- Pendle's PT/YT/LP oracle libraries compute maturity-aware LP rates from PY/SY exchange-rate state and explicitly treat LP output as approximate fair value in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/oracles/PtYtLpOracle`.
-- Inverse FiRM uses minimum-of-two feed wrappers and pessimistic Curve LP wrappers that propagate the older feed timestamp in `/private/tmp/defillama-source/InverseFinance__FiRM/src/feeds/PessimisticFeed.sol` and `/private/tmp/defillama-source/InverseFinance__FiRM/src/feeds/CurveLPPessimisticFeed.sol`.
+- Alpha Homora V2 prices Uniswap V2 LP collateral from the square-root reserve invariant, Balancer LP collateral from fair reserves, and Curve LP collateral from the minimum underlying price times virtual price in [`contracts/oracle`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/oracle).
+- Satoshi Core's Uniswap V2 LP feed normalizes reserve and feed decimals before applying a square-root reserve invariant, while its Curve LP feed reads virtual price after a zero-liquidity removal checkpoint in [`src/dependencies/priceFeed`](https://github.com/Satoshi-Protocol/satoshi-core/blob/7f5eddaed965904fde10ea1d40c4c4b3ea118ada/src/dependencies/priceFeed).
+- Pendle's PT/YT/LP oracle libraries compute maturity-aware LP rates from PY/SY exchange-rate state and explicitly treat LP output as approximate fair value in [`contracts/oracles/PtYtLpOracle`](https://github.com/pendle-finance/pendle-core-v2-public/blob/fdcfe39ed7b45717f0e6e286581bdcf96bb2f9ce/contracts/oracles/PtYtLpOracle).
+- Inverse FiRM uses minimum-of-two feed wrappers and pessimistic Curve LP wrappers that propagate the older feed timestamp in [`src/feeds/PessimisticFeed.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/feeds/PessimisticFeed.sol) and [`src/feeds/CurveLPPessimisticFeed.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/feeds/CurveLPPessimisticFeed.sol).
 
 ## Related Patterns
 

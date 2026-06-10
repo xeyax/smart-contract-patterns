@@ -71,9 +71,9 @@ function distributeUnderlying(uint256 amount) external {
 
 ## Source Evidence
 
-- Alchemix Transmuter V2 tracks active ticks, accumulated weights, deposits, and claims in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/src/TransmuterV2.sol`.
-- Alchemix transmuter tests cover redemption and claim behavior in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/test/TransmuterV2.spec.ts`.
-- Alchemix TransmuterBuffer keeps redemption liquidity from being redeployed into yield-vault risk in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/src/TransmuterBuffer.sol`.
+- Alchemix Transmuter V2 tracks active ticks, accumulated weights, deposits, and claims in [`src/TransmuterV2.sol`](https://github.com/alchemix-finance/v2-foundry/blob/8915ef7b1714c16f9e260a4ef41c5f254d5b7f58/src/TransmuterV2.sol).
+- Alchemix transmuter tests cover redemption and claim behavior in [`test/TransmuterV2.spec.ts`](https://github.com/alchemix-finance/v2-foundry/blob/8915ef7b1714c16f9e260a4ef41c5f254d5b7f58/test/TransmuterV2.spec.ts).
+- Alchemix TransmuterBuffer keeps redemption liquidity from being redeployed into yield-vault risk in [`src/TransmuterBuffer.sol`](https://github.com/alchemix-finance/v2-foundry/blob/8915ef7b1714c16f9e260a4ef41c5f254d5b7f58/src/TransmuterBuffer.sol).
 
 ## Real-World Examples
 

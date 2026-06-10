@@ -26,6 +26,21 @@
 - The pool cannot prove it owns the holding value id
 - The wrapper is expected to prove off-chain reserve backing
 
+## Trade-offs
+
+**Pros:**
+- Turns slot-scoped SFT value into standard ERC-20s, unlocking AMM, lending, and wallet composability per slot.
+- 1:1 mint/burn against a single pool-owned holding value id keeps the backing invariant trivially checkable on-chain.
+- Per-slot deposit/withdraw gates allow surgical incident response without freezing other slots.
+- Enforced decimal equality between SFT value and wrapped ERC-20 removes precision-conversion bugs by construction.
+
+**Cons:**
+- Slot custody proves nothing about external reserve backing — holders can over-read the guarantee.
+- One wrapped token plus holding id per slot multiplies deployment and gate-management overhead as slots grow.
+- Assumes intra-slot economic fungibility; if slot values differ in quality, the wrapper socializes the difference across holders.
+- The gate admin can strand wrapped holders by disabling withdrawals — a centralization and trust vector.
+- Inherits ERC-3525 semantics (value transfers, value-id ownership, approvals) that few integrators and auditors know well.
+
 ## How It Works
 
 Map each supported slot to a wrapped ERC-20 and a pool-owned SFT value id:

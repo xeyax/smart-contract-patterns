@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | liquidity |
-| Tags | amm, concentrated-liquidity, ticks, ranges, lp |
+| Tags | amm, concentrated-liquidity, ticks, range, lp |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -24,6 +24,21 @@
 - A simple constant-product pool is sufficient
 - Users cannot understand out-of-range inventory behavior
 - Tick crossing and position accounting cannot be thoroughly tested
+
+## Trade-offs
+
+**Pros:**
+- Orders-of-magnitude better capital efficiency than full-range constant-product when liquidity is placed around the trading range.
+- LPs express price views directly through range selection instead of accepting uniform exposure across all prices.
+- Range boundaries double as limit-order-like behavior: a position converts fully to one token as price crosses it.
+- Fee-growth snapshots attribute fees precisely to in-range liquidity, rewarding LPs who priced the range well.
+
+**Cons:**
+- Tick state, range crossing, and per-position fee snapshots are far more complex than constant-product accounting and need exhaustive testing around tick boundaries.
+- Swap gas scales with the number of initialized ticks crossed, making large moves through dense tick regions expensive.
+- Out-of-range positions stop earning fees and sit as single-sided inventory, forcing active management or automation that passive LPs lack.
+- Concentration amplifies adverse selection: tight ranges absorb impermanent loss faster when price trends through them.
+- Positions are non-fungible (per tickLower/tickUpper/owner), complicating vault integration, collateralization, and reward distribution compared to fungible LP tokens.
 
 ## How It Works
 

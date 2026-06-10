@@ -69,8 +69,8 @@ function redeem(uint256 stableAmount) external {
 
 ## Source Evidence
 
-- Liquity V2/Bold documents user-set interest rates and redemption ordering in `/private/tmp/defillama-source/liquity__bold/README.md`.
-- Bold maintains sorted troves in `/private/tmp/defillama-source/liquity__bold/contracts/src/SortedTroves.sol` and executes redemptions through `RedemptionHelper.sol`.
+- Liquity V2/Bold documents user-set interest rates and redemption ordering in [`README.md`](https://github.com/liquity/bold/blob/3fcaf602eb36541dd298c73710e067dcad42d8ae/README.md).
+- Bold maintains sorted troves in [`contracts/src/SortedTroves.sol`](https://github.com/liquity/bold/blob/3fcaf602eb36541dd298c73710e067dcad42d8ae/contracts/src/SortedTroves.sol) and executes redemptions through `RedemptionHelper.sol`.
 - Bold tests include `DebtInFrontHelper.t.sol` and `RedemptionHelper.t.sol`.
 
 ## Real-World Examples

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | routing |
-| Tags | routing, orderbook, signatures, zero-amount, settlement |
+| Tags | routing, orderbook, signature, zero-amount, settlement |
 | Type | Risk Description |
 
 ## Applies When

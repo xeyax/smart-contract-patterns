@@ -73,9 +73,9 @@ function recoverStake(uint256 validatorId) external {
 
 ## Source Evidence
 
-- TON liquid staking allows overdue validator duties such as stake recovery, validator-hash updates, and unused-loan returns to become publicly executable with bounty mechanics in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/contracts/controller.func`.
-- TON controller tests cover the delayed public recovery and update paths in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/tests/Controller.spec.ts`.
-- TON Nominator Pool has older corroborating public maintenance paths in `/private/tmp/defillama-source/ton-blockchain__nominator-pool/func/pool.fc`.
+- TON liquid staking allows overdue validator duties such as stake recovery, validator-hash updates, and unused-loan returns to become publicly executable with bounty mechanics in [`contracts/controller.func`](https://github.com/ton-blockchain/liquid-staking-contract/blob/1f4e9badbed52a4cf80cc58e4bb36ed375c6c8e7/contracts/controller.func).
+- TON controller tests cover the delayed public recovery and update paths in [`tests/Controller.spec.ts`](https://github.com/ton-blockchain/liquid-staking-contract/blob/1f4e9badbed52a4cf80cc58e4bb36ed375c6c8e7/tests/Controller.spec.ts).
+- TON Nominator Pool has older corroborating public maintenance paths in [`func/pool.fc`](https://github.com/ton-blockchain/nominator-pool/blob/2f35c36b5ad662f10fd7b01ef780c3f1949c399d/func/pool.fc).
 
 ## Real-World Examples
 

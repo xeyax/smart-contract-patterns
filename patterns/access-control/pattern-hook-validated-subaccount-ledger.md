@@ -67,7 +67,7 @@ function transferBatch(Transfer[] calldata transfers) external {
 
 ## Source Evidence
 
-- Derive V2 documents ERC721 subaccounts with multi-asset balances in `/private/tmp/defillama-source/derivexyz__v2-core/docs/subaccounts.md`.
+- Derive V2 documents ERC721 subaccounts with multi-asset balances in [`docs/subaccounts.md`](https://github.com/derivexyz/v2-core/blob/96796a61dcb1dc852e25518b00cc1a79fb3caeeb/docs/subaccounts.md).
 - Derive V2 implements balance transfers, asset hooks, manager checks, allowances, and permit tests in `src/SubAccounts.sol`, `src/Allowances.sol`, and account unit tests.
 
 ## Real-World Examples

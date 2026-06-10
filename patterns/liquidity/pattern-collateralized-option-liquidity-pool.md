@@ -65,9 +65,9 @@ The pool burns free-liquidity claims from underwriters, mints reserved-liquidity
 
 ## Source Evidence
 
-- Premia stores option-pool token types, free/reserved liquidity, long/short calls and puts, pricing state, and user TVL in `/private/tmp/defillama-source/premiafinance__premia-contracts/contracts/pool/PoolStorage.sol`.
-- Premia quotes option purchases from volatility, utilization, and pool liquidity and mints long claims while reserving underwriter liquidity in `/private/tmp/defillama-source/premiafinance__premia-contracts/contracts/pool/PoolInternal.sol`.
-- Premia purchase entrypoints enforce max-cost bounds and refund swap surplus in `/private/tmp/defillama-source/premiafinance__premia-contracts/contracts/pool/PoolWrite.sol`.
+- Premia stores option-pool token types, free/reserved liquidity, long/short calls and puts, pricing state, and user TVL in [`contracts/pool/PoolStorage.sol`](https://github.com/premiafinance/premia-contracts/blob/0ed54a91c6b69b17a8cc9d6208aadb442218a07f/contracts/pool/PoolStorage.sol).
+- Premia quotes option purchases from volatility, utilization, and pool liquidity and mints long claims while reserving underwriter liquidity in [`contracts/pool/PoolInternal.sol`](https://github.com/premiafinance/premia-contracts/blob/0ed54a91c6b69b17a8cc9d6208aadb442218a07f/contracts/pool/PoolInternal.sol).
+- Premia purchase entrypoints enforce max-cost bounds and refund swap surplus in [`contracts/pool/PoolWrite.sol`](https://github.com/premiafinance/premia-contracts/blob/0ed54a91c6b69b17a8cc9d6208aadb442218a07f/contracts/pool/PoolWrite.sol).
 
 ## Real-World Examples
 

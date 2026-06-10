@@ -82,9 +82,9 @@ Treat the flash wrapper as part of the AMM invariant. Verify callback caller, in
 
 ## Source Evidence
 
-- Yield Basis `AMM.vy` computes leveraged position state through `get_x0`, updates collateral and debt around `exchange`, and checks the final conservative `get_x0(..., True)` against the pre-trade boundary in `/private/tmp/defillama-source/Peter-Brad__2025-08-yield-basis-Peter-Brad-public/contracts/AMM.vy`.
-- Yield Basis `VirtualPool.vy` computes flash amounts in `_calculate`, authenticates the flash lender in `onFlashLoan`, performs virtual swaps through `exchange`, and repays from the post-swap balance in `/private/tmp/defillama-source/Peter-Brad__2025-08-yield-basis-Peter-Brad-public/contracts/VirtualPool.vy`.
-- Yield Basis tests exercise AMM statefulness and virtual-pool flash flows under `/private/tmp/defillama-source/Peter-Brad__2025-08-yield-basis-Peter-Brad-public/tests/amm` and `tests/lt/test_virtual_pool.py`.
+- Yield Basis `AMM.vy` computes leveraged position state through `get_x0`, updates collateral and debt around `exchange`, and checks the final conservative `get_x0(..., True)` against the pre-trade boundary in [`contracts/AMM.vy`](https://github.com/Peter-Brad/2025-08-yield-basis-Peter-Brad-public/blob/6948a65d35b95bac81198b489d8437791a24af9b/contracts/AMM.vy).
+- Yield Basis `VirtualPool.vy` computes flash amounts in `_calculate`, authenticates the flash lender in `onFlashLoan`, performs virtual swaps through `exchange`, and repays from the post-swap balance in [`contracts/VirtualPool.vy`](https://github.com/Peter-Brad/2025-08-yield-basis-Peter-Brad-public/blob/6948a65d35b95bac81198b489d8437791a24af9b/contracts/VirtualPool.vy).
+- Yield Basis tests exercise AMM statefulness and virtual-pool flash flows under [`tests/amm`](https://github.com/Peter-Brad/2025-08-yield-basis-Peter-Brad-public/blob/6948a65d35b95bac81198b489d8437791a24af9b/tests/amm) and `tests/lt/test_virtual_pool.py`.
 
 ## Real-World Examples
 

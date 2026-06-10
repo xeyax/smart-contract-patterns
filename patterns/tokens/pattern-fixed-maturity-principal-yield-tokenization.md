@@ -77,8 +77,8 @@ Yield tokens receive or track the yield component before expiry. After expiry, p
 
 ## Source Evidence
 
-- Pendle V2 splits standardized yield into PT/YT contracts per `(SY, expiry)`, authorizes PT mint/burn through YT, requires paired PT/YT redemption before expiry, and supports PT-only redemption after expiry in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/YieldContracts`.
-- Exponent Core mints paired PT/YT from SY, blocks new stripping in emergency mode, burns YT only while the vault is active, and freezes `final_sy_exchange_rate` after expiry in `/private/tmp/defillama-source/exponent-finance_exponent-core/programs/exponent_core/src/instructions/vault` and `src/state/vault.rs`.
+- Pendle V2 splits standardized yield into PT/YT contracts per `(SY, expiry)`, authorizes PT mint/burn through YT, requires paired PT/YT redemption before expiry, and supports PT-only redemption after expiry in [`contracts/core/YieldContracts`](https://github.com/pendle-finance/pendle-core-v2-public/blob/fdcfe39ed7b45717f0e6e286581bdcf96bb2f9ce/contracts/core/YieldContracts).
+- Exponent Core mints paired PT/YT from SY, blocks new stripping in emergency mode, burns YT only while the vault is active, and freezes `final_sy_exchange_rate` after expiry in [`programs/exponent_core/src/instructions/vault`](https://github.com/exponent-finance/exponent-core/blob/2897c660eeef647002b62ba971e19457182e0b37/programs/exponent_core/src/instructions/vault) and `src/state/vault.rs`.
 
 ## Real-World Examples
 

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | cross-chain |
-| Tags | bridge, relayer, rewards, receipts, fees |
+| Tags | bridge, relayer, rewards, receipt, fee |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -25,6 +25,21 @@
 - Relayer payment must be synchronous with destination execution
 - The protocol cannot distinguish delivery from semantic application acknowledgement
 - Reward redemption would create unbounded loops or push payments to arbitrary receivers
+
+## Trade-offs
+
+**Pros:**
+- Rewards release only on an authenticated receipt, so relayers cannot claim fees for undelivered messages.
+- Balance-delta fee accounting handles fee-on-transfer ERC20s without crediting phantom amounts.
+- Idempotent receipt handling makes duplicate or unknown receipts harmless no-ops.
+- Pull-based redemption with zero-before-transfer avoids push-payment reentrancy and receiver-DoS.
+
+**Cons:**
+- Relayer payment waits for a full reverse-message round trip; fees sit escrowed in the meantime.
+- A stalled or paused return channel strands both rewards and escrowed fees indefinitely.
+- Pending-message records accumulate until receipts arrive, growing storage and creating unbounded backlog risk.
+- Receipt batching must be gas-bounded or selectable, or delivery transactions can exceed block gas limits.
+- Paying for delivery rather than execution means applications still need separate handling for delivered-but-failed messages.
 
 ## How It Works
 
@@ -80,8 +95,8 @@ reward release still depends on an authenticated receipt.
 
 ## Source Evidence
 
-- Avalanche ICM Teleporter transfers message fees into `TeleporterMessenger`, stores adjusted fee info, processes receipts from authenticated reverse messages, ignores duplicate receipts, credits relayer reward balances, and uses pull-based reward redemption in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/TeleporterMessenger.sol`.
-- Teleporter tests cover receipt reward attribution and duplicate/unknown receipt behavior in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/tests/MarkReceiptTests.t.sol`.
+- Avalanche ICM Teleporter transfers message fees into `TeleporterMessenger`, stores adjusted fee info, processes receipts from authenticated reverse messages, ignores duplicate receipts, credits relayer reward balances, and uses pull-based reward redemption in [`contracts/teleporter/TeleporterMessenger.sol`](https://github.com/ava-labs/icm-contracts/blob/0b68b03c906d17850712b49aa20f2dc18ed55568/contracts/teleporter/TeleporterMessenger.sol).
+- Teleporter tests cover receipt reward attribution and duplicate/unknown receipt behavior in [`contracts/teleporter/tests/MarkReceiptTests.t.sol`](https://github.com/ava-labs/icm-contracts/blob/0b68b03c906d17850712b49aa20f2dc18ed55568/contracts/teleporter/tests/MarkReceiptTests.t.sol).
 
 ## Related Patterns
 

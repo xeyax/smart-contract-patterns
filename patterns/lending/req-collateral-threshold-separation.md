@@ -75,8 +75,8 @@
 
 - Compound III enforces liquidation collateral factors above borrow collateral factors and tests invalid threshold configurations.
 - Euler V2 applies borrow LTV changes immediately while optionally ramping only lower liquidation LTVs over time, and tests both immediate borrow disablement and delayed liquidation eligibility.
-- Aave V2 enforces non-inverted collateral configuration and liquidation-bonus bounds, including `threshold * bonus <= 100%`, in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPoolConfigurator.sol`; this supports bonus calibration but does not weaken the stricter threshold-gap recommendation.
-- Olympus Cooler V2 ramps borrower-favorable origination LTV increases, rejects decreasing origination LTV through that path, bounds target time, delta, and rate of change, and preserves liquidation premium separation in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerLtvOracle.sol`, with bound tests in `src/test/policies/cooler/CoolerLtvOracle.t.sol`.
+- Aave V2 enforces non-inverted collateral configuration and liquidation-bonus bounds, including `threshold * bonus <= 100%`, in [`contracts/protocol/lendingpool/LendingPoolConfigurator.sol`](https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/lendingpool/LendingPoolConfigurator.sol); this supports bonus calibration but does not weaken the stricter threshold-gap recommendation.
+- Olympus Cooler V2 ramps borrower-favorable origination LTV increases, rejects decreasing origination LTV through that path, bounds target time, delta, and rate of change, and preserves liquidation premium separation in [`src/policies/cooler/CoolerLtvOracle.sol`](https://github.com/OlympusDAO/olympus-v3/blob/120266b021f1eaa0c46b00af0114bd47bbc9e590/src/policies/cooler/CoolerLtvOracle.sol), with bound tests in `src/test/policies/cooler/CoolerLtvOracle.t.sol`.
 
 ## Related Patterns
 

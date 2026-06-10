@@ -69,7 +69,7 @@ fn credited_unrealized_pnl(position_size: u128, pnl: i128) -> i128 {
 
 ## Source Evidence
 
-- Drift stores IMF factor and unrealized PnL scaling fields in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/state/perp_market.rs`.
+- Drift stores IMF factor and unrealized PnL scaling fields in [`programs/drift/src/state/perp_market.rs`](https://github.com/drift-labs/protocol-v2/blob/0ae3e3b1db782a6765c3525b3dec38ad4d9d3a62/programs/drift/src/state/perp_market.rs).
 - Drift applies position-size-scaled margin and positive PnL discounts in `programs/drift/src/math/margin.rs`.
 - Drift tests size-scaled margin behavior in `programs/drift/src/math/margin/tests.rs`.
 

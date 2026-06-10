@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | liquidity |
-| Tags | amm, fees, lp, lazy-accounting, reserves |
+| Tags | amm, fee, lp, lazy-accounting, reserve |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -71,9 +71,9 @@ function _updateFor(address account) internal {
 
 ## Source Evidence
 
-- Velodrome V2 removes fees from pool reserves, indexes fee entitlement per LP holder, and pays through `PoolFees` in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Pool.sol` and `contracts/PoolFees.sol`.
-- Velodrome tests cover fee claiming and LP-transfer accounting in `/private/tmp/defillama-source/velodrome-finance__contracts/test/PoolFees.t.sol`.
-- Aerodrome V1 moves fees into a separate `PoolFees` contract and restricts fee claims to the pool in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Pool.sol` and `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/PoolFees.sol`.
+- Velodrome V2 removes fees from pool reserves, indexes fee entitlement per LP holder, and pays through `PoolFees` in [`contracts/Pool.sol`](https://github.com/velodrome-finance/contracts/blob/b3065d8b6702b14b094f9f6046b752cc9f78c43b/contracts/Pool.sol) and `contracts/PoolFees.sol`.
+- Velodrome tests cover fee claiming and LP-transfer accounting in [`test/PoolFees.t.sol`](https://github.com/velodrome-finance/contracts/blob/b3065d8b6702b14b094f9f6046b752cc9f78c43b/test/PoolFees.t.sol).
+- Aerodrome V1 moves fees into a separate `PoolFees` contract and restricts fee claims to the pool in [`contracts/Pool.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Pool.sol) and [`contracts/PoolFees.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/PoolFees.sol).
 
 ## Real-World Examples
 

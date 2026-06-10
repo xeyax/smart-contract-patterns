@@ -65,8 +65,8 @@ function withdrawCollateral(uint256 positionId, uint256 amount, address receiver
 
 ## Source Evidence
 
-- Liquity V2/Bold defines manager and receiver delegation in `/private/tmp/defillama-source/liquity__bold/contracts/src/AddRemoveManagers.sol`.
-- Bold borrower operations enforce manager checks and batch-manager paths in `/private/tmp/defillama-source/liquity__bold/contracts/src/BorrowerOperations.sol`.
+- Liquity V2/Bold defines manager and receiver delegation in [`contracts/src/AddRemoveManagers.sol`](https://github.com/liquity/bold/blob/3fcaf602eb36541dd298c73710e067dcad42d8ae/contracts/src/AddRemoveManagers.sol).
+- Bold borrower operations enforce manager checks and batch-manager paths in [`contracts/src/BorrowerOperations.sol`](https://github.com/liquity/bold/blob/3fcaf602eb36541dd298c73710e067dcad42d8ae/contracts/src/BorrowerOperations.sol).
 - Bold tests include `borrowerOperationsOnBehalfTroveManagament.t.sol`.
 
 ## Real-World Examples

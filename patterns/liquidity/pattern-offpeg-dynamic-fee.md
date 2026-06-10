@@ -25,6 +25,21 @@
 - Dynamic fees would make user quotes unpredictable without protection
 - Governance can set fee multipliers without bounds
 
+## Trade-offs
+
+**Pros:**
+- Trades that worsen imbalance pay for the inventory risk they create, compensating LPs when it matters most.
+- Higher off-peg fees dampen one-sided drain during depeg stress, buying time without halting the pool.
+- The fee is a pure function of pool balances — no oracle, keeper, or external volatility input needed.
+- Bounded multiplier and max-fee caps keep the worst-case cost analyzable for integrators.
+
+**Cons:**
+- Quotes become state-dependent: the fee can shift between quote and execution, so users need slippage protection and aggregators need imbalance-aware quoting.
+- Rising fees can mask a permanent depeg as "expensive but functional," delaying circuit-breaker response if not paired with caps or breakers.
+- Fee multiplier becomes an economic risk parameter; ungoverned or unbounded changes can gate exits behind punitive fees.
+- Consistent application across swaps, imbalanced deposits, and imbalanced withdrawals multiplies the code paths to test; a missed path becomes a cheap imbalance route.
+- Concentration-based variants add invariant-coupled fee math that is harder to reason about than simple peg deviation.
+
 ## How It Works
 
 Scale fees by a function of balance imbalance:
@@ -54,9 +69,9 @@ the invariant, then falls as balances return to the target range.
 ## Source Evidence
 
 - Curve Aave-style pools scale fees by balance imbalance and test bounded fee multiplier changes.
-- Curve StableSwap NG applies off-peg fee multipliers in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:885-900`.
+- Curve StableSwap NG applies off-peg fee multipliers in [`contracts/main/CurveStableSwapNG.vy:885-900`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L885-L900).
 - Curve Crypto applies a balance-concentration dynamic fee in
-  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:515-530`.
+  [`contracts/two/CurveCryptoSwap2.vy:515-530`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L515-L530).
 
 ## Related Patterns
 

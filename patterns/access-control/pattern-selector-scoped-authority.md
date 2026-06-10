@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
-| Tags | access-control, roles, selectors, permissions, operators |
+| Tags | access-control, roles, selector, permissions, operator |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -112,13 +112,13 @@ A richer manifest can also bind value-transfer permission, callback expectations
 - Cap stores selector-scoped access rules and includes deployment checks that emit an observed access manifest.
 - Ether.fi migrated call forwarding toward allowlisted user, target, and selector checks after identifying bypassable blacklist behavior.
 - Veda uses a Merkle permission manifest for manager calls and includes target, selector, and decoded argument constraints for sensitive operations.
-- Sophon's custom USDC bridge lets owner or admin initialize an unset chain bridge address, but reserves replacement of an existing chain bridge address to the owner in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
-- Aera v3 verifies guardian operations against Merkle leaves that bind target, selector, value flag, callback data, hook configuration, and extracted calldata in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/BaseVault.sol`.
-- EtherFi AVS operator management routes calls by operator, target, and selector in `/private/tmp/defillama-source/etherfi-protocol_avs-smart-contracts/src/AvsOperatorManager.sol`, with operator execution in `src/AvsOperator.sol`.
-- LI.FI allowlists target-selector pairs and uses a special approve-only selector for `approveTo` addresses that differ from swap call targets in `/private/tmp/defillama-source/lifinance__contracts/src/Libraries/LibAllowList.sol` and `src/Helpers/SwapperV2.sol`.
-- Nomad governance router authenticates inbound governance batches but can execute arbitrary target calldata from accepted batches in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-core/contracts/governance/GovernanceRouter.sol`, making selector scoping a separate governance requirement.
-- Puffer module management routes restaking operations through `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferModuleManager.sol` and `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferProtocol.sol`, with guardian payload checks in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/GuardianModule.sol`.
-- dHEDGE manager execution resolves contract guards first, falls back to asset guards, validates transaction type and caller access, and optionally calls tracking guards after execution in `/private/tmp/defillama-source/dhedge__V2-Public/contracts/PoolLogic.sol`.
+- Sophon's custom USDC bridge lets owner or admin initialize an unset chain bridge address, but reserves replacement of an existing chain bridge address to the owner in [`src/L1USDCBridge.sol`](https://github.com/sophon-org/custom-usdc-bridge/blob/72b36f11fb6c901380836043a43c738c434d5c12/src/L1USDCBridge.sol).
+- Aera v3 verifies guardian operations against Merkle leaves that bind target, selector, value flag, callback data, hook configuration, and extracted calldata in [`v3/src/core/BaseVault.sol`](https://github.com/aera-finance/aera-contracts-public/blob/9888a9e0d50fa38d4e86a69a8ebb9b605b08dafd/v3/src/core/BaseVault.sol).
+- EtherFi AVS operator management routes calls by operator, target, and selector in [`src/AvsOperatorManager.sol`](https://github.com/etherfi-protocol/avs-smart-contracts/blob/50b221736873a75ed03cebde884aa8cf519cf3cc/src/AvsOperatorManager.sol), with operator execution in `src/AvsOperator.sol`.
+- LI.FI allowlists target-selector pairs and uses a special approve-only selector for `approveTo` addresses that differ from swap call targets in [`src/Libraries/LibAllowList.sol`](https://github.com/lifinance/contracts/blob/7aeb2419d52d6bf834bf2c47e54dd8ea470a57bd/src/Libraries/LibAllowList.sol) and `src/Helpers/SwapperV2.sol`.
+- Nomad governance router authenticates inbound governance batches but can execute arbitrary target calldata from accepted batches in [`packages/contracts-core/contracts/governance/GovernanceRouter.sol`](https://github.com/nomad-xyz/monorepo/blob/b64c5aebbdc3d9fc8416ab1d18f93ea5b00f0411/packages/contracts-core/contracts/governance/GovernanceRouter.sol), making selector scoping a separate governance requirement.
+- Puffer module management routes restaking operations through [`mainnet-contracts/src/PufferModuleManager.sol`](https://github.com/PufferFinance/puffer-contracts/blob/380600060cd231fd8616ba167e674d4140486dbb/mainnet-contracts/src/PufferModuleManager.sol) and [`mainnet-contracts/src/PufferProtocol.sol`](https://github.com/PufferFinance/puffer-contracts/blob/380600060cd231fd8616ba167e674d4140486dbb/mainnet-contracts/src/PufferProtocol.sol), with guardian payload checks in [`mainnet-contracts/src/GuardianModule.sol`](https://github.com/PufferFinance/puffer-contracts/blob/380600060cd231fd8616ba167e674d4140486dbb/mainnet-contracts/src/GuardianModule.sol).
+- dHEDGE manager execution resolves contract guards first, falls back to asset guards, validates transaction type and caller access, and optionally calls tracking guards after execution in [`contracts/PoolLogic.sol`](https://github.com/dhedge/V2-Public/blob/3437aa9dfee716e7a9381a902adb2ae7deecbad0/contracts/PoolLogic.sol).
 
 ## Related Patterns
 

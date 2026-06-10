@@ -66,8 +66,8 @@ def liquidate(user):
 
 ## Source Evidence
 
-- Curve crvUSD implements band-based liquidation in `/private/tmp/defillama-source/curvefi__curve-stablecoin/curve_stablecoin/AMM.vy`.
-- crvUSD controller loan and liquidation logic lives in `/private/tmp/defillama-source/curvefi__curve-stablecoin/curve_stablecoin/controller.vy` through `create_loan`, `_health`, `liquidate`, and `tokens_to_liquidate`.
+- Curve crvUSD implements band-based liquidation in [`curve_stablecoin/AMM.vy`](https://github.com/curvefi/curve-stablecoin/blob/8a98f2043d3f4f2b0eb14c24e89d21df32e4bba6/curve_stablecoin/AMM.vy).
+- crvUSD controller loan and liquidation logic lives in [`curve_stablecoin/controller.vy`](https://github.com/curvefi/curve-stablecoin/blob/8a98f2043d3f4f2b0eb14c24e89d21df32e4bba6/curve_stablecoin/controller.vy) through `create_loan`, `_health`, `liquidate`, and `tokens_to_liquidate`.
 - Curve includes stable-borrow tests under `tests/stableborrow/` and stateful fuzz tests in `tests/fuzz/stateful/test_controller_stateful.py`.
 
 ## Real-World Examples

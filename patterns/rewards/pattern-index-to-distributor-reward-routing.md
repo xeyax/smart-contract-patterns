@@ -25,6 +25,21 @@
 - Restrictions require immediate confiscation rather than delayed distribution
 - Distributor checkpoints cannot be audited or proven to users
 
+## Trade-offs
+
+**Pros:**
+- Restricted-account rewards stay attributable and later claimable instead of being confiscated or silently lost.
+- Unrestricted users keep cheap lazy-index accrual; routing costs gas only on eligibility toggles.
+- A separate distributor earning base keeps the global index math untouched by restrictions.
+- Eligibility policy is enforced without forking the core reward accounting.
+
+**Cons:**
+- Two parallel earning bases (user principal vs distributor principal) must always reconcile; a checkpoint-ordering bug corrupts both.
+- Transfers can bypass reward-enabled state unless every balance-moving path is explicitly hooked.
+- Distributor payouts require an off-chain proof pipeline (Merkle generation, publication, updates) — standing operational machinery.
+- The controller's toggle power is a privileged lever over individual users' reward flow.
+- Toggling around concurrent reward updates, transfers, and claims is a subtle, easy-to-miss test surface.
+
 ## How It Works
 
 When rewards are disabled for an account, its earning principal is moved to a distributor bucket:

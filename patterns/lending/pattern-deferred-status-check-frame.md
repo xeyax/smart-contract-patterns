@@ -26,6 +26,21 @@
 - Reentrancy can enter another frame and clear or bypass pending checks
 - Intermediate unsafe state can be externally observed and exploited
 
+## Trade-offs
+
+**Pros:**
+- Batches can pass through temporarily unsafe intermediate states (e.g. borrow-then-collateralize), enabling flows immediate checks would forbid.
+- Each touched account is checked once at frame exit instead of after every inner call, amortizing expensive health checks across the batch.
+- Hard-capped deferred sets keep the worst-case exit-validation gas bounded and predictable.
+- Scoped forgiveness lets legitimately redundant checks be removed without weakening unrelated accounts' checks.
+
+**Cons:**
+- Correctness hinges on proving every touched account/vault lands in the deferred set and is checked before exit — a missed enqueue path is a direct solvency hole.
+- Frame context (active account, spell, executor) is mutable global state; reentrancy into another frame or a callback mutating unrelated positions are first-class attack vectors.
+- Forgiveness paths invert the safety default and must be tightly scoped, adding their own audit surface.
+- Set caps create UX failure modes: complex batches touching too many accounts revert at the cap.
+- The many variants (spell, wallet hook, credit-account adapter) each add bespoke context-cleanup and permission logic that must be individually verified.
+
 ## How It Works
 
 The entrypoint opens an authenticated execution frame, lets inner calls enqueue account and vault checks, and then runs all queued checks before restoring the outer context:
@@ -105,19 +120,19 @@ collateral.
 ## Source Evidence
 
 - Euler's Ethereum Vault Connector defers account and vault status checks during `call`, `controlCollateral`, and `batch` frames, caps internal check sets, restores context at outer-frame exit, and tests deferred scheduling followed by validation.
-- Euler EVC exposes scoped `forgiveAccountStatusCheck` and `forgiveVaultStatusCheck` paths, caps deferred account and vault sets at 10, blocks status-check reentrancy, and restores execution context after the outer frame in `/private/tmp/defillama-source/euler-xyz__ethereum-vault-connector/src/EthereumVaultConnector.sol`, `src/ExecutionContext.sol`, and `docs/whitepaper.md`.
-- Alpha Homora V2 stores `POSITION_ID` and `SPELL` during `execute`, restricts bank actions to the active spell, checks collateral value against borrow value after spell execution, and clears the temporary context in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
-- EtherFi Cash V3 safe modules run post-operation debt-manager checks through `EtherFiSafe`, `ModuleManager`, and `EtherFiHook` in `/private/tmp/defillama-source/etherfi-protocol_cash-v3/src/safe/EtherFiSafe.sol` and `src/hook/EtherFiHook.sol`.
+- Euler EVC exposes scoped `forgiveAccountStatusCheck` and `forgiveVaultStatusCheck` paths, caps deferred account and vault sets at 10, blocks status-check reentrancy, and restores execution context after the outer frame in [`src/EthereumVaultConnector.sol`](https://github.com/euler-xyz/ethereum-vault-connector/blob/b9d557a8ebcd3db1fbeef4aa60282aa4059a7bbf/src/EthereumVaultConnector.sol), `src/ExecutionContext.sol`, and `docs/whitepaper.md`.
+- Alpha Homora V2 stores `POSITION_ID` and `SPELL` during `execute`, restricts bank actions to the active spell, checks collateral value against borrow value after spell execution, and clears the temporary context in [`contracts/HomoraBank.sol`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/HomoraBank.sol).
+- EtherFi Cash V3 safe modules run post-operation debt-manager checks through `EtherFiSafe`, `ModuleManager`, and `EtherFiHook` in [`src/safe/EtherFiSafe.sol`](https://github.com/etherfi-protocol/cash-v3/blob/e05bda2be27a6a606f3f1b8ff0d0791032fd0ff8/src/safe/EtherFiSafe.sol) and `src/hook/EtherFiHook.sol`.
 - Gearbox V3 batches credit-account calls with permission-bit checks, temporary
   active-account context, adapter execution, and final collateral checks in
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:440-486`,
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:492-650`,
-  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditManagerV3.sol:512-591`.
+  [`contracts/credit/CreditFacadeV3.sol:440-486`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/credit/CreditFacadeV3.sol#L440-L486),
+  [`contracts/credit/CreditFacadeV3.sol:492-650`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/credit/CreditFacadeV3.sol#L492-L650),
+  and [`contracts/credit/CreditManagerV3.sol:512-591`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/credit/CreditManagerV3.sol#L512-L591).
 - Abracadabra Cauldron V3 exposes open-call batching through `cook`, guarded by
   borrower context and final exchange-rate/solvency checks, in
-  `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:36-39`,
-  `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:390-414`,
-  and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/CauldronV3.sol:422-493`.
+  [`contracts/CauldronV3.sol:36-39`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/CauldronV3.sol#L36-L39),
+  [`contracts/CauldronV3.sol:390-414`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/CauldronV3.sol#L390-L414),
+  and [`contracts/CauldronV3.sol:422-493`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/CauldronV3.sol#L422-L493).
 
 ## Related Patterns
 

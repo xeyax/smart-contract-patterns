@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | rewards |
-| Tags | rewards, epoch, checkpoints, fee-distribution, claim |
+| Tags | rewards, epoch, checkpoint, fee-distribution, claim |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -25,6 +25,21 @@
 - Users need continuous per-block accrual instead of epoch buckets
 - Zero-supply epochs cannot be handled or recovered
 - Catch-up loops cannot be bounded without losing claimability
+
+## Trade-offs
+
+**Pros:**
+- Entitlement derives from historical checkpoints, so reward arrivals never require per-user updates.
+- Time-bucketing fairly allocates irregular reward arrivals across the epochs they actually span.
+- Per-user claim cursors let partial claims resume, keeping claim gas bounded.
+- Fits vote-escrow systems that already checkpoint balances and supply.
+
+**Cons:**
+- Both checkpoint and claim catch-up loops must be bounded; long inactivity needs keeper or cursor maintenance or rewards become expensive to claim.
+- Zero-supply epochs can permanently strand rewards unless an explicit recovery path exists.
+- Rewards land at epoch granularity — users wanting continuous per-block accrual get claim latency instead.
+- Balance-delta assumptions break with fee-on-transfer or rebasing reward tokens.
+- Maintaining two checkpoint histories (epoch buckets plus supply) doubles the state to test and audit.
 
 ## How It Works
 
@@ -65,12 +80,12 @@ claim += rewardsPerEpoch[epoch] * balanceAt(user, epochStart) / supplyAt(epochSt
 ## Source Evidence
 
 - Stake DAO's `FeeDistributor` distributes fees by epoch, uses historical balance checkpoints for claims, documents zero-supply epoch loss, and bounds both checkpoint and claim loops with integration tests for partial catch-up.
-- Velodrome V2 epoch reward accounting includes claim-time epoch scans and a bounded global checkpoint catch-up path in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/rewards/Reward.sol`, illustrating why missed-epoch loops need caps or cursors.
+- Velodrome V2 epoch reward accounting includes claim-time epoch scans and a bounded global checkpoint catch-up path in [`contracts/rewards/Reward.sol`](https://github.com/velodrome-finance/contracts/blob/b3065d8b6702b14b094f9f6046b752cc9f78c43b/contracts/rewards/Reward.sol), illustrating why missed-epoch loops need caps or cursors.
 - Curve DAO FeeDistributor buckets received tokens by week, checkpoints
   vote-escrow supply, stores per-user cursors, and bounds claim loops in
-  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/FeeDistributor.vy:99-140`,
-  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/FeeDistributor.vy:193-224`,
-  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/FeeDistributor.vy:296-365`.
+  [`contracts/FeeDistributor.vy:99-140`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/FeeDistributor.vy#L99-L140),
+  [`contracts/FeeDistributor.vy:193-224`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/FeeDistributor.vy#L193-L224),
+  and [`contracts/FeeDistributor.vy:296-365`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/FeeDistributor.vy#L296-L365).
 
 ## Related Patterns
 

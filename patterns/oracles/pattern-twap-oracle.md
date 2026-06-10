@@ -269,12 +269,12 @@ Before using a TWAP for value-bearing operations:
 - [Angle Protocol](https://docs.angle.money/overview/oracles) — TWAP as reference price
 - Uniswap swap-router contracts use synthetic path and weighted-route tick
   guards for slippage checks, including observation-cardinality failure tests, in
-  `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/base/OracleSlippage.sol:17`
-  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/OracleSlippage.spec.ts:339`.
+  [`contracts/base/OracleSlippage.sol:17`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/contracts/base/OracleSlippage.sol#L17)
+  and [`test/OracleSlippage.spec.ts:339`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/test/OracleSlippage.spec.ts#L339).
 - Curve StableSwap NG and Curve Crypto maintain AMM EMA/oracle state for pool
-  execution and monitoring in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1295-1461`,
-  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:538-607`,
-  and `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:610-721`; this is AMM state evidence, not a standalone collateral oracle guarantee.
+  execution and monitoring in [`contracts/main/CurveStableSwapNG.vy:1295-1461`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L1295-L1461),
+  [`contracts/two/CurveCryptoSwap2.vy:538-607`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L538-L607),
+  and [`contracts/two/CurveCryptoSwap2.vy:610-721`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L610-L721); this is AMM state evidence, not a standalone collateral oracle guarantee.
 
 ## Related Patterns
 

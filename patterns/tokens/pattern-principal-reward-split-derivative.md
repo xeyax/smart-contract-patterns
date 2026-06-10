@@ -25,6 +25,21 @@
 - Principal and rewards cannot be priced or migrated separately
 - Integrations assume one token fully represents the position value
 
+## Trade-offs
+
+**Pros:**
+- Principal stays near 1:1 with deposits, so principal-side integrations avoid rebasing accounting entirely.
+- Rewards get independent transferability, claiming, and migration semantics without disturbing principal.
+- Slashing and reward deficits surface explicitly in the reward layer instead of silently rebasing principal supply.
+- Burning both tokens into a successor gives a clean migration path covering the full position.
+
+**Cons:**
+- Two tokens double the integration surface: listings, oracles, liquidity, and approvals per position.
+- Integrators reading only principal supply systematically undervalue positions — a documented but recurring footgun.
+- Reward accrual depends on a trusted oracle or updater pushing reward totals.
+- Liquidity fragments across two assets, worsening secondary-market pricing for both.
+- Migration requires user action on both tokens; partial migrations leave stranded reward claims.
+
 ## How It Works
 
 Mint principal on deposit and accrue rewards through a separate reward token or accounting layer:

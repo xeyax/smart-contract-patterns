@@ -73,8 +73,8 @@ A deficit can block collateral withdrawals, trigger forced replenishment, or bec
 
 ## Source Evidence
 
-- Inverse FiRM implements DOLA Borrow Rights as a transferable ERC20-like meter whose `balanceOf`, `deficitOf`, and `signedBalanceOf` subtract elapsed debt-time in `/private/tmp/defillama-source/InverseFinance__FiRM/src/DBR.sol`.
-- Inverse FiRM markets increase the DBR debt meter on borrow, reduce it on repay, block withdrawals with a DBR deficit, and allow forced replenishment that adds DOLA debt in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Market.sol`.
+- Inverse FiRM implements DOLA Borrow Rights as a transferable ERC20-like meter whose `balanceOf`, `deficitOf`, and `signedBalanceOf` subtract elapsed debt-time in [`src/DBR.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/DBR.sol).
+- Inverse FiRM markets increase the DBR debt meter on borrow, reduce it on repay, block withdrawals with a DBR deficit, and allow forced replenishment that adds DOLA debt in [`src/Market.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/Market.sol).
 
 ## Real-World Examples
 

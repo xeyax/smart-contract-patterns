@@ -26,6 +26,21 @@
 - The tree update path can skip or overwrite roots unpredictably
 - A full light-client history is required instead of a local tree history
 
+## Trade-offs
+
+**Pros:**
+- Fixed-size ring caps storage forever regardless of tree growth — no unbounded root archive.
+- Proofs generated a few blocks ago still verify, absorbing proof-generation and relayer latency without forcing regeneration on every insert.
+- Old roots expire automatically by overwrite, bounding the stale-state window an attacker can prove against.
+- Ring writes are O(1) per insert; no pruning or maintenance transactions.
+
+**Cons:**
+- `isKnownRoot` is a linear scan over the ring, so lookup gas grows with `ROOT_HISTORY_SIZE` and prices the window choice into every verification.
+- Window size is a fixed deployment-time bet: too short and congested-chain users get spurious proof rejections, too long and stale roots stay acceptable.
+- Proofs hard-expire after the window; UX must handle regenerate-and-retry when a proof misses its root.
+- Wraparound and empty-slot edge cases (zero roots, initial empty root) are easy to get wrong and need dedicated boundary tests.
+- Root membership alone does not stop double-spends — correctness still depends on a separate nullifier scheme.
+
 ## How It Works
 
 Store each new root in a fixed ring and accept membership proofs only for roots still in the ring:

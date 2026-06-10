@@ -78,8 +78,8 @@ function _switchBasket(Basket memory next) internal {
 
 ## Source Evidence
 
-- Reserve Protocol stores `basketHistory` by nonce, tracks `lastCollateralized`, and supports `RToken.redeemCustom` through `BasketHandler.quoteCustomRedemption` in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/p1/BasketHandler.sol` and `contracts/p1/RToken.sol`.
-- Reserve tests cover custom redemption after basket changes and invalid nonce handling in `/private/tmp/defillama-source/reserve-protocol__protocol/test/RToken.test.ts`.
+- Reserve Protocol stores `basketHistory` by nonce, tracks `lastCollateralized`, and supports `RToken.redeemCustom` through `BasketHandler.quoteCustomRedemption` in [`contracts/p1/BasketHandler.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/p1/BasketHandler.sol) and `contracts/p1/RToken.sol`.
+- Reserve tests cover custom redemption after basket changes and invalid nonce handling in [`test/RToken.test.ts`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/test/RToken.test.ts).
 
 ## Real-World Examples
 

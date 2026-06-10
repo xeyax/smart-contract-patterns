@@ -245,9 +245,9 @@ The severe-health-factor exception is a policy choice: it can contain obvious ba
 - [Aave](https://docs.aave.com/developers/core-contracts/aaveoracle) — Chainlink for all price feeds
 - [Compound](https://docs.compound.finance/v2/prices/) — Chainlink with fallbacks
 - Morpho Blue oracle libraries intentionally leave Chainlink staleness and
-  min/max checks to integration assumptions in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
-- Silo Chainlink-compatible adapters include wrapper-specific timestamp and heartbeat assumptions in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-oracles/contracts/_common/Aggregator.sol` and `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-oracles/contracts/chainlinkV3/ChainlinkV3Oracle.sol`.
-- Moonwell documents delayed Chainlink OEV wrapper semantics in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/docs/OEV.md` and implements wrapper reads in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/src/oracles/ChainlinkOEVWrapper.sol`.
+  min/max checks to integration assumptions in [`src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`](https://github.com/morpho-org/morpho-blue-oracles/blob/e32d8902f9518365caa53e9eaed3cbd6cb017a63/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol#L13).
+- Silo Chainlink-compatible adapters include wrapper-specific timestamp and heartbeat assumptions in [`silo-oracles/contracts/_common/Aggregator.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-oracles/contracts/_common/Aggregator.sol) and [`silo-oracles/contracts/chainlinkV3/ChainlinkV3Oracle.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-oracles/contracts/chainlinkV3/ChainlinkV3Oracle.sol).
+- Moonwell documents delayed Chainlink OEV wrapper semantics in [`docs/OEV.md`](https://github.com/moonwell-fi/moonwell-contracts-v2/blob/9ed6ad9b692a924213656926baf5637875b0e646/docs/OEV.md) and implements wrapper reads in [`src/oracles/ChainlinkOEVWrapper.sol`](https://github.com/moonwell-fi/moonwell-contracts-v2/blob/9ed6ad9b692a924213656926baf5637875b0e646/src/oracles/ChainlinkOEVWrapper.sol).
 - [MakerDAO](https://docs.makerdao.com/smart-contract-modules/oracle-module) — Chainlink + median
 
 ## Related Patterns

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | cross-chain |
-| Tags | bridge, custodian, reserves, wrapped-asset, backing |
+| Tags | bridge, custodian, reserve, wrapped-asset, backing |
 | Type | Requirement |
 
 ## R1: Full Backing
@@ -108,10 +108,10 @@ custody_balance >= wrapped_token_total_supply
 
 ## Source Evidence
 
-- Stacks sBTC signer validation checks mint and withdrawal limits before signing in `/private/tmp/defillama-source/stacks-network__sbtc/signer/src/bitcoin/validation.rs`, with limit tests in the same tree.
+- Stacks sBTC signer validation checks mint and withdrawal limits before signing in [`signer/src/bitcoin/validation.rs`](https://github.com/stacks-network/sbtc/blob/a97172e25e6e255f6a973629505d400ee5d8bebf/signer/src/bitcoin/validation.rs), with limit tests in the same tree.
 - USDT0 audit reports discuss child-token supply mutation, bridge migration receivers, and reserve/backing preservation during OFT and adapter migrations; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
-- Ethena's 2023 Code4rena snapshot documents collateral sent to custodians and hedged off-chain, a limited hot collateral balance for redemptions, and custodian wallet loss as an undercollateralization risk in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/README.md` and `contracts/README_OLD.md`.
-- Flare FAssets CoreVaultManager separates available, escrowed, and pending custodian funds and tests idempotent payment confirmation plus solvency before transfer requests in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/coreVaultManager/implementation/CoreVaultManager.sol`.
+- Ethena's 2023 Code4rena snapshot documents collateral sent to custodians and hedged off-chain, a limited hot collateral balance for redemptions, and custodian wallet loss as an undercollateralization risk in [`README.md`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/README.md) and `contracts/README_OLD.md`.
+- Flare FAssets CoreVaultManager separates available, escrowed, and pending custodian funds and tests idempotent payment confirmation plus solvency before transfer requests in [`contracts/coreVaultManager/implementation/CoreVaultManager.sol`](https://github.com/flare-foundation/fassets/blob/37c1be508a33c0d0ce31216aef45958fd4e5281e/contracts/coreVaultManager/implementation/CoreVaultManager.sol).
 
 ## Related Patterns
 

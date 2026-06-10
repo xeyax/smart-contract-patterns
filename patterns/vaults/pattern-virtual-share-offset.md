@@ -114,9 +114,9 @@ contract VirtualOffsetVault {
 - EigenLayer tests validate asset/share conversion integrity with non-zero total shares.
 - Firelight and Reserve staking audit/test material show that insufficient offsets or missing zero-share checks can still allow donation-based griefing or dust-denial before a vault is seeded.
 - MetaMorpho applies ERC4626 conversion offsets but warns that 18-decimal assets
-  receive weak inflation protection from the chosen offset in `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:526`
-  and `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:646`.
-- mStable SavingsContract converts underlying to credits with a `+1` credit offset and computes exchange rates against `totalCredits - 1` in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/savings/SavingsContract.sol`.
+  receive weak inflation protection from the chosen offset in [`src/MetaMorpho.sol:526`](https://github.com/morpho-org/metamorpho/blob/163eb2ae022629d4c35e598a668a30451af25f44/src/MetaMorpho.sol#L526)
+  and [`src/MetaMorpho.sol:646`](https://github.com/morpho-org/metamorpho/blob/163eb2ae022629d4c35e598a668a30451af25f44/src/MetaMorpho.sol#L646).
+- mStable SavingsContract converts underlying to credits with a `+1` credit offset and computes exchange rates against `totalCredits - 1` in [`contracts/savings/SavingsContract.sol`](https://github.com/mstable/mStable-contracts/blob/51da0272104d207abcbecb5dd545fec2e6abbfe9/contracts/savings/SavingsContract.sol).
 
 ## Real-World Examples
 

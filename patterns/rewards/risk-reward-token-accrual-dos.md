@@ -42,8 +42,8 @@
 ## Source Evidence
 
 - Reserve staking contracts and audit material show multi-reward vaults where deposits, withdrawals, and claims update registered external reward tokens, motivating emergency principal-only exits and owner controls for bad rewards.
-- Pendle V2 updates reward state during token transfer and claim flows across curated reward tokens, making reward-token list quality a liveness boundary in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/RewardManager`.
-- Velodrome V2 reward accounting shows epoch-bucketed catch-up loops in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Reward.sol`, including a bounded global checkpoint path and claim-time scans over missed epochs.
+- Pendle V2 updates reward state during token transfer and claim flows across curated reward tokens, making reward-token list quality a liveness boundary in [`contracts/core/RewardManager`](https://github.com/pendle-finance/pendle-core-v2-public/blob/fdcfe39ed7b45717f0e6e286581bdcf96bb2f9ce/contracts/core/RewardManager).
+- Velodrome V2 reward accounting shows epoch-bucketed catch-up loops in [`contracts/Reward.sol`](https://github.com/velodrome-finance/contracts/blob/b3065d8b6702b14b094f9f6046b752cc9f78c43b/contracts/Reward.sol), including a bounded global checkpoint path and claim-time scans over missed epochs.
 
 ## Related Patterns
 

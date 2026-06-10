@@ -25,6 +25,20 @@
 - Mint authority can be transferred without bridge migration controls
 - The local token cannot expose a reliable remote-token interface
 
+## Trade-offs
+
+**Pros:**
+- Immutable bridge and remote-token identity eliminates mint-authority hijack through storage mutation; the mint/burn gate is a single cheap check.
+- Deterministic factory deployment gives users predictable token addresses across domains.
+- Interface markers let the bridge reject arbitrary ERC20s posing as mintable bridge tokens.
+- Supply changes only through the bridge, which simplifies reserve and backing reconciliation.
+
+**Cons:**
+- Immutable bridge address turns every bridge upgrade into a full mint-authority migration that must preserve pending exits.
+- Single-bridge lock-in: tokens cannot register multiple independent bridges, fragmenting liquidity per bridge deployment.
+- Remote-token pairing relies on the local token reporting honestly; bridge-side mapping validation is still required against malicious tokens.
+- Migration windows where new minter/burner roles activate before reserve backing and peer configuration are reconciled can break supply backing.
+
 ## How It Works
 
 The bridged token stores immutable bridge and remote-token addresses, or stores
@@ -62,7 +76,7 @@ The bridge validates both local token class and remote-token pairing before chan
 ## Source Evidence
 
 - Optimism's mintable ERC20 stores immutable bridge and remote token fields, restricts mint and burn to the bridge, and the standard bridge checks the local token's remote-pair identity before finalizing.
-- Polygon zkEVM/Agglayer wrapped tokens store bridge authority while the bridge keeps origin token identity in mappings and deterministic deployment salts in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol` and `contracts/lib/TokenWrappedBridgeUpgradeable.sol`.
+- Polygon zkEVM/Agglayer wrapped tokens store bridge authority while the bridge keeps origin token identity in mappings and deterministic deployment salts in [`contracts/AgglayerBridge.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/110bda5a03e70ee7331bc06407a8e79226d3e520/contracts/AgglayerBridge.sol) and `contracts/lib/TokenWrappedBridgeUpgradeable.sol`.
 - USDT0 audit reports provide lower-confidence audit-source support for treating child-token minter/burner changes and bridge migrations as reserve-backing events, not only role-management events.
 
 ## Related Patterns

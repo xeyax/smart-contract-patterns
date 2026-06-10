@@ -333,9 +333,9 @@ ERC4626 mandates `asset()` returning a single token and `deposit(uint256, addres
 - [Set Protocol BasicIssuanceModule](https://github.com/SetProtocol/set-protocol-v2) — proportional deposit (all component tokens required); no built-in ZapIn
 - [Balancer Proportional Join](https://docs.balancer.fi/concepts/pools/joins-and-exits.html) — weighted pool proportional join; single-sided join charges implicit swap fee
 - [StakeDAO / StoneVault ZapIn](https://docs.stakedao.org/) — peripheral ZapIn contract for single-token entry into multi-strategy vaults
-- Velodrome V2 zap validates route endpoints, applies per-leg swap and liquidity minimums, returns residual assets, and clears staking allowance in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Router.sol`.
-- VVS Zap is a contrasting risk example: it enforces a final output minimum but uses zero minimums for internal swap and liquidity legs in `/private/tmp/defillama-source/vvs-finance__vvs-zap/contracts/VVSZap.sol`.
-- Meteora Zap records user-ledger residuals and validates protocol-zap settlement context in `/private/tmp/defillama-source/MeteoraAg_zap-program/programs/zap/src/state/user_ledger.rs` and `programs/zap/src/instructions/ix_zap_in_damm_v2.rs`; the catalog still treats missing per-leg minimums as a slippage caveat.
+- Velodrome V2 zap validates route endpoints, applies per-leg swap and liquidity minimums, returns residual assets, and clears staking allowance in [`contracts/Router.sol`](https://github.com/velodrome-finance/contracts/blob/b3065d8b6702b14b094f9f6046b752cc9f78c43b/contracts/Router.sol).
+- VVS Zap is a contrasting risk example: it enforces a final output minimum but uses zero minimums for internal swap and liquidity legs in [`contracts/VVSZap.sol`](https://github.com/vvs-finance/vvs-zap/blob/bb43b176b80b80af53e2d17de903cf5b5a4acd12/contracts/VVSZap.sol).
+- Meteora Zap records user-ledger residuals and validates protocol-zap settlement context in [`programs/zap/src/state/user_ledger.rs`](https://github.com/MeteoraAg/zap-program/blob/c8dd95b4327158320238e2c4094507ab33883830/programs/zap/src/state/user_ledger.rs) and `programs/zap/src/instructions/ix_zap_in_damm_v2.rs`; the catalog still treats missing per-leg minimums as a slippage caveat.
 
 ## Related Patterns
 

@@ -92,11 +92,11 @@ function _isActiveOrGraceReceiveLib(
 
 ## Source Evidence
 
-- LayerZero V2 stores per-OApp send and receive libraries plus receive-library timeouts in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol:25`.
+- LayerZero V2 stores per-OApp send and receive libraries plus receive-library timeouts in [`packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol:25`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/protocol/contracts/MessageLibManager.sol#L25).
 - LayerZero V2 validates either the current receive library or the timeout library in `MessageLibManager.sol:105`.
 - LayerZero V2 OApps can set per-route receive libraries with grace periods in `MessageLibManager.sol:245`.
-- LayerZero V2 endpoint verification rejects messages from invalid receive libraries before recording payload hashes in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/EndpointV2.sol:151`.
-- LayerZero V2 tests cover default and non-default receive-library grace behavior in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/test/MessageLibManager.t.sol`.
+- LayerZero V2 endpoint verification rejects messages from invalid receive libraries before recording payload hashes in [`packages/layerzero-v2/evm/protocol/contracts/EndpointV2.sol:151`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/protocol/contracts/EndpointV2.sol#L151).
+- LayerZero V2 tests cover default and non-default receive-library grace behavior in [`packages/layerzero-v2/evm/protocol/test/MessageLibManager.t.sol`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/protocol/test/MessageLibManager.t.sol).
 
 ## Real-World Examples
 

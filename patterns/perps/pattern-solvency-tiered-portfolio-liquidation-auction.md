@@ -71,7 +71,7 @@ function fillLiquidation(uint256 accountId, Fill calldata fill) external {
 
 ## Source Evidence
 
-- Derive V2 Dutch auctions switch between solvent and insolvent liquidation modes, cap fill proportion, guard price and trade ids, and update risk scenarios in `/private/tmp/defillama-source/derivexyz__v2-core/src/liquidation/DutchAuction.sol`.
+- Derive V2 Dutch auctions switch between solvent and insolvent liquidation modes, cap fill proportion, guard price and trade ids, and update risk scenarios in [`src/liquidation/DutchAuction.sol`](https://github.com/derivexyz/v2-core/blob/96796a61dcb1dc852e25518b00cc1a79fb3caeeb/src/liquidation/DutchAuction.sol).
 - Derive V2 tests solvent and insolvent auction behavior in `test/auction/unit-tests/SolventAuction.t.sol` and `test/auction/unit-tests/InsolventAuction.t.sol`.
 
 ## Real-World Examples

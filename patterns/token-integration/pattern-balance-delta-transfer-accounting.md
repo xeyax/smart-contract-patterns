@@ -25,6 +25,21 @@
 - External token balances can change independently during the transfer
 - Measuring the contract's token balance is itself unsafe due to hooks or callbacks
 
+## Trade-offs
+
+**Pros:**
+- Accounting always matches tokens actually received, neutralizing fee-on-transfer, no-return, and false-return discrepancies.
+- Cheap and local — two `balanceOf` reads, no registry or token-metadata dependency.
+- The same measurement doubles as a rejection tool: revert when received differs from requested for unsupported tokens.
+- Generalizes across legs: CPI claims, zap residues, custodian transfers, and per-hop AMM inputs.
+
+**Cons:**
+- Two extra `balanceOf` calls per transfer leg add gas, multiplied across multi-hop and multi-asset flows.
+- Unsafe when balances can move independently mid-transfer (rebasing, hooks, reentrancy) without guards or asset-class carve-outs.
+- The guarantee scopes narrowly: exact-input support does not extend to exact-output or all liquidity-exit paths, and teams over-generalize it.
+- `minOut` semantics (pre-fee vs recipient-net) become a documentation and integration burden.
+- Direct-to-custodian flows escape the measurement unless every recipient leg is checked separately.
+
 ## How It Works
 
 ```solidity
@@ -65,21 +80,21 @@ Use `received`, not requested `amount`, in mint/share/repay accounting.
 - JustLend accepts no-return ERC20s, rejects false returns, measures balance delta as actual received amount, and mints/repays from actual received amounts.
 - Kamino Lend performs post-token-CPI vault and ledger checks and rejects unsupported Token-2022 mint/account extensions around lending reserves.
 - Uniswap V2 Router02 supports fee-on-transfer exact-input swap variants by deriving each hop's actual input from pair balances and checking the final recipient balance delta.
-- QuickSwap's V2 periphery illustrates the same exact-input fee-on-transfer route mechanics and the need to keep liquidity-removal min-out semantics explicit in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/contracts/UniswapV2Router02.sol`.
+- QuickSwap's V2 periphery illustrates the same exact-input fee-on-transfer route mechanics and the need to keep liquidity-removal min-out semantics explicit in [`contracts/UniswapV2Router02.sol`](https://github.com/QuickSwap/quickswap-periphery/blob/522a94168b0814d0776d834119df377f03898807/contracts/UniswapV2Router02.sol).
 - Loopscale/Meteora DAMM v2 reads Token-2022 transfer-fee extension state and normalizes included/excluded amounts for swap and liquidity math while rejecting unsupported extensions.
-- Reservoir's PSM mints against actual received underlying before decimal normalization in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/PegStabilityModule.sol`; the `18 - decimals` normalization also illustrates why supported decimal ranges need an onboarding guard.
-- Satoshi Nexus mints from actual received collateral deltas in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/NexusYieldManager.sol`, while Sophon's custom USDC bridge uses a balance delta and then rejects non-exact transfers for canonical USDC bridge deposits.
-- Ethena's 2023 Code4rena snapshot routes mint collateral directly from the benefactor to custodian addresses in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol`, which is safe only for curated exact-transfer collateral or with per-recipient received-amount checks.
-- Meteora Dynamic Fee Sharing funds rewards from post-CPI balance deltas in `/private/tmp/defillama-source/MeteoraAg_dynamic-fee-sharing/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`, and Meteora Zap records residual token ledgers in `/private/tmp/defillama-source/MeteoraAg_zap-program/programs/zap/src/state/user_ledger.rs`.
+- Reservoir's PSM mints against actual received underlying before decimal normalization in [`src/PegStabilityModule.sol`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/src/PegStabilityModule.sol); the `18 - decimals` normalization also illustrates why supported decimal ranges need an onboarding guard.
+- Satoshi Nexus mints from actual received collateral deltas in [`src/core/NexusYieldManager.sol`](https://github.com/Satoshi-Protocol/satoshi-core/blob/7f5eddaed965904fde10ea1d40c4c4b3ea118ada/src/core/NexusYieldManager.sol), while Sophon's custom USDC bridge uses a balance delta and then rejects non-exact transfers for canonical USDC bridge deposits.
+- Ethena's 2023 Code4rena snapshot routes mint collateral directly from the benefactor to custodian addresses in [`contracts/EthenaMinting.sol`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/contracts/EthenaMinting.sol), which is safe only for curated exact-transfer collateral or with per-recipient received-amount checks.
+- Meteora Dynamic Fee Sharing funds rewards from post-CPI balance deltas in [`programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs`](https://github.com/MeteoraAg/dynamic-fee-sharing/blob/f9be4a9a94cf21f1955344bd459eb120e0c8d5af/programs/dynamic-fee-sharing/src/instructions/ix_fund_by_claiming_fee.rs), and Meteora Zap records residual token ledgers in [`programs/zap/src/state/user_ledger.rs`](https://github.com/MeteoraAg/zap-program/blob/c8dd95b4327158320238e2c4094507ab33883830/programs/zap/src/state/user_ledger.rs).
 - Curve StableSwap NG measures actual received tokens, maintains stored balances,
   documents rebasing and ERC4626/rate-oracle asset classes, and disables
-  `exchange_received` for rebasing pools in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1-52`,
-  `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:357-496`,
-  `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:532-565`,
-  and `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/exchange/test_exchange_received.py:100-150`.
-- Aerodrome V1 router supports fee-on-transfer exact-input swap variants by measuring actual pool input/output and final recipient deltas in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Router.sol`, with tests in `/private/tmp/defillama-source/aerodrome-finance__contracts/test/Router.t.sol`.
-- Teller V2 rejects fee-on-transfer principal in borrower funding paths by verifying the receiver balance delta equals the requested amount in `/private/tmp/defillama-source/teller-protocol__teller-protocol-v2/packages/contracts/contracts/TellerV2.sol`.
-- mStable supports configured transfer-fee basket assets by measuring actual received amounts before invariant accounting in `/private/tmp/defillama-source/mstable__mStable-contracts/contracts/masset/MassetLogic.sol`.
+  `exchange_received` for rebasing pools in [`contracts/main/CurveStableSwapNG.vy:1-52`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L1-L52),
+  [`contracts/main/CurveStableSwapNG.vy:357-496`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L357-L496),
+  [`contracts/main/CurveStableSwapNG.vy:532-565`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L532-L565),
+  and [`tests/pools/exchange/test_exchange_received.py:100-150`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/tests/pools/exchange/test_exchange_received.py#L100-L150).
+- Aerodrome V1 router supports fee-on-transfer exact-input swap variants by measuring actual pool input/output and final recipient deltas in [`contracts/Router.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Router.sol), with tests in [`test/Router.t.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/test/Router.t.sol).
+- Teller V2 rejects fee-on-transfer principal in borrower funding paths by verifying the receiver balance delta equals the requested amount in [`packages/contracts/contracts/TellerV2.sol`](https://github.com/teller-protocol/teller-protocol-v2/blob/49c0be13f5371c71fa9c97af78509a16c23d3626/packages/contracts/contracts/TellerV2.sol).
+- mStable supports configured transfer-fee basket assets by measuring actual received amounts before invariant accounting in [`contracts/masset/MassetLogic.sol`](https://github.com/mstable/mStable-contracts/blob/51da0272104d207abcbecb5dd545fec2e6abbfe9/contracts/masset/MassetLogic.sol).
 
 ## Related Anti-Patterns
 

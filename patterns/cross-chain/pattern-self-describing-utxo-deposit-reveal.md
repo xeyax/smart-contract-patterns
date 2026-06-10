@@ -25,6 +25,21 @@
 - A trusted custodian manually maps deposits to users
 - The bridge cannot later prove the deposit transaction and output inclusion
 
+## Trade-offs
+
+**Pros:**
+- Deposit terms are recoverable from the script and reveal payload — no trusted custodian mapping deposits to users.
+- Two-phase reveal/sweep separates cheap deposit discovery from proof-based final settlement.
+- Refund script and locktime give depositors a unilateral exit if the sweep never happens.
+- Binding the deposit key to script hash plus outpoint blocks double-crediting the same UTXO.
+
+**Cons:**
+- Users must construct non-standard Bitcoin deposit scripts exactly; wallet or tooling errors can strand funds or break refund paths.
+- Reveal is unverified precommitment, so state accumulates from unswept or garbage reveals until timeout rules clear them.
+- Settlement still inherits the SPV/relay proof infrastructure and its trust boundary.
+- The edge-case matrix — dust, duplicate reveals, mismatched script fields, reused outpoints, refund races — is a large test and audit surface.
+- Minting waits for sweep plus proof confirmations, adding hours of deposit latency.
+
 ## How It Works
 
 Users create a deposit script that commits to the bridge wallet, depositor, refund path, blinding factor, and optional destination routing:

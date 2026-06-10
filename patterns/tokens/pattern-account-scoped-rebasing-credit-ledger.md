@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | tokens |
-| Tags | token, rebasing, credits, yield, accounting |
+| Tags | token, rebasing, credit, yield, accounting |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -72,10 +72,10 @@ function optOut(address account) external {
 
 ## Source Evidence
 
-- Origin OUSD stores rebasing and non-rebasing credit accounting in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/token/OUSD.sol`.
-- Origin documents credits-per-token, non-rebasing accounts, and yield delegation in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/token/README-token-logic.md`.
-- Origin token tests cover rebase and transfer behavior in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/test/token/ousd.js` and `token-transfers.js`.
-- Origin WOETH derives wrapper assets from OETH credit accounting rather than raw donated token balance in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/token/WOETH.sol`.
+- Origin OUSD stores rebasing and non-rebasing credit accounting in [`contracts/contracts/token/OUSD.sol`](https://github.com/originprotocol/origin-dollar/blob/cd7218c2b070a52470b2621c3ce0ce12378ba700/contracts/contracts/token/OUSD.sol).
+- Origin documents credits-per-token, non-rebasing accounts, and yield delegation in [`contracts/contracts/token/README-token-logic.md`](https://github.com/originprotocol/origin-dollar/blob/cd7218c2b070a52470b2621c3ce0ce12378ba700/contracts/contracts/token/README-token-logic.md).
+- Origin token tests cover rebase and transfer behavior in [`contracts/test/token/ousd.js`](https://github.com/originprotocol/origin-dollar/blob/cd7218c2b070a52470b2621c3ce0ce12378ba700/contracts/test/token/ousd.js) and `token-transfers.js`.
+- Origin WOETH derives wrapper assets from OETH credit accounting rather than raw donated token balance in [`contracts/contracts/token/WOETH.sol`](https://github.com/originprotocol/origin-dollar/blob/cd7218c2b070a52470b2621c3ce0ce12378ba700/contracts/contracts/token/WOETH.sol).
 
 ## Real-World Examples
 

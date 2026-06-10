@@ -25,6 +25,20 @@
 - Destination execution must happen immediately without local review
 - The receiver can execute arbitrary calldata without queueing or expiry
 
+## Trade-offs
+
+**Pros:**
+- Local timelock gives destination-chain operators and users a review and exit window before root governance actions execute.
+- Dual authentication of canonical messenger and root sender blocks spoofed proposals from arbitrary bridge callers.
+- Hashing full proposal contents into the queued id prevents queue/execute mismatches and duplicate execution.
+- Expiry rules clear stale proposals instead of leaving an indefinitely executable backlog.
+
+**Cons:**
+- Two stacked timelocks (root plus local) compound governance latency; urgent fixes on the destination chain are slow.
+- The receiver is arbitrary-execution infrastructure: one authentication bug compromises every contract it governs.
+- All cross-chain governance depends on canonical bridge liveness; a bridge pause or dropped message stalls upgrades and parameter changes.
+- Each chain's messenger has different authentication semantics, so the receiver needs bespoke per-chain auth code, multiplying audit surface.
+
 ## How It Works
 
 The receiver validates the bridge context, decodes the proposal batch, and queues it locally:

@@ -66,11 +66,11 @@
 ## Source Evidence
 
 - Uniswap V4 tracks currency deltas and nonzero-delta count during unlocked operations, and its settlement tests cover synced ERC20 balances, native settlement, dust clearing, and failed unlocks with unsettled deltas.
-- PancakeSwap Infinity Core tests app-scoped shared vault settlement and invariants in `/private/tmp/defillama-source/pancakeswap__infinity-core/test/vault/Vault.t.sol` and `test/vault/VaultInvariant.t.sol`.
+- PancakeSwap Infinity Core tests app-scoped shared vault settlement and invariants in [`test/vault/Vault.t.sol`](https://github.com/pancakeswap/infinity-core/blob/7c04695faeab8b06570cf6c277d9a9717136fb26/test/vault/Vault.t.sol) and `test/vault/VaultInvariant.t.sol`.
 - Balancer V3 unlocks transient accounting through the vault, tracks
   token-scoped deltas that must all return to zero, and caps settlement credit
-  by the caller's amount hint in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/Vault.sol:82-163`
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultCommon.sol:72-120`.
+  by the caller's amount hint in [`pkg/vault/contracts/Vault.sol:82-163`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/Vault.sol#L82-L163)
+  and [`pkg/vault/contracts/VaultCommon.sol:72-120`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/VaultCommon.sol#L72-L120).
 
 ## Related Patterns
 

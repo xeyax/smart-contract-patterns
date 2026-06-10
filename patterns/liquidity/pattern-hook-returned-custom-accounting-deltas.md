@@ -25,6 +25,21 @@
 - The manager cannot distinguish user, pool, and hook deltas
 - Returned deltas bypass slippage or authorization checks
 
+## Trade-offs
+
+**Pros:**
+- Hooks can implement fees, wrappers, and custom curves without forking the core manager or duplicating settlement logic.
+- All hook obligations flow through the same net-delta ledger, so one end-of-frame solvency check covers core and hook accounting alike.
+- Declared hook permissions and selector validation make the capability surface explicit and verifiable at pool creation.
+- Opt-in adjusted-amount variants let conservative vaults expose a narrower, easier-to-bound interface than arbitrary deltas.
+
+**Cons:**
+- Returned deltas are value-moving instructions: a malicious or buggy hook can debit users up to whatever the slippage bounds permit.
+- Slippage checks must run after adjustment and handle signed deltas in both directions; naive min-out/max-in checks silently miss negative-delta cases.
+- Per-pool hook trust fragments composability — integrators must vet each hook-enabled pool individually instead of trusting the protocol once.
+- Test surface grows substantially: wrong-sign returns, unsettled deltas, inconsistent selector responses, and adjusted-amount/liquidity-mode interactions all need coverage.
+- Extra external calls and delta bookkeeping per lifecycle event add gas over hookless pools.
+
 ## How It Works
 
 After a lifecycle event, the manager applies signed deltas returned by the hook:
@@ -62,13 +77,13 @@ amounts.
 ## Source Evidence
 
 - Uniswap V4 allows hooks to return custom accounting deltas during liquidity and swap operations while the pool manager remains the common settlement layer.
-- PancakeSwap Infinity Periphery validates min-out and max-in with signed delta handling in `/private/tmp/defillama-source/pancakeswap__infinity-periphery/src/libraries/SlippageCheck.sol`.
+- PancakeSwap Infinity Periphery validates min-out and max-in with signed delta handling in [`src/libraries/SlippageCheck.sol`](https://github.com/pancakeswap/infinity-periphery/blob/f39aef4a1be63e5404e686bf621436bbfe58f6aa/src/libraries/SlippageCheck.sol).
 - Balancer V3 hook-adjusted amount paths are explicitly opt-in, validate hook
   success and return data, apply user limits after adjustment, and disable
   unbalanced liquidity where adjusted amounts would bypass safety assumptions in
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:118-144`,
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:174-251`,
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/HooksConfigLib.sol:213-278`.
+  [`pkg/interfaces/contracts/vault/IHooks.sol:118-144`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/interfaces/contracts/vault/IHooks.sol#L118-L144),
+  [`pkg/interfaces/contracts/vault/IHooks.sol:174-251`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/interfaces/contracts/vault/IHooks.sol#L174-L251),
+  and [`pkg/vault/contracts/lib/HooksConfigLib.sol:213-278`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/lib/HooksConfigLib.sol#L213-L278).
 
 ## Related Patterns
 

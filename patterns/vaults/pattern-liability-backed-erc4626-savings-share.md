@@ -77,8 +77,8 @@ timestamp so preview and execution paths share the same accrued basis.
 
 ## Source Evidence
 
-- Reservoir's sRUSD v2 `Savingcoin` extends ERC4626, burns rUSD on deposit, mints rUSD on withdrawal, derives `totalAssets()` from share supply and a compounding factor, and enforces a notional cap in `/private/tmp/defillama-source/reservoir-protocol__srusd/src/Savingcoin.sol`.
-- Reservoir sRUSD tests cover cap behavior, conversion checks, fuzzed deposit/withdraw flows, and no-stuck-rUSD invariants in `/private/tmp/defillama-source/reservoir-protocol__srusd/test`.
+- Reservoir's sRUSD v2 `Savingcoin` extends ERC4626, burns rUSD on deposit, mints rUSD on withdrawal, derives `totalAssets()` from share supply and a compounding factor, and enforces a notional cap in [`src/Savingcoin.sol`](https://github.com/reservoir-protocol/srusd/blob/cc34c9ecb30eaf13d567df42f6d9bd165e4c2914/src/Savingcoin.sol).
+- Reservoir sRUSD tests cover cap behavior, conversion checks, fuzzed deposit/withdraw flows, and no-stuck-rUSD invariants in [`test`](https://github.com/reservoir-protocol/srusd/blob/cc34c9ecb30eaf13d567df42f6d9bd165e4c2914/test).
 
 ## Related Patterns
 

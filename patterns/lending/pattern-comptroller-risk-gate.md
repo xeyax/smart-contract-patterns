@@ -25,6 +25,21 @@
 - Risk checks are intentionally per-market and independent
 - A central module would become an unbounded arbitrary execution surface
 
+## Trade-offs
+
+**Pros:**
+- Cross-market account liquidity is computed in one place, so collateral rules cannot diverge between markets.
+- Listing, pause, and collateral-factor policy changes apply consistently without touching market code.
+- Hypothetical-liquidity preflight rejects unsafe actions before any balance changes, simplifying market-level invariants.
+- Liquidation eligibility uses the same math as borrow/redeem checks, closing inconsistency exploits between paths.
+
+**Cons:**
+- Every borrow, redeem, transfer, and liquidation pays an extra cross-contract call plus a multi-market liquidity loop.
+- The comptroller is a single point of failure: a policy bug or bad upgrade affects all markets at once.
+- Cross-market liquidity math couples markets — a mispriced oracle or bad collateral factor in one market drains others.
+- Governance over listings and collateral factors concentrates high-impact power that needs timelocks and monitoring.
+- Pause scoping is delicate; pausing liquidations centrally can extend bad-debt windows across every market.
+
 ## How It Works
 
 Each market calls the comptroller before changing balances:
@@ -62,8 +77,8 @@ require(liquidity >= 0, "insufficient liquidity");
 
 - JustLend preflights borrow, redeem, transfer, and liquidation through comptroller hooks.
 - Its comptroller sums hypothetical collateral and borrow effects across markets before allowing an action.
-- Compound V2 routes `mintAllowed`, `redeemAllowed`, `borrowAllowed`, `liquidateBorrowAllowed`, and `seizeAllowed` through comptroller contracts in `/private/tmp/defillama-source/compound-finance__compound-protocol/contracts/Comptroller.sol` and `ComptrollerG7.sol`.
-- Compound tests pause-guardian behavior in `/private/tmp/defillama-source/compound-finance__compound-protocol/tests/Comptroller/pauseGuardianTest.js`.
+- Compound V2 routes `mintAllowed`, `redeemAllowed`, `borrowAllowed`, `liquidateBorrowAllowed`, and `seizeAllowed` through comptroller contracts in [`contracts/Comptroller.sol`](https://github.com/compound-finance/compound-protocol/blob/a3214f67b73310d547e00fc578e8355911c9d376/contracts/Comptroller.sol) and `ComptrollerG7.sol`.
+- Compound tests pause-guardian behavior in [`tests/Comptroller/pauseGuardianTest.js`](https://github.com/compound-finance/compound-protocol/blob/a3214f67b73310d547e00fc578e8355911c9d376/tests/Comptroller/pauseGuardianTest.js).
 
 ## Related Patterns
 

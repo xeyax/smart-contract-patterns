@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | rewards |
-| Tags | rewards, claims, delay, nonce, idempotency |
+| Tags | rewards, claim, delay, nonce, idempotency |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -89,8 +89,8 @@ claim.
 
 ## Source Evidence
 
-- Satoshi Farm computes claim ids from amount, owner, receiver, claimable time, and nonce; stores pending/claimed status; subtracts pending rewards at request; and marks claims as claimed before minting in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-farm/src/core/Farm.sol`.
-- Satoshi Farm tests cover delayed claim request and execution paths in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-farm/test/FarmManager.t.sol`.
+- Satoshi Farm computes claim ids from amount, owner, receiver, claimable time, and nonce; stores pending/claimed status; subtracts pending rewards at request; and marks claims as claimed before minting in [`src/core/Farm.sol`](https://github.com/Satoshi-Protocol/satoshi-farm/blob/174d930eb3c220fa3163a677cea019fc1550074e/src/core/Farm.sol).
+- Satoshi Farm tests cover delayed claim request and execution paths in [`test/FarmManager.t.sol`](https://github.com/Satoshi-Protocol/satoshi-farm/blob/174d930eb3c220fa3163a677cea019fc1550074e/test/FarmManager.t.sol).
 
 ## Related Patterns
 

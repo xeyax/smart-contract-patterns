@@ -69,7 +69,7 @@ Execution contracts must still validate every guard. The facade is a discovery a
 
 ## Source Evidence
 
-- Yearn V3 periphery's `CommonTrigger.sol` returns `(bool, bytes)` style trigger decisions for reports, tends, auctions, and shutdown-related work in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/ReportTrigger/CommonTrigger.sol`.
+- Yearn V3 periphery's `CommonTrigger.sol` returns `(bool, bytes)` style trigger decisions for reports, tends, auctions, and shutdown-related work in [`src/ReportTrigger/CommonTrigger.sol`](https://github.com/yearn/tokenized-strategy-periphery/blob/8d940ecc518c9b4e198e240cca634f315f37e318/src/ReportTrigger/CommonTrigger.sol).
 - `CommonTrigger.t.sol` covers ready and not-ready trigger behavior for report, tend, and auction flows.
 
 ## Real-World Examples

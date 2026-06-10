@@ -246,9 +246,9 @@ function isPriceStale() public view returns (bool) {
 ## Source Evidence
 
 - Morpho Blue oracle libraries document no-staleness/min-max assumptions for
-  Chainlink-compatible feeds in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`.
+  Chainlink-compatible feeds in [`src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol:13`](https://github.com/morpho-org/morpho-blue-oracles/blob/e32d8902f9518365caa53e9eaed3cbd6cb017a63/src/morpho-chainlink/libraries/ChainlinkDataFeedLib.sol#L13).
 - Morpho's wstETH exchange-rate adapter returns zero timestamps through a
-  Chainlink-compatible interface in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/wsteth-exchange-rate-adapter/WstEthStEthExchangeRateChainlinkAdapter.sol:23`.
+  Chainlink-compatible interface in [`src/wsteth-exchange-rate-adapter/WstEthStEthExchangeRateChainlinkAdapter.sol:23`](https://github.com/morpho-org/morpho-blue-oracles/blob/e32d8902f9518365caa53e9eaed3cbd6cb017a63/src/wsteth-exchange-rate-adapter/WstEthStEthExchangeRateChainlinkAdapter.sol#L23).
 - For voting-power calculators, alert when stale or missing feeds zero a component that contributes to quorum.
 - For emergency playbooks, test that stale or unavailable price feeds do not block monotonic risk reductions that do not use the price.
 - For degraded price ranges, test which actions remain enabled and prove the degraded range is conservative for those actions.
@@ -259,12 +259,12 @@ function isPriceStale() public view returns (bool) {
 - **Compound (2020)** — DAI oracle manipulation during flash crash
 - **Arbitrum Sequencer Outage** — multiple protocols affected by stale prices
 - Rocket Pool's Polygon rate relay and Symbiotic Relay's voting-power calculators show wrapper-specific freshness hazards: the former can confuse source and destination timestamps, while the latter can zero voting power on stale prices.
-- Reserve Protocol collateral plugins cache price bounds and degrade stale or broken prices toward conservative low/high extremes while collateral default handling is delayed, as implemented under `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/plugins/assets`.
+- Reserve Protocol collateral plugins cache price bounds and degrade stale or broken prices toward conservative low/high extremes while collateral default handling is delayed, as implemented under [`contracts/plugins/assets`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/plugins/assets).
 - Aave V2's oracle integration illustrates the modern risk: `getAssetPrice` reads Chainlink-style `latestAnswer()` and falls back only for missing or non-positive answers, even though the interface exposes timestamps.
-- Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/adapters` and `src/PegStabilityModule.sol`.
+- Reservoir adapters return par-like values when Chainlink-style answers are stale and the PSM consumes `latestAnswer()` without a timestamp in [`src/adapters`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/src/adapters) and `src/PegStabilityModule.sol`.
 - Pendle's Chainlink-compatible PT/YT/LP wrapper can return the current block timestamp while the underlying implied-rate TWAP still needs readiness checks, and its trusted-sender cross-chain exchange-rate app accepts newer timestamps without max source-age or deviation bounds.
-- RAAC `RAACHousePrices` stores per-token house prices behind a shared latest timestamp surface, and lending reads `getLatestPrice` before collateral calculations in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/primitives/RAACHousePrices.sol` and `contracts/core/pools/LendingPool/LendingPool.sol`.
-- Superstate `SuperstateOracle.latestRoundData` can return the current block timestamp as the Chainlink `updatedAt` while NAV freshness depends on effective-dated checkpoint state in `/private/tmp/defillama-source/superstateinc__onchain-redemptions/src/oracle/SuperstateOracle.sol`.
+- RAAC `RAACHousePrices` stores per-token house prices behind a shared latest timestamp surface, and lending reads `getLatestPrice` before collateral calculations in [`contracts/core/primitives/RAACHousePrices.sol`](https://github.com/tinnohofficial/2025-02-raac/blob/dd5516a9b318b797f82015ee63170d9064514b16/contracts/core/primitives/RAACHousePrices.sol) and `contracts/core/pools/LendingPool/LendingPool.sol`.
+- Superstate `SuperstateOracle.latestRoundData` can return the current block timestamp as the Chainlink `updatedAt` while NAV freshness depends on effective-dated checkpoint state in [`src/oracle/SuperstateOracle.sol`](https://github.com/superstateinc/onchain-redemptions/blob/59534af26d209ff5d3da5fda311c3a98471c1e71/src/oracle/SuperstateOracle.sol).
 
 ## Related Patterns
 

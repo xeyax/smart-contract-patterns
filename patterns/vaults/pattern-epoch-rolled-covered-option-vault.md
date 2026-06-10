@@ -77,8 +77,8 @@ Pending deposits mint shares using the new round price per share. Queued withdra
 
 ## Source Evidence
 
-- Ribbon V2 closes old shorts, commits the next option, creates a new Opyn short, and auctions minted options in `/private/tmp/defillama-source/ribbon-finance__ribbon-v2/contracts/vaults/BaseVaultWithSwap/RibbonThetaVaultWithSwap.sol`.
-- Ribbon V2 rollover accounting computes new locked amount, queued withdrawals, price per share, mint shares, and vault fees in `/private/tmp/defillama-source/ribbon-finance__ribbon-v2/contracts/libraries/VaultLifecycle.sol`.
+- Ribbon V2 closes old shorts, commits the next option, creates a new Opyn short, and auctions minted options in [`contracts/vaults/BaseVaultWithSwap/RibbonThetaVaultWithSwap.sol`](https://github.com/ribbon-finance/ribbon-v2/blob/9a7c788f123cf1e82b207b1ddbcddcab14727019/contracts/vaults/BaseVaultWithSwap/RibbonThetaVaultWithSwap.sol).
+- Ribbon V2 rollover accounting computes new locked amount, queued withdrawals, price per share, mint shares, and vault fees in [`contracts/libraries/VaultLifecycle.sol`](https://github.com/ribbon-finance/ribbon-v2/blob/9a7c788f123cf1e82b207b1ddbcddcab14727019/contracts/libraries/VaultLifecycle.sol).
 
 ## Real-World Examples
 

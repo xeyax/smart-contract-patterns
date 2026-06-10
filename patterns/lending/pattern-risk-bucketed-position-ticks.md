@@ -76,8 +76,8 @@ function liquidateWorst(uint256 maxTicks) external {
 
 ## Source Evidence
 
-- fx Protocol groups positions by debt-ratio ticks, scans high-risk ticks for redemption/rebalance/liquidation, applies dust handling, and lazily propagates ratio movement through tick nodes in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/contracts/core/pool/BasePool.sol` and `contracts/core/pool/TickLogic.sol`.
-- fx Protocol tests cover tick-driven pool manager behavior in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/test/core/PoolManager.spec.ts`.
+- fx Protocol groups positions by debt-ratio ticks, scans high-risk ticks for redemption/rebalance/liquidation, applies dust handling, and lazily propagates ratio movement through tick nodes in [`contracts/core/pool/BasePool.sol`](https://github.com/AladdinDAO/fx-protocol-contracts/blob/5e198e93657db008a57129e7eea21a996618f17f/contracts/core/pool/BasePool.sol) and `contracts/core/pool/TickLogic.sol`.
+- fx Protocol tests cover tick-driven pool manager behavior in [`test/core/PoolManager.spec.ts`](https://github.com/AladdinDAO/fx-protocol-contracts/blob/5e198e93657db008a57129e7eea21a996618f17f/test/core/PoolManager.spec.ts).
 
 ## Real-World Examples
 

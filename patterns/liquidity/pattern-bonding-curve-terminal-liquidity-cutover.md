@@ -72,7 +72,7 @@ fn migrate_curve(ctx: Context) -> Result<()> {
 
 ## Source Evidence
 
-- Meteora Dynamic Bonding Curve computes migration state and calls AMM-specific migration handlers in `/private/tmp/defillama-source/MeteoraAg_dynamic-bonding-curve/programs/dynamic-bonding-curve/src/migration_handler/mod.rs`.
+- Meteora Dynamic Bonding Curve computes migration state and calls AMM-specific migration handlers in [`programs/dynamic-bonding-curve/src/migration_handler/mod.rs`](https://github.com/MeteoraAg/dynamic-bonding-curve/blob/b4f954733f0e88258f1eb3f0eff75e4314c9610c/programs/dynamic-bonding-curve/src/migration_handler/mod.rs).
 - Its migration handlers seed compounding and concentrated liquidity pools in `migration_handler/compounding_liquidity.rs` and `migration_handler/concentrated_liquidity.rs`, validate DAMM v2 configuration in `instructions/partner/ix_create_config.rs`, and test migration fee behavior in `programs/dynamic-bonding-curve/src/tests/test_migration_fee.rs`.
 
 ## Real-World Examples

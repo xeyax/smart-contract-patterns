@@ -26,6 +26,21 @@
 - Integrators cannot simulate current dynamic fees before trading
 - The fee can jump after a user signs a transaction without slippage protection
 
+## Trade-offs
+
+**Pros:**
+- Fees price realized volatility and trade clustering directly, compensating LPs for toxic flow that inventory-imbalance fees miss.
+- Decay and accumulator caps make fee spikes self-limiting, so the pool returns to competitive pricing after volatility subsides.
+- Fee state derives from on-pool price movement — no external oracle dependency for the volatility signal.
+- Sandwich-style rapid trading raises its own cost, since clustered swaps pump the accumulator.
+
+**Cons:**
+- Fee state mutates with every qualifying swap, so quotes go stale between signing and execution; user slippage limits become load-bearing.
+- Integrators must replicate accumulator, filter-window, and decay math to simulate fees; divergence between quote and execution math directly misprices trades.
+- Per-swap accumulator updates and packed-parameter decoding add gas and compute to the hot path.
+- Many coupled parameters (base fee, variable-fee control, filter/decay windows, reduction factor, caps) form a large economic misconfiguration surface that governance must bound and monitor.
+- Legitimate large traders pay elevated fees during volatility, pushing informed flow to static-fee venues exactly when LPs want it priced in.
+
 ## How It Works
 
 Track a volatility reference and accumulator updated during swaps:
@@ -72,10 +87,10 @@ should validate the maximum total fee before activation.
 - Loopscale's cloned DAMM v2 source identifies as Meteora constant-product AMM code and includes volatility accumulator fee state, decay behavior, and dynamic-fee tests.
 - Trader Joe V2 Liquidity Book uses packed fee parameters, filter and decay
   windows, capped volatility accumulators, quadratic variable-fee math, and
-  max-total-fee validation in `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/PairParameterHelper.sol:9-27`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/PairParameterHelper.sol:225-260`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/PairParameterHelper.sol:372-438`,
-  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBFactory.sol:433-474`.
+  max-total-fee validation in [`src/libraries/PairParameterHelper.sol:9-27`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/libraries/PairParameterHelper.sol#L9-L27),
+  [`src/libraries/PairParameterHelper.sol:225-260`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/libraries/PairParameterHelper.sol#L225-L260),
+  [`src/libraries/PairParameterHelper.sol:372-438`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/libraries/PairParameterHelper.sol#L372-L438),
+  and [`src/LBFactory.sol:433-474`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBFactory.sol#L433-L474).
 
 ## Related Patterns
 

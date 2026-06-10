@@ -73,11 +73,11 @@ function process(bytes calldata metadata, bytes calldata message) external {
 
 ## Source Evidence
 
-- Hyperlane implements recipient-scoped verification in `/private/tmp/defillama-source/hyperlane-xyz__hyperlane-monorepo/solidity/contracts/Mailbox.sol` through `process` and `recipientIsm`.
+- Hyperlane implements recipient-scoped verification in [`solidity/contracts/Mailbox.sol`](https://github.com/hyperlane-xyz/hyperlane-monorepo/blob/748379eaf9808acd51ea35191a3c4f0f034486b0/solidity/contracts/Mailbox.sol) through `process` and `recipientIsm`.
 - Hyperlane message encoding lives in `solidity/contracts/libs/Message.sol`.
 - Hyperlane mailbox tests live in `solidity/test/Mailbox.t.sol`.
-- Socket plug configuration binds local plug, sibling plug, inbound switchboard, outbound switchboard, capacitor, and decapacitor before packet-root execution in `/private/tmp/defillama-source/SocketDotTech__socket-DL/contracts/socket/SocketConfig.sol` and `SocketDst.sol`.
-- Nomad routers enroll remote routers and reject messages from unenrolled remote senders before bridge-router handling in `/private/tmp/defillama-source/nomad-xyz__monorepo/packages/contracts-router/contracts/Router.sol` and `packages/contracts-bridge/contracts/BridgeRouter.sol`.
+- Socket plug configuration binds local plug, sibling plug, inbound switchboard, outbound switchboard, capacitor, and decapacitor before packet-root execution in [`contracts/socket/SocketConfig.sol`](https://github.com/SocketDotTech/socket-DL/blob/b2601e280533960df4d36eeef25ab81957f59eb9/contracts/socket/SocketConfig.sol) and `SocketDst.sol`.
+- Nomad routers enroll remote routers and reject messages from unenrolled remote senders before bridge-router handling in [`packages/contracts-router/contracts/Router.sol`](https://github.com/nomad-xyz/monorepo/blob/b64c5aebbdc3d9fc8416ab1d18f93ea5b00f0411/packages/contracts-router/contracts/Router.sol) and `packages/contracts-bridge/contracts/BridgeRouter.sol`.
 
 ## Real-World Examples
 

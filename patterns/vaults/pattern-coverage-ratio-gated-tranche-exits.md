@@ -74,9 +74,9 @@ Senior deposits can use a higher buffer than junior withdrawals so new senior in
 
 ## Source Evidence
 
-- Strata computes junior withdrawal capacity and senior deposit caps from coverage ratios in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/Accounting.sol`.
-- Strata maps current coverage to fee, ERC4626, or share-lock exit modes in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/StrataCDO.sol` and configures coverage bands in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/base/cooldown/SharesCooldown.sol`.
-- Strata tests coverage-dependent junior redemption fees and locks in `/private/tmp/defillama-source/Strata-Markets_contracts/test/tranches/cooldowns/Exit.spec.ts`, and PoC tests under `/private/tmp/defillama-source/Strata-Markets_contracts/test/PoC` show that deposits, accounting updates, and low junior prices can manipulate coverage if thresholds are not guarded.
+- Strata computes junior withdrawal capacity and senior deposit caps from coverage ratios in [`contracts/tranches/Accounting.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/Accounting.sol).
+- Strata maps current coverage to fee, ERC4626, or share-lock exit modes in [`contracts/tranches/StrataCDO.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/StrataCDO.sol) and configures coverage bands in [`contracts/tranches/base/cooldown/SharesCooldown.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/base/cooldown/SharesCooldown.sol).
+- Strata tests coverage-dependent junior redemption fees and locks in [`test/tranches/cooldowns/Exit.spec.ts`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/test/tranches/cooldowns/Exit.spec.ts), and PoC tests under [`test/PoC`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/test/PoC) show that deposits, accounting updates, and low junior prices can manipulate coverage if thresholds are not guarded.
 
 ## Real-World Examples
 

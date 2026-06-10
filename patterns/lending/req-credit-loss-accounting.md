@@ -70,13 +70,13 @@ current debt in the source context before assigning debt in the destination.**
 - Blend V2 demonstrates a backstop-assigned intermediate bad-debt state before thresholded terminal default.
 - Gearbox V3 and Ajna provide explicit loss-waterfall evidence for
   treasury-first, reserve, bucket, and supplier loss realization in
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/libraries/CreditLogic.sol:50-101`
-  and `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/SettlerActions.sol:85-201`.
+  [`contracts/libraries/CreditLogic.sol:50-101`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/libraries/CreditLogic.sol#L50-L101)
+  and [`src/libraries/external/SettlerActions.sol:85-201`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/src/libraries/external/SettlerActions.sol#L85-L201).
 - Synthetix V3 vault collateral migration settles current debt in the source
   pool, clears the old assignment, updates both positions, validates source and
   destination capacity/liquidation state, and assigns debt in the destination in
-  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/modules/core/VaultModule.sol:189-238`
-  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/modules/core/VaultModule.sol:374-435`.
+  [`protocol/synthetix/contracts/modules/core/VaultModule.sol:189-238`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/modules/core/VaultModule.sol#L189-L238)
+  and [`protocol/synthetix/contracts/modules/core/VaultModule.sol:374-435`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/modules/core/VaultModule.sol#L374-L435).
 
 ## Related Patterns
 

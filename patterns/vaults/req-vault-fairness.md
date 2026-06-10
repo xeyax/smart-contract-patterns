@@ -2,6 +2,13 @@
 
 > Core requirements that vault deposit/withdraw mechanisms must satisfy.
 
+## Metadata
+
+| Property | Value |
+|----------|-------|
+| Category | vaults |
+| Tags | vault, fairness, deposit, withdrawal |
+
 ## Overview
 
 These requirements define what "fair" means for vault operations. Patterns and risks in this category should reference these requirements to verify correctness.

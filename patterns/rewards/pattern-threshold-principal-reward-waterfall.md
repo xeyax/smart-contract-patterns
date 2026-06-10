@@ -26,6 +26,20 @@
 - Principal tracking can be updated by untrusted callers
 - The system cannot tolerate delayed pull claims
 
+## Trade-offs
+
+**Pros:**
+- Classifies unlabeled inflows fully on-chain with one threshold rule — no oracle or off-chain labeling needed.
+- Pull-ledger fallback prevents one reverting recipient from blocking the other recipient's funds.
+- Subtracting pending pull credits makes repeated `distribute()` calls safe against double counting.
+- Distribution can stay permissionless: anyone can crank settlement without trust in the caller.
+
+**Cons:**
+- Misclassification is structural: donations and early reward inflows count as principal until the threshold is exhausted.
+- Correctness hinges on the permissioned principal-tracking path; a stale `remainingPrincipal` mislabels every subsequent inflow.
+- Pull-claim fallback delays receipt and forces an extra claim transaction on contract recipients.
+- Internal accounting (`pendingPrincipal`, `pendingReward`, `remainingPrincipal`) must reconcile with raw balance; drift is hard to spot without events and dedicated tests.
+
 ## How It Works
 
 Track remaining principal and split distributable balance by an absolute threshold:

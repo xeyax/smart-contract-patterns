@@ -77,7 +77,7 @@ decoding, not only individual bit ranges.
 
 ## Source Evidence
 
-- Aave V2 packs reserve LTV, liquidation threshold, bonus, decimals, active/frozen/borrowing/stable-rate flags, and reserve factor into a configuration word in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/libraries/types/DataTypes.sol`.
+- Aave V2 packs reserve LTV, liquidation threshold, bonus, decimals, active/frozen/borrowing/stable-rate flags, and reserve factor into a configuration word in [`contracts/protocol/libraries/types/DataTypes.sol`](https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/libraries/types/DataTypes.sol).
 - Aave V2 defines masks, bounds, decode helpers, and configurator validation in `contracts/protocol/libraries/configuration/ReserveConfiguration.sol` and `contracts/protocol/lendingpool/LendingPoolConfigurator.sol`.
 
 ## Real-World Examples

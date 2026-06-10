@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | cross-chain |
-| Tags | bridge, dvn, quorum, verifier, confirmations |
+| Tags | bridge, dvn, quorum, verifier, confirmation |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -81,11 +81,11 @@ function _checkPolicy(VerifierPolicy memory policy) internal pure {
 
 ## Source Evidence
 
-- LayerZero V2 ULN configuration stores confirmations, required DVNs, optional DVNs, and optional threshold in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/UlnBase.sol:8`.
+- LayerZero V2 ULN configuration stores confirmations, required DVNs, optional DVNs, and optional threshold in [`packages/layerzero-v2/evm/messagelib/contracts/uln/UlnBase.sol:8`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/messagelib/contracts/uln/UlnBase.sol#L8).
 - LayerZero V2 resolves defaults and still requires at least one verifier path in `UlnBase.sol:74`.
 - LayerZero V2 validates counts, thresholds, maximum sizes, and duplicate-free verifier lists in `UlnBase.sol:150`.
-- LayerZero V2 receive verification checks that required DVNs have signed and that optional DVNs meet threshold in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/contracts/uln/ReceiveUlnBase.sol:90`.
-- LayerZero V2 tests cover invalid ULN configurations in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/test/UlnBase.t.sol`.
+- LayerZero V2 receive verification checks that required DVNs have signed and that optional DVNs meet threshold in [`packages/layerzero-v2/evm/messagelib/contracts/uln/ReceiveUlnBase.sol:90`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/messagelib/contracts/uln/ReceiveUlnBase.sol#L90).
+- LayerZero V2 tests cover invalid ULN configurations in [`packages/layerzero-v2/evm/messagelib/test/UlnBase.t.sol`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/messagelib/test/UlnBase.t.sol).
 
 ## Real-World Examples
 

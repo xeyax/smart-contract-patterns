@@ -71,9 +71,9 @@ function settle(uint16 currency, uint40 maturity, address account) external {
 
 ## Source Evidence
 
-- Notional V3 represents fCash through ERC1155-style ids and transfer hooks in `/private/tmp/defillama-source/notional-finance__contracts-v3/contracts/external/actions/ERC1155Action.sol`.
-- Notional prime-cash conversion and settlement math are in `/private/tmp/defillama-source/notional-finance__contracts-v3/contracts/internal/pCash/PrimeRateLib.sol`.
-- Notional stateful lend and borrow tests cover fCash behavior under `/private/tmp/defillama-source/notional-finance__contracts-v3/tests/stateful`.
+- Notional V3 represents fCash through ERC1155-style ids and transfer hooks in [`contracts/external/actions/ERC1155Action.sol`](https://github.com/notional-finance/contracts-v3/blob/ae20d99ebfb0b14cf7b08421722b85849fb11edf/contracts/external/actions/ERC1155Action.sol).
+- Notional prime-cash conversion and settlement math are in [`contracts/internal/pCash/PrimeRateLib.sol`](https://github.com/notional-finance/contracts-v3/blob/ae20d99ebfb0b14cf7b08421722b85849fb11edf/contracts/internal/pCash/PrimeRateLib.sol).
+- Notional stateful lend and borrow tests cover fCash behavior under [`tests/stateful`](https://github.com/notional-finance/contracts-v3/blob/ae20d99ebfb0b14cf7b08421722b85849fb11edf/tests/stateful).
 
 ## Real-World Examples
 

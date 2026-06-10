@@ -70,7 +70,7 @@ For flash loans, the core transfers assets, calls the callback, then requires th
 
 ## Source Evidence
 
-- Morpho Blue supports callback-funded supply, collateral supply, repay, liquidation, and flash loans in `/private/tmp/defillama-source/morpho-org__morpho-blue/src/Morpho.sol`, with callback integration tests and Certora reentrancy specifications.
+- Morpho Blue supports callback-funded supply, collateral supply, repay, liquidation, and flash loans in [`src/Morpho.sol`](https://github.com/morpho-org/morpho-blue/blob/1478e9cfe1b4d514f80682b3b60e4e12ff3ee45a/src/Morpho.sol), with callback integration tests and Certora reentrancy specifications.
 
 ## Real-World Examples
 

@@ -25,6 +25,21 @@
 - Oracle price cannot provide a safe starting anchor
 - Keeper incentives can exceed expected auction value
 
+## Trade-offs
+
+**Pros:**
+- Descending price gives market-driven price discovery for collateral that is too illiquid for fixed-discount direct seizure.
+- Reset on staleness or excessive decline prevents auctions from settling at deeply underpriced levels during volatility.
+- Buyer max-price/max-cost bounds and partial fills let small takers participate without atomically funding the whole lot.
+- Staged breakers can separately halt kicks, resets, and takes, giving fine-grained incident response.
+
+**Cons:**
+- Settlement latency: debt stays open while the price decays, and each reset restarts the clock, extending protocol exposure during exactly the volatile periods that trigger resets.
+- Keeper incentive design is fragile — incentives can exceed auction value, invite self-kicking or reset farming, and need explicit bounding.
+- Start price still anchors to an oracle, so the pattern does not remove oracle risk, only converts it into a buffered starting point.
+- Decay curves, reset thresholds, two-sided block scaling, and bond reward/penalty paths multiply the state space; partial-fill rounding direction is an easy place to leak collateral.
+- Liveness depends on competitive keeper and taker participation; on quiet chains or for thin collateral, auctions can decay to near-zero before anyone takes.
+
 ## How It Works
 
 Start the auction above the oracle value, decay price over time, and allow reset when stale:
@@ -87,12 +102,12 @@ whether the auction helped settle risky debt.
 
 - Sky/Maker DSS `Clipper` auctions use feed-buffered start prices, descending price curves, buyer max-price bounds, stale-auction reset by time or price decline, keeper incentives, and breaker levels.
 - Lista CDP liquidation code throttles active liquidation debt globally and per collateral, sizes auctions around dust constraints, and exposes staged breakers for kicks, resets, and takes.
-- Blend V2 auction fill scales lots upward and bids downward by block age in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/auctions/auction.rs`, with tests for block-age phases, partial fills, rounding direction, and dust.
+- Blend V2 auction fill scales lots upward and bids downward by block age in [`pool/src/auctions/auction.rs`](https://github.com/blend-capital/blend-contracts-v2/blob/ba22b487b2c5057a4ecc28b05b5193c28e4bd117/pool/src/auctions/auction.rs), with tests for block-age phases, partial fills, rounding direction, and dust.
 - Ajna kicks auctions with a bond, computes neutral/reference price, rejects
   same-block takes, and applies phase-based descending auction price plus kicker
-  reward/penalty logic in `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/KickerActions.sol:307-384`,
-  `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/helpers/PoolHelper.sol:417-492`,
-  and `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/TakerActions.sol:684-786`.
+  reward/penalty logic in [`src/libraries/external/KickerActions.sol:307-384`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/src/libraries/external/KickerActions.sol#L307-L384),
+  [`src/libraries/helpers/PoolHelper.sol:417-492`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/src/libraries/helpers/PoolHelper.sol#L417-L492),
+  and [`src/libraries/external/TakerActions.sol:684-786`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/src/libraries/external/TakerActions.sol#L684-L786).
 
 ## Related Patterns
 

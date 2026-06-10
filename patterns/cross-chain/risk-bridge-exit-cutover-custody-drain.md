@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | cross-chain |
-| Tags | bridge, migration, cutover, custody, exits |
+| Tags | bridge, migration, cutover, custody, exit |
 | Type | Risk |
 | Severity | High |
 

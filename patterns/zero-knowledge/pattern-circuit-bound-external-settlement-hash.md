@@ -26,6 +26,21 @@
 - Settlement fields are not value-bearing
 - The circuit can directly constrain every field with acceptable cost
 
+## Trade-offs
+
+**Pros:**
+- One hash public input binds arbitrarily many settlement fields, keeping circuit size and proving cost flat as fields grow.
+- Tampering with recipient, relayer, fee, or refund invalidates the proof — front-running relayers cannot redirect settlement.
+- Settlement data stays in plain calldata, so on-chain validation, monitoring, and indexing work normally.
+- The hash itself is replay-resistant per payload; with domain separation it cannot be replayed across chains, pools, or actions.
+
+**Cons:**
+- Circuit and contract must implement byte-identical encoding and hashing; any divergence either bricks all settlements or, worse, lets mismatched data pass.
+- Encoding is frozen by deployed circuits — adding or reordering a settlement field requires a new circuit, verifier, and version domain, not just a contract upgrade.
+- The hash proves binding, not validity: malformed or out-of-range field values still need explicit on-chain checks before token movement.
+- Missing domain separation across chains/pools/versions is an easy-to-miss replay hole that no single-component test catches.
+- Test matrix grows per field: each settlement field needs a mutate-and-expect-proof-failure case to confirm it is actually bound.
+
 ## How It Works
 
 The prover supplies external settlement data and the circuit constrains its hash. The contract recomputes that hash before accepting the proof:

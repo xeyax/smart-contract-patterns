@@ -25,6 +25,21 @@
 - The protocol cannot compute limits before every operation
 - Limit decay/recovery would make user outcomes unpredictable or unexplainable
 
+## Trade-offs
+
+**Pros:**
+- Bounds the damage of a compromised or buggy adapter to its time-expanded capacity instead of the whole shared liquidity pool.
+- Capacity recovers automatically over time, avoiding governance round-trips that a static cap would require after every shock.
+- Immediate shrink after risk-reducing actions releases pressure without waiting for the expansion clock.
+- Per-protocol, per-asset scoping gives finer-grained solvency throttling than one global cap.
+
+**Cons:**
+- Limit computation runs before every operation, adding gas and a new revert path to all borrow/withdraw flows.
+- Time-expansion, shrink, and reset logic is full of boundary bugs: zero-elapsed-time, max-time, and underflow cases all need explicit tests.
+- Without liquidation-scoped exemptions the limiter can trap liquidators holding seized collateral, turning a safety device into a solvency hazard.
+- Users can hit opaque "limit" reverts whose available capacity depends on elapsed time and other actors' recent operations, making outcomes hard to predict.
+- Misconfigured expansion rates or hard maximums silently recreate either an open spigot or a frozen market; parameters need ongoing operational review.
+
 ## How It Works
 
 For each protocol and asset, compute the current limit from the last stored limit, elapsed time, and configured expansion rate:
@@ -57,9 +72,9 @@ Borrowing and withdrawing consume capacity; repayments and deposits can lower ut
 ## Source Evidence
 
 - Fluid applies per-protocol withdrawal and borrow limits that expand over time, shrink after operations, and remain bounded by hard limits inside the shared liquidity layer.
-- Suilend implements Move `RateLimiter` logic and liquidation-scoped exemptions in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/sources/rate_limiter.move` and `lending_market.move`.
-- Suilend tests liquidation exemption behavior in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/tests/lending_market_tests.move`.
-- Solend SPL Token Lending implements reserve and market outflow rate limits in `/private/tmp/defillama-source/solendprotocol__solana-program-library/token-lending/sdk/src/state/rate_limiter.rs` and tests them in `token-lending/program/tests/outflow_rate_limits.rs`.
+- Suilend implements Move `RateLimiter` logic and liquidation-scoped exemptions in [`contracts/suilend/sources/rate_limiter.move`](https://github.com/suilend/suilend/blob/d5ba83a617bb0778b48b0c3b1e77a87be81258ca/contracts/suilend/sources/rate_limiter.move) and `lending_market.move`.
+- Suilend tests liquidation exemption behavior in [`contracts/suilend/tests/lending_market_tests.move`](https://github.com/suilend/suilend/blob/d5ba83a617bb0778b48b0c3b1e77a87be81258ca/contracts/suilend/tests/lending_market_tests.move).
+- Solend SPL Token Lending implements reserve and market outflow rate limits in [`token-lending/sdk/src/state/rate_limiter.rs`](https://github.com/solendprotocol/solana-program-library/blob/d04ce00bbf4356c4fd32b3be38eb9760b696bb3e/token-lending/sdk/src/state/rate_limiter.rs) and tests them in `token-lending/program/tests/outflow_rate_limits.rs`.
 
 ## Related Patterns
 

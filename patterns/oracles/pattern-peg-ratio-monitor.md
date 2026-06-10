@@ -25,6 +25,20 @@
 - The asset does not have a meaningful reference value
 - Operators will not act on ratio alerts
 
+## Trade-offs
+
+**Pros:**
+- Cheap, low-complexity early-warning signal before depeg turns into bad debt.
+- Normalized ratio generalizes across stablecoins, LSTs, and other redeemable assets.
+- Decoupled from execution paths, so a manipulated or stale ratio cannot directly mis-price user operations.
+- Pairs naturally with predefined risk actions (cap reduction, borrow pause, higher collateral discount).
+
+**Cons:**
+- Purely advisory: its value collapses if operators do not watch and act on alerts.
+- The market-price source can be manipulated over short windows, so the ratio is unsafe for automated liquidations.
+- Depends on two live sources; staleness, zero values, or decimal mismatch in either silently corrupts the ratio.
+- Threshold tuning is hard — tight bands cause alert fatigue, loose bands miss real depegs.
+
 ## How It Works
 
 Normalize market price against fair value:

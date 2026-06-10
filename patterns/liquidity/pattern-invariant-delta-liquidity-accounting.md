@@ -25,6 +25,21 @@
 - Token values are unrelated and no invariant is meaningful
 - Slippage bounds are omitted for mint/burn outcomes
 
+## Trade-offs
+
+**Pros:**
+- Supports single-sided and imbalanced deposits/withdrawals without letting users extract value from existing LPs.
+- Imbalance fees charge the cost of skew to the user who creates it, instead of socializing it across the pool.
+- LP shares track the invariant rather than raw token sums, so share value stays meaningful as balances skew.
+- Internal-balance accounting makes donations and external transfers inert, closing free-mint paths.
+
+**Cons:**
+- Three invariant evaluations per operation (`D0`, `D1`, `D2`) make liquidity changes markedly more gas-expensive than proportional mint/burn, especially with iterative invariant solvers.
+- Rounding direction must be fixed per step of the delta and fee math; a single wrong direction leaks value to or from LPs over many operations.
+- Maintaining stored balances parallel to token balances doubles the accounting state that can drift and must be reconciled.
+- Fee-adjusted delta math is hard to review and demands a wide test matrix: balanced, imbalanced, one-coin, dust, and max-size operations.
+- If the invariant solver fails to converge or the invariant is misconfigured, every liquidity path is blocked or mispriced at once.
+
 ## How It Works
 
 Compute invariant values before and after the operation, apply imbalance fees, then mint or burn against the adjusted delta:
@@ -56,8 +71,8 @@ Withdrawals mirror the same structure with `maxBurnAmount` or minimum token outp
 - Curve pool templates compute `D0`, `D1`, fee-adjusted `D2`, then mint or burn LP shares from the invariant delta for imbalanced liquidity operations.
 - Curve StableSwap NG computes `D0`, `D1`, and fee-adjusted liquidity deltas for
   deposits and withdrawals while using stored balances for donation-resistant
-  accounting in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1077-1125`
-  and `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1185-1205`.
+  accounting in [`contracts/main/CurveStableSwapNG.vy:1077-1125`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L1077-L1125)
+  and [`contracts/main/CurveStableSwapNG.vy:1185-1205`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L1185-L1205).
 
 ## Related Patterns
 

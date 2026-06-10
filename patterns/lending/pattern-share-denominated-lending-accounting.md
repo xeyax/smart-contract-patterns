@@ -25,6 +25,21 @@
 - Losses must be assigned to specific tranches or lenders
 - Share conversions cannot tolerate rounding differences
 
+## Trade-offs
+
+**Pros:**
+- Interest and losses propagate to all positions through totals alone — no per-account index snapshots or iteration.
+- The same conversion primitive serves supply and borrow sides, and extends to layered signed debt distributions with lazy consolidation.
+- Bad debt is socialized automatically through the exchange rate without a separate write-down pass over positions.
+- Virtual offsets cheaply neutralize first-depositor share-inflation attacks.
+
+**Cons:**
+- Every conversion needs an explicit rounding direction per action; a single user-favoring rounding on the wrong path becomes a repeatable extraction primitive.
+- Loss socialization is indiscriminate — losses cannot be assigned to specific tranches or lenders without abandoning the model.
+- Borrow-share dust is a real failure mode: without round-up debt views and burn-all-on-full-repay, unpayable residual debt survives.
+- Share/asset totals must stay consistent across interest, repayment, liquidation, and bad debt; reconciliation bugs are silent until exploited.
+- Mixing share positions with principal-index positions, or skipping a layer checkpoint in signed distributions, corrupts allocation at the boundary.
+
 ## How It Works
 
 Convert between assets and shares against market totals:
@@ -60,12 +75,12 @@ market, pool, vault, or account interacts.
 ## Source Evidence
 
 - Morpho Blue stores separate supply and borrow shares, uses virtual offsets in conversion math, applies explicit directional rounding, and formally specifies conservative asset accounting rules.
-- Alpha Homora V2 computes borrow balances with ceiling division, mints borrow shares with ceiling division, caps repayment to old debt, floors partial share reduction, and burns all remaining shares on full repayment in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/HomoraBank.sol`.
-- Fraxlend `VaultAccount` stores `amount` and `shares` totals and converts with explicit rounding direction for asset and borrow accounting in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/libraries/VaultAccount.sol`.
+- Alpha Homora V2 computes borrow balances with ceiling division, mints borrow shares with ceiling division, caps repayment to old debt, floors partial share reduction, and burns all remaining shares on full repayment in [`contracts/HomoraBank.sol`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/HomoraBank.sol).
+- Fraxlend `VaultAccount` stores `amount` and `shares` totals and converts with explicit rounding direction for asset and borrow accounting in [`src/contracts/libraries/VaultAccount.sol`](https://github.com/FraxFinance/fraxlend/blob/2bed49d4dcc6702d92dede825c3424893517d841/src/contracts/libraries/VaultAccount.sol).
 - Synthetix V3 distributes signed debt per share through market, pool, vault, and
-  account layers using lazy consolidation in `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Distribution.sol:9-18`,
-  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Pool.sol:186-249`,
-  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Market.sol:370-461`.
+  account layers using lazy consolidation in [`protocol/synthetix/contracts/storage/Distribution.sol:9-18`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/storage/Distribution.sol#L9-L18),
+  [`protocol/synthetix/contracts/storage/Pool.sol:186-249`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/storage/Pool.sol#L186-L249),
+  and [`protocol/synthetix/contracts/storage/Market.sol:370-461`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/storage/Market.sol#L370-L461).
 
 ## Related Patterns
 

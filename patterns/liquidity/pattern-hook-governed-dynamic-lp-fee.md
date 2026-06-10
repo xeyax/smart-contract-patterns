@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | liquidity |
-| Tags | amm, fees, hooks, dynamic-fee, governance |
+| Tags | amm, fee, hooks, dynamic-fee, governance |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -24,6 +24,21 @@
 - Fee changes should be governed through delayed parameter updates only
 - Hook logic is upgradeable or opaque without user-visible risk controls
 - Fees can exceed documented caps or bypass router slippage checks
+
+## Trade-offs
+
+**Pros:**
+- Fees can track volatility, inventory, or order flow per swap instead of waiting on governance parameter updates.
+- Hook-only update authority plus the dynamic-fee sentinel gives a narrow, checkable write path for fee state.
+- Protocol-level fee caps bound the worst case even if hook logic misbehaves.
+- Hook identity is fixed at pool initialization, so integrators can evaluate fee logic once per pool rather than per swap.
+
+**Cons:**
+- Users cannot know the exact fee until execution; quotes can diverge from fills, making slippage bounds mandatory rather than optional.
+- The hook becomes a trusted fee oracle: buggy or adversarial hook logic can pin fees at the cap or zero them out, and upgradeable hooks reintroduce silent repricing risk.
+- Routers and frontends must add hook-aware quoting and surface dynamic-fee status, raising integration cost across the ecosystem.
+- Two override channels (stored fee mutation vs per-swap return) must stay consistent; auditing their interaction is harder than a single static fee.
+- MEV actors can exploit predictable fee-update timing around large swaps.
 
 ## How It Works
 
@@ -62,8 +77,8 @@ and routers should surface that the fee is hook-determined at execution time.
 - Uniswap V4 uses a dynamic-fee sentinel, hook-only stored LP fee updates, and bounded per-swap override fees returned from hooks.
 - Balancer V3 supports hook-computed dynamic swap fees bounded by the vault's fee
   limits without relying on the Uniswap stored-fee sentinel mutation path in
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:174-251`
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/HooksConfigLib.sol:310-366`.
+  [`pkg/interfaces/contracts/vault/IHooks.sol:174-251`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/interfaces/contracts/vault/IHooks.sol#L174-L251)
+  and [`pkg/vault/contracts/lib/HooksConfigLib.sol:310-366`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/lib/HooksConfigLib.sol#L310-L366).
 
 ## Related Patterns
 

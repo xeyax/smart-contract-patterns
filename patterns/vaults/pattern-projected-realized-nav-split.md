@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | vaults |
-| Tags | vault, nav, accounting, accrual, tranches |
+| Tags | vault, nav, accounting, accrual, tranche |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -76,9 +76,9 @@ Previews may use projected NAV, but settlement, fee extraction, and loss realiza
 
 ## Source Evidence
 
-- Strata `DiscreteAccounting` stores target NAV indexes and separate projected and real junior NAV in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/DiscreteAccounting.sol`.
-- Strata tests no-reward projected values followed by realized reward true-up in `/private/tmp/defillama-source/Strata-Markets_contracts/test/tranches/accounting/DiscreteAccounting.spec.ts`.
-- Strata PoC tests under `/private/tmp/defillama-source/Strata-Markets_contracts/test/PoC` show that APR/accounting updates and low junior prices can create timing-sensitive outcomes if projected accrual is not guarded.
+- Strata `DiscreteAccounting` stores target NAV indexes and separate projected and real junior NAV in [`contracts/tranches/DiscreteAccounting.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/DiscreteAccounting.sol).
+- Strata tests no-reward projected values followed by realized reward true-up in [`test/tranches/accounting/DiscreteAccounting.spec.ts`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/test/tranches/accounting/DiscreteAccounting.spec.ts).
+- Strata PoC tests under [`test/PoC`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/test/PoC) show that APR/accounting updates and low junior prices can create timing-sensitive outcomes if projected accrual is not guarded.
 
 ## Real-World Examples
 

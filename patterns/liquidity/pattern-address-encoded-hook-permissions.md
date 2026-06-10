@@ -25,6 +25,21 @@
 - Hook permissions need frequent governance changes after deployment
 - Address-bit permissions would be mistaken for hook trustlessness
 
+## Trade-offs
+
+**Pros:**
+- Permission checks are pure bit masks on the hook address — no storage reads on the hot swap path.
+- Capabilities are visible and immutable from the address alone, so integrators and auditors can determine hook behavior surface before pool initialization.
+- Invalid dependent flag combinations are rejected once at pool setup instead of being checked on every call.
+- Selector-return validation catches hooks that silently fail or return garbage on invoked paths.
+
+**Cons:**
+- Deployers must grind CREATE2 salts to land on addresses with the right permission bits, complicating deployment tooling and CI.
+- Permissions are frozen at deployment; changing a hook's capability set means a new address, a new pool, and a liquidity migration.
+- Address bits declare capabilities but say nothing about hook safety — an upgradeable or malicious hook passes all checks, and the flag scheme can lull integrators into misplaced trust.
+- Every enabled hook point is an external call with reentrancy and gas-griefing surface that the core must defend on each swap or liquidity event.
+- Bit-flag encoding consumes address space and couples the permission layout to the core's constants; adding new hook points later strains the scheme.
+
 ## How It Works
 
 Low address bits declare which lifecycle callbacks the hook implements:
@@ -68,9 +83,9 @@ and validate success selectors or success booleans on every invoked hook path.
 
 - Uniswap V4 encodes hook lifecycle permissions in hook address bits, rejects invalid dependent flags, and validates hook return selectors in hook tests.
 - Balancer V3 stores hook capability flags in vault hook configuration, requires
-  hook opt-in, and validates hook success/results through `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/VaultTypes.sol:53-85`,
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/interfaces/contracts/vault/IHooks.sol:18-57`,
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/HooksConfigLib.sol:167-198`.
+  hook opt-in, and validates hook success/results through [`pkg/interfaces/contracts/vault/VaultTypes.sol:53-85`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/interfaces/contracts/vault/VaultTypes.sol#L53-L85),
+  [`pkg/interfaces/contracts/vault/IHooks.sol:18-57`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/interfaces/contracts/vault/IHooks.sol#L18-L57),
+  and [`pkg/vault/contracts/lib/HooksConfigLib.sol:167-198`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/lib/HooksConfigLib.sol#L167-L198).
 
 ## Related Patterns
 

@@ -70,9 +70,9 @@ function liquidateWithUpdate(Update calldata update, Liquidation calldata liq) e
 
 ## Source Evidence
 
-- Moonwell documents OEV-delayed reads and liquidation-wrapper behavior in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/docs/OEV.md`.
-- Moonwell Chainlink OEV wrapper exposes delayed ordinary reads and fresh liquidation update paths in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/src/oracles/ChainlinkOEVWrapper.sol`.
-- Moonwell Morpho OEV wrapper extends the same idea in `/private/tmp/defillama-source/moonwell-fi__moonwell-contracts-v2/src/oracles/ChainlinkOEVMorphoWrapper.sol`.
+- Moonwell documents OEV-delayed reads and liquidation-wrapper behavior in [`docs/OEV.md`](https://github.com/moonwell-fi/moonwell-contracts-v2/blob/9ed6ad9b692a924213656926baf5637875b0e646/docs/OEV.md).
+- Moonwell Chainlink OEV wrapper exposes delayed ordinary reads and fresh liquidation update paths in [`src/oracles/ChainlinkOEVWrapper.sol`](https://github.com/moonwell-fi/moonwell-contracts-v2/blob/9ed6ad9b692a924213656926baf5637875b0e646/src/oracles/ChainlinkOEVWrapper.sol).
+- Moonwell Morpho OEV wrapper extends the same idea in [`src/oracles/ChainlinkOEVMorphoWrapper.sol`](https://github.com/moonwell-fi/moonwell-contracts-v2/blob/9ed6ad9b692a924213656926baf5637875b0e646/src/oracles/ChainlinkOEVMorphoWrapper.sol).
 
 ## Real-World Examples
 

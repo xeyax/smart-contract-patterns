@@ -25,6 +25,21 @@
 - Losses are intentionally deferred into a formal impairment accounting process
 - The market cannot explain who absorbs the realized loss
 
+## Trade-offs
+
+**Pros:**
+- Insolvency shows up in the exchange rate immediately, so share prices and integrator reads reflect true market value instead of stale optimism.
+- Eliminates the bank-run dynamic where early withdrawers exit at full value and late suppliers eat the entire hidden loss.
+- An ordered, coded loss waterfall (treasury, reserves, backstop, suppliers) removes discretion from loss allocation during a crisis.
+- Clean invariants — no debt without collateral after terminal liquidation — simplify formal verification and monitoring.
+
+**Cons:**
+- Realization timing is consequential: writing down totals instantly socializes loss to current suppliers with no recovery window if the debt was partially collectible.
+- Backstop and waterfall variants add separate liability tracking, threshold conditions, and freeze logic — each a distinct audit surface.
+- An immediate exchange-rate drop can cascade through integrations that use the share price as collateral or oracle input.
+- Mixing accrual, collateral seizure, repayment, and write-down ordering in one liquidation path is error-prone; a wrong order corrupts totals.
+- Distribution-coupled write-offs need finalization windows and sweep gating, coupling debt accounting to reward-cycle timing.
+
 ## How It Works
 
 After liquidating all collateral, compute any remaining debt and write it into market totals:
@@ -103,18 +118,18 @@ then reserves, then bounded bucket bankruptcy or debt forgiveness.
 ## Source Evidence
 
 - Morpho Blue liquidations realize remaining debt only after all collateral is gone, then reduce total borrow and total supply assets, with integration and formal checks around supplier haircut and no-debt-without-collateral invariants.
-- Blend V2 assigns collateral-free user liabilities to the backstop and later defaults backstop liabilities only below a small-threshold condition in `/private/tmp/defillama-source/blend-capital__blend-contracts-v2/pool/src/pool/bad_debt.rs`, with tests for assignment and default.
-- Fraxlend realizes bad debt during liquidation by reducing both `totalBorrow.amount` and `totalAsset.amount` when collateral cannot cover debt in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
-- DoubleZero Solana supports same-distribution Solana validator debt write-offs after debt finalization and records processed debt and write-off bitmaps in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/processor.rs`, with tests in `tests/write_off_solana_validator_debt_test.rs`.
+- Blend V2 assigns collateral-free user liabilities to the backstop and later defaults backstop liabilities only below a small-threshold condition in [`pool/src/pool/bad_debt.rs`](https://github.com/blend-capital/blend-contracts-v2/blob/ba22b487b2c5057a4ecc28b05b5193c28e4bd117/pool/src/pool/bad_debt.rs), with tests for assignment and default.
+- Fraxlend realizes bad debt during liquidation by reducing both `totalBorrow.amount` and `totalAsset.amount` when collateral cannot cover debt in [`src/contracts/FraxlendPairCore.sol`](https://github.com/FraxFinance/fraxlend/blob/2bed49d4dcc6702d92dede825c3424893517d841/src/contracts/FraxlendPairCore.sol).
+- DoubleZero Solana supports same-distribution Solana validator debt write-offs after debt finalization and records processed debt and write-off bitmaps in [`programs/revenue-distribution/src/processor.rs`](https://github.com/doublezerofoundation/doublezero-solana/blob/4368da2c446b799f354aecb6156fc0e77343634b/programs/revenue-distribution/src/processor.rs), with tests in `tests/write_off_solana_validator_debt_test.rs`.
 - Gearbox V3 liquidation loss burns treasury LP shares before supplier dilution,
   emits uncovered loss, zeros risky quota limits, and can freeze new borrowing
-  after bad debt in `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/libraries/CreditLogic.sol:50-101`,
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditManagerV3.sol:291-374`,
-  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/PoolV3.sol:471-524`.
+  after bad debt in [`contracts/libraries/CreditLogic.sol:50-101`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/libraries/CreditLogic.sol#L50-L101),
+  [`contracts/credit/CreditManagerV3.sol:291-374`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/credit/CreditManagerV3.sol#L291-L374),
+  and [`contracts/pool/PoolV3.sol:471-524`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/pool/PoolV3.sol#L471-L524).
 - Ajna settles bad debt through ordered bucket deposits, reserves, and bounded
-  bucket bankruptcy/debt forgiveness in `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/SettlerActions.sol:85-201`,
-  `/private/tmp/defillama-source/ajna-finance__ajna-core/src/libraries/external/SettlerActions.sol:347-440`,
-  and `/private/tmp/defillama-source/ajna-finance__ajna-core/tests/INVARIANTS.md:67-80`.
+  bucket bankruptcy/debt forgiveness in [`src/libraries/external/SettlerActions.sol:85-201`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/src/libraries/external/SettlerActions.sol#L85-L201),
+  [`src/libraries/external/SettlerActions.sol:347-440`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/src/libraries/external/SettlerActions.sol#L347-L440),
+  and [`tests/INVARIANTS.md:67-80`](https://github.com/ajna-finance/ajna-core/blob/0f59e78031af76d62ad575c18405eb325b28849f/tests/INVARIANTS.md#L67-L80).
 
 ## Related Patterns
 

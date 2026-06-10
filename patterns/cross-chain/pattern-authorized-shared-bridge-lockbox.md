@@ -25,6 +25,21 @@
 - Authorization can be changed instantly by a weak admin
 - Liquidity can migrate without preserving pending exit obligations
 
+## Trade-offs
+
+**Pros:**
+- Multiple portals and proof systems share one native-asset pool instead of fragmenting custody per bridge
+- Custody migration coupled to proof-system migration avoids stranded funds during upgrades
+- Portal authorization gated on shared proxy-admin ownership and configuration checks blocks rogue portal admission
+- A single locked-balance accounting point simplifies solvency monitoring
+
+**Cons:**
+- Shared custody concentrates blast radius: one compromised authorized portal can drain liquidity backing every bridge
+- Writer-set integrity rests entirely on the owner, making a weak owner key a single point of failure for all custody
+- Versioned cutover, final source boundaries, and pending-exit claim paths are complex, high-stakes migration code
+- Pending exits risk being orphaned if a migration's claim path is incomplete
+- Shared pause and configuration domains mean one halt or misconfiguration affects every portal simultaneously
+
 ## How It Works
 
 The lockbox accepts deposits from authorized bridge portals and unlocks withdrawals only to authorized release paths:

@@ -81,9 +81,9 @@ public fun repay(pool: &mut Pool, payment: Coin<Asset>, receipt: FlashLoanReceip
 
 ## Source Evidence
 
-- NAVI defines flash-loan receipt flow in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/lending_core/sources/flash_loan.move` using `Receipt`, `loan`, `loan_v2`, and `repay`.
-- NAVI lending wrappers in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/lending_core/sources/lending.move` route flash loans through the receipt contract.
-- NAVI flash-loan tests in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/lending_core/tests/flash_loan_tests.move` cover repayment behavior.
+- NAVI defines flash-loan receipt flow in [`lending_core/sources/flash_loan.move`](https://github.com/naviprotocol/navi-smart-contracts/blob/473b0934235d6dc1357fa4309308167c6d175fd1/lending_core/sources/flash_loan.move) using `Receipt`, `loan`, `loan_v2`, and `repay`.
+- NAVI lending wrappers in [`lending_core/sources/lending.move`](https://github.com/naviprotocol/navi-smart-contracts/blob/473b0934235d6dc1357fa4309308167c6d175fd1/lending_core/sources/lending.move) route flash loans through the receipt contract.
+- NAVI flash-loan tests in [`lending_core/tests/flash_loan_tests.move`](https://github.com/naviprotocol/navi-smart-contracts/blob/473b0934235d6dc1357fa4309308167c6d175fd1/lending_core/tests/flash_loan_tests.move) cover repayment behavior.
 
 ## Real-World Examples
 

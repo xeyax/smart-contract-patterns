@@ -71,10 +71,10 @@ function migrate(uint256 liquidity, uint256 minA, uint256 minB, uint256 deadline
 
 ## Source Evidence
 
-- QuickSwap periphery includes a V2 migrator that pulls old LP tokens, removes liquidity, adds liquidity to the target pool with user bounds, and refunds leftovers in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/contracts/UniswapV2Migrator.sol`.
-- QuickSwap tests cover migrator behavior in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/test/UniswapV2Migrator.spec.ts`.
-- Reservoir's sRUSD migration contract pulls old sRUSD from the user, redeems through the old saving module, measures actual rUSD received, and deposits into the new ERC4626 vault for the user in `/private/tmp/defillama-source/reservoir-protocol__srusd/src/Migration.sol`.
-- VVS Farm's owner-set `migrate` path approves the migrator for a pool's full LP balance and accepts replacement LP tokens if the returned balance matches in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/Craftsman.sol`, a contrasting privileged-custody risk.
+- QuickSwap periphery includes a V2 migrator that pulls old LP tokens, removes liquidity, adds liquidity to the target pool with user bounds, and refunds leftovers in [`contracts/UniswapV2Migrator.sol`](https://github.com/QuickSwap/quickswap-periphery/blob/522a94168b0814d0776d834119df377f03898807/contracts/UniswapV2Migrator.sol).
+- QuickSwap tests cover migrator behavior in [`test/UniswapV2Migrator.spec.ts`](https://github.com/QuickSwap/quickswap-periphery/blob/522a94168b0814d0776d834119df377f03898807/test/UniswapV2Migrator.spec.ts).
+- Reservoir's sRUSD migration contract pulls old sRUSD from the user, redeems through the old saving module, measures actual rUSD received, and deposits into the new ERC4626 vault for the user in [`src/Migration.sol`](https://github.com/reservoir-protocol/srusd/blob/cc34c9ecb30eaf13d567df42f6d9bd165e4c2914/src/Migration.sol).
+- VVS Farm's owner-set `migrate` path approves the migrator for a pool's full LP balance and accepts replacement LP tokens if the returned balance matches in [`contracts/Craftsman.sol`](https://github.com/vvs-finance/vvs-farm/blob/acd79b99d88157b9d520eeac92e8c6424ae9d8de/contracts/Craftsman.sol), a contrasting privileged-custody risk.
 
 ## Real-World Examples
 

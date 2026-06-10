@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | upgrades |
-| Tags | proxy, selector, modules, upgrade, dispatch |
+| Tags | proxy, selector, module, upgrade, dispatch |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -24,6 +24,21 @@
 - A simple transparent or UUPS proxy is enough
 - Selector ownership and storage layout cannot be audited per module
 - The proxy allows duplicate selectors or silent selector replacement
+
+## Trade-offs
+
+**Pros:**
+- Unlimited module count behind one stable address; no bytecode size ceiling per system.
+- Selector groups upgrade independently, shrinking the blast radius and review scope of each change.
+- Duplicate-selector rejection plus reverse manifests make the routing table auditable and removals exact.
+- Selector-level events give monitoring a precise upgrade trail that single-implementation proxies lack.
+
+**Cons:**
+- Every call pays a mapping lookup before `delegatecall`, on top of normal proxy overhead.
+- All modules share one storage context; one module with a bad layout or a malicious `selfdestruct`-style bug compromises the whole system.
+- Governance now manages a routing table, not one implementation: per-selector review, manifest upkeep, and CI collision checks are permanent operational load.
+- The effective contract is the union of N implementations; auditors and integrators must reconstruct behavior from the live selector table rather than one verified source.
+- Misconfigured or removed selectors fail only at call time with "unknown selector", which can brick dependent flows between upgrade steps.
 
 ## How It Works
 

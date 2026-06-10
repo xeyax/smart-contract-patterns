@@ -25,6 +25,21 @@
 - Message identity omits source domain, destination domain, nonce, or payload
 - The bridge cannot distinguish failed execution from unproven or unauthenticated messages
 
+## Trade-offs
+
+**Pros:**
+- Failed deliveries stay retryable without sacrificing exact-once semantics for successful messages.
+- Hashing the full versioned envelope blocks replay across chains, nonces, and gas-limit variants.
+- The delivery-first variant decouples relayer payment from receiver-application failures.
+- Gas-limit replay rescues underfunded queued messages without minting new message identities.
+
+**Cons:**
+- Per-message success/failed/delivered markers consume permanent storage for every cross-domain message.
+- Two variants with different semantics ("relayed" vs "delivered") invite integration confusion; low-level call success is not semantic receiver acceptance.
+- Retry is not refund: messages whose receivers can never succeed stay stuck without an application-level recovery path.
+- Deleting payload hashes before receiver callbacks for reentrancy protection creates subtle retry-eligibility bugs when the callback reverts.
+- Claims of non-blocking failure handling that lack `try/catch` or explicit failed state silently roll back pre-call markers — an easy audit miss.
+
 ## How It Works
 
 There are two common variants. In execution-exact-once messengers, hash the versioned message envelope, mark success only after the destination call succeeds, and keep a separate failed marker for retry eligibility:
@@ -96,13 +111,13 @@ should make the receiver callback return or record an explicit acknowledgement.
 ## Source Evidence
 
 - Optimism Bedrock's `CrossDomainMessenger` tracks successful and failed messages, uses versioned message hashes, sets temporary cross-domain sender context during relay, and tests retry-after-failure plus no-retry-after-success behavior.
-- Polygon zkEVM/Agglayer treats low-level successful destination calls as delivered and permits EOA value delivery without application execution in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`.
-- Mantle's legacy messenger verifies the original queue element and transaction hash before replaying the same L1-to-L2 cross-domain calldata with a new gas limit in `/private/tmp/defillama-source/mantlenetworkio__mantle/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol`.
-- Avalanche ICM Teleporter marks messages received before destination execution, records failed execution hashes, and permits later `retryMessageExecution` in `/private/tmp/defillama-source/ava-labs__icm-contracts/contracts/teleporter/TeleporterMessenger.sol`.
-- LayerZero V2 stores verified inbound payload hashes, supports nilify and burn paths, and clears the exact payload hash before receiver callback in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol` and `EndpointV2.sol`.
-- Across V3 tracks unfilled, requested slow fill, and filled relay statuses so a slow fill request can later be replaced by a fast fill while duplicate fills remain rejected in `/private/tmp/defillama-source/across-protocol__contracts/contracts/spoke-pools/SpokePool.sol`.
-- Celer MessageBus stores message execution status, supports retry/fallback paths, and verifies transfer-with-message ids in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/message/messagebus/MessageBusReceiver.sol`.
-- Socket marks messages executed before proof and plug execution, but the plug call is not caught; failure rolls the marker back, so this is exact-once-on-success rather than a durable failed-message ledger in `/private/tmp/defillama-source/SocketDotTech__socket-DL/contracts/socket/SocketDst.sol`.
+- Polygon zkEVM/Agglayer treats low-level successful destination calls as delivered and permits EOA value delivery without application execution in [`contracts/AgglayerBridge.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/110bda5a03e70ee7331bc06407a8e79226d3e520/contracts/AgglayerBridge.sol).
+- Mantle's legacy messenger verifies the original queue element and transaction hash before replaying the same L1-to-L2 cross-domain calldata with a new gas limit in [`packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol`](https://github.com/mantlenetworkio/mantle/blob/5cda5f811f73d9f331e6168617f87d3e19e6db6b/packages/contracts/contracts/L1/messaging/L1CrossDomainMessenger.sol).
+- Avalanche ICM Teleporter marks messages received before destination execution, records failed execution hashes, and permits later `retryMessageExecution` in [`contracts/teleporter/TeleporterMessenger.sol`](https://github.com/ava-labs/icm-contracts/blob/0b68b03c906d17850712b49aa20f2dc18ed55568/contracts/teleporter/TeleporterMessenger.sol).
+- LayerZero V2 stores verified inbound payload hashes, supports nilify and burn paths, and clears the exact payload hash before receiver callback in [`packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/protocol/contracts/MessagingChannel.sol) and `EndpointV2.sol`.
+- Across V3 tracks unfilled, requested slow fill, and filled relay statuses so a slow fill request can later be replaced by a fast fill while duplicate fills remain rejected in [`contracts/spoke-pools/SpokePool.sol`](https://github.com/across-protocol/contracts/blob/b4c4a46742dde83cbbace16ee066c6681b47ddee/contracts/spoke-pools/SpokePool.sol).
+- Celer MessageBus stores message execution status, supports retry/fallback paths, and verifies transfer-with-message ids in [`contracts/message/messagebus/MessageBusReceiver.sol`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/message/messagebus/MessageBusReceiver.sol).
+- Socket marks messages executed before proof and plug execution, but the plug call is not caught; failure rolls the marker back, so this is exact-once-on-success rather than a durable failed-message ledger in [`contracts/socket/SocketDst.sol`](https://github.com/SocketDotTech/socket-DL/blob/b2601e280533960df4d36eeef25ab81957f59eb9/contracts/socket/SocketDst.sol).
 
 ## Related Patterns
 

@@ -25,6 +25,21 @@
 - The validator cannot access enough protocol state to reject dangerous proposals
 - Validation mutates state or can be bypassed by signing a different payload format
 
+## Trade-offs
+
+**Pros:**
+- Catches dangerous payloads before irreversible threshold signatures, reducing slashing and custody-loss exposure.
+- Read-only design lets signer software and monitoring run the same check without gas or state risk.
+- Deterministic on-chain rules give every signer an identical accept/reject answer, avoiding client-by-client reimplementation.
+- One shared validator concentrates payload rules in a single audited location.
+
+**Cons:**
+- Validator success is advisory: signers can still sign a different payload than the one validated, so it does not prove honest signing.
+- Must be versioned in lockstep with payload formats and bridge upgrades, or it starts rejecting good proposals or passing bad ones.
+- Blind spots appear wherever the validator cannot read enough protocol state to reject a dangerous proposal.
+- Duplicates protocol invariants in validation code, widening the audit surface and creating drift risk against the core.
+- On-chain parsing of external payload formats (e.g. Bitcoin transactions) is expensive to implement and test exhaustively.
+
 ## How It Works
 
 The validator checks a proposed signing payload against current protocol state and returns or reverts without changing state:

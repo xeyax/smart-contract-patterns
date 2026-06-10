@@ -25,6 +25,21 @@
 - The router stores long-lived balances or approvals without accounting
 - Paths are too dynamic to parse safely on-chain
 
+## Trade-offs
+
+**Pros:**
+- No long-lived custody or stored route state — the router holds funds for at most one transaction, shrinking the loss surface.
+- Factory-derived callback validation lets pools pull payment without trusting caller-supplied identity.
+- Compact packed paths make multi-hop swaps cheaper than per-hop approvals and transfers through the router.
+- User protections (deadline, exact-in/exact-out bounds) stay at one entry boundary regardless of route complexity.
+
+**Cons:**
+- Callback-validation mistakes are catastrophic: any flaw in pool-identity derivation lets a fake pool drain payer approvals.
+- Path decoding and payer switching across hops are byte-level logic with a high test burden (wrong sender, reversed hops, expired deadlines).
+- Allow-revert command plans move cleanup into the plan; a missing sweep, balance-check, or refund command strands user funds in the router.
+- Multi-hop exact-output economics can drift when only an aggregate final bound is enforced, requiring per-hop limits.
+- Only works with AMMs whose settlement is callback-based and whose pool identity is derivable on-chain.
+
 ## How It Works
 
 Encode the route as packed token/fee hops, then validate the callback sender before paying the owed pool:
@@ -72,15 +87,15 @@ failed subplan cannot strand user funds in the router.
 - Uniswap V4 periphery validates pool-manager callbacks, executes action batches inside unlock, tracks the transient locker sender, and enforces final and per-hop slippage checks.
 - Uniswap Universal Router uses command bytes with an allow-revert flag and
   payment/sweep modules, making explicit cleanup part of safe partial fills in
-  `/private/tmp/defillama-source/Uniswap__universal-router/README.md:40`,
-  `/private/tmp/defillama-source/Uniswap__universal-router/contracts/UniversalRouter.sol:70`,
-  `/private/tmp/defillama-source/Uniswap__universal-router/contracts/base/Dispatcher.sol:303`,
-  and `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/Payments.sol:75`.
+  [`README.md:40`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/README.md#L40),
+  [`contracts/UniversalRouter.sol:70`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/contracts/UniversalRouter.sol#L70),
+  [`contracts/base/Dispatcher.sol:303`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/contracts/base/Dispatcher.sol#L303),
+  and [`contracts/modules/Payments.sol:75`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/contracts/modules/Payments.sol#L75).
 - Uniswap Universal Router V2/V3 modules enforce per-hop swap bounds and test
-  exact-output reversed-hop behavior in `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/uniswap/v3/V3SwapRouter.sol:107`,
-  `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/uniswap/v2/V2SwapRouter.sol:44`,
-  and `/private/tmp/defillama-source/Uniswap__universal-router/test/foundry-tests/UniswapV3.t.sol:180`.
-- LI.FI swap helpers validate contract-selector allowlists, approve-only spenders, minimum received amounts, no-leftover behavior, and direct ERC20Proxy call rejection in `/private/tmp/defillama-source/lifinance__contracts/src/Libraries/LibAllowList.sol`, `src/Helpers/SwapperV2.sol`, `src/Libraries/LibSwap.sol`, and `src/Periphery/Executor.sol`.
+  exact-output reversed-hop behavior in [`contracts/modules/uniswap/v3/V3SwapRouter.sol:107`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/contracts/modules/uniswap/v3/V3SwapRouter.sol#L107),
+  [`contracts/modules/uniswap/v2/V2SwapRouter.sol:44`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/contracts/modules/uniswap/v2/V2SwapRouter.sol#L44),
+  and [`test/foundry-tests/UniswapV3.t.sol:180`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/test/foundry-tests/UniswapV3.t.sol#L180).
+- LI.FI swap helpers validate contract-selector allowlists, approve-only spenders, minimum received amounts, no-leftover behavior, and direct ERC20Proxy call rejection in [`src/Libraries/LibAllowList.sol`](https://github.com/lifinance/contracts/blob/7aeb2419d52d6bf834bf2c47e54dd8ea470a57bd/src/Libraries/LibAllowList.sol), `src/Helpers/SwapperV2.sol`, `src/Libraries/LibSwap.sol`, and `src/Periphery/Executor.sol`.
 
 ## Related Patterns
 

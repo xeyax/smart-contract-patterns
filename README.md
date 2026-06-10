@@ -1,30 +1,63 @@
 # DeFi Smart Contract Patterns
 
-A curated catalog of smart contract design patterns for DeFi applications. Designed for AI agents to select optimal patterns based on requirements.
+A curated catalog of smart contract design patterns for DeFi applications, harvested from production protocols with source evidence. Designed for AI agents to select optimal patterns based on requirements.
 
 ## How to Use This Catalog
 
 ### For AI Agents
-1. Read this index to understand available patterns
-2. Match user requirements against "Use When" criteria in each pattern
-3. Consider "Avoid When" and "Trade-offs" for informed decisions
-4. Follow links to detailed pattern descriptions
+
+1. Fetch [`patterns/INDEX.md`](patterns/INDEX.md) — a one-file index of every document with description and "Use When" criteria
+2. Match user requirements against "Use When" / "Avoid When" criteria
+3. Fetch only the pattern files that match; weigh "Trade-offs" and "Key Points" for informed decisions
+4. Check the category's `risk-*` and `req-*` files for what the chosen patterns must satisfy or defend against
 
 ### File Naming Convention
+
 - `req-*.md` — requirements (what must be satisfied)
 - `pattern-*.md` — patterns (solutions/implementations)
 - `risk-*.md` — risks (problems/vulnerabilities)
 
 ### Adding New Documents
-1. Use appropriate prefix (`req-`, `pattern-`, `risk-`)
-2. For patterns: fill in all sections (Metadata, Use When, Avoid When, Trade-offs, Implementation)
-3. Link to relevant requirements (which R1-Rn does it satisfy or violate?)
-4. Add entry to Quick Reference table and category section below
+
+1. Use the appropriate prefix (`req-`, `pattern-`, `risk-`) and follow [TEMPLATE.md](TEMPLATE.md)
+2. Cite source evidence as GitHub permalinks pinned to a commit — never local paths
+3. Link relevant requirements (which R1–Rn does it satisfy or violate?) and related patterns
+4. Regenerate the index: `python3 scripts/generate-pattern-index.py`
+5. Validate: `python3 scripts/validate-patterns.py`
 
 ### Code Style Guidelines
+
 - **Focus on the pattern itself** — show only the code that illustrates the core concept
 - **Abstract away unrelated details** — use descriptive function names like `_acceptDeposit()`, `_processWithdrawal()`, `_calculateNav()` instead of implementation details (transfers, oracle calls, etc.)
 - **Keep examples minimal** — vault-specific, protocol-specific, or standard boilerplate code should be abstracted
+
+## Pattern Categories
+
+The table below is auto-generated — edit `CATEGORY_DESCRIPTIONS` in `scripts/generate-pattern-index.py`, not the table.
+
+<!-- BEGIN GENERATED:CATEGORIES -->
+| Category | Docs | Scope |
+|----------|------|-------|
+| [access-control](patterns/access-control/) | 26 (26 patterns) | Roles, authority handoff, scoped permissions, rate-limited privileges. |
+| [automation](patterns/automation/) | 6 (6 patterns) | Keeper/bot execution, triggers, cranks, permissionless maintenance. |
+| [cross-chain](patterns/cross-chain/) | 42 (38 patterns, 1 risks, 3 reqs) | Bridges, cross-chain messaging, rollup exits, custody, finality. |
+| [governance](patterns/governance/) | 16 (12 patterns, 3 risks, 1 reqs) | Voting, timelocks, parameter changes, emergency powers. |
+| [lending](patterns/lending/) | 48 (45 patterns, 3 reqs) | Collateral, interest-rate models, liquidations, bad-debt handling. |
+| [liquidity](patterns/liquidity/) | 39 (32 patterns, 3 risks, 4 reqs) | AMMs, concentrated liquidity, pool fees, LP accounting. |
+| [math](patterns/math/) | 2 (2 patterns) | Fixed-point arithmetic, rounding, numerical safety. |
+| [monitoring](patterns/monitoring/) | 6 (6 patterns) | On-chain risk monitors, circuit breakers, invariant checks. |
+| [oracles](patterns/oracles/) | 20 (14 patterns, 5 risks, 1 reqs) | Price feeds, TWAP, staleness, manipulation resistance. |
+| [perps](patterns/perps/) | 12 (11 patterns, 1 reqs) | Perpetual futures: funding, margin, position settlement. |
+| [rewards](patterns/rewards/) | 17 (16 patterns, 1 risks) | Staking rewards, emissions, distribution accounting. |
+| [routing](patterns/routing/) | 8 (7 patterns, 1 risks) | Swap routing, order settlement, aggregation. |
+| [token-integration](patterns/token-integration/) | 5 (5 patterns) | Safely consuming external or non-standard tokens. |
+| [tokens](patterns/tokens/) | 11 (11 patterns) | Token implementations and transfer mechanics. |
+| [upgrades](patterns/upgrades/) | 6 (5 patterns, 1 risks) | Proxies, migrations, versioning. |
+| [vaults](patterns/vaults/) | 41 (33 patterns, 3 risks, 5 reqs) | Share accounting, deposits/withdrawals, NAV, vault fees. |
+| [zero-knowledge](patterns/zero-knowledge/) | 3 (2 patterns, 1 reqs) | ZK proof verification and integration. |
+<!-- END GENERATED:CATEGORIES -->
+
+See [`patterns/INDEX.md`](patterns/INDEX.md) for the full per-document index, and [ANTIPATTERNS.md](ANTIPATTERNS.md) for known-bad architectural decisions.
 
 ## Development Process
 
@@ -38,137 +71,4 @@ See [process/README.md](process/README.md) for the full process description and 
 
 ## Knowledge Harvesting
 
-Use the `harvest-patterns` skill to analyze another repository and extract reusable patterns, risks, requirements, and decisions back into this catalog. The skill is evidence-first: each accepted addition must cite source code, tests, ADRs, audit notes, or docs from the analyzed repo, then compare against the existing catalog before writing updates.
-
----
-
-## Pattern Categories
-
-### token-standards
-Token implementations and extensions (ERC20, ERC721, ERC1155 variants, custom mechanics).
-
-### access-control
-Permission management patterns (Ownable, Role-Based Access Control, Multisig, Timelock).
-
-### upgradeability
-Contract upgrade mechanisms (Transparent Proxy, UUPS, Diamond/EIP-2535).
-
-### liquidity
-DEX and liquidity provision patterns (AMMs, order books, concentrated liquidity).
-
-### lending
-Lending protocol patterns (overcollateralized loans, flash loans, interest rate models).
-
-### vaults
-Vault patterns (ERC4626, share accounting methods, withdrawal mechanisms, fee structures).
-
-### yield
-Yield generation patterns (staking, liquidity mining, reward distribution).
-
-### oracles
-Price feed and data oracle patterns (TWAP, Chainlink integration, oracle aggregation).
-
-### governance
-DAO and governance patterns (token voting, timelocks, veToken models).
-
-### security
-Security patterns and guards (reentrancy protection, pausable, rate limiting).
-
----
-
-## Quick Reference
-
-| Document | Type | Description |
-|----------|------|-------------|
-| [Vault Fairness Requirements](patterns/vaults/req-vault-fairness.md) | req | Core requirements for vault deposit/withdraw |
-| [Delta NAV Share Accounting](patterns/vaults/pattern-delta-nav.md) | pattern | Standard share calculation based on NAV change |
-| [Proportional Deposit/Withdrawal](patterns/vaults/pattern-proportional-deposit.md) | pattern | Multi-asset without oracles |
-| [Premium Buffer](patterns/vaults/pattern-premium-buffer.md) | pattern | Entry/exit fees to cover oracle deviation |
-| [Dynamic Premium](patterns/vaults/pattern-dynamic-premium.md) | pattern | Adaptive fees based on drift/volatility |
-| [Async Deposit/Withdrawal](patterns/vaults/pattern-async-deposit.md) | pattern | Delayed settlement eliminates timing advantage |
-| [Timelock on Shares](patterns/vaults/pattern-timelock-shares.md) | pattern | Lock shares after mint to prevent flash loans |
-| [Circuit Breaker](patterns/vaults/pattern-circuit-breaker.md) | pattern | Pause operations on oracle deviation |
-| [High-Water Mark Performance Fee](patterns/vaults/pattern-high-water-mark-fee.md) | pattern | Performance fee via share dilution at profit peaks |
-| [Vault Wrapper (Meta-Vault)](patterns/vaults/pattern-vault-wrapper.md) | pattern | Fee/access layer over base strategy vault |
-| [Clone Factory](patterns/vaults/pattern-clone-factory.md) | pattern | EIP-1167 mass deployment of parameterized vaults |
-| [Oracle Arbitrage Risk](patterns/vaults/risk-oracle-arbitrage.md) | risk | Timing arbitrage from stale oracle prices |
-| [Vault Composability Risk](patterns/vaults/risk-vault-composability.md) | risk | Risks of layered ERC4626 composition |
-| [Oracle Reliability Requirements](patterns/oracles/req-oracle-reliability.md) | req | Core requirements for oracle integrations |
-| [TWAP Oracle](patterns/oracles/pattern-twap-oracle.md) | pattern | Manipulation-resistant time-weighted average price |
-| [Multi-hop Price](patterns/oracles/pattern-multihop-price.md) | pattern | Price via intermediate asset for long-tail tokens |
-| [Multi-Source Validation](patterns/oracles/pattern-multi-source-validation.md) | pattern | Cross-check multiple price sources |
-| [DEX Spot Price](patterns/oracles/pattern-dex-spot-price.md) | pattern | Real-time pool price (use with caution) |
-| [Chainlink Integration](patterns/oracles/pattern-chainlink-integration.md) | pattern | Off-chain oracle with staleness checks |
-| [Historical Bounds](patterns/oracles/pattern-historical-bounds.md) | pattern | Sanity check against price history |
-| [Oracle Staleness Risk](patterns/oracles/risk-oracle-staleness.md) | risk | Using outdated price data |
-| [Price Manipulation Risk](patterns/oracles/risk-price-manipulation.md) | risk | Flash loan and sandwich attacks on price |
-| [Oracle Frontrunning Risk](patterns/oracles/risk-oracle-frontrunning.md) | risk | MEV from predictable oracle updates |
-| [Oracle Centralization Risk](patterns/oracles/risk-oracle-centralization.md) | risk | Single point of failure in oracle |
-
----
-
-## Patterns by Category
-
-### token-standards
-*No patterns yet*
-
-### access-control
-*No patterns yet*
-
-### upgradeability
-*No patterns yet*
-
-### liquidity
-*No patterns yet*
-
-### lending
-*No patterns yet*
-
-### vaults
-
-**Requirements:**
-- [req-vault-fairness](patterns/vaults/req-vault-fairness.md) — core fairness requirements (R1-R4)
-
-**Patterns:**
-- [pattern-delta-nav](patterns/vaults/pattern-delta-nav.md) — share calculation based on NAV change
-- [pattern-proportional-deposit](patterns/vaults/pattern-proportional-deposit.md) — multi-asset without oracles
-- [pattern-premium-buffer](patterns/vaults/pattern-premium-buffer.md) — entry/exit fees (satisfies R1, R3)
-- [pattern-dynamic-premium](patterns/vaults/pattern-dynamic-premium.md) — adaptive fees based on drift/volatility (satisfies R1)
-- [pattern-async-deposit](patterns/vaults/pattern-async-deposit.md) — delayed settlement (satisfies R4)
-- [pattern-timelock-shares](patterns/vaults/pattern-timelock-shares.md) — lock shares after mint (partially satisfies R4)
-- [pattern-circuit-breaker](patterns/vaults/pattern-circuit-breaker.md) — pause on oracle deviation (satisfies R4)
-- [pattern-high-water-mark-fee](patterns/vaults/pattern-high-water-mark-fee.md) — performance fee via share dilution at profit peaks
-- [pattern-vault-wrapper](patterns/vaults/pattern-vault-wrapper.md) — fee/access layer over base strategy vault (composability)
-- [pattern-clone-factory](patterns/vaults/pattern-clone-factory.md) — EIP-1167 mass deployment of parameterized vaults
-
-**Risks:**
-- [risk-oracle-arbitrage](patterns/vaults/risk-oracle-arbitrage.md) — timing arbitrage (violates R1, R2, R4)
-- [risk-vault-composability](patterns/vaults/risk-vault-composability.md) — risks of layered ERC4626 composition (affects R1, R3)
-
-### yield
-*No patterns yet*
-
-### oracles
-
-**Requirements:**
-- [req-oracle-reliability](patterns/oracles/req-oracle-reliability.md) — core reliability requirements (R1-R4)
-
-**Patterns:**
-- [pattern-twap-oracle](patterns/oracles/pattern-twap-oracle.md) — manipulation-resistant time-weighted average (satisfies R1, R2, R3)
-- [pattern-multihop-price](patterns/oracles/pattern-multihop-price.md) — price via intermediate asset for long-tail tokens
-- [pattern-multi-source-validation](patterns/oracles/pattern-multi-source-validation.md) — cross-check multiple sources (satisfies R1, R2, R3, R4)
-- [pattern-dex-spot-price](patterns/oracles/pattern-dex-spot-price.md) — real-time pool price (satisfies R1, R4; violates R3)
-- [pattern-chainlink-integration](patterns/oracles/pattern-chainlink-integration.md) — off-chain oracle with staleness checks (satisfies R1, R3)
-- [pattern-historical-bounds](patterns/oracles/pattern-historical-bounds.md) — sanity check against price history (satisfies R2)
-
-**Risks:**
-- [risk-oracle-staleness](patterns/oracles/risk-oracle-staleness.md) — outdated price data (violates R1)
-- [risk-price-manipulation](patterns/oracles/risk-price-manipulation.md) — flash loan and sandwich attacks (violates R3)
-- [risk-oracle-frontrunning](patterns/oracles/risk-oracle-frontrunning.md) — MEV from predictable updates (violates R1, R2)
-- [risk-oracle-centralization](patterns/oracles/risk-oracle-centralization.md) — single point of failure (violates R4)
-
-### governance
-*No patterns yet*
-
-### security
-*No patterns yet*
+Use the `harvest-patterns` skill to analyze another repository and extract reusable patterns, risks, requirements, and decisions back into this catalog. The skill is evidence-first: each accepted addition must cite source code, tests, ADRs, audit notes, or docs from the analyzed repo, then compare against the existing catalog before writing updates. Harvest session records live in [harvests/](harvests/).

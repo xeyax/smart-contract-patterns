@@ -26,6 +26,21 @@
 - Nonce domains are shared with ordinary user operations
 - Chain-specific owner state must not be synchronized
 
+## Trade-offs
+
+**Pros:**
+- One signature maintains owner state on every chain, avoiding a per-chain signing ceremony
+- The bypass lane is tightly fenced: self-call only, fixed selector allowlist, zero value, EntryPoint-mediated
+- A reserved nonce key keeps replayable operations from colliding with ordinary user operations
+- Value-bearing and protocol-facing operations remain fully chain-bound
+
+**Cons:**
+- Every allowlisted selector is a cross-chain replay vector; one mis-scoped selector compromises the wallet on all chains at once
+- Replay is unordered across chains, so owner state can desync when maintenance operations land in different orders or skip chains
+- The bypass predicate spans caller, nonce key, target, selector, and value; a subtle calldata-parsing bug in any check is catastrophic
+- A signed maintenance operation can execute on chains the user never intended to use, which is hard to convey in signing UX
+- Expanding the selector allowlist later is a high-risk security change for already-deployed wallets
+
 ## How It Works
 
 Permit chain-id omission only for a small maintenance lane:

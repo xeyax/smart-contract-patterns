@@ -54,7 +54,7 @@
 
 - SPL Stake Pool rejects stale validator entries before recomputing pool backing, requires current pool epoch for validator add/remove, and tests reward absorption and wrong-account failures.
 - Jito StakeNet and Sanctum calculators require current stake-pool freshness before epoch maintenance or LST/SOL conversion.
-- EtherFi beHYPE delays exchange-rate updates around staking-core accounting changes in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/StakingCore.sol`.
+- EtherFi beHYPE delays exchange-rate updates around staking-core accounting changes in [`src/StakingCore.sol`](https://github.com/etherfi-protocol/beHYPE/blob/06ee135254508fa3f0ab6b1bd8e80dc805884420/src/StakingCore.sol).
 
 ## Related Patterns
 

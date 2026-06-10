@@ -80,11 +80,11 @@ function complete(bytes calldata payload, address token, uint256 amount) externa
 
 ## Source Evidence
 
-- Wormhole's example token bridge relayer encodes relayer fee, native-drop amount, and recipient in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/src/token-bridge-relayer/TokenBridgeRelayerMessages.sol:16`.
-- Wormhole EVM relayer completion separates self-redemption from relayer execution in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/src/token-bridge-relayer/TokenBridgeRelayer.sol:324`.
+- Wormhole's example token bridge relayer encodes relayer fee, native-drop amount, and recipient in [`evm/src/token-bridge-relayer/TokenBridgeRelayerMessages.sol:16`](https://github.com/wormhole-foundation/example-token-bridge-relayer/blob/b8ac43d008f9867193e8d08bc54211ae4f5803df/evm/src/token-bridge-relayer/TokenBridgeRelayerMessages.sol#L16).
+- Wormhole EVM relayer completion separates self-redemption from relayer execution in [`evm/src/token-bridge-relayer/TokenBridgeRelayer.sol:324`](https://github.com/wormhole-foundation/example-token-bridge-relayer/blob/b8ac43d008f9867193e8d08bc54211ae4f5803df/evm/src/token-bridge-relayer/TokenBridgeRelayer.sol#L324).
 - Wormhole EVM relayer completion caps native conversion, requires relayer-funded native value, refunds excess native value, pays a fee recipient, and transfers remaining tokens in `TokenBridgeRelayer.sol:359`.
-- Wormhole EVM tests cover relayer/native accounting in `/private/tmp/defillama-source/wormhole-foundation__example-token-bridge-relayer/evm/forge-test/TokenBridgeRelayer.t.sol`.
-- deBridge pays destination execution fee to the executor during auto-call settlement in `/private/tmp/defillama-source/debridge-finance__debridge-contracts-v1/contracts/transfers/DeBridgeGate.sol:897`.
+- Wormhole EVM tests cover relayer/native accounting in [`evm/forge-test/TokenBridgeRelayer.t.sol`](https://github.com/wormhole-foundation/example-token-bridge-relayer/blob/b8ac43d008f9867193e8d08bc54211ae4f5803df/evm/forge-test/TokenBridgeRelayer.t.sol).
+- deBridge pays destination execution fee to the executor during auto-call settlement in [`contracts/transfers/DeBridgeGate.sol:897`](https://github.com/debridge-finance/debridge-contracts-v1/blob/2e9f9c73438738310b5293cec4cffe25741e9b1f/contracts/transfers/DeBridgeGate.sol#L897).
 
 ## Real-World Examples
 

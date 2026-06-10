@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
+| Platform | solana |
 | Tags | solana, account-validation, pda, token-account, cohort |
 | Complexity | Medium |
 | Gas Efficiency | High |
@@ -68,7 +69,7 @@ Validate accounts as a cohort, not as isolated types:
 - OnRe's Jupiter integration adapter is useful negative evidence: it length-checks and raw-parses account layouts, which should be paired with owner and discriminator checks in value-bearing programs.
 - Sanctum validates configured calculator and pricing CPI programs, account suffixes, and stake-pool account owners/types for LST value calculators.
 - Marinade rejects extra remaining accounts and validates stake delegation amount and validator identity against protocol records.
-- Sanctum INF Jupiter integration validates expected account order and program ids for adapter calls, while Sanctum stake-pool SDK helpers show why PDA derivations and account cohort builders should remain corroborating evidence rather than replacing on-chain checks in `/private/tmp/defillama-source/igneous-labs_inf-jup-interface/jup-interface/src/lib.rs` and `/private/tmp/defillama-source/igneous-labs_sanctum-spl-stake-pool-sdk/core/src/instructions`.
+- Sanctum INF Jupiter integration validates expected account order and program ids for adapter calls, while Sanctum stake-pool SDK helpers show why PDA derivations and account cohort builders should remain corroborating evidence rather than replacing on-chain checks in [`jup-interface/src/lib.rs`](https://github.com/igneous-labs/inf-jup-interface/blob/3f14e9936878916c71213d0cba66e7ad19432728/jup-interface/src/lib.rs) and [`core/src/instructions`](https://github.com/igneous-labs/sanctum-spl-stake-pool-sdk/blob/5f8d7ea24ce7ea504068ff8781a322c304b58e90/core/src/instructions).
 
 ## Related Patterns
 

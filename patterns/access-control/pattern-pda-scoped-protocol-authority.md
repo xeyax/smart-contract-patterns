@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
+| Platform | solana |
 | Tags | solana, pda, authority, custody, account-validation |
 | Complexity | Medium |
 | Gas Efficiency | High |
@@ -64,7 +65,7 @@ require_keys_eq!(expected_vault, vault.key(), ErrorCode::InvalidVault);
 - Kamino Lend derives market, reserve, obligation, vault, and collateral accounts through helper PDA functions.
 - Its handlers and transfer utilities verify canonical account relationships before CPI signing.
 - Post-transfer checks reconcile vault balances and internal ledger state after token CPIs.
-- Jupiter routing code uses multiple equivalent authority PDAs to avoid hot-account contention, with account indexes selected by the swap transaction builder in `/private/tmp/defillama-source/jup-ag_jupiter-amm-implementation/jupiter-core/src/swap_transaction/build_swap_instruction.rs` and authority definitions shared with `/private/tmp/defillama-source/jup-ag_jupiter-cpi/src/lib.rs`.
+- Jupiter routing code uses multiple equivalent authority PDAs to avoid hot-account contention, with account indexes selected by the swap transaction builder in [`jupiter-core/src/swap_transaction/build_swap_instruction.rs`](https://github.com/jup-ag/jupiter-amm-implementation/blob/cc068c9d1df0060c62f9a8a4fc37ea13ea7b9b39/jupiter-core/src/swap_transaction/build_swap_instruction.rs) and authority definitions shared with [`src/lib.rs`](https://github.com/jup-ag/jupiter-cpi/blob/12bc5f67b94a2c3edc74d6e721a19442124a0bad/src/lib.rs).
 
 ## Related Patterns
 

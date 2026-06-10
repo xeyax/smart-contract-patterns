@@ -203,7 +203,7 @@ This keeps the high-level withdrawal proportional while allowing complex assets 
 - [Uniswap V2 LP](https://github.com/Uniswap/v2-core) — proportional add/remove liquidity
 - [Balancer Proportional Joins](https://docs.balancer.fi/concepts/pools/joins-and-exits.html) — weighted pool joins
 - [Curve Base Pool](https://curve.readthedocs.io/) — option for proportional deposits
-- dHEDGE computes each withdrawal's proportional pool share, uses asset guards for simple and complex assets, and applies value and slippage checks in `/private/tmp/defillama-source/dhedge__V2-Public/contracts/PoolLogic.sol`.
+- dHEDGE computes each withdrawal's proportional pool share, uses asset guards for simple and complex assets, and applies value and slippage checks in [`contracts/PoolLogic.sol`](https://github.com/dhedge/V2-Public/blob/3437aa9dfee716e7a9381a902adb2ae7deecbad0/contracts/PoolLogic.sol).
 
 ## Related Patterns
 

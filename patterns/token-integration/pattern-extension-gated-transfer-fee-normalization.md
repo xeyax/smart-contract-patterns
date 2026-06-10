@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | token-integration |
+| Platform | solana |
 | Tags | token, token-2022, transfer-fee, normalization, solana |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
@@ -25,6 +26,21 @@
 - Transfer hooks can mutate balances or call back into protocol state
 - The protocol cannot read extension configuration on-chain
 - Slippage checks use requested amounts instead of normalized received amounts
+
+## Trade-offs
+
+**Pros:**
+- Unlocks deterministic transfer-fee tokens that blanket fee-on-transfer rejection would exclude.
+- Fees are read from canonical on-chain extension state — no trust in off-chain metadata or token-code claims.
+- Gross/net normalization keeps quotes, slippage checks, and liquidity math consistent on both sides of the fee.
+- Onboarding rejection and badge policy contain the exception to explicitly reviewed mints.
+
+**Cons:**
+- Inverse fee math (pre-fee from post-fee) has rounding pitfalls in both directions; off-by-one errors leak value at volume.
+- Fee configuration can change between reads; stale assumptions misprice transfers and escrow amounts.
+- Badge/allowlist administration is ongoing operational work and a standing misconfiguration risk.
+- Partial-fill paths must convert only the used input back to fee-included amounts — an easy slippage-accounting mistake.
+- Covers only deterministic fees: transfer hooks and escrow lifecycles (gross-up, withheld-fee harvest before close) still need separate handling.
 
 ## How It Works
 
@@ -53,11 +69,11 @@ At onboarding, reject unsupported extensions or require an admin badge/allowlist
 ## Source Evidence
 
 - Loopscale's cloned DAMM v2 source reads Token-2022 transfer-fee extension state, normalizes swap and liquidity amounts around included/excluded fees, rejects unsupported extensions, and tests fee-aware swap/liquidity paths.
-- Orca Whirlpools rejects unsupported Token-2022 extensions, native mints, and freeze authorities unless badge policy allows them in `/private/tmp/defillama-source/orca-so__whirlpools/programs/whirlpool/src/util/v2/token.rs`, and stores badge policy in `state/token_badge.rs`.
+- Orca Whirlpools rejects unsupported Token-2022 extensions, native mints, and freeze authorities unless badge policy allows them in [`programs/whirlpool/src/util/v2/token.rs`](https://github.com/orca-so/whirlpools/blob/a119d79bada4e730fef791cac6adb669405a21de/programs/whirlpool/src/util/v2/token.rs), and stores badge policy in `state/token_badge.rs`.
 - Orca Whirlpools normalizes transfer-fee excluded and included amounts in `util/v2/token.rs`.
-- Meteora DAMM v2 normalizes transfer-fee amounts for exact-in, partial-fill, and exact-out swaps in `/private/tmp/defillama-source/MeteoraAg__damm-v2/programs/cp-amm/src/instructions/swap`.
-- Jupiter Lock rejects unsupported Token-2022 extensions, computes pre-fee and post-fee escrow transfers, routes transfer-hook remaining accounts, emits memos, and harvests withheld fees before account close in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/util/token2022.rs`.
-- Meteora Presale declares and parses Token-2022 hook remaining-account slices before deposits in `/private/tmp/defillama-source/MeteoraAg_presale/programs/presale/src/token2022.rs`.
+- Meteora DAMM v2 normalizes transfer-fee amounts for exact-in, partial-fill, and exact-out swaps in [`programs/cp-amm/src/instructions/swap`](https://github.com/MeteoraAg/damm-v2/blob/58a13fcf45516a9f27f2bd2a2056fb66673454e0/programs/cp-amm/src/instructions/swap).
+- Jupiter Lock rejects unsupported Token-2022 extensions, computes pre-fee and post-fee escrow transfers, routes transfer-hook remaining accounts, emits memos, and harvests withheld fees before account close in [`programs/locker/src/util/token2022.rs`](https://github.com/jup-ag/jup-lock/blob/f1535b4067b1d90fd682edc94ac693496b0a9812/programs/locker/src/util/token2022.rs).
+- Meteora Presale declares and parses Token-2022 hook remaining-account slices before deposits in [`programs/presale/src/token2022.rs`](https://github.com/MeteoraAg/presale/blob/2acd7c9c20bada425e9ff493260be4328b350b57/programs/presale/src/token2022.rs).
 
 ## Related Patterns
 

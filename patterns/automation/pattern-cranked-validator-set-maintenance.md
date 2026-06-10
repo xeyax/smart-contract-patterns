@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | automation |
+| Platform | solana |
 | Tags | automation, solana, validator-set, crank, epoch |
 | Complexity | High |
 | Gas Efficiency | Medium |
@@ -25,6 +26,21 @@
 - Phase transitions cannot tolerate keeper delays
 - Validator-list length can change without being reflected in internal accounting
 - Progress state can be reset by unauthorized callers
+
+## Trade-offs
+
+**Pros:**
+- Handles validator sets far larger than any single transaction's compute or account limits
+- Bounded cranks keep each transaction's cost predictable and crankable by any keeper
+- Persistent bitmaps and cursors let maintenance resume cleanly after interruption
+- Length-vs-accounting checks at phase transitions catch external validator-list drift
+
+**Cons:**
+- Liveness depends on keepers cranking; a stalled phase blocks epoch maintenance until someone intervenes
+- The epoch/phase/bitmap/pending-count state machine is significant audit surface with many invalid-transition edge cases
+- Maintenance spans many transactions, leaving the set in observable intermediate states for long windows
+- Progress bitmaps and accounting fields carry ongoing storage cost on-chain
+- Recovery procedures for stuck or stale phases must be designed, exposed, and monitored explicitly
 
 ## How It Works
 

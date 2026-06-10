@@ -26,6 +26,21 @@
 - Smart-contract wallets need arbitrary subaccount addresses without additional validation
 - Off-chain systems cannot display or explain the subaccount relationship
 
+## Trade-offs
+
+**Pros:**
+- Hundreds of isolated subaccounts per wallet without deploying or initializing anything per slot
+- Operator permissions stored once per owner prefix, so bitmap lookups stay cheap across all subaccounts
+- Prefix comparison is a pure-function check that adds negligible gas to authorization paths
+- Subaccount isolation requires no extra key management for the user
+
+**Cons:**
+- Breaks the default assumption that every address is an independent account, so integrators, indexers, and explorers must special-case the namespace
+- First-use prefix binding is permanent; a mistaken binding cannot be corrected or migrated
+- Smart-contract subaccounts must be rejected or explicitly integrated because their callback and signature behavior differs from virtual slots
+- Low address bits can clash with external systems that assign their own meaning to those addresses
+- Assets sent to a subaccount address from outside the protocol may be unreachable without protocol-level recovery support
+
 ## How It Works
 
 Reserve a small suffix of the address for subaccount ids. The first interaction binds the prefix to an owner, and authorization checks compare future subaccounts against that prefix:

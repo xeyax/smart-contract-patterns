@@ -24,6 +24,21 @@
 - Rates are set entirely off-chain or through auctions
 - Asset risk needs multiple discontinuities or nonlinear curves
 
+## Trade-offs
+
+**Pros:**
+- Cheap pure-math rate computation — a branch and a multiply — keeps accrual gas low on every interaction.
+- The jump slope prices liquidity exhaustion before it happens, protecting supplier withdrawals without admin intervention.
+- The curve is transparent and analyzable: integrators and risk teams can predict rates at any utilization.
+- Variants (benchmark-targeted, two-kink, hard stop, adaptive) extend the same audited skeleton instead of new mechanisms.
+
+**Cons:**
+- Kink, slopes, and base rate are static calibration choices; mis-set parameters either strand liquidity or fail to deter exhaustion until governance reacts.
+- Rates respond only to utilization, not external market rates, so the curve can be arbitraged when off-chain yields move (unless a benchmark variant adds oracle-grade dependencies).
+- Each added kink or adaptive term multiplies boundary conditions to test — zero cash, exact kinks, full utilization, same-block cap changes.
+- Hard utilization stops convert rate pressure into borrow reverts, breaking integrator assumptions near the boundary.
+- Benchmark and adaptive variants import oracle freshness, fallback, and bounded-adaptation risks into what was a closed-form model.
+
 ## How It Works
 
 Utilization measures how much supplied liquidity is borrowed:
@@ -122,13 +137,13 @@ of the state update so the curve cannot jump outside tested limits.
 - Fluid uses packed one-kink and two-kink rate data variants with validation around rate-data versioning and monotonic curve segments.
 - Gearbox V3 uses a second utilization point as an optional borrow hard stop,
   computes available borrow liquidity to reserve exits, and maxes the per-block
-  debt cap on limit changes in `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/LinearInterestRateModelV3.sol:13-19`,
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/LinearInterestRateModelV3.sol:92-142`,
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/pool/PoolV3.sol:425-469`,
-  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:856-877`.
+  debt cap on limit changes in [`contracts/pool/LinearInterestRateModelV3.sol:13-19`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/pool/LinearInterestRateModelV3.sol#L13-L19),
+  [`contracts/pool/LinearInterestRateModelV3.sol:92-142`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/pool/LinearInterestRateModelV3.sol#L92-L142),
+  [`contracts/pool/PoolV3.sol:425-469`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/pool/PoolV3.sol#L425-L469),
+  and [`contracts/credit/CreditFacadeV3.sol:856-877`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/credit/CreditFacadeV3.sol#L856-L877).
 - Morpho Blue adaptive curve IRM updates a bounded target rate from utilization
-  error through bounded exponential adaptation in `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/adaptive-curve-irm/AdaptiveCurveIrm.sol:76`
-  and `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/adaptive-curve-irm/libraries/ConstantsLib.sol:8`.
+  error through bounded exponential adaptation in [`src/adaptive-curve-irm/AdaptiveCurveIrm.sol:76`](https://github.com/morpho-org/morpho-blue-irm/blob/a1a87fd5a7ee13873ea9d2bbd87e9c7b2cdbbef3/src/adaptive-curve-irm/AdaptiveCurveIrm.sol#L76)
+  and [`src/adaptive-curve-irm/libraries/ConstantsLib.sol:8`](https://github.com/morpho-org/morpho-blue-irm/blob/a1a87fd5a7ee13873ea9d2bbd87e9c7b2cdbbef3/src/adaptive-curve-irm/libraries/ConstantsLib.sol#L8).
 
 ## Related Patterns
 

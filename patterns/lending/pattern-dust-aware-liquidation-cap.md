@@ -25,6 +25,21 @@
 - Dust thresholds cannot be calibrated
 - Caps can block all bad-debt containment during stress
 
+## Trade-offs
+
+**Pros:**
+- In-flight caps match liquidation throughput to auction and keeper capacity, preventing market-crushing collateral dumps.
+- Dust rejection guarantees every surviving position and auction lot stays economically resolvable.
+- Full-account routing for below-threshold positions stops tiny remnants from surviving repeated partial liquidations.
+- Per-asset caps contain a single collateral's stress event from consuming global liquidation capacity.
+
+**Cons:**
+- Cap exhaustion delays liquidation of underwater positions, widening the bad-debt window exactly when speed matters most.
+- Dust thresholds and caps are calibration-sensitive governance parameters; stale values either block keepers or readmit uneconomic remnants.
+- "Cap full" and "dust remainder" reverts complicate keeper bots, which must size liquidations against live cap room.
+- The decision tree (full vs partial vs heal, cap room, dust check) concentrates several failure cases in one path that all need tests.
+- Full-account healing can realize protocol loss, so it drags in bad-debt accounting as a hard dependency.
+
 ## How It Works
 
 Track active liquidation debt and limit new liquidation work:
@@ -66,8 +81,8 @@ This prevents tiny remnants from surviving repeated partial liquidations. If the
 
 - Sky/Maker DSS liquidation modules bound global and per-collateral active liquidation debt and reject partial liquidations that would create dusty remnants or invalid auctions.
 - Girin/Doppler-style comptroller code routes below-threshold accounts away from ordinary close-factor liquidation into full-account liquidation or healing.
-- Silo V2 partial-liquidation hooks implement collateral priority and close-factor behavior in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol`.
-- Term Finance liquidation contracts and auction specs cover fixed-maturity repo liquidation flows under `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts` and `/private/tmp/defillama-source/term-finance__term-finance-contracts/certora/specs`.
+- Silo V2 partial-liquidation hooks implement collateral priority and close-factor behavior in [`silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol).
+- Term Finance liquidation contracts and auction specs cover fixed-maturity repo liquidation flows under [`contracts`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/contracts) and [`certora/specs`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/certora/specs).
 
 ## Related Patterns
 

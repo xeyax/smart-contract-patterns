@@ -88,8 +88,8 @@ function _refund(Throttle storage t, uint256 amount) internal {
 
 ## Source Evidence
 
-- Reserve Protocol uses issuance and redemption throttles in `RToken.issueTo`, `redeemTo`, and `redeemCustom`, with `Throttle.useAvailable` and opposite-direction capacity restoration in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/p1/RToken.sol` and `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/libraries/Throttle.sol`.
-- Reserve tests cover issuance and redemption throttle behavior in `/private/tmp/defillama-source/reserve-protocol__protocol/test/RToken.test.ts`.
+- Reserve Protocol uses issuance and redemption throttles in `RToken.issueTo`, `redeemTo`, and `redeemCustom`, with `Throttle.useAvailable` and opposite-direction capacity restoration in [`contracts/p1/RToken.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/p1/RToken.sol) and [`contracts/libraries/Throttle.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/libraries/Throttle.sol).
+- Reserve tests cover issuance and redemption throttle behavior in [`test/RToken.test.ts`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/test/RToken.test.ts).
 
 ## Real-World Examples
 

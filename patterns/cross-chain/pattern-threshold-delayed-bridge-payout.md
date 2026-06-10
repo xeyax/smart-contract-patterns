@@ -83,11 +83,11 @@ function executeDelayed(bytes32 id) external {
 
 ## Source Evidence
 
-- Celer SGN bridge records delayed transfers with receiver, token, amount, and timestamp in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/safeguard/DelayedTransfer.sol:7`.
+- Celer SGN bridge records delayed transfers with receiver, token, amount, and timestamp in [`contracts/safeguard/DelayedTransfer.sol:7`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/safeguard/DelayedTransfer.sol#L7).
 - Celer SGN bridge only executes delayed transfers after the configured delay period and deletes the record before returning it in `DelayedTransfer.sol:53`.
-- Celer liquidity bridge relay marks transfer ids used, consumes per-token volume, and delays transfers above token thresholds in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/liquidity-bridge/Bridge.sol:125`.
-- Celer pool withdrawals use the same delayed-transfer safeguard and expose public delayed execution in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/liquidity-bridge/Pool.sol:90`.
-- Celer volume control enforces per-token epoch caps in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/safeguard/VolumeControl.sol:29`.
+- Celer liquidity bridge relay marks transfer ids used, consumes per-token volume, and delays transfers above token thresholds in [`contracts/liquidity-bridge/Bridge.sol:125`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/liquidity-bridge/Bridge.sol#L125).
+- Celer pool withdrawals use the same delayed-transfer safeguard and expose public delayed execution in [`contracts/liquidity-bridge/Pool.sol:90`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/liquidity-bridge/Pool.sol#L90).
+- Celer volume control enforces per-token epoch caps in [`contracts/safeguard/VolumeControl.sol:29`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/safeguard/VolumeControl.sol#L29).
 
 ## Real-World Examples
 

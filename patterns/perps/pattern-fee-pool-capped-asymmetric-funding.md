@@ -70,7 +70,7 @@ fn update_funding(market: &mut Market) {
 
 ## Source Evidence
 
-- Drift computes funding with capped reserve payments and side-specific funding-rate behavior in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/math/funding.rs` and applies updates in `programs/drift/src/controller/funding.rs`.
+- Drift computes funding with capped reserve payments and side-specific funding-rate behavior in [`programs/drift/src/math/funding.rs`](https://github.com/drift-labs/protocol-v2/blob/0ae3e3b1db782a6765c3525b3dec38ad4d9d3a62/programs/drift/src/math/funding.rs) and applies updates in `programs/drift/src/controller/funding.rs`.
 - Drift tests cover reserve-capped and imbalanced funding cases in `programs/drift/src/math/funding/tests.rs`.
 
 ## Real-World Examples

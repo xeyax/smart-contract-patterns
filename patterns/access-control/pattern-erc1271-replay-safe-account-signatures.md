@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
-| Tags | access-control, erc1271, account-abstraction, signatures, replay |
+| Tags | access-control, erc1271, account-abstraction, signature, replay |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -25,6 +25,21 @@
 - The wallet cannot bind signatures to its own address and chain
 - Signatures are intended to be replayable across accounts or chains
 - Owner verification is off-chain only
+
+## Trade-offs
+
+**Pros:**
+- Blocks reuse of one owner signature as a valid ERC-1271 result on another account or chain
+- Works uniformly across EOA owners, passkeys, and contract signers under a single account domain
+- Preserves the original external hash inside the wrapper, so protocol-level digest checks still apply
+- Defense lives entirely in the wallet; external protocols need no changes
+
+**Cons:**
+- Signing tooling must understand the nested wrapping, otherwise users are shown an opaque hash and effectively blind-sign
+- Double EIP-712 hashing adds gas to every `isValidSignature` call
+- Intentionally cross-account or cross-chain signature flows break and need a separate path
+- Signatures from removed owner keys may still verify unless owner-set changes are reflected in the domain or checked separately
+- The wrapper adds no deadline or nonce, so value-bearing actions still need their own replay protection at the protocol layer
 
 ## How It Works
 

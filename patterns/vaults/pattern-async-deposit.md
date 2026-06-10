@@ -432,9 +432,9 @@ interface IERC7540 {
 - Astherus Earn — request-numbered withdrawals are created before a bot-funded distribution step and user pull claim, showing the operator-finalized claim-ledger variant.
 - Liquid Collective — redeem requests are matched to withdrawal events through cumulative interval logic with full, partial, skipped, out-of-bounds, and already-claimed statuses.
 - TON liquid staking — deposit and withdrawal payout NFTs represent round-scoped claims that are funded during round finalization and burned on claim.
-- Mainstreet staked msUSD applies a live coverage ratio to cooldown exits during undercollateralized states in `/private/tmp/defillama-source/Mainstreet-Labs_mainstreet-core/src/v2/StakedmsUSD.sol`.
-- Ember Vault escrows shares, records sequence-numbered withdrawal requests, supports cancellation, processes bounded batches, and skips cancelled or invalid requests while repricing at processing time in `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/contracts/EmberVault.sol`.
-- Strata Markets cooldown exits cap active request slots, merge same-block requests, bound external-receiver slots, and support early finalization with proportional fees in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/base/cooldown/SharesCooldown.sol`.
+- Mainstreet staked msUSD applies a live coverage ratio to cooldown exits during undercollateralized states in [`src/v2/StakedmsUSD.sol`](https://github.com/Mainstreet-Labs/mainstreet-core/blob/d53858244964d86eaeab3445e1942871b8a20c66/src/v2/StakedmsUSD.sol).
+- Ember Vault escrows shares, records sequence-numbered withdrawal requests, supports cancellation, processes bounded batches, and skips cancelled or invalid requests while repricing at processing time in [`contracts/EmberVault.sol`](https://github.com/ember-protocol/Ember-Vaults-EVM/blob/11ce048163338d944677e22f811dbd80eaf094c6/contracts/EmberVault.sol).
+- Strata Markets cooldown exits cap active request slots, merge same-block requests, bound external-receiver slots, and support early finalization with proportional fees in [`contracts/tranches/base/cooldown/SharesCooldown.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/base/cooldown/SharesCooldown.sol).
 - [ERC-7540 Draft](https://ethereum-magicians.org/t/eip-7540-asynchronous-erc-4626-tokenized-vaults/16153) — async vault standard
 
 ## Related Patterns

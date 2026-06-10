@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | monitoring |
-| Tags | monitoring, invariants, health-check, upgrade, fork-test |
+| Tags | monitoring, invariant, health-check, upgrade, fork-test |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | Low |
@@ -71,7 +71,7 @@ Deployment scripts and fork tests call the same checker before and after changes
 ## Source Evidence
 
 - Maple packages protocol health checker contracts and tests that evaluate pools, managers, withdrawal modules, permissions, strategies, and upgrade validation flows through read-only checks.
-- Solana Labs Perpetuals exposes a read-only liquidation-state instruction and a liquidator client that uses it before submitting liquidation transactions in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/instructions/get_liquidation_state.rs` and `/private/tmp/defillama-source/solana-labs_perpetuals/app/src/liquidator.ts`.
+- Solana Labs Perpetuals exposes a read-only liquidation-state instruction and a liquidator client that uses it before submitting liquidation transactions in [`programs/perpetuals/src/instructions/get_liquidation_state.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/src/instructions/get_liquidation_state.rs) and [`app/src/liquidator.ts`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/app/src/liquidator.ts).
 
 ## Related Patterns
 

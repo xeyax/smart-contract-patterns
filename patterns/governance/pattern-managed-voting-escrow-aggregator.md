@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | governance |
-| Tags | governance, voting-escrow, venft, managed-lock, gauges |
+| Tags | governance, voting-escrow, venft, managed-lock, gauge |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -81,9 +81,9 @@ voting-state changes, not as ordinary NFT transfers.
 
 ## Source Evidence
 
-- Aerodrome creates managed locks, deposits user positions into managed NFTs, and handles withdrawal state in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/VotingEscrow.sol`.
-- Aerodrome `Voter` wires managed deposit and withdrawal into voting state in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Voter.sol`.
-- Aerodrome tests cover managed NFT behavior and same-block protections in `/private/tmp/defillama-source/aerodrome-finance__contracts/test/ManagedNft.t.sol`.
+- Aerodrome creates managed locks, deposits user positions into managed NFTs, and handles withdrawal state in [`contracts/VotingEscrow.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/VotingEscrow.sol).
+- Aerodrome `Voter` wires managed deposit and withdrawal into voting state in [`contracts/Voter.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Voter.sol).
+- Aerodrome tests cover managed NFT behavior and same-block protections in [`test/ManagedNft.t.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/test/ManagedNft.t.sol).
 
 ## Real-World Examples
 

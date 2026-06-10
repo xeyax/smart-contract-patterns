@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
+| Platform | clarity |
 | Tags | access-control, clarity, traits, account-validation, lending |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
@@ -73,8 +74,8 @@ Trait typing proves shape, not role. After accepting trait parameters, compare `
 
 ## Source Evidence
 
-- Zest Protocol `pool-borrow.clar` validates trait-supplied assets, zTokens, and oracles against reserve state before supply, withdraw, borrow, and liquidation-sensitive actions in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar`.
-- Zest `validate-assets.test.ts` covers invalid asset cohorts in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/tests/borrow/validate-assets.test.ts`.
+- Zest Protocol `pool-borrow.clar` validates trait-supplied assets, zTokens, and oracles against reserve state before supply, withdraw, borrow, and liquidation-sensitive actions in [`onchain/contracts/borrow/production/pool/pool-borrow.clar`](https://github.com/Zest-Protocol/zest-contracts/blob/3564bc38906e464ec4de774122bb9bbaee20ddc6/onchain/contracts/borrow/production/pool/pool-borrow.clar).
+- Zest `validate-assets.test.ts` covers invalid asset cohorts in [`onchain/tests/borrow/validate-assets.test.ts`](https://github.com/Zest-Protocol/zest-contracts/blob/3564bc38906e464ec4de774122bb9bbaee20ddc6/onchain/tests/borrow/validate-assets.test.ts).
 
 ## Real-World Examples
 

@@ -246,9 +246,9 @@ Spot price can be used safely when:
 ## Source Evidence
 
 - 1inch Spot Price Aggregator states it is intended for off-chain use only in
-  `/private/tmp/defillama-source/1inch__spot-price-aggregator/README.md:11`.
+  [`README.md:11`](https://github.com/1inch/spot-price-aggregator/blob/8911f1582347172876b72ea4225106232f4aaab2/README.md#L11).
 - Its oracle contract exposes public view aggregation while warning about
-  on-chain manipulation in `/private/tmp/defillama-source/1inch__spot-price-aggregator/contracts/OffchainOracle.sol:241`.
+  on-chain manipulation in [`contracts/OffchainOracle.sol:241`](https://github.com/1inch/spot-price-aggregator/blob/8911f1582347172876b72ea4225106232f4aaab2/contracts/OffchainOracle.sol#L241).
 
 ## Related Patterns
 

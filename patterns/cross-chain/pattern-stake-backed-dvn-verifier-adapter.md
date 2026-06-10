@@ -26,6 +26,21 @@
 - Verification success directly executes non-idempotent application logic
 - The worker network cannot persist packet and proof state
 
+## Trade-offs
+
+**Pros:**
+- Verification is backed by slashable, epoch-scoped external stake rather than a goodwill-only DVN.
+- Epoch binding bounds the window in which a stale or rotated validator set can sign packets.
+- The adapter plugs into existing receive-library lanes, requiring no application-side changes.
+- Hash-committed signer sets keep on-chain storage small while still validating full signer and power arrays.
+
+**Cons:**
+- Per-packet quorum proof verification over signer arrays is gas-heavy.
+- It is a single verifier lane, not multi-adapter quorum: compromising the staked set compromises every packet on the lane.
+- Safety leans on downstream receive-library idempotence; non-idempotent commits turn verified races into double execution.
+- The off-chain worker must durably persist packet and proof state across the sent → proof → verify → commit pipeline — ongoing operational burden.
+- Emergency signer resets are trusted recovery backdoors that need separate governance, delay, and monitoring.
+
 ## How It Works
 
 The adapter reconstructs the canonical packet hash, verifies an epoch-scoped quorum proof, then records verification in the bridge receive library:
@@ -53,7 +68,7 @@ This is one verifier path backed by external economic security. It is not the sa
 ## Source Evidence
 
 - GAIB's Symbiotic Super Sum simulation integrates a Symbiotic-backed LayerZero DVN that verifies an epoch-bound quorum proof before calling the LayerZero receive verification library. The repository labels the setup as high-fidelity but not production-ready.
-- Celer SGN bridge verifies signer and power arrays against a committed signer-set hash, requires more than two-thirds signed power, and provides a delayed owner emergency reset path in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/liquidity-bridge/Signers.sol`.
+- Celer SGN bridge verifies signer and power arrays against a committed signer-set hash, requires more than two-thirds signed power, and provides a delayed owner emergency reset path in [`contracts/liquidity-bridge/Signers.sol`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/liquidity-bridge/Signers.sol).
 
 ## Related Patterns
 

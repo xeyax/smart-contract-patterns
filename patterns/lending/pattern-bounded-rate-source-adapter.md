@@ -25,6 +25,21 @@
 - Fallback values could silently underprice risk
 - The rate source can be manipulated by borrowers in the same market
 
+## Trade-offs
+
+**Pros:**
+- Min/max bounds cap the blast radius of a corrupted or extreme benchmark to a known rate range.
+- Staleness checks prevent silently pricing risk off dead data.
+- A standard adapter interface lets rate consumers swap sources without touching market code.
+- Explicit fallback rules turn source failures into a designed mode instead of an accident.
+
+**Cons:**
+- Extra external call and validation logic on every rate read adds gas to accrual paths.
+- Bounds and spread become governance-tuned parameters that can drift out of line with market reality, mispricing risk at the clamps.
+- Fail-closed fallback can freeze borrowing during benign source outages; a configured fallback rate can underprice risk if set carelessly.
+- Source replacement is a high-impact governance action — a malicious or buggy new source flows straight into borrow rates.
+- Failure-path coverage (revert, empty return, decimal mismatch, extreme values) meaningfully expands the test matrix.
+
 ## How It Works
 
 Read the source, validate it, then bound the transformed output:

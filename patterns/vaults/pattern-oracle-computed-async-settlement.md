@@ -90,9 +90,9 @@ function requestBurn(uint256 shares) external returns (uint256 id) {
 
 ## Source Evidence
 
-- Avant MAX V1 completed mint and burn requests with service-supplied output amounts, while MAX V2 computes completion amounts from stored request data and `PriceStorage` in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/src/RequestsManagerV2.sol`.
-- MAX V2 tests cover arbitrary completion amount prevention and request-time burn fee locking in `/private/tmp/defillama-source/Avant-Protocol__Avant-Contracts-Max/test/RequestsManagerV2.t.sol`.
-- Aera v3 hashes async deposit and redeem request parameters, supports solver tips, deadlines, max price age, fixed-price and auto-price modes, direct or vault-routed solving, and refund paths in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/Provisioner.sol`.
+- Avant MAX V1 completed mint and burn requests with service-supplied output amounts, while MAX V2 computes completion amounts from stored request data and `PriceStorage` in [`src/RequestsManagerV2.sol`](https://github.com/Avant-Protocol/Avant-Contracts-Max/blob/ee40a93ea19831e86b2c8581541206f461488828/src/RequestsManagerV2.sol).
+- MAX V2 tests cover arbitrary completion amount prevention and request-time burn fee locking in [`test/RequestsManagerV2.t.sol`](https://github.com/Avant-Protocol/Avant-Contracts-Max/blob/ee40a93ea19831e86b2c8581541206f461488828/test/RequestsManagerV2.t.sol).
+- Aera v3 hashes async deposit and redeem request parameters, supports solver tips, deadlines, max price age, fixed-price and auto-price modes, direct or vault-routed solving, and refund paths in [`v3/src/core/Provisioner.sol`](https://github.com/aera-finance/aera-contracts-public/blob/9888a9e0d50fa38d4e86a69a8ebb9b605b08dafd/v3/src/core/Provisioner.sol).
 
 ## Real-World Examples
 

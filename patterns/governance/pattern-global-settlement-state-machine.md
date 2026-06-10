@@ -26,6 +26,21 @@
 - The protocol cannot define who has priority over remaining assets
 - Only a dispute cohort needs to exit while the rest of the system should continue
 
+## Trade-offs
+
+**Pros:**
+- Gives liability holders a credible, pre-audited exit path instead of an improvised emergency response.
+- Phase gating freezes new risk before settlement math, preventing deposits or borrows from distorting redemption rates.
+- One-time price snapshots make final entitlements deterministic and dispute-resistant.
+- Explicit handling of auctions, bad debt, and shortfall avoids ad-hoc priority fights over remaining assets.
+
+**Cons:**
+- Large state-machine surface: every phase transition and invalid transition must be implemented, gated, and tested.
+- The snapshot price provider is a single trust point; a bad final price misallocates all remaining collateral.
+- Settlement is effectively irreversible — triggering it on a false alarm destroys the protocol.
+- Unwinding spans many transactions and phases, so claimants face latency and keepers carry operational burden.
+- Dead code in the happy path: the entire machinery adds audit cost while (ideally) never executing.
+
 ## How It Works
 
 Global settlement is a state machine, not a single pause:

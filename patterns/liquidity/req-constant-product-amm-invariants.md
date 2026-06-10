@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | liquidity |
-| Tags | amm, constant-product, invariant, reserves, oracle |
+| Tags | amm, constant-product, invariant, reserve, oracle |
 | Type | Requirement |
 
 ## R1: Reserve State Matches Accounted Balances

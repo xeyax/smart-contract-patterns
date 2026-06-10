@@ -26,6 +26,23 @@
 - NAV can legitimately move faster than the configured bounds
 - Users need instant settlement against continuously changing prices
 
+## Trade-offs
+
+**Pros:**
+- Annualized PPS bounds cap the damage of a fat-fingered or malicious report to one bounded step instead of an arbitrary jump.
+- Validity windows make staleness explicit: settlement either uses a live NAV or fails, rather than silently pricing on old data.
+- Fail-closed downside behavior pauses risk-increasing paths before a bad report propagates into mints and redemptions.
+- Privileged bypass and one-shot overrides are explicit, evented paths, so legitimate out-of-band moves stay auditable instead of widening the ordinary bounds.
+- The same bounded-report skeleton extends to staking counters, signed uploads, RWA checkpoints, and liability rates without new trust assumptions.
+
+**Cons:**
+- Reporter is still trusted within the bounds: a manager can drift NAV by the maximum allowed rate every period and guardrails prove nothing about real backing or market realizability.
+- Legitimate fast moves (genuine loss, market crash) get rejected or forced through the bypass, so the trusted path gets exercised exactly when scrutiny is lowest.
+- Users settle against discrete, expiring NAV — no instant settlement, and claims queue until a fresh valid report lands.
+- Operational dependence on report cadence: a missed report expires the NAV and can halt conversions protocol-wide.
+- Each variant (monotonic counters, dual timestamps, signed payloads, cooldowns, liability rates) adds its own parameter set and failure modes; tuning bounds too tight bricks reporting, too loose voids the protection.
+- Component-level decomposition checks are extra audit surface — an aggregate-only check passes while pending-exit or reserve splits are wrong.
+
 ## How It Works
 
 Track the current NAV, its expiry, and bounded movement to the next report:
@@ -114,13 +131,13 @@ assets externally.
 - Lagoon's ERC-7540 vault code blocks valuation updates while NAV is valid, applies annualized PPS guardrails to manual reports, and exposes an explicit security-council bypass path.
 - Liquid Collective and Kelp validate staking exchange-rate reports with monotonic counters, validator-count or backing bounds, downside pause behavior, privileged upside overrides, and daily fee-mint caps.
 - Superstate USTB separates NAV economic and effective timestamps, bounds per-checkpoint NAV movement, limits pending future-effective reports, and expires extrapolated prices.
-- Lido simulates oracle reports, caps positive rebases, rejects large consensus-layer losses through sanity checks, and tracks cover/non-cover share-burn buckets in `/private/tmp/defillama-source/lidofinance__core/contracts/0.8.9`.
-- Aera v3 price reports enforce max price age, monotonic timestamps, minimum update interval, maximum update delay, upward/downward tolerance ratios, and automatic pause on threshold violation in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/PriceAndFeeCalculator.sol`.
-- Astherus `Earn.sol` accepts signed exchange-rate uploads in `uploadExchangeRate`, binding expiry and chain-specific message data while enforcing configured update cadence and deviation limits in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
-- Yearn V3 periphery bounds strategy report profit and loss and supports one-shot overrides in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/Bases/HealthCheck/BaseHealthCheck.sol`.
-- EtherFi beHYPE uses staking-core accounting cooldowns before exchange-rate updates in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/StakingCore.sol`.
-- Ember Vault stores a managed rate, enforces update interval, min/max rate, and max per-update delta, and derives `totalAssets()` and conversions from that rate in `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/contracts/EmberVault.sol`, with rate-bound and conversion fuzz tests under `/private/tmp/defillama-source/ember-protocol_Ember-Vaults-EVM/test`.
-- Swell `RepricingOracle` implementations report exchange-rate data for LST/LRT exit accounting in `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lst/contracts/implementations/RepricingOracle.sol` and `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lrt/contracts/implementations/RepricingOracle.sol`.
+- Lido simulates oracle reports, caps positive rebases, rejects large consensus-layer losses through sanity checks, and tracks cover/non-cover share-burn buckets in [`contracts/0.8.9`](https://github.com/lidofinance/core/blob/c1250690f0b37202464cd4fb68e64ad6720328a4/contracts/0.8.9).
+- Aera v3 price reports enforce max price age, monotonic timestamps, minimum update interval, maximum update delay, upward/downward tolerance ratios, and automatic pause on threshold violation in [`v3/src/core/PriceAndFeeCalculator.sol`](https://github.com/aera-finance/aera-contracts-public/blob/9888a9e0d50fa38d4e86a69a8ebb9b605b08dafd/v3/src/core/PriceAndFeeCalculator.sol).
+- Astherus `Earn.sol` accepts signed exchange-rate uploads in `uploadExchangeRate`, binding expiry and chain-specific message data while enforcing configured update cadence and deviation limits in [`contracts/Earn.sol`](https://github.com/astherus-contract/astherus-earn-contract/blob/1472bad4d7267a2c9dbf490b646201ad673e9285/contracts/Earn.sol).
+- Yearn V3 periphery bounds strategy report profit and loss and supports one-shot overrides in [`src/Bases/HealthCheck/BaseHealthCheck.sol`](https://github.com/yearn/tokenized-strategy-periphery/blob/8d940ecc518c9b4e198e240cca634f315f37e318/src/Bases/HealthCheck/BaseHealthCheck.sol).
+- EtherFi beHYPE uses staking-core accounting cooldowns before exchange-rate updates in [`src/StakingCore.sol`](https://github.com/etherfi-protocol/beHYPE/blob/06ee135254508fa3f0ab6b1bd8e80dc805884420/src/StakingCore.sol).
+- Ember Vault stores a managed rate, enforces update interval, min/max rate, and max per-update delta, and derives `totalAssets()` and conversions from that rate in [`contracts/EmberVault.sol`](https://github.com/ember-protocol/Ember-Vaults-EVM/blob/11ce048163338d944677e22f811dbd80eaf094c6/contracts/EmberVault.sol), with rate-bound and conversion fuzz tests under [`test`](https://github.com/ember-protocol/Ember-Vaults-EVM/blob/11ce048163338d944677e22f811dbd80eaf094c6/test).
+- Swell `RepricingOracle` implementations report exchange-rate data for LST/LRT exit accounting in [`contracts/lst/contracts/implementations/RepricingOracle.sol`](https://github.com/SwellNetwork/v3-core-public/blob/ba1eeff12ab994a26492fa5dcd0aa8937733dbb4/contracts/lst/contracts/implementations/RepricingOracle.sol) and [`contracts/lrt/contracts/implementations/RepricingOracle.sol`](https://github.com/SwellNetwork/v3-core-public/blob/ba1eeff12ab994a26492fa5dcd0aa8937733dbb4/contracts/lrt/contracts/implementations/RepricingOracle.sol).
 
 ## Related Patterns
 

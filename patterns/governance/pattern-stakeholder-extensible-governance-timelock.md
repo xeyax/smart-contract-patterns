@@ -26,6 +26,21 @@
 - A fixed governance timelock is already sufficient
 - Veto thresholds can be flash-borrowed or rapidly recycled
 
+## Trade-offs
+
+**Pros:**
+- Gives a non-voting stakeholder class real, economically weighted leverage over hostile proposals without granting them governance power.
+- Delay scales with measured dissent, so uncontroversial proposals keep normal latency.
+- Locked-claim measurement makes veto support costly to fake compared to snapshot voting.
+- Bounded escalation states provide a credible endgame (exit) instead of an indefinite standoff.
+
+**Cons:**
+- State machine with support thresholds, cooldowns, and escalation paths is a large audit surface; every transition needs tests against shifting support.
+- Denominator accounting (rebases, finalized withdrawals) is subtle — errors silently move thresholds.
+- Adds worst-case latency to all governance, including legitimate emergency actions, while veto support is elevated.
+- Deadlock risk: badly tuned thresholds or resubmission rules can let a minority stall execution indefinitely.
+- Locking assets for signaling imposes opportunity cost on dissenters and can be griefed by repeated escalation cycles.
+
 ## How It Works
 
 Stakeholders lock assets or exit claims into a signaling escrow. Governance proposals remain executable only when veto support is below state-specific thresholds:

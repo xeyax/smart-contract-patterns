@@ -64,7 +64,7 @@ function getFee(PoolKey memory key) external view returns (uint24 fee) {
 
 ## Source Evidence
 
-- Aerodrome Slipstream computes dynamic fees in `/private/tmp/defillama-source/aerodrome-finance__slipstream/contracts/core/fees/DynamicSwapFeeModule.sol` through `getFee` and `_getDynamicFee`.
+- Aerodrome Slipstream computes dynamic fees in [`contracts/core/fees/DynamicSwapFeeModule.sol`](https://github.com/aerodrome-finance/slipstream/blob/f8717faaae6e6717db3c8e3850149c01a79c0603/contracts/core/fees/DynamicSwapFeeModule.sol) through `getFee` and `_getDynamicFee`.
 - Aerodrome documents the module in `contracts/core/fees/README.md`.
 - Aerodrome fork tests cover fee calculation in `test/fork/CustomFeeModule/DynamicSwapFeeModule/getFee/getFee.t.sol`.
 
