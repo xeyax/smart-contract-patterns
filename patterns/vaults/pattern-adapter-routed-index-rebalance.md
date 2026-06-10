@@ -71,7 +71,7 @@ function trade(address component, uint256 ethLimit) external onlyTrader {
 
 ## Source Evidence
 
-- Set Protocol V2 `GeneralIndexModule` stores manager target units, validates old/new components, rejects external positions, allows approved traders to trade toward targets, and executes through exchange adapters in `/private/tmp/defillama-source/SetProtocol__set-protocol-v2/contracts/protocol/modules/v1/GeneralIndexModule.sol`.
+- Set Protocol V2 `GeneralIndexModule` stores manager target units, validates old/new components, rejects external positions, allows approved traders to trade toward targets, and executes through exchange adapters in [`contracts/protocol/modules/v1/GeneralIndexModule.sol`](https://github.com/SetProtocol/set-protocol-v2/blob/63d6cf5d09fb5cccf5e8032be3e384c433f7ef35/contracts/protocol/modules/v1/GeneralIndexModule.sol).
 
 ## Real-World Examples
 

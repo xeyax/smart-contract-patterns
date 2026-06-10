@@ -26,6 +26,21 @@
 - Oracle freshness cannot be enforced on decrease or liquidation paths
 - Socialized loss behavior is unacceptable or undocumented
 
+## Trade-offs
+
+**Pros:**
+- PnL caps stop one oracle move or whale position from claiming the entire pool as payable profit.
+- Separate impact pools prevent price-impact rebates from being mistaken for free token inventory.
+- Fail-closed gating on max-PnL factors protects LPs from withdrawal runs during pending-PnL spikes.
+- An explicit loss-absorption order (PnL pool, fee pool, insurance, bankruptcy, socialization) makes stress behavior auditable in advance.
+
+**Cons:**
+- The pool-value formula mixes inventory, pending fees, capped PnL, and impact pools — a large, error-prone accounting and audit surface.
+- Winning traders can be haircut or delayed by caps, creating UX and disclosure burdens.
+- Caps bound exposure but do not remove insolvency risk; a socialized-loss path is still required under stress.
+- Gated withdrawals and decreases can lock users out exactly when they most want to exit.
+- Every check needs fresh oracle prices, so oracle outages stall liquidations, decreases, and settlement.
+
 ## How It Works
 
 Pool value is computed from inventory, pending fees, capped trader PnL, and impact-pool balances:
@@ -69,8 +84,8 @@ position cannot treat the entire reserve as claimable PnL.
 ## Source Evidence
 
 - GMX Synthetics computes pool value from token inventory, pending fees, capped PnL, and impact pools, validates max-PnL factors, and tests capped-PnL decrease behavior.
-- Drift caps PnL settlement through PnL and fee-pool limits, applies positive-PnL asset-weight discounts, and falls through liquidation, bankruptcy, and socialized-loss paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/controller/pnl.rs` and `controller/liquidation.rs`.
-- Solana Labs Perpetuals caps per-position user profit against custody limits before pool AUM and payout checks, with tests for maximum user profit in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/state/custody.rs`, `programs/perpetuals/src/state/pool.rs`, and `programs/perpetuals/tests/native/tests_suite/position/max_user_profit.rs`.
+- Drift caps PnL settlement through PnL and fee-pool limits, applies positive-PnL asset-weight discounts, and falls through liquidation, bankruptcy, and socialized-loss paths in [`programs/drift/src/controller/pnl.rs`](https://github.com/drift-labs/protocol-v2/blob/0ae3e3b1db782a6765c3525b3dec38ad4d9d3a62/programs/drift/src/controller/pnl.rs) and `controller/liquidation.rs`.
+- Solana Labs Perpetuals caps per-position user profit against custody limits before pool AUM and payout checks, with tests for maximum user profit in [`programs/perpetuals/src/state/custody.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/src/state/custody.rs), `programs/perpetuals/src/state/pool.rs`, and `programs/perpetuals/tests/native/tests_suite/position/max_user_profit.rs`.
 
 ## Related Patterns
 

@@ -157,7 +157,7 @@ If a token has no meaningful on-chain liquidity even versus major bases (WETH/WB
 
 - [Uniswap Router](https://docs.uniswap.org/contracts/v3/guides/swaps/multihop-swaps) — multi-hop swaps use same routing concept
 - [1inch Pathfinder](https://docs.1inch.io/docs/aggregation-protocol/introduction) — complex routing for best prices
-- EtherFi Cash V3 uses a price-provider registry with base assets and rejects chained base assets in `/private/tmp/defillama-source/etherfi-protocol_cash-v3/src/oracle/PriceProviderV2.sol`.
+- EtherFi Cash V3 uses a price-provider registry with base assets and rejects chained base assets in [`src/oracle/PriceProviderV2.sol`](https://github.com/etherfi-protocol/cash-v3/blob/e05bda2be27a6a606f3f1b8ff0d0791032fd0ff8/src/oracle/PriceProviderV2.sol).
 
 ## Related Patterns
 

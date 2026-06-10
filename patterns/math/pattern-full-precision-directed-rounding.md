@@ -25,6 +25,21 @@
 - Approximate rounding is economically irrelevant
 - The team cannot maintain low-level arithmetic safely
 
+## Trade-offs
+
+**Pros:**
+- 512-bit intermediates eliminate silent overflow in `a * b / d`, allowing high-precision prices and scales without artificial input caps.
+- Explicit per-formula rounding direction makes value-flow bias a documented design decision instead of an accident.
+- Directed rounding preserves solvency inequalities (round inputs up, outputs down), closing dust-extraction loops in AMMs, vaults, and claim ledgers.
+- Optimized libraries pair naturally with reference-model fuzzing, giving strong equivalence evidence for the hot-path math.
+
+**Cons:**
+- `mulDiv`-style assembly is dense low-level code that few reviewers can verify by inspection; teams inherit a maintenance obligation for it.
+- Rounding direction must be tracked per call site; mixing directions across preview and execution paths creates exploitable preview/settle mismatches.
+- Full-width math costs more gas than naive multiply-divide on paths where overflow was never possible.
+- Correct full-precision results can still overflow final narrowing casts, adding a failure mode after the "safe" math.
+- Conservative rounding accumulates dust in the protocol's favor that may need explicit sweeping or accounting treatment.
+
 ## How It Works
 
 Use 512-bit intermediate precision and choose rounding explicitly:
@@ -53,7 +68,7 @@ For AMM swaps, use rounding that preserves pool solvency: exact-output input amo
 - Uniswap V3 uses full-precision `mulDiv` and directed AMM rounding libraries, with Echidna tests for full math and swap-step conservation.
 - Centrifuge liquidity-pool tests and audit notes show why async claim ledgers need explicit rounding direction across fulfillment and claim paths.
 - OnRe's Jupiter integration adapter illustrates why off-chain or adapter quote math should still guard zero interval denominators and final `u128 -> u64` narrowing casts.
-- Kinetiq converts HYPE/kHYPE amounts to the 8-decimal L1 operation format with explicit `roundUp` behavior, rounding deposits down and withdrawal obligations up in `/private/tmp/defillama-source/code-423n4__2025-04-kinetiq/src/StakingManager.sol`.
+- Kinetiq converts HYPE/kHYPE amounts to the 8-decimal L1 operation format with explicit `roundUp` behavior, rounding deposits down and withdrawal obligations up in [`src/StakingManager.sol`](https://github.com/code-423n4/2025-04-kinetiq/blob/a3913ca2b9d021df45a428e0185ee4f4f45509ae/src/StakingManager.sol).
 
 ## Related Patterns
 

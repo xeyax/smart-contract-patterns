@@ -26,6 +26,21 @@
 - Historical snapshots are unnecessary and current-state lookup is sufficient
 - The registry key can authorize fund movement without additional quorum checks
 
+## Trade-offs
+
+**Pros:**
+- Proof of key possession blocks registering keys without holder consent, including rogue-key-style attacks
+- Rotation is permissionless for operators, with no governance bottleneck per key change
+- Historical checkpoints let messages from prior epochs verify against the key set in force at that time
+- Binding proofs to chain, registry, operator, and action prevents proof replay across contexts
+
+**Cons:**
+- Checkpoint history grows with every rotation, and epoch-scoped reads cost more than a current-state lookup
+- On-chain key-possession verification adds gas and, for BLS or similar schemes, exotic-crypto audit surface
+- No approval gate means a compromised operator account can rotate to attacker-controlled keys immediately
+- Epoch-boundary semantics around which key validates which message are subtle and easy to implement off-by-one
+- Replacement and deletion need separate, careful semantics or stale keys remain valid for historical verification longer than intended
+
 ## How It Works
 
 Require a signature or proof from the registered key over the operator, registry, and key type:

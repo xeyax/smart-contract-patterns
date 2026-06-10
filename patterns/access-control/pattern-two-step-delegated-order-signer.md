@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
-| Tags | access-control, eip712, delegated-signer, signatures, account-abstraction |
+| Tags | access-control, eip712, delegated-signer, signature, account-abstraction |
 | Complexity | Medium |
 | Gas Efficiency | High |
 | Audit Risk | Medium |
@@ -106,9 +106,9 @@ function _verifyOrder(Order calldata order, bytes calldata signature) internal v
 
 ## Source Evidence
 
-- Avant `AvUSDMintingV2` implements `setDelegatedSigner`, `confirmDelegatedSigner`, `removeDelegatedSigner`, and accepts delegated signers in `verifyOrder` in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
-- Avant tests cover pending delegation, confirmation, accepted delegate signatures, and removal in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/test/foundry/minting/tests/AvUSDMinting.Delegate.t.sol`.
-- Ethena's 2023 Code4rena snapshot implements a one-step account-owned delegated signer in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol`, with delegate success, failure, and removal tests in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/test/foundry/minting/tests/EthenaMinting.Delegate.t.sol`.
+- Avant `AvUSDMintingV2` implements `setDelegatedSigner`, `confirmDelegatedSigner`, `removeDelegatedSigner`, and accepts delegated signers in `verifyOrder` in [`contracts/AvUSDMintingV2.sol`](https://github.com/Avant-Protocol/avUSD-Contracts/blob/43858abc5a3c481e3b2d02790d168b88e630e7b1/contracts/AvUSDMintingV2.sol).
+- Avant tests cover pending delegation, confirmation, accepted delegate signatures, and removal in [`test/foundry/minting/tests/AvUSDMinting.Delegate.t.sol`](https://github.com/Avant-Protocol/avUSD-Contracts/blob/43858abc5a3c481e3b2d02790d168b88e630e7b1/test/foundry/minting/tests/AvUSDMinting.Delegate.t.sol).
+- Ethena's 2023 Code4rena snapshot implements a one-step account-owned delegated signer in [`contracts/EthenaMinting.sol`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/contracts/EthenaMinting.sol), with delegate success, failure, and removal tests in [`test/foundry/minting/tests/EthenaMinting.Delegate.t.sol`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/test/foundry/minting/tests/EthenaMinting.Delegate.t.sol).
 
 ## Real-World Examples
 

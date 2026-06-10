@@ -26,6 +26,21 @@
 - Operations cannot afford pre/post value syncs
 - Hooks or callbacks can change reserve balances during measurement
 
+## Trade-offs
+
+**Pros:**
+- Aggregate value-preservation check catches mispriced swaps, calculator bugs, and rounding leaks in one invariant instead of per-path math review.
+- Conservative rounding and bounded conversions make calculator manipulation strictly unprofitable for the attacker under the configured accounting model.
+- LP-due vs raw-value separation prevents withheld yield and protocol fees from being drained through ordinary user operations.
+- Calculator allowlisting plus mandatory resync turns rate-source replacement into a controlled, auditable boundary rather than a silent repricing.
+
+**Cons:**
+- Pre/post sync of every affected reserve adds per-operation gas and compute that scales with reserve count, and may exceed compute budgets on busy pools.
+- The invariant only holds under the configured calculators; a stale or wrong calculator passes the check while real market value leaks.
+- Conservative valuation systematically underquotes users slightly, pushing flow to pools that price at market rates.
+- Two-bucket accounting (LP-due vs withheld yield) and calculator lifecycle logic add meaningful audit surface and release-logic edge cases.
+- Operations atomically fail when a calculator is stale or unsyncable, so user swaps inherit the liveness of every rate source in the pool.
+
 ## How It Works
 
 Before a swap or liquidity change, sync the conservative value of every affected reserve. Execute the operation, sync again, and require aggregate value preservation:
@@ -59,8 +74,8 @@ Calculator replacement is also part of the value-preservation boundary. A new ca
 ## Source Evidence
 
 - Sanctum's multi-LST controller syncs reserve SOL value through configured calculators before and after swaps or liquidity changes, enforces user slippage, and rejects operations that reduce total pool SOL value.
-- Sanctum INF separates total pool SOL value from LP-due value by excluding withheld yield and protocol fees in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/core/src/accounts/pool_state/v2.rs`, `controller/core/src/typedefs/pool_sv.rs`, `controller/core/src/svc.rs`, and `controller/program/src/instructions/swap/v2/common.rs`.
-- Sanctum INF configures LST value calculators with bounded bidirectional conversions and account suffix validation in `/private/tmp/defillama-source/igneous-labs_inf-1.5/sol-val-calc/core/src/traits.rs`, `controller/core/src/typedefs/lst_state.rs`, `controller/program/src/instructions/admin/set_sol_value_calculator.rs`, `sol-val-calc/spl/core/src/calc.rs`, and `sol-val-calc/marinade/core/src/calc.rs`.
+- Sanctum INF separates total pool SOL value from LP-due value by excluding withheld yield and protocol fees in [`controller/core/src/accounts/pool_state/v2.rs`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/controller/core/src/accounts/pool_state/v2.rs), `controller/core/src/typedefs/pool_sv.rs`, `controller/core/src/svc.rs`, and `controller/program/src/instructions/swap/v2/common.rs`.
+- Sanctum INF configures LST value calculators with bounded bidirectional conversions and account suffix validation in [`sol-val-calc/core/src/traits.rs`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/sol-val-calc/core/src/traits.rs), `controller/core/src/typedefs/lst_state.rs`, `controller/program/src/instructions/admin/set_sol_value_calculator.rs`, `sol-val-calc/spl/core/src/calc.rs`, and `sol-val-calc/marinade/core/src/calc.rs`.
 
 ## Related Patterns
 

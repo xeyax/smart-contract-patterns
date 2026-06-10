@@ -72,7 +72,7 @@ func DeliverTx(ctx Context, msg MsgProposedOperations) error {
 
 ## Source Evidence
 
-- dYdX v4 builds proposer operations in `/private/tmp/defillama-source/dydxprotocol__v4-chain/protocol/app/prepare/prepare_proposal.go` through `GetProposedOperationsTx`.
+- dYdX v4 builds proposer operations in [`protocol/app/prepare/prepare_proposal.go`](https://github.com/dydxprotocol/v4-chain/blob/5ee9766351ef864856a309a971b13fdd98cae2c5/protocol/app/prepare/prepare_proposal.go) through `GetProposedOperationsTx`.
 - dYdX defines expected proposal transaction order in `protocol/app/prepare/transactions.go` and decodes the layout in `protocol/app/process/transactions.go`.
 - dYdX validates and transforms raw operations in `protocol/x/clob/types/message_proposed_operations.go`, then writes state in `protocol/x/clob/keeper/process_operations.go`.
 - dYdX ante handling rejects app-injected messages outside the isolated deliver path in `protocol/app/ante/msg_type.go`.

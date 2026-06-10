@@ -72,13 +72,13 @@ distribution can query past power.
 ## Source Evidence
 
 - Curve DAO VotingEscrow describes non-transferable time-decaying voting power
-  and lock-end-based decay in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/VotingEscrow.vy:1-10`.
+  and lock-end-based decay in [`contracts/VotingEscrow.vy:1-10`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/VotingEscrow.vy#L1-L10).
 - Curve VotingEscrow stores user/global point history and updates locked balances
-  through checkpointed create/increase/withdraw paths in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/VotingEscrow.vy:234-347`,
-  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/VotingEscrow.vy:384-488`,
-  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/VotingEscrow.vy:523-660`.
+  through checkpointed create/increase/withdraw paths in [`contracts/VotingEscrow.vy:234-347`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/VotingEscrow.vy#L234-L347),
+  [`contracts/VotingEscrow.vy:384-488`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/VotingEscrow.vy#L384-L488),
+  and [`contracts/VotingEscrow.vy:523-660`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/VotingEscrow.vy#L523-L660).
 - Curve integration tests cover lock and voting-power behavior in
-  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/tests/integration/VotingEscrow/test_voting_escrow.py:50-115`.
+  [`tests/integration/VotingEscrow/test_voting_escrow.py:50-115`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/tests/integration/VotingEscrow/test_voting_escrow.py#L50-L115).
 
 ## Related Patterns
 

@@ -56,10 +56,10 @@
 
 - Curve defines LP virtual price as invariant value per total supply and includes stateful tests that virtual price does not decrease across swaps, liquidity operations, and amplification ramps.
 - Curve StableSwap NG computes virtual price from invariant value and stored
-  balances and tests monotonicity plus donation resistance in `/private/tmp/defillama-source/curvefi__stableswap-ng/contracts/main/CurveStableSwapNG.vy:1737-1755`,
-  `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/general/test_virtual_price.py:8-84`,
-  and `/private/tmp/defillama-source/curvefi__stableswap-ng/tests/pools/general/test_donation_get_D.py:7-30`.
-- Sanctum's unstake pool includes flash-borrowed reserve amounts in pool-value snapshots for add/remove liquidity and resets them through paired borrow/repay instructions in `/private/tmp/defillama-source/igneous-labs_sanctum-unstake-program/programs/unstake/src/utils.rs`, `instructions/add_liquidity.rs`, `instructions/remove_liquidity.rs`, `instructions/take_flash_loan.rs`, and `instructions/repay_flash_loan.rs`.
+  balances and tests monotonicity plus donation resistance in [`contracts/main/CurveStableSwapNG.vy:1737-1755`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/contracts/main/CurveStableSwapNG.vy#L1737-L1755),
+  [`tests/pools/general/test_virtual_price.py:8-84`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/tests/pools/general/test_virtual_price.py#L8-L84),
+  and [`tests/pools/general/test_donation_get_D.py:7-30`](https://github.com/curvefi/stableswap-ng/blob/2abe778f40206a6c0fd108a0a53ad3266cbedeee/tests/pools/general/test_donation_get_D.py#L7-L30).
+- Sanctum's unstake pool includes flash-borrowed reserve amounts in pool-value snapshots for add/remove liquidity and resets them through paired borrow/repay instructions in [`programs/unstake/src/utils.rs`](https://github.com/igneous-labs/sanctum-unstake-program/blob/b6db89b0d39e8ff798171331dd6f8d120dbc9327/programs/unstake/src/utils.rs), `instructions/add_liquidity.rs`, `instructions/remove_liquidity.rs`, `instructions/take_flash_loan.rs`, and `instructions/repay_flash_loan.rs`.
 
 ## Related Patterns
 

@@ -26,6 +26,21 @@
 - The calculator would be too expensive for on-chain critical paths
 - Component weights are subjective and frequently changed without delay
 
+## Trade-offs
+
+**Pros:**
+- One calculator interface is reusable across networks and operator sets instead of bespoke per-deployment power logic.
+- Up-front decimal and exchange-rate normalization removes a whole class of weighting-mismatch bugs.
+- An explicit stale-price policy (revert, zero, or freeze) makes quorum consequences predictable instead of accidental.
+- Timelocked weights, vault additions, and calculator replacement resist governance capture by quiet reweighting.
+
+**Cons:**
+- Per-component balance and price reads make power queries gas-expensive; unbounded component lists can DoS on-chain critical paths.
+- Validator-set fairness inherits the oracle trust and staleness risk of every component feed.
+- Fail-closed staleness handling can zero a component's power and silently shift quorum and control.
+- Composition bugs — duplicate components, weight drift, rounding across decimals — are subtle and need broad property testing.
+- The calculator itself is replaceable infrastructure, making its upgrade path a governance attack surface in its own right.
+
 ## How It Works
 
 Normalize every component to one precision and compose weights through a calculator interface:

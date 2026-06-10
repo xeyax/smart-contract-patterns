@@ -73,7 +73,7 @@ The curve typically uses:
 
 ## Source Evidence
 
-- Pendle V2 prices PT/SY markets through implied-rate math, expiry-sensitive scalar/root functions, fee-to-reserve accounting, max PT proportion, and minimum initial liquidity in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/core/Market/PendleMarketV7.sol` and `MarketMathCore.sol`.
+- Pendle V2 prices PT/SY markets through implied-rate math, expiry-sensitive scalar/root functions, fee-to-reserve accounting, max PT proportion, and minimum initial liquidity in [`contracts/core/Market/PendleMarketV7.sol`](https://github.com/pendle-finance/pendle-core-v2-public/blob/fdcfe39ed7b45717f0e6e286581bdcf96bb2f9ce/contracts/core/Market/PendleMarketV7.sol) and `MarketMathCore.sol`.
 
 ## Real-World Examples
 

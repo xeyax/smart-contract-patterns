@@ -67,7 +67,7 @@ The gauge accrues lazily up to `min(block.timestamp, incentiveEndsAt)`.
 
 ## Source Evidence
 
-- Pendle V2 gauge control whitelists markets, caps per-second emissions, accrues rewards lazily, and requires incentive periods to end before market expiry in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/LiquidityMining/GaugeController/PendleGaugeControllerUpg.sol`.
+- Pendle V2 gauge control whitelists markets, caps per-second emissions, accrues rewards lazily, and requires incentive periods to end before market expiry in [`contracts/LiquidityMining/GaugeController/PendleGaugeControllerUpg.sol`](https://github.com/pendle-finance/pendle-core-v2-public/blob/fdcfe39ed7b45717f0e6e286581bdcf96bb2f9ce/contracts/LiquidityMining/GaugeController/PendleGaugeControllerUpg.sol).
 
 ## Real-World Examples
 

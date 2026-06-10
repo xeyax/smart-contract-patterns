@@ -73,8 +73,8 @@ would be misleading for liquidity adds or imbalanced pairs.
 
 ## Source Evidence
 
-- Aerodrome V1 implements stable-pair `_f`, `_d`, `_get_y`, and `_k` math in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Pool.sol`.
-- Aerodrome router tests check stable pool quote and swap behavior in `/private/tmp/defillama-source/aerodrome-finance__contracts/test/Router.t.sol`.
+- Aerodrome V1 implements stable-pair `_f`, `_d`, `_get_y`, and `_k` math in [`contracts/Pool.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Pool.sol).
+- Aerodrome router tests check stable pool quote and swap behavior in [`test/Router.t.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/test/Router.t.sol).
 
 ## Real-World Examples
 

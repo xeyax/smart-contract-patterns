@@ -71,8 +71,8 @@ Use domain-separated hashes for leaves and internal nodes so a leaf cannot be re
 
 ## Source Evidence
 
-- Jupiter Lock stores root escrow state in `/private/tmp/defillama-source/jup-ag_jup-lock/programs/locker/src/state/root_escrow.rs`, creates root escrows in `instructions/root_escrow_instructions/create_root_escrow.rs`, and instantiates recipient vesting escrows from Merkle proofs in `instructions/root_escrow_instructions/create_vesting_escrow_from_root.rs`.
-- Jupiter Lock domain-separates Merkle tree leaves and internal nodes in `/private/tmp/defillama-source/jup-ag_jup-lock/merkle-tree/src/merkle_tree.rs` and `merkle-tree/src/jup_lock_merkle_tree.rs`.
+- Jupiter Lock stores root escrow state in [`programs/locker/src/state/root_escrow.rs`](https://github.com/jup-ag/jup-lock/blob/f1535b4067b1d90fd682edc94ac693496b0a9812/programs/locker/src/state/root_escrow.rs), creates root escrows in `instructions/root_escrow_instructions/create_root_escrow.rs`, and instantiates recipient vesting escrows from Merkle proofs in `instructions/root_escrow_instructions/create_vesting_escrow_from_root.rs`.
+- Jupiter Lock domain-separates Merkle tree leaves and internal nodes in [`merkle-tree/src/merkle_tree.rs`](https://github.com/jup-ag/jup-lock/blob/f1535b4067b1d90fd682edc94ac693496b0a9812/merkle-tree/src/merkle_tree.rs) and `merkle-tree/src/jup_lock_merkle_tree.rs`.
 
 ## Real-World Examples
 

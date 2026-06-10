@@ -100,8 +100,8 @@ function mint(Order calldata order, Route calldata route, bytes calldata sig) ex
 
 ## Source Evidence
 
-- Ethena's 2023 Code4rena snapshot signs typed mint/redeem orders with account, asset, amounts, nonce, and expiry, while the route is supplied to `mint(order, route, signature)` and checked by `verifyRoute` for custodian membership, nonzero ratios, and a total of 10,000 bps in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/contracts/EthenaMinting.sol`.
-- Ethena minting tests cover valid and invalid multi-custodian routes in `/private/tmp/defillama-source/code-423n4__2023-10-ethena/test/foundry/minting/tests/EthenaMinting.core.t.sol`.
+- Ethena's 2023 Code4rena snapshot signs typed mint/redeem orders with account, asset, amounts, nonce, and expiry, while the route is supplied to `mint(order, route, signature)` and checked by `verifyRoute` for custodian membership, nonzero ratios, and a total of 10,000 bps in [`contracts/EthenaMinting.sol`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/contracts/EthenaMinting.sol).
+- Ethena minting tests cover valid and invalid multi-custodian routes in [`test/foundry/minting/tests/EthenaMinting.core.t.sol`](https://github.com/code-423n4/2023-10-ethena/blob/9fd8e26fc596601c3359ceac8951740c4d5e09c7/test/foundry/minting/tests/EthenaMinting.core.t.sol).
 
 ## Related Patterns
 

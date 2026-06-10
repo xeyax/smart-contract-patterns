@@ -75,8 +75,8 @@ If the loan becomes unhealthy, it enters an auction state. The borrower can rede
 
 ## Source Evidence
 
-- BendDAO creates one loan per pledged NFT, mints a `bNFT` receipt, stores active loan state, and tracks collection/token collateral mappings in `/private/tmp/defillama-source/BendDAO__bend-lending-protocol/contracts/protocol/LendPoolLoan.sol`.
-- BendDAO auction, redeem, and liquidation logic validates NFT loan health, bid amounts, auction windows, and state transitions in `/private/tmp/defillama-source/BendDAO__bend-lending-protocol/contracts/libraries/logic/LiquidateLogic.sol`.
+- BendDAO creates one loan per pledged NFT, mints a `bNFT` receipt, stores active loan state, and tracks collection/token collateral mappings in [`contracts/protocol/LendPoolLoan.sol`](https://github.com/BendDAO/bend-lending-protocol/blob/81c90c06373bd6cc616ed0d0712fe382cad56548/contracts/protocol/LendPoolLoan.sol).
+- BendDAO auction, redeem, and liquidation logic validates NFT loan health, bid amounts, auction windows, and state transitions in [`contracts/libraries/logic/LiquidateLogic.sol`](https://github.com/BendDAO/bend-lending-protocol/blob/81c90c06373bd6cc616ed0d0712fe382cad56548/contracts/libraries/logic/LiquidateLogic.sol).
 
 ## Real-World Examples
 

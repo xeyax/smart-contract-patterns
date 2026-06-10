@@ -26,6 +26,21 @@
 - A single trigger controls unrelated strategies
 - Trigger state updates are not hash-bound to the subscription
 
+## Trade-offs
+
+**Pros:**
+- Mutable trigger state advances only on successful execution, so failed runs leave the subscription re-executable
+- The explicit changed-trigger index stops bots from silently advancing unrelated trigger state
+- Non-reverting simulation views make off-chain bot discovery cheap
+- All-triggers-must-pass keeps multi-condition semantics easy to reason about
+
+**Cons:**
+- Every execution iterates all triggers, so gas grows linearly with trigger count
+- Only one mutable trigger updates per execution; strategies with several mutable triggers need careful extra design
+- Trigger implementations must split view-style simulation from stateful updates, duplicating logic that can drift
+- Wrong or attacker-chosen changed-trigger indexes are a subtle bug class requiring dedicated tests
+- Bots bear simulation cost and can race each other for the same executable subscription
+
 ## How It Works
 
 Evaluate all triggers first, execute the recipe, then update the chosen mutable trigger data in the same transaction:

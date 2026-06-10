@@ -76,16 +76,16 @@ function swap(SwapState memory state) internal {
 
 ## Source Evidence
 
-- PancakeSwap Infinity Core implements bin pools in `/private/tmp/defillama-source/pancakeswap__infinity-core/src/pool-bin/libraries/BinPool.sol` through `swap`, `mint`, `burn`, and `_mintBins`.
+- PancakeSwap Infinity Core implements bin pools in [`src/pool-bin/libraries/BinPool.sol`](https://github.com/pancakeswap/infinity-core/blob/7c04695faeab8b06570cf6c277d9a9717136fb26/src/pool-bin/libraries/BinPool.sol) through `swap`, `mint`, `burn`, and `_mintBins`.
 - Bin helper and tree math live in `src/pool-bin/libraries/BinHelper.sol` and `src/pool-bin/libraries/math/TreeMath.sol`.
 - PancakeSwap tests bin liquidity behavior in `test/pool-bin/libraries/BinPoolLiquidity.t.sol`.
-- Meteora DLMM SDK quote code models bin liquidity layers, exact-in and exact-out fee modes, rounding excess, and bitmap-derived bin-array traversal in `/private/tmp/defillama-source/MeteoraAg_dlmm-sdk/commons/src/quote.rs`, with multi-liquidity quote tests in `ts-client/src/test/swap_quote_multi_liquidity.test.ts`; this is SDK/source-material evidence for quote parity rather than primary proof of the on-chain program.
+- Meteora DLMM SDK quote code models bin liquidity layers, exact-in and exact-out fee modes, rounding excess, and bitmap-derived bin-array traversal in [`commons/src/quote.rs`](https://github.com/MeteoraAg/dlmm-sdk/blob/4a2892f8db030f510c32f7a876b26e214312e267/commons/src/quote.rs), with multi-liquidity quote tests in `ts-client/src/test/swap_quote_multi_liquidity.test.ts`; this is SDK/source-material evidence for quote parity rather than primary proof of the on-chain program.
 - Trader Joe V2 Liquidity Book implements constant-sum bin liquidity, one-sided
   off-active bins, active-bin composition fees, and sparse non-empty-bin tree
-  transitions in `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/BinHelper.sol:72-164`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBPair.sol:480-579`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBPair.sol:1070-1112`,
-  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/libraries/math/TreeMath.sol:15-93`.
+  transitions in [`src/libraries/BinHelper.sol:72-164`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/libraries/BinHelper.sol#L72-L164),
+  [`src/LBPair.sol:480-579`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBPair.sol#L480-L579),
+  [`src/LBPair.sol:1070-1112`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBPair.sol#L1070-L1112),
+  and [`src/libraries/math/TreeMath.sol:15-93`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/libraries/math/TreeMath.sol#L15-L93).
 
 ## Real-World Examples
 

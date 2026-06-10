@@ -25,6 +25,21 @@
 - Caps cannot be updated safely as liquidity changes
 - Users can bypass caps through wrappers, portals, or alternate markets
 
+## Trade-offs
+
+**Pros:**
+- Bounds worst-case exposure to illiquid or correlated assets without relying on liquidation mechanics working under stress.
+- Cheap to enforce: one comparison against a stored total before each state change.
+- Lets governance grow exposure gradually after listing instead of betting the market on day-one parameters.
+- Separate supply, borrow, isolation, and debt-ceiling caps allow targeted control per failure mode.
+
+**Cons:**
+- Caps are only as good as their coverage: mint, portal, migration, and collateral-enabling paths each need the check, and one missed path voids the bound.
+- Accrued interest can push totals past the cap, forcing an explicit policy on whether that blocks repay/withdraw-adjacent flows; risk-reducing deltas need carve-outs or healthy actions revert.
+- Hard caps create denial-of-entry at the boundary: legitimate users get reverts when utilization sits near the cap, and cap-watching bots can front-run freed headroom.
+- Parameter governance becomes a recurring operational burden and attack surface; cap increases are high-risk actions that need liquidity analysis each time.
+- Per-channel or per-market caps can give false comfort: headroom in each bucket says nothing about global balance-sheet solvency without aggregate ratio checks.
+
 ## How It Works
 
 Apply cap checks before state changes:
@@ -67,19 +82,19 @@ For isolated assets, aggregate exposure can be capped separately from the market
 
 - Aave V3 uses reserve-level supply and borrow caps, isolation-mode debt ceilings, and exposure controls alongside liquidation parameters.
 - Sky/Maker DSS risk checks allow position changes that improve safety even when debt ceilings or collateralization constraints would reject risk-increasing changes.
-- Satoshi Core applies per-market CDP debt caps and Nexus total/daily mint caps in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/TroveManager.sol` and `src/core/NexusYieldManager.sol`.
-- Reservoir combines PSM, savings, and fixed-maturity term debt caps with global balance-sheet ratio checks in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/CreditEnforcer.sol`.
-- Zest Protocol combines supply caps, borrow caps, isolated-collateral flags, borrowable-isolated assets, and aggregate isolated debt ceilings in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar`, with isolation-mode tests under `onchain/tests/borrow`.
+- Satoshi Core applies per-market CDP debt caps and Nexus total/daily mint caps in [`src/core/TroveManager.sol`](https://github.com/Satoshi-Protocol/satoshi-core/blob/7f5eddaed965904fde10ea1d40c4c4b3ea118ada/src/core/TroveManager.sol) and `src/core/NexusYieldManager.sol`.
+- Reservoir combines PSM, savings, and fixed-maturity term debt caps with global balance-sheet ratio checks in [`src/CreditEnforcer.sol`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/src/CreditEnforcer.sol).
+- Zest Protocol combines supply caps, borrow caps, isolated-collateral flags, borrowable-isolated assets, and aggregate isolated debt ceilings in [`onchain/contracts/borrow/production/pool/pool-borrow.clar`](https://github.com/Zest-Protocol/zest-contracts/blob/3564bc38906e464ec4de774122bb9bbaee20ddc6/onchain/contracts/borrow/production/pool/pool-borrow.clar), with isolation-mode tests under `onchain/tests/borrow`.
 - Abracadabra whitelisted cauldrons verify Merkle proof debt caps against the
   resulting borrow part after fee/cap math, not merely the user-requested amount,
-  in `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/WhitelistedCauldronV3.sol:278-292`,
-  `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/WhitelistedCauldronV3.sol:488-490`,
-  and `/private/tmp/defillama-source/abracadabra-money__magic-internet-money/contracts/Whitelister.sol:24-35`.
+  in [`contracts/WhitelistedCauldronV3.sol:278-292`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/WhitelistedCauldronV3.sol#L278-L292),
+  [`contracts/WhitelistedCauldronV3.sol:488-490`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/WhitelistedCauldronV3.sol#L488-L490),
+  and [`contracts/Whitelister.sol:24-35`](https://github.com/abracadabra-money/magic-internet-money/blob/23266d17969a95e69199670cba9d0060bff33340/contracts/Whitelister.sol#L24-L35).
 - GHO caps stablecoin issuance by facilitator buckets and tests bucket-cap
-  minting and zero-cap behavior in `/private/tmp/defillama-source/aave__gho-core/src/contracts/gho/GhoToken.sol:34`,
-  `/private/tmp/defillama-source/aave__gho-core/src/contracts/gho/GhoToken.sol:84`,
-  and `/private/tmp/defillama-source/aave__gho-core/src/test/TestGhoToken.t.sol:171`.
-- Notional V3 caps market and currency exposure through risk-parameter storage and free-collateral checks in `/private/tmp/defillama-source/notional-finance__contracts-v3/contracts/internal/markets` and `/private/tmp/defillama-source/notional-finance__contracts-v3/contracts/internal/valuation`.
+  minting and zero-cap behavior in [`src/contracts/gho/GhoToken.sol:34`](https://github.com/aave/gho-core/blob/c6335a0bb9cba099960c5378b1ff0db190b8da8f/src/contracts/gho/GhoToken.sol#L34),
+  [`src/contracts/gho/GhoToken.sol:84`](https://github.com/aave/gho-core/blob/c6335a0bb9cba099960c5378b1ff0db190b8da8f/src/contracts/gho/GhoToken.sol#L84),
+  and [`src/test/TestGhoToken.t.sol:171`](https://github.com/aave/gho-core/blob/c6335a0bb9cba099960c5378b1ff0db190b8da8f/src/test/TestGhoToken.t.sol#L171).
+- Notional V3 caps market and currency exposure through risk-parameter storage and free-collateral checks in [`contracts/internal/markets`](https://github.com/notional-finance/contracts-v3/blob/ae20d99ebfb0b14cf7b08421722b85849fb11edf/contracts/internal/markets) and [`contracts/internal/valuation`](https://github.com/notional-finance/contracts-v3/blob/ae20d99ebfb0b14cf7b08421722b85849fb11edf/contracts/internal/valuation).
 
 ## Related Patterns
 

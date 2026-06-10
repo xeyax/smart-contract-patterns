@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | vaults |
-| Tags | vault, shares, erc4626, deposit, withdraw, nav |
+| Tags | vault, shares, erc4626, deposit, withdrawal, nav |
 | Complexity | Low |
 | Gas Efficiency | High |
 | Audit Risk | Medium |

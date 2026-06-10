@@ -88,8 +88,8 @@ This variant should expose whether a switch is queued, reject maturity-in-the-pa
 
 ## Source Evidence
 
-- Aera v3 schedules oracle updates, commits them after a delay, disables current oracles, and lets consumers accept a pending oracle before global commit in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/periphery/OracleRegistry.sol`.
-- Inverse FiRM switches Pendle PT feeds through a timelock before maturity and automatically uses the after-maturity feed once maturity passes in `/private/tmp/defillama-source/InverseFinance__FiRM/src/util/FeedSwitch.sol`.
+- Aera v3 schedules oracle updates, commits them after a delay, disables current oracles, and lets consumers accept a pending oracle before global commit in [`v3/src/periphery/OracleRegistry.sol`](https://github.com/aera-finance/aera-contracts-public/blob/9888a9e0d50fa38d4e86a69a8ebb9b605b08dafd/v3/src/periphery/OracleRegistry.sol).
+- Inverse FiRM switches Pendle PT feeds through a timelock before maturity and automatically uses the after-maturity feed once maturity passes in [`src/util/FeedSwitch.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/util/FeedSwitch.sol).
 
 ## Real-World Examples
 

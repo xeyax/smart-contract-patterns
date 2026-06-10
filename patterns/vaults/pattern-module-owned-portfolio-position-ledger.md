@@ -71,8 +71,8 @@ The position multiplier converts between real units and virtual units so a fee m
 
 ## Source Evidence
 
-- Set Protocol V2 stores default and external component positions, virtual units, modules, locks, and a position multiplier in `/private/tmp/defillama-source/SetProtocol__set-protocol-v2/contracts/protocol/SetToken.sol`.
-- Set Protocol position helper logic manages default/external position arrays and unit edits in `/private/tmp/defillama-source/SetProtocol__set-protocol-v2/contracts/protocol/lib/Position.sol`.
+- Set Protocol V2 stores default and external component positions, virtual units, modules, locks, and a position multiplier in [`contracts/protocol/SetToken.sol`](https://github.com/SetProtocol/set-protocol-v2/blob/63d6cf5d09fb5cccf5e8032be3e384c433f7ef35/contracts/protocol/SetToken.sol).
+- Set Protocol position helper logic manages default/external position arrays and unit edits in [`contracts/protocol/lib/Position.sol`](https://github.com/SetProtocol/set-protocol-v2/blob/63d6cf5d09fb5cccf5e8032be3e384c433f7ef35/contracts/protocol/lib/Position.sol).
 
 ## Real-World Examples
 

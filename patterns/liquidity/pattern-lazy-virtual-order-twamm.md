@@ -83,9 +83,9 @@ function withdrawProceeds(uint256 orderId) external executeVirtualOrdersFirst {
 
 ## Source Evidence
 
-- Fraxswap `FraxswapPair` opens long-term swaps, executes virtual orders before core pool actions, and exposes cancellation and proceeds withdrawal in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/Fraxswap/core/FraxswapPair.sol`.
-- Fraxswap `LongTermOrders` tracks order pools, sales rates, reward factors, expiries, and lazy virtual execution in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/Fraxswap/twamm/LongTermOrders.sol`.
-- Fraxswap tests cover single-sided, two-sided, cancellation, leftovers, inactivity, brick recovery, and pause-with-withdraw behavior under `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/test/Fraxswap`.
+- Fraxswap `FraxswapPair` opens long-term swaps, executes virtual orders before core pool actions, and exposes cancellation and proceeds withdrawal in [`src/hardhat/contracts/Fraxswap/core/FraxswapPair.sol`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/contracts/Fraxswap/core/FraxswapPair.sol).
+- Fraxswap `LongTermOrders` tracks order pools, sales rates, reward factors, expiries, and lazy virtual execution in [`src/hardhat/contracts/Fraxswap/twamm/LongTermOrders.sol`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/contracts/Fraxswap/twamm/LongTermOrders.sol).
+- Fraxswap tests cover single-sided, two-sided, cancellation, leftovers, inactivity, brick recovery, and pause-with-withdraw behavior under [`src/hardhat/test/Fraxswap`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/test/Fraxswap).
 
 ## Real-World Examples
 

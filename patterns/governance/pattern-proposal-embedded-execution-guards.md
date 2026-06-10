@@ -26,6 +26,21 @@
 - Proposal execution must never revert after approval
 - Static target/selector allowlists are enough
 
+## Trade-offs
+
+**Pros:**
+- Final conditions are checked atomically at execution time, closing the gap between off-chain review and on-chain reality.
+- A revert before the sensitive action is strictly safer than partial execution under changed assumptions.
+- Guards are read-only view calls — cheap to write, cheap to execute, no new privileged roles.
+- No timelock or executor contract changes needed; protection lives entirely in proposal payloads.
+
+**Cons:**
+- Protection is per-proposal and opt-in: a proposal author who omits the guard gets none, so review burden shifts to payload construction.
+- Guards reading manipulable state (market prices, balances) can be gamed in the same transaction or used to grief execution.
+- Approved proposals can become permanently unexecutable if the guarded condition never re-holds, requiring re-proposal through the full governance cycle.
+- Alternate executors or migration paths can bypass guard calls entirely, giving false assurance.
+- Testing must cover changed final state, not just creation-time state, expanding the proposal QA matrix.
+
 ## How It Works
 
 Add guard calls as proposal actions before value-changing actions:

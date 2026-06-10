@@ -56,7 +56,7 @@
 - GMX Synthetics validates reserves and open-interest reserve factors, implements funding-fee rounding rules, and gates ADL state/order validity on fresh oracle timestamps and pending-PnL thresholds.
 - Drift caps reserve-paid funding, uses liquidation and bankruptcy fallback paths, and supports socialized loss through funding/PnL settlement mechanics without being cited as direct ADL evidence.
 - Derive V2 uses a security module and cash-asset insolvency accounting with tests for socialized losses after backstop exhaustion.
-- Solana Labs Perpetuals applies per-custody reserve and max-user-profit checks before extracting shared pool liquidity in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/state/custody.rs` and `programs/perpetuals/src/state/pool.rs`.
+- Solana Labs Perpetuals applies per-custody reserve and max-user-profit checks before extracting shared pool liquidity in [`programs/perpetuals/src/state/custody.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/src/state/custody.rs) and `programs/perpetuals/src/state/pool.rs`.
 
 ## Related Patterns
 

@@ -25,6 +25,21 @@
 - The resolver reimplements business logic that can drift from the core
 - Consumers can safely use simple view functions on the core contract
 
+## Trade-offs
+
+**Pros:**
+- Core contracts keep aggressive storage packing for gas while consumers get structured, named read models.
+- No privileged write path, so a resolver bug or compromise cannot mutate core state.
+- Decoding logic can be fixed or extended by redeploying the resolver without touching the audited core.
+- Stable domain structs simplify UIs, keepers, and integrations that would otherwise hand-decode packed words.
+
+**Cons:**
+- Resolver decode logic can drift from the core storage layout after upgrades, silently serving wrong values.
+- Every core layout change requires a matched resolver release and deprecation of old versions — ongoing operational burden.
+- Reimplemented decoding duplicates core semantics, so output must be regression-tested against direct core operations.
+- Consumers may keep using stale or unofficial resolvers as if authoritative after an upgrade.
+- On-chain composability pays an extra external call per read versus native view functions on the core.
+
 ## How It Works
 
 Resolvers read raw slots or compact getters and decode them into domain structs:

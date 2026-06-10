@@ -76,9 +76,9 @@ function clearAuction(Clearing calldata clearing) external onlyAuctioneer {
 
 ## Source Evidence
 
-- Term Finance locks borrower bids and lender offers in `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts/TermAuctionBidLocker.sol` and `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts/TermAuctionOfferLocker.sol`.
-- Term Finance clearing logic and auction phases live in `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts/TermAuction.sol`.
-- Term Finance Certora specs cover auction roles and bid locking under `/private/tmp/defillama-source/term-finance__term-finance-contracts/certora/specs/termAuction` and `termAuctionBidLocker`.
+- Term Finance locks borrower bids and lender offers in [`contracts/TermAuctionBidLocker.sol`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/contracts/TermAuctionBidLocker.sol) and [`contracts/TermAuctionOfferLocker.sol`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/contracts/TermAuctionOfferLocker.sol).
+- Term Finance clearing logic and auction phases live in [`contracts/TermAuction.sol`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/contracts/TermAuction.sol).
+- Term Finance Certora specs cover auction roles and bid locking under [`certora/specs/termAuction`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/certora/specs/termAuction) and `termAuctionBidLocker`.
 
 ## Real-World Examples
 

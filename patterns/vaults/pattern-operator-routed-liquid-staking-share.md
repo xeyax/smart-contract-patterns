@@ -26,6 +26,21 @@
 - Users require direct control of validator selection
 - The system cannot monitor operator concentration
 
+## Trade-offs
+
+**Pros:**
+- Non-rebasing shares compose cleanly with DeFi (LPs, lending, bridges) because balances never change under holders.
+- Rewards and slashing flow through one exchange rate, so loss socialization is automatic and uniform across holders.
+- Operator routing at deposit time steers stake toward curated validators without per-user delegation plumbing.
+- Routing events expose concentration on-chain for monitoring.
+
+**Cons:**
+- The exchange rate is only as correct as its inputs: missed pending rewards, undelegations, or slashing silently misprices every mint and redeem.
+- First-deposit / zero-supply division edge cases in `assets * supply / stake` math are classic inflation-attack territory and need explicit handling.
+- Users surrender validator choice to the curated registry; a bad curation decision socializes slashing onto all holders.
+- The internal rate lags and diverges from market price, inviting arbitrage against the protocol at stale rates if used for instant settlement.
+- The directed-stake overlay adds a second ledger that must reconcile with actual validator balances on every flow — more accounting paths, more test matrix (in-sync, deposit-side, withdrawal-side, over-withdrawal).
+
 ## How It Works
 
 Deposits mint shares against an internal exchange rate and delegate the underlying asset through a selected operator:

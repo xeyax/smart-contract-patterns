@@ -86,8 +86,8 @@ execute and later reconcile.
 
 - WBTC uses merchant mint requests approved by a custodian and merchant burn requests reconciled with settlement transaction ids.
 - WBTC documentation and audit materials emphasize public reserve verification and custodian backing.
-- Lorenzo enzoBTC withdrawal requests burn or mark on-chain representation and emit BTC destination data for off-chain custody release in `/private/tmp/defillama-source/Lorenzo-Protocol__enzoBTC_contract/src/modules/WithdrawalRequest.sol` and `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btcstaking/keeper/msg_server.go`.
-- Flare FAssets CoreVaultManager confirms incoming custody payments once per transaction id, admits transfer requests only against available plus escrowed funds, emits sequenced off-chain payment instructions, and bounds escrow processing in `/private/tmp/defillama-source/flare-foundation_fassets/contracts/coreVaultManager/implementation/CoreVaultManager.sol`.
+- Lorenzo enzoBTC withdrawal requests burn or mark on-chain representation and emit BTC destination data for off-chain custody release in [`src/modules/WithdrawalRequest.sol`](https://github.com/Lorenzo-Protocol/enzoBTC_contract/blob/5951bff2cd51a3ac91a239ed6ca73aca095986dd/src/modules/WithdrawalRequest.sol) and [`x/btcstaking/keeper/msg_server.go`](https://github.com/Lorenzo-Protocol/lorenzo/blob/ee65c41e485ad7b57f4e40d0230c029354610a7d/x/btcstaking/keeper/msg_server.go).
+- Flare FAssets CoreVaultManager confirms incoming custody payments once per transaction id, admits transfer requests only against available plus escrowed funds, emits sequenced off-chain payment instructions, and bounds escrow processing in [`contracts/coreVaultManager/implementation/CoreVaultManager.sol`](https://github.com/flare-foundation/fassets/blob/37c1be508a33c0d0ce31216aef45958fd4e5281e/contracts/coreVaultManager/implementation/CoreVaultManager.sol).
 
 ## Related Patterns
 

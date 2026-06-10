@@ -66,11 +66,11 @@ only while collateral belongs to the group, and only below group exposure limits
 - Kamino Lend models `ElevationGroup` with constrained collateral and debt parameters.
 - Borrow and deposit refresh paths enforce group membership and group debt rules.
 - Market update handlers validate new elevation-group parameters before use.
-- Zest Protocol e-mode checks collateral and debt asset type membership when entering the mode, rejects borrows outside the active mode type, and tests mode entry, borrow, and disable-health behavior in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/pool-borrow.clar` and `onchain/tests/borrow/emode.test.ts`.
+- Zest Protocol e-mode checks collateral and debt asset type membership when entering the mode, rejects borrows outside the active mode type, and tests mode entry, borrow, and disable-health behavior in [`onchain/contracts/borrow/production/pool/pool-borrow.clar`](https://github.com/Zest-Protocol/zest-contracts/blob/3564bc38906e464ec4de774122bb9bbaee20ddc6/onchain/contracts/borrow/production/pool/pool-borrow.clar) and `onchain/tests/borrow/emode.test.ts`.
 - Aave V3 eMode supports a bounded category of correlated debt assets rather
-  than a single debt token, with validation and tests in `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/logic/GenericLogic.sol:76`,
-  `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/logic/ValidationLogic.sol:214`,
-  and `/private/tmp/defillama-source/aave__aave-v3-core/test-suites/emode.spec.ts:71`.
+  than a single debt token, with validation and tests in [`contracts/protocol/libraries/logic/GenericLogic.sol:76`](https://github.com/aave/aave-v3-core/blob/782f51917056a53a2c228701058a6c3fb233684a/contracts/protocol/libraries/logic/GenericLogic.sol#L76),
+  [`contracts/protocol/libraries/logic/ValidationLogic.sol:214`](https://github.com/aave/aave-v3-core/blob/782f51917056a53a2c228701058a6c3fb233684a/contracts/protocol/libraries/logic/ValidationLogic.sol#L214),
+  and [`test-suites/emode.spec.ts:71`](https://github.com/aave/aave-v3-core/blob/782f51917056a53a2c228701058a6c3fb233684a/test-suites/emode.spec.ts#L71).
 
 ## Related Patterns
 

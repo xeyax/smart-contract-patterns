@@ -26,6 +26,21 @@
 - Code presence cannot be checked or is not meaningful for the chain
 - Entity reassignment is expected to be frequent and operationally loose
 
+## Trade-offs
+
+**Pros:**
+- One address can never silently hold both entity and protocol rights, closing a compliance-bypass channel
+- Explicit zero-first reassignment prevents accidental transfer of an address between entities
+- Code-presence checks stop EOAs from acquiring protocol-contract privileges
+- Fund-specific eligibility keeps compliance state granular instead of one global flag
+
+**Cons:**
+- Every transfer pays additional eligibility lookups across both role mappings
+- Each assignment, zeroing, and reassignment is a privileged admin transaction, so operational burden scales with user count
+- Code-presence checks fail for contracts during construction and for pre-computed CREATE2 addresses, and are not meaningful on every chain
+- Legitimate hybrid cases, such as an entity-owned contract that also needs protocol eligibility, are impossible without redesign
+- Transfer rights for all holders hinge on a trusted allowlist admin
+
 ## How It Works
 
 Store entity and protocol eligibility separately and make the two roles mutually exclusive:

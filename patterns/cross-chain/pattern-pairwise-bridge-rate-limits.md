@@ -74,9 +74,9 @@ When governance changes a route limit, checkpoint the old bucket first so accumu
 
 ## Source Evidence
 
-- EtherFi's weETH cross-chain contracts define per-peer inbound and outbound buckets in `/private/tmp/defillama-source/etherfi-protocol_weETH-cross-chain/contracts/PairwiseRateLimiter.sol`.
+- EtherFi's weETH cross-chain contracts define per-peer inbound and outbound buckets in [`contracts/PairwiseRateLimiter.sol`](https://github.com/etherfi-protocol/weETH-cross-chain/blob/cc6c220847217df8f9dcc4ba19c1c349106a002c/contracts/PairwiseRateLimiter.sol).
 - `EtherfiOFTUpgradeable.sol` integrates the limiter with LayerZero OFT send/receive paths, and `test/OFTDeployment.t.sol` covers inbound and outbound limits.
-- Celer SGN volume control enforces per-token epoch caps before bridge relay and withdrawal payout in `/private/tmp/defillama-source/celer-network__sgn-v2-contracts/contracts/safeguard/VolumeControl.sol`, `contracts/liquidity-bridge/Bridge.sol`, and `contracts/liquidity-bridge/Pool.sol`; this is burst containment, not route-specific isolation.
+- Celer SGN volume control enforces per-token epoch caps before bridge relay and withdrawal payout in [`contracts/safeguard/VolumeControl.sol`](https://github.com/celer-network/sgn-v2-contracts/blob/b8a27161e0b700e30f30452c73418b60d133163f/contracts/safeguard/VolumeControl.sol), `contracts/liquidity-bridge/Bridge.sol`, and `contracts/liquidity-bridge/Pool.sol`; this is burst containment, not route-specific isolation.
 
 ## Real-World Examples
 

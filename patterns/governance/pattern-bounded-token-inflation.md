@@ -96,12 +96,12 @@ This keeps emergency inflation tied to realized system debt instead of discretio
 - Ethena's governance token design includes bounded mint authority so token issuance can expand under governance without becoming unrestricted arbitrary supply creation.
 - Sky/Maker DSS delays debt-backed MKR dilution until debt is queued, surplus is netted, and fixed-size debt auctions can be started.
 - SlowMist's Avalon USDa audit identified arbitrary role-gated mint and burn functions as excessive authority, showing that multisig custody alone does not bound supply mutation.
-- VVS Farm converts annual supply targets to per-block emissions through a fixed 6-second block-time assumption in `/private/tmp/defillama-source/vvs-finance__vvs-farm/contracts/VVSInitMintable.sol`, illustrating calendar drift risk for per-block farms.
+- VVS Farm converts annual supply targets to per-block emissions through a fixed 6-second block-time assumption in [`contracts/VVSInitMintable.sol`](https://github.com/vvs-finance/vvs-farm/blob/acd79b99d88157b9d520eeac92e8c6424ae9d8de/contracts/VVSInitMintable.sol), illustrating calendar drift risk for per-block farms.
 - CRV token inflation reduces the rate by epoch, caps minting to available
-  supply, and guards mints in `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:61-132`,
-  `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:167-220`,
-  and `/private/tmp/defillama-source/curvefi__curve-dao-contracts/contracts/ERC20CRV.vy:333-340`.
-- Aerodrome V1 bounds weekly emissions, tail emissions, growth, team rate, and epoch-governor nudges in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Minter.sol`, with mint authority in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Aero.sol`.
+  supply, and guards mints in [`contracts/ERC20CRV.vy:61-132`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/ERC20CRV.vy#L61-L132),
+  [`contracts/ERC20CRV.vy:167-220`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/ERC20CRV.vy#L167-L220),
+  and [`contracts/ERC20CRV.vy:333-340`](https://github.com/curvefi/curve-dao-contracts/blob/fa127b1cb7bf83e4f3d605f7244b7b4ed5ebe053/contracts/ERC20CRV.vy#L333-L340).
+- Aerodrome V1 bounds weekly emissions, tail emissions, growth, team rate, and epoch-governor nudges in [`contracts/Minter.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Minter.sol), with mint authority in [`contracts/Aero.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Aero.sol).
 
 ## Related Patterns
 

@@ -24,6 +24,21 @@
 - The new authority is a contract that cannot call confirmation functions
 - The system already uses a governance timelock with explicit queued operations
 
+## Trade-offs
+
+**Pros:**
+- Eliminates authority loss to mistyped or dead addresses because the new holder must prove it can transact
+- Minimal surface: two storage slots, two small functions, cheap to deploy and audit
+- The current authority can cancel a staged handoff before acceptance
+- Composes cleanly with timelocks for higher-impact role changes
+
+**Cons:**
+- Requires the new authority to actively call accept, so passive contracts or cold-storage setups need extra tooling
+- Rotation takes two transactions, which is slower than atomic transfer during an emergency
+- A shared pending slot can be griefed when multiple incumbents can restage a different address
+- Provides no protection against a compromised current authority staging an attacker who promptly accepts
+- Renounce semantics must be handled separately or systems that need continuing authority for mint, pause, or upgrade can be bricked
+
 ## How It Works
 
 ```solidity
@@ -60,7 +75,7 @@ For withdrawal addresses, keep the old address active until the new address conf
 - Rocket Pool node withdrawal addresses can be set through a pending confirmation path and reject confirmations from unrelated addresses.
 - WBTC disables ownership renounce paths where continuing controller authority is required.
 - Kamino Lend stages obligation ownership transfers through initiate, approve, accept, and abort states with transaction-context restrictions.
-- Sophon's custom USDC bridge comments that owner-forced admin replacement must stage and accept atomically because the current admin can overwrite `pendingAdmin` in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
+- Sophon's custom USDC bridge comments that owner-forced admin replacement must stage and accept atomically because the current admin can overwrite `pendingAdmin` in [`src/L1USDCBridge.sol`](https://github.com/sophon-org/custom-usdc-bridge/blob/72b36f11fb6c901380836043a43c738c434d5c12/src/L1USDCBridge.sol).
 
 ## Related Anti-Patterns
 

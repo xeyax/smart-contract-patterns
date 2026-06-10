@@ -71,7 +71,7 @@ fn liquidate(account: &mut Account, market: &Market, now: Slot) {
 
 ## Source Evidence
 
-- Drift defines liquidation modes and mode transitions in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/state/liquidation_mode.rs`.
+- Drift defines liquidation modes and mode transitions in [`programs/drift/src/state/liquidation_mode.rs`](https://github.com/drift-labs/protocol-v2/blob/0ae3e3b1db782a6765c3525b3dec38ad4d9d3a62/programs/drift/src/state/liquidation_mode.rs).
 - Drift bounds liquidation percentage, margin shortage, price, dust cleanup, and bankruptcy handling in `programs/drift/src/math/liquidation.rs` and `programs/drift/src/controller/liquidation.rs`.
 - Drift tests progressive liquidation behavior in `programs/drift/src/math/liquidation/tests.rs`.
 

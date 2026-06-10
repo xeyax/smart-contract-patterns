@@ -26,6 +26,21 @@
 - Consumers cannot tolerate bridge delays or stale source data
 - A reporter quorum is required for subjective valuation
 
+## Trade-offs
+
+**Pros:**
+- No trusted reporter set: any caller can relay, so no single operator's liveness or honesty gates updates.
+- Bridge peer authentication plus source-chain determinism leave relayers unable to forge rates.
+- Propagating the source timestamp lets consumers bound real data age, not just relay execution time.
+- Monotonicity and deviation checks limit damage from delayed, reordered, or replayed messages.
+
+**Cons:**
+- Inherits the bridge's entire trust and failure model; a bridge compromise is an oracle compromise.
+- Bridge latency makes the rate stale by construction, ruling out consumers that need tight freshness.
+- Liveness still depends on someone paying to relay; updates can quietly stop, so consumers need explicit fail-closed policy.
+- Deviation bounds are delicate to tune: too tight bricks legitimate rate moves, too loose admits large stale jumps.
+- The account-slice variant adds a wide verification checklist (account, owner, commitment, slot, epoch) that is easy to under-check.
+
 ## How It Works
 
 Any caller submits a source-chain message through the canonical bridge path. The destination oracle accepts only messages from the configured source contract and records the relayed rate plus the source update time:
@@ -83,8 +98,8 @@ the exact source account fragment used for the rate.
 
 - Rocket Pool's Polygon oracle lets any caller submit the source-chain rate through the authenticated root/child tunnel and exposes the bridged value through a Balancer-style rate provider.
 - Pendle's cross-chain exchange-rate app is a contrasting trusted-sender design: it accepts newer source timestamps but lacks max source-age and deviation bounds, so treat it as risk evidence rather than a permissionless relay exemplar.
-- Kelp `CrossChainRateReceiver` authenticates LayerZero endpoint, source chain id, and source rate-provider address before applying relayed rate data, while `CrossChainRateProvider` and `MultiChainRateProvider` expose permissionless `updateRate` relays in `/private/tmp/defillama-source/Kelp-DAO__LRT-rsETH/contracts/cross-chain`.
-- JitoSOL's Wormhole updater accepts permissionless query responses only for the configured Solana stake-pool account, owner, finalized commitment, monotonic slot, fresh source time, and matching stake-pool and clock epochs in `/private/tmp/defillama-source/jito-foundation__jitosol-wormhole-updater/src/StakePoolRate.sol`.
+- Kelp `CrossChainRateReceiver` authenticates LayerZero endpoint, source chain id, and source rate-provider address before applying relayed rate data, while `CrossChainRateProvider` and `MultiChainRateProvider` expose permissionless `updateRate` relays in [`contracts/cross-chain`](https://github.com/Kelp-DAO/LRT-rsETH/blob/3dded885f6f797f5959aff449c3a30c5cbb6ce23/contracts/cross-chain).
+- JitoSOL's Wormhole updater accepts permissionless query responses only for the configured Solana stake-pool account, owner, finalized commitment, monotonic slot, fresh source time, and matching stake-pool and clock epochs in [`src/StakePoolRate.sol`](https://github.com/jito-foundation/jitosol-wormhole-updater/blob/f5992a9c899072643613b1f2e3a53c02c2e0aadc/src/StakePoolRate.sol).
 
 ## Related Patterns
 

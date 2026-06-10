@@ -25,6 +25,21 @@
 - The dispute game registry is not authenticated or can be swapped without delay
 - Users need instant exits without accepting liquidity-provider or fast-bridge risk
 
+## Trade-offs
+
+**Pros:**
+- Two-step prove/finalize plus proof maturity gives challengers a guaranteed window before custody changes.
+- Dispute-registry indirection lets governance retire or blacklist a broken game type without pausing the whole bridge.
+- Normalized withdrawal-hash tracking guarantees exact-once release even across re-proofs.
+- Users can prove early and finalize later, decoupling proof generation from the maturity clock.
+
+**Cons:**
+- Exit latency is days: users wait for proof maturity plus dispute-game resolution.
+- Registry governance is a trust point — game-type swaps or blacklists can strand proven withdrawals or, if mishandled, admit invalid roots.
+- Proof and finalization pauses are exit-liveness hazards that need expiry rules, monitoring, and emergency procedures.
+- Two on-chain transactions per withdrawal plus storage-proof generation raise user gas cost and tooling burden.
+- The portal/dispute/anchor-state integration spans multiple contracts, a large coupled audit surface.
+
 ## How It Works
 
 Separate proof submission from finalization. The proof binds a withdrawal to an output root and message-passer storage proof. Finalization checks proof maturity plus the dispute game's validity:

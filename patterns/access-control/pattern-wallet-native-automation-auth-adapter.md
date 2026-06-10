@@ -26,6 +26,21 @@
 - The adapter can upgrade itself without wallet consent
 - A simpler direct user call provides the same UX
 
+## Trade-offs
+
+**Pros:**
+- The executor never custodies user funds; authority stays inside each user's wallet
+- Each wallet family keeps its native, independently revocable permission semantics
+- Adapters are small and wallet-specific, so each one is individually auditable
+- Permissions can be granted and revoked around individual executions instead of standing open
+
+**Cons:**
+- One adapter per wallet family means maintenance and audit cost grows with every supported wallet type
+- Grant and revoke calls add gas and latency around each automated execution
+- A buggy or maliciously replaced adapter is a wallet-level backdoor, making adapter replacement a critical trust event
+- Permissions left unrevoked after failed flash-loan or callback flows leave standing executor authority
+- Heterogeneous mechanisms such as DSProxy auth and Safe modules resist uniform security testing and reasoning
+
 ## How It Works
 
 Use a small adapter per wallet family to grant just enough authority for the automation path:

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | upgrades |
-| Tags | upgrade, registry, timelock, modules, address-book |
+| Tags | upgrade, registry, timelock, module, address-book |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -25,6 +25,21 @@
 - Registry admin is not protected by governance, multisig, or timelock
 - Callers can bypass the registry with arbitrary targets
 - Staged updates do not include enough metadata for monitoring
+
+## Trade-offs
+
+**Pros:**
+- Module swaps need no caller redeployment; one registry write updates every resolver.
+- Pending changes are publicly visible before activation, giving users and bots an exit or veto window.
+- Per-entry wait periods let low-risk utilities move fast while high-risk modules stay slow.
+- Cancellation of staged changes contains a compromised or mistaken admin before activation.
+
+**Cons:**
+- Every resolution adds a registry storage read (cold SLOAD plus call indirection) to the hot path.
+- The registry is a single point of failure: admin-key compromise plus an unwatched wait period still swaps every module.
+- Legitimate fixes, including security patches, are delayed by the same wait period as attacks.
+- Liveness depends on someone calling `approveChange` after the delay; forgotten approvals leave stale modules live.
+- ID-to-address indirection weakens compile-time guarantees; a wrong or retired ID fails only at runtime, so monitoring and interface validation become mandatory.
 
 ## How It Works
 

@@ -25,6 +25,21 @@
 - The protocol cannot observe enough evidence to distinguish valid from fraudulent signatures
 - Timeout and slashing parameters cannot be safely calibrated
 
+## Trade-offs
+
+**Pros:**
+- An explicit state machine makes every custody transition enumerable, timeout-bounded, and auditable.
+- Public liveness notifications let anyone escalate stuck redemptions or moving-funds flows without privileged roles.
+- Fraud challenges with evidence-based defeat paths punish dishonest signers without trusting an external oracle.
+- Wallet rotation and retirement limit long-lived key exposure for custody funds.
+
+**Cons:**
+- Timeout and slashing calibration is delicate: too short slashes honest-but-slow signer groups, too long strands user funds.
+- Defeat logic is subtle — a wallet signature alone does not prove theft, so valid-evidence rules need careful design and testing.
+- Moving-funds transitions are operationally heavy and create transient custody risk during every rotation.
+- The combined state machine, challenge, notification, and slashing surface is large and expensive to audit.
+- The chain can only punish a malicious off-chain spend after the fact via evidence; it cannot prevent one.
+
 ## How It Works
 
 Wallets move through explicit states and every custody transition has a timeout or evidence path:

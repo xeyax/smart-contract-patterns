@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | token-integration |
-| Tags | stablecoin, redemption, reserves, collateral-ratio, pro-rata |
+| Tags | stablecoin, redemption, reserve, collateral-ratio, pro-rata |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -29,6 +29,21 @@
 - Whitelisted or non-transferable collateral cannot be handled explicitly
 - Oracle failures should fully block redemptions instead of applying a documented
   collateral-ratio rule
+
+## Trade-offs
+
+**Pros:**
+- Redemptions stay live under oracle stress — the collateral-ratio penalty degrades output instead of blocking exits.
+- Pro-rata output removes the redeem-the-best-collateral-first adverse-selection race.
+- Oracle influence is confined to one scalar penalty, shrinking the price-manipulation surface versus per-token oracle weighting.
+- Every redeemer gets identical reserve composition at the same state, which is simple to reason about and fuzz.
+
+**Cons:**
+- Redeemers receive a multi-token basket, including dust or illiquid assets — poor UX and per-token gas in the output loop.
+- Enumerating reserves and managed subcollateral on every redemption is gas-heavy and fails unsafely if accounting cannot enumerate reliably.
+- Per-collateral normalizer and issuance-shrinkage bookkeeping is intricate; renormalization bounds are a precision and audit hotspot.
+- Forfeiture of non-transferable or non-whitelisted outputs means some redeemers structurally receive less than pro-rata value.
+- Integrators must price and bound an entire basket (`minOuts` per token) instead of a single asset.
 
 ## How It Works
 
@@ -68,12 +83,12 @@ bounds are hit so aggregate issuance remains consistent.
 ## Source Evidence
 
 - Angle Transmuter redemption burns stable assets and computes pro-rata reserve
-  outputs across collateral and subcollateral in `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/facets/Redeemer.sol:46-148`.
+  outputs across collateral and subcollateral in [`contracts/transmuter/facets/Redeemer.sol:46-148`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/contracts/transmuter/facets/Redeemer.sol#L46-L148).
 - Angle applies collateral-ratio and redemption-penalty accounting without using
-  oracle values to reweight every output token in `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/facets/Redeemer.sol:150-223`
-  and `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/libraries/LibGetters.sol:23-91`.
+  oracle values to reweight every output token in [`contracts/transmuter/facets/Redeemer.sol:150-223`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/contracts/transmuter/facets/Redeemer.sol#L150-L223)
+  and [`contracts/transmuter/libraries/LibGetters.sol:23-91`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/contracts/transmuter/libraries/LibGetters.sol#L23-L91).
 - Angle fuzz tests cover pro-rata redemption, output-token binding, forfeiture,
-  and normalizer behavior in `/private/tmp/defillama-source/angleprotocol__angle-transmuter/test/fuzz/RedeemTest.t.sol:264-517`.
+  and normalizer behavior in [`test/fuzz/RedeemTest.t.sol:264-517`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/test/fuzz/RedeemTest.t.sol#L264-L517).
 
 ## Related Patterns
 

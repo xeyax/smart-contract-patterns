@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | routing |
+| Platform | solana |
 | Tags | routing, signed-order, ed25519, solana, replay |
 | Complexity | High |
 | Gas Efficiency | Medium |
@@ -79,10 +80,10 @@ This is narrower than signed-order verification. It prevents orphaned settlement
 
 ## Source Evidence
 
-- Drift validates Solana Ed25519 instruction offsets, signer, and message bytes in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/validation/sig_verification.rs`.
+- Drift validates Solana Ed25519 instruction offsets, signer, and message bytes in [`programs/drift/src/validation/sig_verification.rs`](https://github.com/drift-labs/protocol-v2/blob/0ae3e3b1db782a6765c3525b3dec38ad4d9d3a62/programs/drift/src/validation/sig_verification.rs).
 - Drift binds signed message order fields and slot expiry in `programs/drift/src/state/order_params.rs`, stores a bounded replay cache in `programs/drift/src/state/signed_msg_user.rs`, and settles signed orders in `programs/drift/src/instructions/keeper.rs`.
 - Drift tests signed-message replay behavior in `programs/drift/src/state/signed_msg_user/tests.rs`.
-- Meteora Protocol Zap verifies adjacent instruction context and expected accounts before settlement in `/private/tmp/defillama-source/MeteoraAg_zap-program/protocol-zap/src/utils/mod.rs` and `processors/jup_v6_zap.rs`.
+- Meteora Protocol Zap verifies adjacent instruction context and expected accounts before settlement in [`protocol-zap/src/utils/mod.rs`](https://github.com/MeteoraAg/zap-program/blob/c8dd95b4327158320238e2c4094507ab33883830/protocol-zap/src/utils/mod.rs) and `processors/jup_v6_zap.rs`.
 
 ## Real-World Examples
 

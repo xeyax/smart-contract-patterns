@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | lending |
+| Platform | solana |
 | Tags | solana, flash-loan, instructions-sysvar, lending, atomicity |
 | Complexity | Medium |
 | Gas Efficiency | High |
@@ -64,8 +65,8 @@ fn flash_borrow(ctx: Context<FlashBorrow>, amount: u64) -> Result<()> {
 
 - Kamino Lend flash-loan helpers inspect the instructions sysvar to validate matching borrow and repay instructions.
 - Its flash validation rejects mismatched repay accounts and multiple or invalid flash instruction pairs.
-- Solend SPL Token Lending validates flash borrow and repay pairing in `/private/tmp/defillama-source/solendprotocol__solana-program-library/token-lending/program/src/processor.rs` through `_flash_borrow_reserve_liquidity` and `process_flash_repay_reserve_liquidity`.
-- Solend tests invalid repay, missing repay, duplicate flash borrow, and CPI cases in `/private/tmp/defillama-source/solendprotocol__solana-program-library/token-lending/program/tests/flash_borrow_repay.rs`.
+- Solend SPL Token Lending validates flash borrow and repay pairing in [`token-lending/program/src/processor.rs`](https://github.com/solendprotocol/solana-program-library/blob/d04ce00bbf4356c4fd32b3be38eb9760b696bb3e/token-lending/program/src/processor.rs) through `_flash_borrow_reserve_liquidity` and `process_flash_repay_reserve_liquidity`.
+- Solend tests invalid repay, missing repay, duplicate flash borrow, and CPI cases in [`token-lending/program/tests/flash_borrow_repay.rs`](https://github.com/solendprotocol/solana-program-library/blob/d04ce00bbf4356c4fd32b3be38eb9760b696bb3e/token-lending/program/tests/flash_borrow_repay.rs).
 
 ## Related Patterns
 

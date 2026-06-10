@@ -25,6 +25,21 @@
 - Creating many escrows would be too expensive
 - Attackers can append unlimited schedules to a victim's account
 
+## Trade-offs
+
+**Pros:**
+- Per-schedule isolation means a bug, revocation, or dispute in one grant cannot affect any other.
+- Each escrow is independently auditable: its token balance equals its remaining obligation.
+- Clean owner/beneficiary separation — revocation touches only unvested value, vested value stays claimable.
+- Third-party `withdrawFor` enables keeper-driven distribution without beneficiary action.
+
+**Cons:**
+- One contract deployment per grant is expensive at creation versus a shared schedule ledger.
+- Permissionless schedule creation invites dust-schedule griefing of a beneficiary's array unless a minimum size or pagination is enforced.
+- Many small escrows fragment token balances, complicating treasury monitoring and migration.
+- The owner's revocation power is a standing trust assumption beneficiaries must accept.
+- `withdrawFor` can impose timing or tax side effects on beneficiaries if not constrained to harmless cases.
+
 ## How It Works
 
 A controller creates schedule escrows and indexes them by beneficiary:

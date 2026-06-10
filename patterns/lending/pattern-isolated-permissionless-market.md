@@ -25,6 +25,21 @@
 - Any token can be listed without bounds on oracle, LLTV, or rate model
 - Liquidation and bad-debt effects are socialized across unrelated markets
 
+## Trade-offs
+
+**Pros:**
+- Per-market-id accounting contains a bad oracle, token, or insolvency to one market — no cross-market contagion.
+- Hash-derived ids from immutable params make markets trustlessly identifiable and impossible to repoint after liquidity exists.
+- Governance only curates parameter classes, removing the listing bottleneck and the pressure to underwrite every token.
+- A minimal immutable core with market-specific risk pushed to the edges keeps the audit target small and stable.
+
+**Cons:**
+- Risk evaluation shifts to users and curators; "enabled parameter classes" is easily misread as governance endorsement of a market.
+- Liquidity fragments across many isolated markets for the same asset pair, worsening rates and depth versus pooled designs.
+- Nothing in-protocol stops creation of markets with weak oracles or hostile tokens within enabled classes — scam markets are a UX/curation problem by construction.
+- Immutable params mean a broken oracle or rate model cannot be fixed; the market can only be abandoned and migrated.
+- One-shot permissionless initialization paths must be keyed to market params, or a front-runner sets someone else's market economics.
+
 ## How It Works
 
 Derive market identity from immutable parameters:
@@ -62,8 +77,8 @@ The protocol stores balances and totals under the market id, and only accepts ma
 
 - Morpho Blue uses hashed market parameters, enabled IRM/LLTV guards, and formal market-independence checks for permissionless isolated markets; oracle and token safety remain market-specific user assumptions.
 - Morpho Blue fixed-rate IRM allows public one-shot rate initialization keyed by
-  market parameters and rejects later changes in `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/fixed-rate-irm/interfaces/IFixedRateIrm.sol:24`
-  and `/private/tmp/defillama-source/morpho-org__morpho-blue-irm/src/fixed-rate-irm/FixedRateIrm.sol:40`.
+  market parameters and rejects later changes in [`src/fixed-rate-irm/interfaces/IFixedRateIrm.sol:24`](https://github.com/morpho-org/morpho-blue-irm/blob/a1a87fd5a7ee13873ea9d2bbd87e9c7b2cdbbef3/src/fixed-rate-irm/interfaces/IFixedRateIrm.sol#L24)
+  and [`src/fixed-rate-irm/FixedRateIrm.sol:40`](https://github.com/morpho-org/morpho-blue-irm/blob/a1a87fd5a7ee13873ea9d2bbd87e9c7b2cdbbef3/src/fixed-rate-irm/FixedRateIrm.sol#L40).
 
 ## Related Patterns
 

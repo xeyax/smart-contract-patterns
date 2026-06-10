@@ -123,8 +123,8 @@ shared decimals.
 - Spark ALM uses route keys as implicit allowlists, binds limiter keys to operation-specific route fields, restores capacity only for selected reverse flows, and avoids hook-enabled liquidity operations where hooks could change balance-delta measurements.
 - Lista OFT combines destination-specific daily caps, per-transfer min/max, per-user daily caps, per-user attempt caps, and dust normalization before debit limit checks.
 - USDT0 audit reports discuss route-scoped OFT rate limits and pause-aware refill behavior; this is lower-confidence audit-source evidence because no implementation code was present in the inspected repository.
-- Astherus `asBTC` applies transfer-limiter checks from `_debit` before LayerZero OFT debit settlement, with limiter state in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/oft/TransferLimiter.sol` and `contracts/oft/asBTC.sol`.
-- Velodrome Superchain restricted XERC20 bridge capacity is implemented in `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/xerc20/extensions/RestrictedXERC20.sol` and bridge wiring under `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/src/bridge`.
+- Astherus `asBTC` applies transfer-limiter checks from `_debit` before LayerZero OFT debit settlement, with limiter state in [`contracts/oft/TransferLimiter.sol`](https://github.com/astherus-contract/astherus-earn-contract/blob/1472bad4d7267a2c9dbf490b646201ad673e9285/contracts/oft/TransferLimiter.sol) and `contracts/oft/asBTC.sol`.
+- Velodrome Superchain restricted XERC20 bridge capacity is implemented in [`src/xerc20/extensions/RestrictedXERC20.sol`](https://github.com/velodrome-finance/superchain-contracts/blob/c93c466a2fcd1fd9dc79ba569f6b81c42bb50d61/src/xerc20/extensions/RestrictedXERC20.sol) and bridge wiring under [`src/bridge`](https://github.com/velodrome-finance/superchain-contracts/blob/c93c466a2fcd1fd9dc79ba569f6b81c42bb50d61/src/bridge).
 
 ## Related Patterns
 

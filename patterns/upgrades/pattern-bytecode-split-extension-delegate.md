@@ -26,6 +26,21 @@
 - Storage layout is not shared and locked
 - Users or integrators cannot tell which functions are extension-backed
 
+## Trade-offs
+
+**Pros:**
+- Escapes the 24KB bytecode limit without splitting state across separate contracts.
+- Extension functions share the primary contract's storage, so no cross-contract reads or sync logic.
+- Single stable address for integrators; extension routing is invisible to callers.
+- Secondary functions can be grouped and reviewed as one delegate unit.
+
+**Cons:**
+- Every extension call pays fallback dispatch plus `delegatecall` overhead.
+- Silent selector collisions between primary and extension are possible; the dispatch gives the primary contract precedence with no warning.
+- Storage layout must stay byte-identical across two code units, doubling layout-drift surface and CI checks.
+- `delegatecall` into a mutable target is a full-takeover primitive if the delegate pointer is ever compromised.
+- Verification and audit tooling sees two contracts; behavior only emerges through the combined dispatch, complicating review and block-explorer UX.
+
 ## How It Works
 
 The primary contract handles core functions and delegates unknown selectors:

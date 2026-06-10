@@ -66,8 +66,8 @@ fn deposit_with_proof(ctx: Context, amount: u64, cap: u64, proof: Vec<[u8; 32]>)
 
 ## Source Evidence
 
-- Meteora Presale creates permissioned escrows with Merkle proofs in `/private/tmp/defillama-source/MeteoraAg_presale/programs/presale/src/instructions/create_escrow/process_create_permissioned_escrow_with_merkle_proof.rs`.
-- Its escrow state stores owner and registry information in `programs/presale/src/state/escrow.rs`, and the Merkle tree uses domain-separated node types in `/private/tmp/defillama-source/MeteoraAg_presale/merkle-tree/src/tree_node.rs` and `config_merkle_tree.rs`.
+- Meteora Presale creates permissioned escrows with Merkle proofs in [`programs/presale/src/instructions/create_escrow/process_create_permissioned_escrow_with_merkle_proof.rs`](https://github.com/MeteoraAg/presale/blob/2acd7c9c20bada425e9ff493260be4328b350b57/programs/presale/src/instructions/create_escrow/process_create_permissioned_escrow_with_merkle_proof.rs).
+- Its escrow state stores owner and registry information in `programs/presale/src/state/escrow.rs`, and the Merkle tree uses domain-separated node types in [`merkle-tree/src/tree_node.rs`](https://github.com/MeteoraAg/presale/blob/2acd7c9c20bada425e9ff493260be4328b350b57/merkle-tree/src/tree_node.rs) and `config_merkle_tree.rs`.
 
 ## Real-World Examples
 

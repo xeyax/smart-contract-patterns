@@ -154,7 +154,7 @@ Worst case: 1.5% total deviation → premium ≥ 1.5%
 
 - [Set Protocol NAVIssuanceModule](https://docs.tokensets.com/developers/contracts/protocol/modules/nav-issuance-module) — `premiumPercentage` parameter
 - [Index Coop products](https://indexcoop.com/) — uses Set Protocol premium mechanism
-- Set Protocol V2 implements premium and fee parameters for custom-oracle NAV issuance in `/private/tmp/defillama-source/SetProtocol__set-protocol-v2/contracts/protocol/modules/v1/CustomOracleNAVIssuanceModule.sol`.
+- Set Protocol V2 implements premium and fee parameters for custom-oracle NAV issuance in [`contracts/protocol/modules/v1/CustomOracleNAVIssuanceModule.sol`](https://github.com/SetProtocol/set-protocol-v2/blob/63d6cf5d09fb5cccf5e8032be3e384c433f7ef35/contracts/protocol/modules/v1/CustomOracleNAVIssuanceModule.sol).
 
 ## Related Patterns
 

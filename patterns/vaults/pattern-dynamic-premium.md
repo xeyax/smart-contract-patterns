@@ -208,4 +208,4 @@ function calculatePremium() public view returns (uint256) {
 
 - [Set Protocol Premium Mechanism](https://docs.tokensets.com/developers/contracts/protocol/modules/nav-issuance-module)
 - [Balancer Dynamic Fees](https://docs.balancer.fi/concepts/pools/dynamic-swap-fees.html)
-- SolanaVault liquid unstaker CLI computes a minimum fee above a SOL liquidity threshold, a rising fee below it, and split-threshold fees in `/private/tmp/defillama-source/SolanaVault_liquid-unstaker-client/cli/src/fee.rs`; this is lower-confidence integration evidence because the checkout contains an IDL and CLI, not the full on-chain implementation.
+- SolanaVault liquid unstaker CLI computes a minimum fee above a SOL liquidity threshold, a rising fee below it, and split-threshold fees in [`cli/src/fee.rs`](https://github.com/SolanaVault/liquid-unstaker-client/blob/50cd1f47493576a3a19ae829b24e3d4e1218b975/cli/src/fee.rs); this is lower-confidence integration evidence because the checkout contains an IDL and CLI, not the full on-chain implementation.

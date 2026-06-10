@@ -70,7 +70,7 @@ function bridgeOutbound(TokenKey memory token, uint256 amount) external {
 
 ## Source Evidence
 
-- Polygon zkEVM/Agglayer sovereign bridge variants update local balance tree state on claims and outbound bridges in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/sovereignChains/AgglayerBridgeL2.sol`.
+- Polygon zkEVM/Agglayer sovereign bridge variants update local balance tree state on claims and outbound bridges in [`contracts/sovereignChains/AgglayerBridgeL2.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/110bda5a03e70ee7331bc06407a8e79226d3e520/contracts/sovereignChains/AgglayerBridgeL2.sol).
 - Polygon zkEVM tests cover sovereign bridge local balance behavior and emergency repair paths in `test/contractsv2/BridgeL2SovereignChain.test.ts`.
 
 ## Real-World Examples

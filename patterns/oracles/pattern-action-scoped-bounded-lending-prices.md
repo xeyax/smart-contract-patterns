@@ -26,6 +26,21 @@
 - Price paths are undocumented or hard for liquidators to reproduce
 - Bounded prices can become stale or manipulable without monitoring
 
+## Trade-offs
+
+**Pros:**
+- Oracle pumps cannot mint new borrow capacity while liquidation still uses spot-like values, so the two risks are tuned independently.
+- Each action fails closed on exactly the validity checks it needs instead of one global freshness rule.
+- Liquidations can still resolve risk during partial oracle degradation by requiring a narrower flag set.
+- Per-token borrow, collateral, and liquidation factors give granular risk tuning without forking the oracle.
+
+**Cons:**
+- Multiplies the test and documentation matrix: every action x price-mode combination must be specified, tested, and monitored.
+- Liquidators and integrators must reproduce per-action price logic off-chain, raising integration cost and error rates.
+- Misconfigured flag masks or factors silently create fail-open paths (e.g. stale-price withdrawals on debt-bearing accounts).
+- Sustained divergence between bounded and liquidation price modes can leave accounts over-borrowed yet not liquidatable until someone notices.
+- Without hard bounds, per-token per-action factors drift toward discretionary admin pricing.
+
 ## How It Works
 
 Parameterize liquidity calculations by action:
@@ -125,31 +140,31 @@ the collateral path.
 
 - Venus parameterizes liquidity calculations by weight function, uses bounded prices for borrow checks, and uses a liquidation-threshold path for liquidation eligibility.
 - Kamino Lend attaches price status flags to oracle values and uses different required flag sets for borrow and liquidation paths.
-- Suilend permits stale-price collateral exits only for no-debt accounts while debt-bearing withdrawal and borrow paths fail closed; evidence appears in `/private/tmp/defillama-source/suilend__suilend/contracts/suilend/sources/obligation.move` and oracle checks in `oracles.move`.
-- fx Protocol uses min/mid/max bounded prices and action modes for exchange, redeem, and liquidation in `/private/tmp/defillama-source/AladdinDAO__fx-protocol-contracts/contracts/price-oracle` and `contracts/core/PoolConfiguration.sol`.
-- Drift uses action-scoped oracle validity for funding, settlement, liquidation, margin, trigger, and AMM-fill paths in `/private/tmp/defillama-source/drift-labs__protocol-v2/programs/drift/src/math/oracle.rs`.
-- Alpha Homora V2 uses token-specific borrow, collateral, and liquidation factors around a shared source oracle in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/ProxyOracle.sol` and applies them in HomoraBank health and liquidation checks.
-- Satoshi Nexus prices stable-asset minting with conservative peg caps and redemptions with the opposite conservative bound in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/NexusYieldManager.sol`.
-- Fraxlend stores low/high oracle exchange rates with deviation gating, uses the high price for solvency checks and the low price for liquidation calculations in `/private/tmp/defillama-source/FraxFinance__fraxlend/src/contracts/FraxlendPairCore.sol`.
-- Frax FPI controller tests peg-band mint, redeem, and TWAMM actions against bounded prices in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/FPI/FPIControllerPool.sol`.
-- Olympus Cooler V2 uses an LTV oracle for origination and liquidation thresholds and constrains borrower-favorable changes in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerLtvOracle.sol`.
+- Suilend permits stale-price collateral exits only for no-debt accounts while debt-bearing withdrawal and borrow paths fail closed; evidence appears in [`contracts/suilend/sources/obligation.move`](https://github.com/suilend/suilend/blob/d5ba83a617bb0778b48b0c3b1e77a87be81258ca/contracts/suilend/sources/obligation.move) and oracle checks in `oracles.move`.
+- fx Protocol uses min/mid/max bounded prices and action modes for exchange, redeem, and liquidation in [`contracts/price-oracle`](https://github.com/AladdinDAO/fx-protocol-contracts/blob/5e198e93657db008a57129e7eea21a996618f17f/contracts/price-oracle) and `contracts/core/PoolConfiguration.sol`.
+- Drift uses action-scoped oracle validity for funding, settlement, liquidation, margin, trigger, and AMM-fill paths in [`programs/drift/src/math/oracle.rs`](https://github.com/drift-labs/protocol-v2/blob/0ae3e3b1db782a6765c3525b3dec38ad4d9d3a62/programs/drift/src/math/oracle.rs).
+- Alpha Homora V2 uses token-specific borrow, collateral, and liquidation factors around a shared source oracle in [`contracts/oracle/ProxyOracle.sol`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/oracle/ProxyOracle.sol) and applies them in HomoraBank health and liquidation checks.
+- Satoshi Nexus prices stable-asset minting with conservative peg caps and redemptions with the opposite conservative bound in [`src/core/NexusYieldManager.sol`](https://github.com/Satoshi-Protocol/satoshi-core/blob/7f5eddaed965904fde10ea1d40c4c4b3ea118ada/src/core/NexusYieldManager.sol).
+- Fraxlend stores low/high oracle exchange rates with deviation gating, uses the high price for solvency checks and the low price for liquidation calculations in [`src/contracts/FraxlendPairCore.sol`](https://github.com/FraxFinance/fraxlend/blob/2bed49d4dcc6702d92dede825c3424893517d841/src/contracts/FraxlendPairCore.sol).
+- Frax FPI controller tests peg-band mint, redeem, and TWAMM actions against bounded prices in [`src/hardhat/contracts/FPI/FPIControllerPool.sol`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/contracts/FPI/FPIControllerPool.sol).
+- Olympus Cooler V2 uses an LTV oracle for origination and liquidation thresholds and constrains borrower-favorable changes in [`src/policies/cooler/CoolerLtvOracle.sol`](https://github.com/OlympusDAO/olympus-v3/blob/120266b021f1eaa0c46b00af0114bd47bbc9e590/src/policies/cooler/CoolerLtvOracle.sol).
 - Angle Transmuter uses action-specific stable-asset oracle bounds for swap and
   mint/burn paths, while redemption uses oracle value to compute the global
   collateral-ratio penalty rather than per-token output weights in
-  `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/libraries/LibOracle.sol:23-91`,
-  `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/libraries/LibOracle.sol:104-150`,
-  and `/private/tmp/defillama-source/angleprotocol__angle-transmuter/contracts/transmuter/facets/Swapper.sol:236-276`.
+  [`contracts/transmuter/libraries/LibOracle.sol:23-91`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/contracts/transmuter/libraries/LibOracle.sol#L23-L91),
+  [`contracts/transmuter/libraries/LibOracle.sol:104-150`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/contracts/transmuter/libraries/LibOracle.sol#L104-L150),
+  and [`contracts/transmuter/facets/Swapper.sol:236-276`](https://github.com/angleprotocol/angle-transmuter/blob/2fa74b73a3f5aa921e619e55744d73228cd2fe71/contracts/transmuter/facets/Swapper.sol#L236-L276).
 - Gearbox V3 derives safe prices from main and reserve feeds and uses them for
   post-operation credit-account checks after risky adapter operations in
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/core/PriceOracleV3.sol:24-35`,
-  `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/core/PriceOracleV3.sol:127-179`,
-  and `/private/tmp/defillama-source/gearbox-protocol__core-v3/contracts/credit/CreditFacadeV3.sol:625-649`.
+  [`contracts/core/PriceOracleV3.sol:24-35`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/core/PriceOracleV3.sol#L24-L35),
+  [`contracts/core/PriceOracleV3.sol:127-179`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/core/PriceOracleV3.sol#L127-L179),
+  and [`contracts/credit/CreditFacadeV3.sol:625-649`](https://github.com/gearbox-protocol/core-v3/blob/b038597d9070d9fd18593a6ae9c3d28ca931bb73/contracts/credit/CreditFacadeV3.sol#L625-L649).
 - Synthetix V3 perps collateral configuration applies bounded non-USD collateral
-  discounts by trade size and skew scale in `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`
-  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`.
-- Silo V2 separates max-LTV and solvency oracle configuration in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/SiloConfig.sol` and applies action logic through `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/lib/Actions.sol`.
-- Inverse FiRM dampens borrower credit by recent daily lows in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Oracle.sol` and consumes that bounded price in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Market.sol`.
-- BendDAO stores NFT collection price records, calculates TWAP values, and uses freshness-aware validation around borrow and auction paths in `/private/tmp/defillama-source/BendDAO__bend-lending-protocol/contracts/protocol/NFTOracle.sol` and `/private/tmp/defillama-source/BendDAO__bend-lending-protocol/contracts/libraries/logic/ValidationLogic.sol`.
+  discounts by trade size and skew scale in [`markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol#L23-L48)
+  and [`markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol#L128-L157).
+- Silo V2 separates max-LTV and solvency oracle configuration in [`silo-core/contracts/SiloConfig.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/contracts/SiloConfig.sol) and applies action logic through [`silo-core/contracts/lib/Actions.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/contracts/lib/Actions.sol).
+- Inverse FiRM dampens borrower credit by recent daily lows in [`src/Oracle.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/Oracle.sol) and consumes that bounded price in [`src/Market.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/Market.sol).
+- BendDAO stores NFT collection price records, calculates TWAP values, and uses freshness-aware validation around borrow and auction paths in [`contracts/protocol/NFTOracle.sol`](https://github.com/BendDAO/bend-lending-protocol/blob/81c90c06373bd6cc616ed0d0712fe382cad56548/contracts/protocol/NFTOracle.sol) and [`contracts/libraries/logic/ValidationLogic.sol`](https://github.com/BendDAO/bend-lending-protocol/blob/81c90c06373bd6cc616ed0d0712fe382cad56548/contracts/libraries/logic/ValidationLogic.sol).
 
 ## Related Patterns
 

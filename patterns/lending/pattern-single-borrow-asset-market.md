@@ -25,6 +25,21 @@
 - Cross-asset netting is a core product requirement
 - A single base asset creates unacceptable concentration risk
 
+## Trade-offs
+
+**Pros:**
+- Debt, interest, and reserves stay in one base unit, shrinking accounting and liquidation logic versus every-asset borrowing.
+- Signed base principal collapses supply and borrow into one field, removing supply-vs-borrow netting edge cases per account.
+- Risk is curated per base market, so a bad collateral listing in one market cannot poison unrelated borrow assets.
+- Collateral-only operations skip full cross-market accrual via threshold buffers, keeping common paths cheap.
+
+**Cons:**
+- Users needing multiple borrow assets must open positions across markets, fragmenting their collateral and liquidity into silos.
+- No cross-asset netting: a supplied balance in one market cannot offset debt in another, raising capital requirements for multi-asset users.
+- Concentrates protocol solvency on the single base asset; base-asset depeg or failure hits the entire market.
+- Each new borrow asset means deploying and curating a whole market, multiplying governance and monitoring overhead.
+- Account-scoped siloed-debt variants add transition states (entering/leaving silo) that must reject unrelated borrows correctly or the boundary silently breaks.
+
 ## How It Works
 
 Accounts store signed base principal and separate collateral balances:
@@ -58,9 +73,9 @@ assets until that siloed debt is cleared.
 
 - Compound III Comet defines one borrowable base token per market, stores signed base principal separately from collateral, and routes base supply/borrow separately from collateral transfers.
 - Aave V3 marks siloed borrowing assets in reserve configuration and validates
-  that accounts with siloed debt cannot add unrelated borrows in `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/configuration/ReserveConfiguration.sol:260`,
-  `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/configuration/UserConfiguration.sol:137`,
-  and `/private/tmp/defillama-source/aave__aave-v3-core/contracts/protocol/libraries/logic/ValidationLogic.sol:297`.
+  that accounts with siloed debt cannot add unrelated borrows in [`contracts/protocol/libraries/configuration/ReserveConfiguration.sol:260`](https://github.com/aave/aave-v3-core/blob/782f51917056a53a2c228701058a6c3fb233684a/contracts/protocol/libraries/configuration/ReserveConfiguration.sol#L260),
+  [`contracts/protocol/libraries/configuration/UserConfiguration.sol:137`](https://github.com/aave/aave-v3-core/blob/782f51917056a53a2c228701058a6c3fb233684a/contracts/protocol/libraries/configuration/UserConfiguration.sol#L137),
+  and [`contracts/protocol/libraries/logic/ValidationLogic.sol:297`](https://github.com/aave/aave-v3-core/blob/782f51917056a53a2c228701058a6c3fb233684a/contracts/protocol/libraries/logic/ValidationLogic.sol#L297).
 
 ## Related Patterns
 

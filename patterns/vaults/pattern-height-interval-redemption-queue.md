@@ -95,10 +95,10 @@ For large histories, off-chain helpers can suggest event ids and a bounded searc
 
 ## Source Evidence
 
-- Liquid Collective `RedeemManagerV1` exposes claim functions that match redeem request ids to withdrawal event ids, return per-request claim statuses, and include helper logic for finding matching withdrawal events in `/private/tmp/defillama-source/liquid-collective__liquid-collective-protocol/natspec/RedeemManagerV1.md`.
+- Liquid Collective `RedeemManagerV1` exposes claim functions that match redeem request ids to withdrawal event ids, return per-request claim statuses, and include helper logic for finding matching withdrawal events in [`natspec/RedeemManagerV1.md`](https://github.com/liquid-collective/liquid-collective-protocol/blob/ae4f2ce33e333fe303db5bc3503bd0730eeb959b/natspec/RedeemManagerV1.md).
 - The same NatSpec documents full, partial, skipped, not-satisfied, out-of-bounds, and already-claimed cases, making interval matching a reusable queue design rather than a simple FIFO transfer.
-- StakeWise V3 stores exit positions and cumulative queue checkpoints in `/private/tmp/defillama-source/stakewise__v3-core/contracts/libraries/ExitQueue.sol`, with vault entry and exit integration in `/private/tmp/defillama-source/stakewise__v3-core/contracts/vaults/modules/VaultEnterExit.sol`.
-- Origin Dollar tracks cumulative withdrawal queue totals and per-request queued boundaries in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultStorage.sol` and processes request/claim flows in `/private/tmp/defillama-source/originprotocol__origin-dollar/contracts/contracts/vault/VaultCore.sol`.
+- StakeWise V3 stores exit positions and cumulative queue checkpoints in [`contracts/libraries/ExitQueue.sol`](https://github.com/stakewise/v3-core/blob/31b2da5e9c729b00ead0db16369141608410bee8/contracts/libraries/ExitQueue.sol), with vault entry and exit integration in [`contracts/vaults/modules/VaultEnterExit.sol`](https://github.com/stakewise/v3-core/blob/31b2da5e9c729b00ead0db16369141608410bee8/contracts/vaults/modules/VaultEnterExit.sol).
+- Origin Dollar tracks cumulative withdrawal queue totals and per-request queued boundaries in [`contracts/contracts/vault/VaultStorage.sol`](https://github.com/originprotocol/origin-dollar/blob/cd7218c2b070a52470b2621c3ce0ce12378ba700/contracts/contracts/vault/VaultStorage.sol) and processes request/claim flows in [`contracts/contracts/vault/VaultCore.sol`](https://github.com/originprotocol/origin-dollar/blob/cd7218c2b070a52470b2621c3ce0ce12378ba700/contracts/contracts/vault/VaultCore.sol).
 
 ## Real-World Examples
 

@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | liquidity |
+| Platform | solana |
 | Tags | liquidity, rebalance, solana, lst, solvency |
 | Complexity | High |
 | Gas Efficiency | Medium |
@@ -76,10 +77,10 @@ fn end_rebalance(ctx: Context<EndRebalance>, args: RebalanceArgs) -> Result<()> 
 
 ## Source Evidence
 
-- Sanctum INF starts rebalances by checking paired instructions, locking the pool, recording old value, and transferring output inventory in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/program/src/instructions/rebalance/start.rs`.
-- Sanctum INF stores rebalance record state in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/core/src/accounts/rebalance_record.rs`.
-- Sanctum INF ends rebalances by syncing reserves, comparing new total value with the recorded value, and clearing the lock in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/program/src/instructions/rebalance/end.rs`.
-- Sanctum INF tests paired rebalance chains and value-preservation behavior in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/program/tests/tests/rebalance/chain.rs`.
+- Sanctum INF starts rebalances by checking paired instructions, locking the pool, recording old value, and transferring output inventory in [`controller/program/src/instructions/rebalance/start.rs`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/controller/program/src/instructions/rebalance/start.rs).
+- Sanctum INF stores rebalance record state in [`controller/core/src/accounts/rebalance_record.rs`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/controller/core/src/accounts/rebalance_record.rs).
+- Sanctum INF ends rebalances by syncing reserves, comparing new total value with the recorded value, and clearing the lock in [`controller/program/src/instructions/rebalance/end.rs`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/controller/program/src/instructions/rebalance/end.rs).
+- Sanctum INF tests paired rebalance chains and value-preservation behavior in [`controller/program/tests/tests/rebalance/chain.rs`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/controller/program/tests/tests/rebalance/chain.rs).
 
 ## Related Patterns
 

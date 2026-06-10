@@ -26,6 +26,21 @@
 - Exact-output routes must support arbitrary fee-on-transfer tokens whose received amount is not deterministic
 - The router must custody user balances across transactions
 
+## Trade-offs
+
+**Pros:**
+- Stateless and custody-free: the router never holds user balances past the transaction.
+- Pair-to-pair output chaining skips intermediate transfers back through the router, saving gas per hop.
+- Deterministic pair derivation removes registry lookups and pool-spoofing vectors.
+- No callbacks — the audit surface is mostly amount math, path handling, and native-asset plumbing.
+
+**Cons:**
+- Precomputed hop amounts break under fee-on-transfer tokens; supporting them requires separate per-hop balance-delta variants.
+- Exact-output routes with nondeterministic transfer fees are effectively unsupportable.
+- Quotes and execution can diverge when reserves move in the same block; only the final bound protects the user.
+- Pool identity wider than the token pair (versions, fee tiers, bin steps) forces per-hop metadata plus quote/execution suppression logic.
+- Native-asset handling (receive guard, exact-output dust refunds) is an easy-to-miss leak surface.
+
 ## How It Works
 
 For exact-input swaps, the router computes expected amounts, transfers input to the first pair, then chains pair outputs:
@@ -65,13 +80,13 @@ Intermediate outputs are sent to the next pair, while the final output goes to t
 - PancakeSwap V2 periphery supports fee-on-transfer exact-input swaps by deriving actual hop input from pair balance minus reserves and checking the receiver's final output balance delta.
 - Trader Joe V2 routers carry bin-step and version metadata per hop, support
   ignored-pair suppression in quotes, and route through canonical pair lookup in
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:55-61`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:394-408`,
-  `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBRouter.sol:775-807`,
-  and `/private/tmp/defillama-source/traderjoe-xyz__joe-v2/src/LBQuoter.sol:43-60`.
+  [`src/LBRouter.sol:55-61`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBRouter.sol#L55-L61),
+  [`src/LBRouter.sol:394-408`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBRouter.sol#L394-L408),
+  [`src/LBRouter.sol:775-807`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBRouter.sol#L775-L807),
+  and [`src/LBQuoter.sol:43-60`](https://github.com/traderjoe-xyz/joe-v2/blob/067c6ccf5b8ff1526d03fa3e4c65ec45d01c1f73/src/LBQuoter.sol#L43-L60).
 - Uniswap Universal Router V2 swap paths show per-hop bound handling and
-  exact-output reverse execution tests in `/private/tmp/defillama-source/Uniswap__universal-router/contracts/modules/uniswap/v2/V2SwapRouter.sol:44`
-  and `/private/tmp/defillama-source/Uniswap__universal-router/test/foundry-tests/UniswapV3.t.sol:180`.
+  exact-output reverse execution tests in [`contracts/modules/uniswap/v2/V2SwapRouter.sol:44`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/contracts/modules/uniswap/v2/V2SwapRouter.sol#L44)
+  and [`test/foundry-tests/UniswapV3.t.sol:180`](https://github.com/Uniswap/universal-router/blob/5a5336a2aa69faea5407ad610feabed6d5a1c4fa/test/foundry-tests/UniswapV3.t.sol#L180).
 
 ## Related Patterns
 

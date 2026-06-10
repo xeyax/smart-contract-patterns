@@ -26,6 +26,21 @@
 - The system needs global settlement rather than cohort-specific exit
 - Batch processing cannot be kept live under mass exit load
 
+## Trade-offs
+
+**Pros:**
+- The protocol keeps operating for everyone outside the dispute cohort — no global shutdown cost.
+- Freezing the cohort at activation makes each exiter's entitlement deterministic and immune to later governance states.
+- Fresh escrow deployment cleanly separates the active dispute from future signaling, avoiding state contamination.
+- Bounded public batch processing means exits do not depend on any privileged operator staying live.
+
+**Cons:**
+- Two live escrow lifecycles (exiting + fresh) double the state to reason about and audit.
+- Exit completion inherits external dependencies — withdrawal queues, oracles, bridges — any of which can stall claims.
+- Mass exits stress the batch path; if batch bounds are miscalibrated, processing can become economically or technically stuck.
+- Users locked in the rage-quit escrow lose liquidity and signaling power for the full processing duration.
+- Repeated escalations spawn escrow instances, growing operational and monitoring surface over time.
+
 ## How It Works
 
 When the dispute escalates, the current signaling escrow becomes a local exit escrow and a new signaling escrow is deployed for future disputes:

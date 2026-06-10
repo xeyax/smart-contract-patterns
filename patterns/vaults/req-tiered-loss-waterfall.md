@@ -64,7 +64,7 @@
 ## Source Evidence
 
 - infiniFi's yield-sharing accounting applies losses first to a safety buffer, then locked users, then staked users, and finally senior receipt-token price, with unit tests for each tier transition.
-- Strata Markets gates junior exits and senior deposits by tranche coverage ratios in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/Accounting.sol` and maps coverage bands to fee or lock modes in `/private/tmp/defillama-source/Strata-Markets_contracts/contracts/tranches/StrataCDO.sol`.
+- Strata Markets gates junior exits and senior deposits by tranche coverage ratios in [`contracts/tranches/Accounting.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/Accounting.sol) and maps coverage bands to fee or lock modes in [`contracts/tranches/StrataCDO.sol`](https://github.com/Strata-Markets/contracts/blob/6441c75d9b8fcc0056fc34ca2b7ab8b57346fe56/contracts/tranches/StrataCDO.sol).
 
 ## Related Patterns
 

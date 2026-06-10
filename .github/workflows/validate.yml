@@ -1,0 +1,23 @@
+name: validate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate pattern files
+        run: python3 scripts/validate-patterns.py
+
+      - name: Check INDEX.md and README.md are up to date
+        run: |
+          python3 scripts/generate-pattern-index.py
+          git diff --exit-code patterns/INDEX.md README.md || {
+            echo "::error::patterns/INDEX.md or README.md is stale — run python3 scripts/generate-pattern-index.py and commit the result"
+            exit 1
+          }

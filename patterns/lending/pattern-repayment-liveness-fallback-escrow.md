@@ -65,7 +65,7 @@ Collateral release should depend on the borrower paying or escrowing the owed am
 
 ## Source Evidence
 
-- Teller V2 marks full repayment, removes the active bid, optionally withdraws collateral, then uses `_sendOrEscrowFunds` to either pay the lender or deposit lender proceeds into `EscrowVault` if direct payment fails in `/private/tmp/defillama-source/teller-protocol__teller-protocol-v2/packages/contracts/contracts/TellerV2.sol`.
+- Teller V2 marks full repayment, removes the active bid, optionally withdraws collateral, then uses `_sendOrEscrowFunds` to either pay the lender or deposit lender proceeds into `EscrowVault` if direct payment fails in [`packages/contracts/contracts/TellerV2.sol`](https://github.com/teller-protocol/teller-protocol-v2/blob/49c0be13f5371c71fa9c97af78509a16c23d3626/packages/contracts/contracts/TellerV2.sol).
 
 ## Real-World Examples
 

@@ -25,6 +25,21 @@
 - Tick crossing data is not available to the reward contract
 - Reward accounting cannot stay synchronized with AMM liquidity changes
 
+## Trade-offs
+
+**Pros:**
+- Emissions pay only in-range liquidity, so incentives buy actual swap depth instead of idle inventory.
+- O(1) accrual per position via tick snapshots — no iteration over stakers or positions.
+- Reuses the AMM's tick-crossing and fee-growth semantics, keeping reward math consistent with fee math.
+- Seconds-per-liquidity variant lets an external staker work without modifying the pool contract.
+
+**Cons:**
+- Tick-level reward state must stay synchronized with every liquidity change and tick crossing; one missed update misallocates rewards silently.
+- `rewardGrowthOutside` initialization relative to the current tick is subtle and a recurring audit hotspot.
+- Requires tick or snapshot data from the AMM — not portable to pools that do not expose it.
+- Just-in-time liquidity concentrated around the current tick can capture an outsized share of emissions.
+- Incentive lifecycle handling (start lead time, end-while-staked, refunds, post-end unstake) adds operational and test burden.
+
 ## How It Works
 
 Maintain reward growth globally and outside ticks. A position earns from reward growth inside its range:
@@ -61,14 +76,14 @@ in seconds-per-liquidity inside the range, so only in-range time earns.
 
 - PancakeSwap V3 liquidity mining tracks reward growth through tick-level state so positions earn only while their concentrated-liquidity range is active.
 - Uniswap V3 Staker computes rewards from `snapshotCumulativesInside` and
-  `RewardMath` seconds-per-liquidity deltas in `/private/tmp/defillama-source/Uniswap__v3-staker/contracts/UniswapV3Staker.sol:233`,
-  `/private/tmp/defillama-source/Uniswap__v3-staker/contracts/libraries/RewardMath.sol:21`,
-  and `/private/tmp/defillama-source/Uniswap__v3-staker/test/unit/Stakes.spec.ts:315`.
+  `RewardMath` seconds-per-liquidity deltas in [`contracts/UniswapV3Staker.sol:233`](https://github.com/Uniswap/v3-staker/blob/6d06fe4034e4eec53e1e587fc4770286466f4b35/contracts/UniswapV3Staker.sol#L233),
+  [`contracts/libraries/RewardMath.sol:21`](https://github.com/Uniswap/v3-staker/blob/6d06fe4034e4eec53e1e587fc4770286466f4b35/contracts/libraries/RewardMath.sol#L21),
+  and [`test/unit/Stakes.spec.ts:315`](https://github.com/Uniswap/v3-staker/blob/6d06fe4034e4eec53e1e587fc4770286466f4b35/test/unit/Stakes.spec.ts#L315).
 - Uniswap V3 Staker bounds incentive lifecycle with start/duration checks,
   no-end-while-staked behavior, post-end unstake, and refundee-bound leftover
-  recovery in `/private/tmp/defillama-source/Uniswap__v3-staker/contracts/UniswapV3Staker.sol:96`,
-  `/private/tmp/defillama-source/Uniswap__v3-staker/test/unit/Incentives.spec.ts:198`,
-  and `/private/tmp/defillama-source/Uniswap__v3-staker/test/unit/Stakes.spec.ts:583`.
+  recovery in [`contracts/UniswapV3Staker.sol:96`](https://github.com/Uniswap/v3-staker/blob/6d06fe4034e4eec53e1e587fc4770286466f4b35/contracts/UniswapV3Staker.sol#L96),
+  [`test/unit/Incentives.spec.ts:198`](https://github.com/Uniswap/v3-staker/blob/6d06fe4034e4eec53e1e587fc4770286466f4b35/test/unit/Incentives.spec.ts#L198),
+  and [`test/unit/Stakes.spec.ts:583`](https://github.com/Uniswap/v3-staker/blob/6d06fe4034e4eec53e1e587fc4770286466f4b35/test/unit/Stakes.spec.ts#L583).
 
 ## Related Patterns
 

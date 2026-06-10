@@ -26,6 +26,21 @@
 - Liquidation cannot unwrap or resync seized collateral
 - The lending market can accept the underlying strategy token directly with equivalent safety
 
+## Trade-offs
+
+**Pros:**
+- Borrowers keep earning strategy rewards while their shares are pledged, instead of forfeiting yield for borrow capacity.
+- Transfer restriction to the lending market closes off wrapper-token markets and bypass paths that would desync reward accounting.
+- Reward checkpointing at every balance change keeps per-user accrual correct through deposits, seizures, and unwinds.
+- The lending market sees a plain transfer-compatible token; reward mechanics stay encapsulated in the wrapper.
+
+**Cons:**
+- Liquidation needs a dedicated unwrap/resync path; a reward-claim revert on that path can block liquidations unless failure isolation is built in.
+- Reward checkpoints on every mint, burn, and market transfer add gas to all collateral operations.
+- Non-transferability breaks composability — the wrapped position cannot be moved, sold, or used anywhere except the one configured market.
+- Wrapper exchange-rate valuation imports the strategy's oracle/exchange-rate risk into collateral pricing; a manipulated rate inflates borrow capacity.
+- Direct lending-market deposits that bypass the wrapper must be blocked, coupling market configuration to wrapper deployment and adding misconfiguration risk.
+
 ## How It Works
 
 The wrapper accepts strategy shares, mints non-transferable collateral, and restricts transfers to the configured lending market:

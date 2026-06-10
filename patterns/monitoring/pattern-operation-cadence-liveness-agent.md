@@ -26,6 +26,21 @@
 - The monitor cannot distinguish healthy idleness from failure
 - Alert response procedures are undefined
 
+## Trade-offs
+
+**Pros:**
+- Detects stalled keepers before users hit stuck withdrawals or settlement delays, converting incidents into operational pages.
+- Checking state progress and amount ranges catches degraded operation (wrong sizes, stuck queues) that simple call-count monitors miss.
+- Read-only and key-isolated: the monitor adds no on-chain attack surface and cannot be turned against the protocol.
+- Persisted cursors and packet-state tracking in the cross-chain variant prevent silently skipped work after restarts.
+
+**Cons:**
+- Pure off-chain mitigation — it shortens detection time but cannot guarantee solvency or replace on-chain claim reserves.
+- Expected cadence, amount ranges, and healthy-idle conditions need per-protocol tuning; poor thresholds yield alert fatigue or missed failures.
+- The monitor is its own service with RPC redundancy, state persistence, and uptime requirements — operational burden on top of the keeper fleet it watches.
+- Distinguishing healthy idleness from failure is genuinely hard for bursty workloads, leaving a residual false-negative window.
+- Alerts are only as good as the response runbook; without defined procedures the agent observes outages without shortening them.
+
 ## How It Works
 
 Track the last successful operation and compare it to protocol-specific expectations:

@@ -25,6 +25,21 @@
 - Allocation generation cannot prevent duplicates or zero amounts
 - The sweep can happen before users have a fair claim window
 
+## Trade-offs
+
+**Pros:**
+- Claim gas is low and independent of recipient count; the bitmap packs 256 claims per storage slot.
+- A fixed root with no update machinery keeps the contract small and easy to audit.
+- Index-bound leaves make double-claim prevention unambiguous.
+- A deadline-gated sweep recovers unclaimed tokens cleanly.
+
+**Cons:**
+- The root is immutable: any allocation error means deploying and funding a new distributor.
+- Correctness rests entirely on off-chain input validation (duplicates, zero amounts); the contract cannot detect a bad tree.
+- No support for recurring or delta rewards — wrong tool for ongoing programs.
+- Missing leaf/internal-node domain separation enables forged-proof attacks, especially when trees are reused for other claims.
+- Sweep timing is a trust point: sweeping before a fair claim window expropriates slow claimers.
+
 ## How It Works
 
 The leaf binds index, account, and amount:
@@ -57,8 +72,8 @@ function claim(uint256 index, address account, uint256 amount, bytes32[] calldat
 ## Source Evidence
 
 - SSV uses a fixed Merkle distributor with packed claim bitmap tracking, deterministic off-chain claim generation, and tests for full claims, double claims, and invalid proofs.
-- DoubleZero Solana stores processed reward, debt, and debt-write-off bitmaps in distribution `remaining_data` ranges and tests bitmap boundaries in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/state/distribution.rs` and `tests/distribute_rewards_test.rs`.
-- Jupiter Lock and Meteora Presale both domain-separate Merkle leaves from internal nodes in `/private/tmp/defillama-source/jup-ag_jup-lock/merkle-tree/src/merkle_tree.rs` and `/private/tmp/defillama-source/MeteoraAg_presale/merkle-tree/src/tree_node.rs`.
+- DoubleZero Solana stores processed reward, debt, and debt-write-off bitmaps in distribution `remaining_data` ranges and tests bitmap boundaries in [`programs/revenue-distribution/src/state/distribution.rs`](https://github.com/doublezerofoundation/doublezero-solana/blob/4368da2c446b799f354aecb6156fc0e77343634b/programs/revenue-distribution/src/state/distribution.rs) and `tests/distribute_rewards_test.rs`.
+- Jupiter Lock and Meteora Presale both domain-separate Merkle leaves from internal nodes in [`merkle-tree/src/merkle_tree.rs`](https://github.com/jup-ag/jup-lock/blob/f1535b4067b1d90fd682edc94ac693496b0a9812/merkle-tree/src/merkle_tree.rs) and [`merkle-tree/src/tree_node.rs`](https://github.com/MeteoraAg/presale/blob/2acd7c9c20bada425e9ff493260be4328b350b57/merkle-tree/src/tree_node.rs).
 
 ## Related Patterns
 

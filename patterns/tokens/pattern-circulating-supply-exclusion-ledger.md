@@ -71,7 +71,7 @@ When an address is added or removed, adjust `excludedSupply` by its current bala
 
 ## Source Evidence
 
-- Euler Vault Kit's synth token tracks balances ignored for total-supply style accounting through `ignoredForTotalSupply` and tests supply/cap effects in `/private/tmp/defillama-source/euler-xyz__euler-vault-kit/src/Synths/ESynth.sol` and related synth tests.
+- Euler Vault Kit's synth token tracks balances ignored for total-supply style accounting through `ignoredForTotalSupply` and tests supply/cap effects in [`src/Synths/ESynth.sol`](https://github.com/euler-xyz/euler-vault-kit/blob/5b98b42048ba11ae82fb62dfec06d1010c8e41e6/src/Synths/ESynth.sol) and related synth tests.
 - The inspected implementation shows the integration risk: a token can expose multiple supply concepts, so caps and accounting must choose the intended denominator explicitly.
 
 ## Real-World Examples

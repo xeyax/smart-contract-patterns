@@ -75,9 +75,9 @@ function claim(uint256 receiptId) external {
 
 ## Source Evidence
 
-- TON liquid staking finalizes deposit and withdrawal rounds in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/contracts/pool.func` and mints payout receipts through `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/contracts/pool_mint_helpers.func`.
-- TON payout NFT collection and item contracts mint and burn round receipts in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/contracts/payout_nft/nft-collection.func` and `payout_nft/nft-item.func`.
-- TON tests cover receipt behavior in `/private/tmp/defillama-source/ton-blockchain__liquid-staking-contract/tests/SmokeNFT.spec.ts` and `tests/Integrational.spec.ts`.
+- TON liquid staking finalizes deposit and withdrawal rounds in [`contracts/pool.func`](https://github.com/ton-blockchain/liquid-staking-contract/blob/1f4e9badbed52a4cf80cc58e4bb36ed375c6c8e7/contracts/pool.func) and mints payout receipts through [`contracts/pool_mint_helpers.func`](https://github.com/ton-blockchain/liquid-staking-contract/blob/1f4e9badbed52a4cf80cc58e4bb36ed375c6c8e7/contracts/pool_mint_helpers.func).
+- TON payout NFT collection and item contracts mint and burn round receipts in [`contracts/payout_nft/nft-collection.func`](https://github.com/ton-blockchain/liquid-staking-contract/blob/1f4e9badbed52a4cf80cc58e4bb36ed375c6c8e7/contracts/payout_nft/nft-collection.func) and `payout_nft/nft-item.func`.
+- TON tests cover receipt behavior in [`tests/SmokeNFT.spec.ts`](https://github.com/ton-blockchain/liquid-staking-contract/blob/1f4e9badbed52a4cf80cc58e4bb36ed375c6c8e7/tests/SmokeNFT.spec.ts) and `tests/Integrational.spec.ts`.
 
 ## Real-World Examples
 

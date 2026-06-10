@@ -26,6 +26,21 @@
 - Migration custody relies only on an undocumented social process
 - Exchange-rate rounding differences cannot be bounded
 
+## Trade-offs
+
+**Pros:**
+- Token holders keep the same claims through migration; no snapshot, airdrop, or user action required.
+- The on-chain rate-continuity assertion converts a social promise ("backing moved correctly") into a hard revert condition.
+- Move-without-minting keeps supply fixed, so downstream integrations pricing the LST see no rate discontinuity.
+- Pause-bracketed cutover eliminates mid-migration deposit/withdrawal races by construction.
+
+**Cons:**
+- Requires a full protocol pause: deposits, withdrawals, mints, and burns are frozen for the entire custody handoff, with user-facing downtime.
+- The migration path itself is one-shot, high-privilege code that is hard to test against real mainnet state and is exactly where a bug is unrecoverable.
+- Rounding tolerance is a judgment call: too tight bricks the migration, too loose hides backing loss.
+- Pending exits and in-flight obligations straddle two managers; both must be monitored until old obligations zero out.
+- Governance executing `migrate` holds total custody for the transition window — a single transaction of maximal trust.
+
 ## How It Works
 
 Pause old and new entrypoints, transfer backing stake into the successor without minting new user shares, compare exchange rates, then switch managers:

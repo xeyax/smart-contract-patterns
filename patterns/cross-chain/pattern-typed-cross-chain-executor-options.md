@@ -90,11 +90,11 @@ function _parseAndCheck(bytes calldata options, uint256 nativeCap) internal pure
 
 ## Source Evidence
 
-- LayerZero V2 OApps store enforced options per endpoint and message type in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OAppOptionsType3.sol:16`.
+- LayerZero V2 OApps store enforced options per endpoint and message type in [`packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OAppOptionsType3.sol:16`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/oapp/contracts/oapp/libs/OAppOptionsType3.sol#L16).
 - LayerZero V2 combines enforced and caller-supplied type-3 options, while comments note duplicate handling is off-chain, in `OAppOptionsType3.sol:51`.
-- LayerZero V2 executor fee parsing rejects unsupported options, zero receive gas, zero read calldata size, and native value above cap in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/contracts/ExecutorFeeLib.sol:139`.
-- LayerZero V2 tests cover native-drop caps and fee composition in `/private/tmp/defillama-source/LayerZero-Labs__LayerZero-v2/packages/layerzero-v2/evm/messagelib/test/ExecutorFeeLib.t.sol`.
-- Velodrome Superchain bridge deployment templates configure route-specific bridge parameters under `/private/tmp/defillama-source/velodrome-finance__superchain-contracts/script/deployBridges` and should be reviewed with runtime bridge checks.
+- LayerZero V2 executor fee parsing rejects unsupported options, zero receive gas, zero read calldata size, and native value above cap in [`packages/layerzero-v2/evm/messagelib/contracts/ExecutorFeeLib.sol:139`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/messagelib/contracts/ExecutorFeeLib.sol#L139).
+- LayerZero V2 tests cover native-drop caps and fee composition in [`packages/layerzero-v2/evm/messagelib/test/ExecutorFeeLib.t.sol`](https://github.com/LayerZero-Labs/LayerZero-v2/blob/9c741e7f9790639537b1710a203bcdfd73b0b9ac/packages/layerzero-v2/evm/messagelib/test/ExecutorFeeLib.t.sol).
+- Velodrome Superchain bridge deployment templates configure route-specific bridge parameters under [`script/deployBridges`](https://github.com/velodrome-finance/superchain-contracts/blob/c93c466a2fcd1fd9dc79ba569f6b81c42bb50d61/script/deployBridges) and should be reviewed with runtime bridge checks.
 
 ## Real-World Examples
 

@@ -25,6 +25,21 @@
 - Rounding direction is undocumented or differs between preview and execution
 - Users can exploit compression by repeatedly cycling dust operations
 
+## Trade-offs
+
+**Pros:**
+- Packing many amounts into constrained slots cuts storage writes, the dominant gas cost in lending hot paths.
+- Path-specific rounding direction biases every loss toward protocol solvency instead of leaking value.
+- Minimum operation sizes make dust behavior explicit rather than an emergent precision artifact.
+- No-op storage-change reverts stop the protocol from taking user funds without changing accounting.
+
+**Cons:**
+- Mantissa/exponent math is a high-audit-risk surface; exponent-boundary bugs are subtle and need dedicated fuzzing.
+- Every operation pays encode/decode compute overhead, partially offsetting the storage savings.
+- Per-operation precision loss is permanent; without bounds analysis it can accumulate into real accounting drift.
+- Preview/execution mismatch risk: any view path that rounds differently from the state-changing path breaks integrators.
+- Dust minimums degrade UX for small users and must be recalibrated as token prices move.
+
 ## How It Works
 
 Convert exact amounts into a compact mantissa/exponent representation, but choose the rounding direction by operation:

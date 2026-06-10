@@ -72,7 +72,7 @@ function unstake(uint256 amount) external {
 
 ## Source Evidence
 
-- BENQI's veQI computes accrued voting power from staked amount, elapsed time, and a maximum cap in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/veQI/VeQi.sol`.
+- BENQI's veQI computes accrued voting power from staked amount, elapsed time, and a maximum cap in [`veQI/VeQi.sol`](https://github.com/benqi-fi/BENQI-Smart-Contracts/blob/e0cfd244726719dfe027c9740878d64d1cad98f2/veQI/VeQi.sol).
 - BENQI's `VeERC20Upgradeable` disables normal transfer and allowance flows, making the voting-power token non-transferable.
 
 ## Real-World Examples

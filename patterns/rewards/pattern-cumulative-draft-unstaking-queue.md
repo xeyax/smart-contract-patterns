@@ -80,8 +80,8 @@ function withdraw(uint256 endId) external {
 
 ## Source Evidence
 
-- Reserve Protocol `StRSR` tracks delayed unstaking drafts with cumulative values, `beginEra`, `beginDraftEra`, and seizure reset paths in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/p1/StRSR.sol`.
-- Reserve tests cover multiple unstakes, withdrawals, full seizure, and era resets in `/private/tmp/defillama-source/reserve-protocol__protocol/test/ZZStRSR.test.ts`.
+- Reserve Protocol `StRSR` tracks delayed unstaking drafts with cumulative values, `beginEra`, `beginDraftEra`, and seizure reset paths in [`contracts/p1/StRSR.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/p1/StRSR.sol).
+- Reserve tests cover multiple unstakes, withdrawals, full seizure, and era resets in [`test/ZZStRSR.test.ts`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/test/ZZStRSR.test.ts).
 
 ## Real-World Examples
 

@@ -70,8 +70,8 @@ function sendMessage(address target, bytes4 selector, uint256 value, bytes calld
 
 ## Source Evidence
 
-- TON vesting wallet computes locked amount, filters sends to whitelisted destinations and elector/config message shapes, and reserves locked balance with `raw_reserve` in `/private/tmp/defillama-source/ton-blockchain__vesting-contract/contracts/vesting_wallet.fc`.
-- TON vesting tests cover allowed staking-related sends and rejected disallowed operations in `/private/tmp/defillama-source/ton-blockchain__vesting-contract/tests/VestingWallet.spec.ts`.
+- TON vesting wallet computes locked amount, filters sends to whitelisted destinations and elector/config message shapes, and reserves locked balance with `raw_reserve` in [`contracts/vesting_wallet.fc`](https://github.com/ton-blockchain/vesting-contract/blob/2a63cb96942332abf92ed8425b37645fe4f41f86/contracts/vesting_wallet.fc).
+- TON vesting tests cover allowed staking-related sends and rejected disallowed operations in [`tests/VestingWallet.spec.ts`](https://github.com/ton-blockchain/vesting-contract/blob/2a63cb96942332abf92ed8425b37645fe4f41f86/tests/VestingWallet.spec.ts).
 
 ## Real-World Examples
 

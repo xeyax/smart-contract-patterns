@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | rewards |
+| Platform | solana |
 | Tags | rewards, snapshot, bitmap, debt, solana |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
@@ -72,9 +73,9 @@ Reward distribution checks that debt finalization and write-off gates are in the
 
 ## Source Evidence
 
-- DoubleZero Solana initializes distributions in `try_initialize_distribution`, tracks reward and debt processing in `remaining_data`, and derives disjoint bitmap ranges in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/src/processor.rs` and `src/state/distribution.rs`.
+- DoubleZero Solana initializes distributions in `try_initialize_distribution`, tracks reward and debt processing in `remaining_data`, and derives disjoint bitmap ranges in [`programs/revenue-distribution/src/processor.rs`](https://github.com/doublezerofoundation/doublezero-solana/blob/4368da2c446b799f354aecb6156fc0e77343634b/programs/revenue-distribution/src/processor.rs) and `src/state/distribution.rs`.
 - `try_distribute_rewards`, `try_collect_integration_rewards`, and the Solana validator debt processors mark indexed leaves through `try_process_remaining_data_leaf_index`.
-- DoubleZero tests verify reward, debt, and write-off bitmap ranges and same-distribution debt write-off behavior in `/private/tmp/defillama-source/doublezerofoundation__doublezero-solana/programs/revenue-distribution/tests/distribute_rewards_test.rs` and `write_off_solana_validator_debt_test.rs`.
+- DoubleZero tests verify reward, debt, and write-off bitmap ranges and same-distribution debt write-off behavior in [`programs/revenue-distribution/tests/distribute_rewards_test.rs`](https://github.com/doublezerofoundation/doublezero-solana/blob/4368da2c446b799f354aecb6156fc0e77343634b/programs/revenue-distribution/tests/distribute_rewards_test.rs) and `write_off_solana_validator_debt_test.rs`.
 
 ## Real-World Examples
 

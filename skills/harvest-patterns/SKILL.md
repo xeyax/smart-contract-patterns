@@ -80,8 +80,8 @@ Harvest summary:
 - Follow the existing pattern style and `TEMPLATE.md` section names.
 - Add a short `## Source Evidence` section to newly harvested docs unless the evidence naturally fits under Real-World Examples or References.
 - Keep implementation snippets minimal and pattern-focused; abstract target-specific names.
-- Keep local target repo paths in evidence when the target is local. If the target is public, include stable links only when available.
-- After edits, regenerate `patterns/INDEX.md`; do not hand-edit the generated file.
+- Cite public-repo evidence as GitHub permalinks pinned to the cloned commit (`[\`path/File.sol:123\`](https://github.com/org/repo/blob/<sha>/path/File.sol#L123)`); capture the commit SHA at clone time (`git rev-parse HEAD`). Never write local clone paths (e.g. `/tmp/...`) into catalog docs — `scripts/validate-patterns.py` rejects them. For private/local-only targets, cite `repo-name@<sha> path:line` as plain text.
+- After edits, regenerate `patterns/INDEX.md`; do not hand-edit the generated file. Run `python3 scripts/validate-patterns.py` before finishing.
 
 ## Subagent Guidance
 

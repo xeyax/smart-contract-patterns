@@ -26,6 +26,21 @@
 - App-chain validators cannot verify the exact Bitcoin script and presigned transactions
 - Users expect trustless withdrawals without covenant or signature assumptions
 
+## Trade-offs
+
+**Pros:**
+- BTC never leaves Bitcoin: no bridge custody, wrapped-mint, or reserve-backing risk.
+- Validating presigned slashing and unbonding transactions before activation makes economic penalties actually enforceable.
+- Separate Taproot leaves keep withdrawal, early-exit, and slashing paths independently auditable.
+- Activation checks on script, value, confirmation depth, and fees prevent granting voting power to malformed or underfunded stakes.
+
+**Cons:**
+- Covenant and finality-provider keys are real trust assumptions; unbonding and slashing are not trustless.
+- Validation spans two stacks — Bitcoin script construction, presigned transaction sanity, and app-chain state — making implementation, tooling, and audits expensive.
+- Staked BTC yields no bridged liquidity; it cannot serve as wrapped collateral elsewhere.
+- Parameter drift between staking, unbonding, and slashing scripts is a subtle failure mode that demands exhaustive cross-script testing.
+- Confirmation-depth requirements delay voting-power activation by hours.
+
 ## How It Works
 
 Build a Taproot staking output with separate spend leaves:

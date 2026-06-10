@@ -85,8 +85,8 @@ function _firstSound(address primary, address[] storage backups) internal view r
 
 ## Source Evidence
 
-- Reserve Protocol stores prime basket target names, configures backups by target name, and switches baskets through `BasketLib.nextBasket` and `BasketHandler._switchBasket` in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/p1/BasketHandler.sol` and `contracts/p1/mixins/BasketLib.sol`.
-- Reserve tests and scenarios cover basket normalization and backup substitution in `/private/tmp/defillama-source/reserve-protocol__protocol/test`.
+- Reserve Protocol stores prime basket target names, configures backups by target name, and switches baskets through `BasketLib.nextBasket` and `BasketHandler._switchBasket` in [`contracts/p1/BasketHandler.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/p1/BasketHandler.sol) and `contracts/p1/mixins/BasketLib.sol`.
+- Reserve tests and scenarios cover basket normalization and backup substitution in [`test`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/test).
 
 ## Real-World Examples
 

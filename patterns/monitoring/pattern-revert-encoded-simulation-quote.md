@@ -25,6 +25,21 @@
 - Callers expect a normal `view` function
 - Revert data can be confused with arbitrary failure data
 
+## Trade-offs
+
+**Pros:**
+- Quote and execution share one code path, eliminating quote/execution formula drift by construction.
+- No duplicated pricing logic to maintain and audit separately.
+- Custom-error encoding returns rich structured data (amounts, post-swap price, ticks, gas) without storage writes.
+- Works through standard `eth_call`/`callStatic`, so no special node or off-chain infrastructure is required.
+
+**Cons:**
+- The function cannot be `view`, so integrators must use low-level static calls and decode revert data instead of normal ABI reads.
+- The sentinel revert must fire before any irreversible external effect; a mis-ordered settlement step turns a quote into a live trade.
+- Ordinary failures can be mistaken for quote reverts unless callers match the exact error selector — decoding arbitrary revert data yields garbage quotes.
+- A quote costs near-full execution gas, making on-chain composition of quotes expensive.
+- Simulation mode reachable from normal execution with user funds is a critical failure mode, raising audit stakes.
+
 ## How It Works
 
 The simulation enters the real path with a sentinel receiver and reverts with structured quote data before settlement:
@@ -78,13 +93,13 @@ revert selector from ordinary swap failures.
 ## Source Evidence
 
 - Fluid vault liquidation simulation runs the real liquidation path with a sentinel receiver and reverts with encoded quote data before liquidity payback and withdraw settlement.
-- Jupiter AMM implementation snapshots AMM accounts, loads real program binaries in LiteSVM, executes swaps, and compares execution deltas to quote results in `/private/tmp/defillama-source/jup-ag_jupiter-amm-implementation/jupiter-core/src/amms/test_harness.rs` and `jupiter-core/tests/test_amms.rs`.
-- Sanctum's INF Jupiter adapter derives quote and swap account metas from the same adapter state and tests simulated swaps through account snapshots in `/private/tmp/defillama-source/igneous-labs_inf-jup-interface/jup-interface/src/lib.rs` and `jup-interface/tests/common/swap.rs`.
+- Jupiter AMM implementation snapshots AMM accounts, loads real program binaries in LiteSVM, executes swaps, and compares execution deltas to quote results in [`jupiter-core/src/amms/test_harness.rs`](https://github.com/jup-ag/jupiter-amm-implementation/blob/cc068c9d1df0060c62f9a8a4fc37ea13ea7b9b39/jupiter-core/src/amms/test_harness.rs) and `jupiter-core/tests/test_amms.rs`.
+- Sanctum's INF Jupiter adapter derives quote and swap account metas from the same adapter state and tests simulated swaps through account snapshots in [`jup-interface/src/lib.rs`](https://github.com/igneous-labs/inf-jup-interface/blob/3f14e9936878916c71213d0cba66e7ad19432728/jup-interface/src/lib.rs) and `jup-interface/tests/common/swap.rs`.
 - Uniswap V3 quoters run the swap path and revert from the callback with encoded
   quote data, including V2 metadata for post-swap price, initialized ticks
-  crossed, and gas estimate in `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/lens/Quoter.sol:37`,
-  `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/lens/QuoterV2.sol:40`,
-  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/QuoterV2.spec.ts:266`.
+  crossed, and gas estimate in [`contracts/lens/Quoter.sol:37`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/contracts/lens/Quoter.sol#L37),
+  [`contracts/lens/QuoterV2.sol:40`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/contracts/lens/QuoterV2.sol#L40),
+  and [`test/QuoterV2.spec.ts:266`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/test/QuoterV2.spec.ts#L266).
 
 ## Related Patterns
 

@@ -283,15 +283,15 @@ function getOptimizedPrice() public view returns (uint256) {
 - [Aave Price Oracle](https://docs.aave.com/developers/core-contracts/aaveoracle) — fallback oracle mechanism
 - [Compound Price Feed](https://docs.compound.finance/v2/prices/) — multi-source validation
 - [MakerDAO Medianizer](https://docs.makerdao.com/smart-contract-modules/oracle-module) — median of multiple sources
-- NAVI validates primary/secondary oracle divergence with warning and rejection states in `/private/tmp/defillama-source/naviprotocol__navi-smart-contracts/oracle/sources/oracle_pro.move` and `oracle/sources/strategy.move`.
+- NAVI validates primary/secondary oracle divergence with warning and rejection states in [`oracle/sources/oracle_pro.move`](https://github.com/naviprotocol/navi-smart-contracts/blob/473b0934235d6dc1357fa4309308167c6d175fd1/oracle/sources/oracle_pro.move) and `oracle/sources/strategy.move`.
 - Liquity V1's `PriceFeed.sol` fallback and last-good-price state machine provides additional evidence that source disagreement needs explicit status transitions instead of silent fallback.
-- Alpha Homora V2's `AggregatorOracle` caps primary sources at three, sorts valid prices, averages agreeing pairs, returns the median when all three agree, and reverts when no pair is within deviation in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/oracle/AggregatorOracle.sol`.
+- Alpha Homora V2's `AggregatorOracle` caps primary sources at three, sorts valid prices, averages agreeing pairs, returns the median when all three agree, and reverts when no pair is within deviation in [`contracts/oracle/AggregatorOracle.sol`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/oracle/AggregatorOracle.sol).
 - Satoshi Core's weighted Chainlink aggregator checks source freshness but illustrates why averaging multiple sources should not be described as validation unless it also enforces deviation or quorum semantics.
-- Kamino Scope's most-recent oracle variants check source freshness and deviation before selecting the most recent agreeing value, with capped variants preserving the same fail-closed semantics in `/private/tmp/defillama-source/Kamino-Finance_scope/programs/scope/src/oracles/most_recent_of.rs`, `oracles/capped_most_recent_of.rs`, and `utils/source_entries.rs`.
+- Kamino Scope's most-recent oracle variants check source freshness and deviation before selecting the most recent agreeing value, with capped variants preserving the same fail-closed semantics in [`programs/scope/src/oracles/most_recent_of.rs`](https://github.com/Kamino-Finance/scope/blob/3eb930312386bdba39c540e62d863ce24bc4c492/programs/scope/src/oracles/most_recent_of.rs), `oracles/capped_most_recent_of.rs`, and `utils/source_entries.rs`.
 - 1inch Spot Price Aggregator is explicitly off-chain-only despite aggregating
   DEX sources, and its contract-level warning preserves the spot-manipulation
-  boundary in `/private/tmp/defillama-source/1inch__spot-price-aggregator/README.md:11`
-  and `/private/tmp/defillama-source/1inch__spot-price-aggregator/contracts/OffchainOracle.sol:241`.
+  boundary in [`README.md:11`](https://github.com/1inch/spot-price-aggregator/blob/8911f1582347172876b72ea4225106232f4aaab2/README.md#L11)
+  and [`contracts/OffchainOracle.sol:241`](https://github.com/1inch/spot-price-aggregator/blob/8911f1582347172876b72ea4225106232f4aaab2/contracts/OffchainOracle.sol#L241).
 
 ## Related Patterns
 

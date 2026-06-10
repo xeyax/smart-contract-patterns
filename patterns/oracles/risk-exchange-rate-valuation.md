@@ -76,20 +76,20 @@ This risk affects [Oracle Reliability Requirements](./req-oracle-reliability.md)
 - Stader BNBx derives a fresh internal LST exchange rate from delegated backing and token supply, which is useful for mint/redeem accounting but still distinct from market-clearing collateral value.
 - Stake DAO's Curve LP collateral oracle documents conservative stableswap pricing while preserving read-only reentrancy, sequencer, and market-value caveats.
 - Sanctum demonstrates conservative LST router accounting and upgrade-slot-pinned rate adapters, both of which protect internal valuation semantics without proving market-clearing price.
-- Reservoir sRUSD loopers value collateral through internal saving-module conversion paths while Morpho market parameters determine liquidation exposure in `/private/tmp/defillama-source/reservoir-protocol__srusd-loop/src`.
-- Pendle's PT/YT/LP oracle libraries haircut rates when the standardized-yield exchange rate drops below the stored PY index and document LP output as approximate in `/private/tmp/defillama-source/pendle-finance__pendle-core-v2-public/contracts/oracles/PtYtLpOracle`.
-- Aera v2 values ERC4626 shares through `convertToAssets` and the underlying asset oracle, requires underlying registration, and blocks removal of active underlying assets in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v2`.
+- Reservoir sRUSD loopers value collateral through internal saving-module conversion paths while Morpho market parameters determine liquidation exposure in [`src`](https://github.com/reservoir-protocol/srusd-loop/blob/f97aaab1ff1028601e2fa888f1161978cf3711ed/src).
+- Pendle's PT/YT/LP oracle libraries haircut rates when the standardized-yield exchange rate drops below the stored PY index and document LP output as approximate in [`contracts/oracles/PtYtLpOracle`](https://github.com/pendle-finance/pendle-core-v2-public/blob/fdcfe39ed7b45717f0e6e286581bdcf96bb2f9ce/contracts/oracles/PtYtLpOracle).
+- Aera v2 values ERC4626 shares through `convertToAssets` and the underlying asset oracle, requires underlying registration, and blocks removal of active underlying assets in [`v2`](https://github.com/aera-finance/aera-contracts-public/blob/9888a9e0d50fa38d4e86a69a8ebb9b605b08dafd/v2).
 - Balancer V3 scales token balances by decimal and rate-provider data for pool
-  math, yield fees, and BPT-rate views in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/Vault.sol:169-190`,
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/lib/PoolDataLib.sol:31-92`,
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultExtension.sol:491-511`;
+  math, yield fees, and BPT-rate views in [`pkg/vault/contracts/Vault.sol:169-190`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/Vault.sol#L169-L190),
+  [`pkg/vault/contracts/lib/PoolDataLib.sol:31-92`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/lib/PoolDataLib.sol#L31-L92),
+  and [`pkg/vault/contracts/VaultExtension.sol:491-511`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/VaultExtension.sol#L491-L511);
   this is accounting evidence, not proof of market-clearing LP value.
 - Balancer V2 composable stable pools expose rate-derived BPT math in
-  `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/pool-stable/contracts/ComposableStablePoolRates.sol:38-65`
-  and `/private/tmp/defillama-source/balancer__balancer-v2-monorepo/pkg/pool-stable/contracts/ComposableStablePoolRates.sol:197-280`.
+  [`pkg/pool-stable/contracts/ComposableStablePoolRates.sol:38-65`](https://github.com/balancer/balancer-v2-monorepo/blob/316ded078ddc2f1b28da5804d25752af67453435/pkg/pool-stable/contracts/ComposableStablePoolRates.sol#L38-L65)
+  and [`pkg/pool-stable/contracts/ComposableStablePoolRates.sol:197-280`](https://github.com/balancer/balancer-v2-monorepo/blob/316ded078ddc2f1b28da5804d25752af67453435/pkg/pool-stable/contracts/ComposableStablePoolRates.sol#L197-L280).
 - Morpho Blue oracle wrappers sample ERC4626 conversions and warn about donation
-  effects in `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/MorphoChainlinkOracleV2.sol:52`
-  and `/private/tmp/defillama-source/morpho-org__morpho-blue-oracles/src/morpho-chainlink/libraries/VaultLib.sol:11`.
+  effects in [`src/morpho-chainlink/MorphoChainlinkOracleV2.sol:52`](https://github.com/morpho-org/morpho-blue-oracles/blob/e32d8902f9518365caa53e9eaed3cbd6cb017a63/src/morpho-chainlink/MorphoChainlinkOracleV2.sol#L52)
+  and [`src/morpho-chainlink/libraries/VaultLib.sol:11`](https://github.com/morpho-org/morpho-blue-oracles/blob/e32d8902f9518365caa53e9eaed3cbd6cb017a63/src/morpho-chainlink/libraries/VaultLib.sol#L11).
 
 ## Related Patterns
 

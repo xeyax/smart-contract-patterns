@@ -25,6 +25,20 @@
 - A simple append-only storage layout is sufficient and well enforced
 - Developers are unlikely to maintain namespace constants carefully
 
+## Trade-offs
+
+**Pros:**
+- Eliminates inheritance-order storage collisions; each module's state lives in its own deterministic slot.
+- Modules can be added, removed, or reordered across upgrades without shifting other modules' layouts.
+- The EIP-7201-style slot formula is verifiable offline and diffable in CI.
+- Typed accessor libraries keep all state access auditable through one chokepoint per namespace.
+
+**Cons:**
+- Every state access pays an extra slot computation and assembly indirection versus plain declared variables.
+- Boilerplate per module: namespace constant, struct, accessor; discipline failure (reused or edited namespace string) silently corrupts state.
+- Struct field reordering or insertion inside a namespace is still a layout break; the pattern moves the hazard, it does not remove it.
+- Off-the-shelf storage-layout tooling and explorers understand declared variables better than assembly-sloted structs, weakening automated checks unless CI is extended.
+
 ## How It Works
 
 Define a stable namespace and expose one accessor:

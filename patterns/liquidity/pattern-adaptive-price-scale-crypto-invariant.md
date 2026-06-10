@@ -71,14 +71,14 @@ The price-scale adjustment is part of AMM state, not an oracle guarantee.
 ## Source Evidence
 
 - Curve Crypto computes the crypto invariant and output balances through bounded
-  Newton-style math in `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:253-407`.
+  Newton-style math in [`contracts/two/CurveCryptoSwap2.vy:253-407`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L253-L407).
 - Curve Crypto combines swaps, dynamic fees, and price-scale/oracle updates in
-  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:466-530`
-  and `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:610-721`.
+  [`contracts/two/CurveCryptoSwap2.vy:466-530`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L466-L530)
+  and [`contracts/two/CurveCryptoSwap2.vy:610-721`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L610-L721).
 - Curve Crypto tests oracle and stateful behavior in
-  `/private/tmp/defillama-source/curvefi__curve-crypto-contract/tests/twocrypto/test_oracles.py`
-  and `/private/tmp/defillama-source/curvefi__curve-crypto-contract/tests/twocrypto/test_stateful.py`.
-- Yield Basis simulations under `/private/tmp/defillama-source/yield-basis__yb-simulations/btcusd` analyze Curve-style price-scale following, imbalance, dynamic rates, and fee variants for BTC/stable pools as simulation-only support for adaptive price-scale trade-offs.
+  [`tests/twocrypto/test_oracles.py`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/tests/twocrypto/test_oracles.py)
+  and [`tests/twocrypto/test_stateful.py`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/tests/twocrypto/test_stateful.py).
+- Yield Basis simulations under [`btcusd`](https://github.com/yield-basis/yb-simulations/blob/e22d13db7b4d5c74266b46f40168829615e479b6/btcusd) analyze Curve-style price-scale following, imbalance, dynamic rates, and fee variants for BTC/stable pools as simulation-only support for adaptive price-scale trade-offs.
 
 ## Related Patterns
 

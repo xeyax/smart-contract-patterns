@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
-| Tags | access-control, reentrancy, components, callbacks, protocol-kernel |
+| Tags | access-control, reentrancy, components, callback, protocol-kernel |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -83,8 +83,8 @@ contract Component {
 
 ## Source Evidence
 
-- Reserve Protocol components use `GlobalReentrancyGuard`, `Component.globalNonReentrant`, and `Main.beginTx/endTx` to share one reentrancy state across core components in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/p1`.
-- Reserve revenue and Dutch-trade tests include cross-component reentrancy checks in `/private/tmp/defillama-source/reserve-protocol__protocol/test/Revenues.test.ts`.
+- Reserve Protocol components use `GlobalReentrancyGuard`, `Component.globalNonReentrant`, and `Main.beginTx/endTx` to share one reentrancy state across core components in [`contracts/p1`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/p1).
+- Reserve revenue and Dutch-trade tests include cross-component reentrancy checks in [`test/Revenues.test.ts`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/test/Revenues.test.ts).
 
 ## Real-World Examples
 

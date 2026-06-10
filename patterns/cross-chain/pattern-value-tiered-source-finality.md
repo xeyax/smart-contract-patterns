@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | cross-chain |
-| Tags | bridge, finality, bitcoin, confirmations, risk |
+| Tags | bridge, finality, bitcoin, confirmation, risk |
 | Complexity | Medium |
 | Gas Efficiency | Low |
 | Audit Risk | High |
@@ -84,8 +84,8 @@ function _tierFor(uint256 amount) internal view returns (uint256 confirmations) 
 
 ## Source Evidence
 
-- Lorenzo BTC staking verifies Bitcoin inclusion and gates minting on amount-tiered confirmation thresholds in `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btcstaking/keeper/msg_server.go` and `x/btcstaking/keeper/utils.go`.
-- Lorenzo tests cover confirmation-depth tiers in `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btcstaking/keeper/utils_test.go`.
+- Lorenzo BTC staking verifies Bitcoin inclusion and gates minting on amount-tiered confirmation thresholds in [`x/btcstaking/keeper/msg_server.go`](https://github.com/Lorenzo-Protocol/lorenzo/blob/ee65c41e485ad7b57f4e40d0230c029354610a7d/x/btcstaking/keeper/msg_server.go) and `x/btcstaking/keeper/utils.go`.
+- Lorenzo tests cover confirmation-depth tiers in [`x/btcstaking/keeper/utils_test.go`](https://github.com/Lorenzo-Protocol/lorenzo/blob/ee65c41e485ad7b57f4e40d0230c029354610a7d/x/btcstaking/keeper/utils_test.go).
 
 ## Real-World Examples
 

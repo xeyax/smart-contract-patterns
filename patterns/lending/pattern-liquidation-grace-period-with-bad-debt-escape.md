@@ -97,9 +97,9 @@ function liquidate(address borrower, address collateral, uint256 repayAmount) ex
 
 ## Source Evidence
 
-- Zest Protocol liquidation checks a collateral grace period but bypasses the delay when total borrow value exceeds total collateral value in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/contracts/borrow/production/pool/liquidation-manager.clar`.
-- Zest tests cover grace-period liquidation behavior and bad-debt liquidation escape cases in `/private/tmp/defillama-source/Zest-Protocol__zest-contracts/onchain/tests/borrow/liquidation-2.test.ts`.
-- RAAC `LendingPool.sol` initiates liquidation, allows borrower self-cure through `closeLiquidation`, and restricts finalization to the stability pool after the grace period in `/private/tmp/defillama-source/ryzen-xp__2025-02-raac/contracts/core/pools/LendingPool/LendingPool.sol`.
+- Zest Protocol liquidation checks a collateral grace period but bypasses the delay when total borrow value exceeds total collateral value in [`onchain/contracts/borrow/production/pool/liquidation-manager.clar`](https://github.com/Zest-Protocol/zest-contracts/blob/3564bc38906e464ec4de774122bb9bbaee20ddc6/onchain/contracts/borrow/production/pool/liquidation-manager.clar).
+- Zest tests cover grace-period liquidation behavior and bad-debt liquidation escape cases in [`onchain/tests/borrow/liquidation-2.test.ts`](https://github.com/Zest-Protocol/zest-contracts/blob/3564bc38906e464ec4de774122bb9bbaee20ddc6/onchain/tests/borrow/liquidation-2.test.ts).
+- RAAC `LendingPool.sol` initiates liquidation, allows borrower self-cure through `closeLiquidation`, and restricts finalization to the stability pool after the grace period in [`contracts/core/pools/LendingPool/LendingPool.sol`](https://github.com/tinnohofficial/2025-02-raac/blob/dd5516a9b318b797f82015ee63170d9064514b16/contracts/core/pools/LendingPool/LendingPool.sol).
 
 ## Real-World Examples
 

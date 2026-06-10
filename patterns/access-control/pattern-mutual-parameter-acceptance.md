@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | access-control |
-| Tags | access-control, parameters, fees, bilateral, acceptance |
+| Tags | access-control, parameters, fee, bilateral, acceptance |
 | Complexity | Low |
 | Gas Efficiency | High |
 | Audit Risk | Low |
@@ -23,6 +23,20 @@
 - A single governance body legitimately owns the parameter
 - Emergency risk parameters need immediate unilateral change
 - One party cannot reliably submit acceptance transactions
+
+## Trade-offs
+
+**Pros:**
+- Neither party can unilaterally change shared economics, removing a whole class of fee-rug scenarios
+- Tiny state machine with two flags and one pending struct, so storage cost and audit surface stay low
+- On-chain acceptance produces an auditable record of off-chain negotiation
+
+**Cons:**
+- Either party can stall a change indefinitely by withholding acceptance, so disputes deadlock on the last agreed values
+- A party with lost keys or no transaction capability permanently blocks all future parameter changes
+- Stale pending proposals linger and can be accepted later unless expiry and cancellation are explicitly added
+- Changes take at least two coordinated transactions, so activation latency is bounded by the slowest party
+- Forgetting to reset acceptances on re-proposal lets one party sneak new values past a stale approval
 
 ## How It Works
 

@@ -73,10 +73,10 @@ function liquidationOrder(address borrower) internal view returns (Bucket[] memo
 
 ## Source Evidence
 
-- Silo V2 defines protected collateral and collateral share tokens in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/SiloConfig.sol`.
-- Silo V2 action logic handles deposit and transition flows in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/lib/Actions.sol`.
-- Silo V2 liquidation priority and close-factor behavior are implemented in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol`.
-- Silo V2 hook documentation describes collateral-type behaviors in `/private/tmp/defillama-source/silo-finance__silo-contracts-v2/silo-core/docs/Hooks.md`.
+- Silo V2 defines protected collateral and collateral share tokens in [`silo-core/contracts/SiloConfig.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/contracts/SiloConfig.sol).
+- Silo V2 action logic handles deposit and transition flows in [`silo-core/contracts/lib/Actions.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/contracts/lib/Actions.sol).
+- Silo V2 liquidation priority and close-factor behavior are implemented in [`silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/contracts/hooks/liquidation/lib/PartialLiquidationLib.sol).
+- Silo V2 hook documentation describes collateral-type behaviors in [`silo-core/docs/Hooks.md`](https://github.com/silo-finance/silo-contracts-v2/blob/fd1c73beafb7c81f77cd4477002ebadb4142d243/silo-core/docs/Hooks.md).
 
 ## Real-World Examples
 

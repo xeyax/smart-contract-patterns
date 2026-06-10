@@ -25,6 +25,21 @@
 - Reentrancy locks cannot span the full operation
 - Callback payloads are allowed to control critical pool state
 
+## Trade-offs
+
+**Pros:**
+- Payers can source funds during the callback, enabling flash swaps, just-in-time sourcing, and approval-free integrations.
+- Post-callback balance verification makes payment proof objective — the pool checks tokens received, not caller claims.
+- One settlement shape covers mint, swap, and flash paths, reusing the same lock and balance-check machinery.
+- Optimistic transfer-first flow avoids pre-funding and double transfers for sophisticated routers.
+
+**Cons:**
+- Reentrancy lock must span the entire operation; any invariant write reachable during the callback outside the lock is an exploit path.
+- Trust is asymmetric: the pool is protected by balance checks, but every callback receiver must independently validate the canonical pool address or be drained by spoofed callbacks.
+- Balance-delta verification mishandles fee-on-transfer and rebasing tokens, silently converting transfer fees into pool underpayment.
+- Contract-only integration — EOAs cannot implement callbacks, so every consumer needs audited periphery code.
+- Netting or transfer-skip variants move the proof from token balances to ledger reconciliation, a subtler check that is easier to get wrong.
+
 ## How It Works
 
 The pool transfers or accounts optimistically, calls the user callback, then checks that the required token balance was paid:
@@ -62,12 +77,12 @@ still add the same reentrancy, slippage, and token-safety review as any callback
 
 - Uniswap V3 and PancakeSwap V3 use optimistic mint/swap/flash callbacks, pool-wide locks, callback caller validation, and post-callback balance checks with underpayment tests.
 - Fluid liquidity operations include `SKIP_TRANSFERS` and `NET_TRANSFERS` style settlement modes that still enforce final balance and total-input checks around callbacks.
-- QuickSwap/Uniswap V2 example flash-swap receivers validate callback sender against the factory-derived pair before repayment in `/private/tmp/defillama-source/QuickSwap__quickswap-periphery/contracts/examples/ExampleFlashSwap.sol`; treat this as example-level evidence.
+- QuickSwap/Uniswap V2 example flash-swap receivers validate callback sender against the factory-derived pair before repayment in [`contracts/examples/ExampleFlashSwap.sol`](https://github.com/QuickSwap/quickswap-periphery/blob/522a94168b0814d0776d834119df377f03898807/contracts/examples/ExampleFlashSwap.sol); treat this as example-level evidence.
 - SunSwap V3 repeats the Uniswap V3 callback settlement shape on TRON with router-side callback validation and pool-side post-callback balance checks.
 - Pendle V2 market callbacks demonstrate the caveat: the market checks post-callback balances, but generic periphery callback handlers still need expected-caller validation.
 - Curve Crypto `exchange_extended` supports callback settlement and requires the
-  exact input balance delta before finalizing in `/private/tmp/defillama-source/curvefi__curve-crypto-contract/contracts/two/CurveCryptoSwap2.vy:722-837`,
-  with callback tests in `/private/tmp/defillama-source/curvefi__curve-crypto-contract/tests/twocrypto/test_callback.py:17-54`.
+  exact input balance delta before finalizing in [`contracts/two/CurveCryptoSwap2.vy:722-837`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/contracts/two/CurveCryptoSwap2.vy#L722-L837),
+  with callback tests in [`tests/twocrypto/test_callback.py:17-54`](https://github.com/curvefi/curve-crypto-contract/blob/d7d04cd9ae038970e40be850df99de8c1ff7241b/tests/twocrypto/test_callback.py#L17-L54).
 
 ## Related Patterns
 

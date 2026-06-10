@@ -72,8 +72,8 @@ function distributeCredit(uint256 amount) external {
 
 ## Source Evidence
 
-- Alchemix V2 harvest accounting, pending credit, and account debt reduction are implemented in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/src/AlchemistV2.sol`.
-- Alchemix invariants around debt, credit, and collateral live in `/private/tmp/defillama-source/alchemix-finance__v2-foundry/src/test/utils/Invariants.sol`.
+- Alchemix V2 harvest accounting, pending credit, and account debt reduction are implemented in [`src/AlchemistV2.sol`](https://github.com/alchemix-finance/v2-foundry/blob/8915ef7b1714c16f9e260a4ef41c5f254d5b7f58/src/AlchemistV2.sol).
+- Alchemix invariants around debt, credit, and collateral live in [`src/test/utils/Invariants.sol`](https://github.com/alchemix-finance/v2-foundry/blob/8915ef7b1714c16f9e260a4ef41c5f254d5b7f58/src/test/utils/Invariants.sol).
 
 ## Real-World Examples
 

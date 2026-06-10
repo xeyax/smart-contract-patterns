@@ -26,6 +26,21 @@
 - The callback target or delegate can bypass authorization
 - The market cannot distinguish active flash-loan amounts from free cash
 
+## Trade-offs
+
+**Pros:**
+- One atomic transaction replaces flash-loan-plus-separate-borrow flows, cutting gas and eliminating mid-sequence price risk for leverage and migration use cases.
+- Reusing the ordinary borrow path means collateral, pause, oracle, and accrual checks apply identically — no second risk codepath to keep in sync.
+- Fee floor on the full flash amount preserves protocol revenue regardless of repayment mix.
+- Borrow delegation support enables position managers to settle on behalf of users without new trust primitives.
+
+**Cons:**
+- Risk checks run after an attacker-controlled callback, so callback authentication, delegate validation, and reentrancy locking become load-bearing security boundaries.
+- Exchange-rate reads must distinguish active flash-loan cash from free cash; getting this wrong misprices shares mid-loan.
+- Repayment accounting edge cases (overpay, fee-only repay, partial repay) each carry negative-debt or fee-bypass failure modes needing explicit caps and tests.
+- Composing flash settlement with borrow accrual, delegation, and comptroller checks in one frame concentrates audit complexity in a single function.
+- Integrators can no longer assume flash loans are balance-neutral by frame exit, complicating downstream solvency reasoning.
+
 ## How It Works
 
 After callback, repay what was returned and convert the unpaid amount into debt:
@@ -76,8 +91,8 @@ post-callback solvency must be checked in one frame.
 ## Source Evidence
 
 - Venus flash loans allow unpaid balances to become borrower debt through the normal borrow path, with market, delegate, fee, repayment, and accounting checks.
-- Aave V2 flash loans require repayment plus premium for mode `NONE`, while nonzero modes route post-callback unpaid principal through ordinary borrow validation and stable or variable debt minting in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/lendingpool/LendingPool.sol`; tests cover variable debt conversion and delegated stable debt.
-- Yield Basis `VirtualPool.vy` computes a required flash amount, authenticates the flash lender in `onFlashLoan`, performs the AMM operation, and repays from the post-swap balance in `/private/tmp/defillama-source/Peter-Brad__2025-08-yield-basis-Peter-Brad-public/contracts/VirtualPool.vy`.
+- Aave V2 flash loans require repayment plus premium for mode `NONE`, while nonzero modes route post-callback unpaid principal through ordinary borrow validation and stable or variable debt minting in [`contracts/protocol/lendingpool/LendingPool.sol`](https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/lendingpool/LendingPool.sol); tests cover variable debt conversion and delegated stable debt.
+- Yield Basis `VirtualPool.vy` computes a required flash amount, authenticates the flash lender in `onFlashLoan`, performs the AMM operation, and repays from the post-swap balance in [`contracts/VirtualPool.vy`](https://github.com/Peter-Brad/2025-08-yield-basis-Peter-Brad-public/blob/6948a65d35b95bac81198b489d8437791a24af9b/contracts/VirtualPool.vy).
 
 ## Related Patterns
 

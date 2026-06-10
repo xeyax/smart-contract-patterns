@@ -66,11 +66,11 @@ function findInsertPosition(uint256 ratio, address upper, address lower) public 
 
 ## Source Evidence
 
-- Liquity V1 uses `/private/tmp/defillama-source/liquity__dev/packages/contracts/contracts/SortedTroves.sol` with `insert`, `reInsert`, and `findInsertPosition`.
+- Liquity V1 uses [`packages/contracts/contracts/SortedTroves.sol`](https://github.com/liquity/dev/blob/3e64ee1b52c50d51587c64c1cf75e0ba82934979/packages/contracts/contracts/SortedTroves.sol) with `insert`, `reInsert`, and `findInsertPosition`.
 - Liquity V1 helper logic in `HintHelpers.sol` exposes `getApproxHint` and `getRedemptionHints`.
 - Liquity tests include `SortedTrovesTest.js` for ordering and list behavior.
-- Liquity V2/Bold uses analogous sorted trove machinery in `/private/tmp/defillama-source/liquity__bold/contracts/src/SortedTroves.sol`.
-- Satoshi Core uses per-collateral NICR-ordered trove lists with caller hints and redemption hint helpers in `/private/tmp/defillama-source/Satoshi-Protocol__satoshi-core/src/core/SortedTroves.sol` and `src/helpers/MultiCollateralHintHelpers.sol`.
+- Liquity V2/Bold uses analogous sorted trove machinery in [`contracts/src/SortedTroves.sol`](https://github.com/liquity/bold/blob/3fcaf602eb36541dd298c73710e067dcad42d8ae/contracts/src/SortedTroves.sol).
+- Satoshi Core uses per-collateral NICR-ordered trove lists with caller hints and redemption hint helpers in [`src/core/SortedTroves.sol`](https://github.com/Satoshi-Protocol/satoshi-core/blob/7f5eddaed965904fde10ea1d40c4c4b3ea118ada/src/core/SortedTroves.sol) and `src/helpers/MultiCollateralHintHelpers.sol`.
 
 ## Real-World Examples
 

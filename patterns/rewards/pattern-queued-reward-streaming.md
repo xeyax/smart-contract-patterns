@@ -25,6 +25,21 @@
 - Reward token balances can be donated and should not affect accounting
 - The distributor set cannot be governed or monitored
 
+## Trade-offs
+
+**Pros:**
+- Smooths discrete reward deposits into continuous accrual, removing claim-timing races around large drops.
+- Leftover carry-forward preserves undistributed rewards when streams are refilled before period end.
+- Distributor allowlist blocks donation-based manipulation of reward rates.
+- Streaming over a fixed duration neutralizes the flash-deposit capture that instant payout modes invite.
+
+**Cons:**
+- User reward accounting must update before every global rate change; ordering bugs silently corrupt accrued balances.
+- Integer division of `amount / rewardsDuration` leaves dust and can round small notifications to a zero rate.
+- Frequent re-notification before period end repeatedly dilutes the rate and pushes out `periodFinish`, delaying full distribution.
+- Adds governance surface: distributor set, duration changes, and fee splits all need timelocks or monitoring.
+- Rewards lag funding by up to the full stream duration — worse UX than immediate claims.
+
 ## How It Works
 
 When new rewards arrive before the current period finishes, carry the remaining amount into the new rate:
@@ -73,8 +88,8 @@ function harvestAndQueue() external {
 - Convex uses permissioned reward distributors and carries leftover rewards into new reward rates when streams are refilled before period end.
 - Convex proxy harvest flows claim external rewards and split fees through registry-configured recipients.
 - Reserve staking audit material warns that instant payout modes are vulnerable to flash deposits when reward funding is externally triggerable.
-- Velodrome V2 gauges stream rewards until the next epoch boundary, carry leftovers, reject zero rates, and cap reward rate by balance in `/private/tmp/defillama-source/velodrome-finance__contracts/contracts/Gauge.sol`.
-- Tokemak V2 liquidates claimed destination-vault rewards through whitelisted swappers with oracle minimums and queues net proceeds into main rewarders that carry queued rewards forward in `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/liquidation/LiquidationRow.sol` and `/private/tmp/defillama-source/Tokemak__v2-core-pub/src/rewarders/AbstractRewarder.sol`.
+- Velodrome V2 gauges stream rewards until the next epoch boundary, carry leftovers, reject zero rates, and cap reward rate by balance in [`contracts/Gauge.sol`](https://github.com/velodrome-finance/contracts/blob/b3065d8b6702b14b094f9f6046b752cc9f78c43b/contracts/Gauge.sol).
+- Tokemak V2 liquidates claimed destination-vault rewards through whitelisted swappers with oracle minimums and queues net proceeds into main rewarders that carry queued rewards forward in [`src/liquidation/LiquidationRow.sol`](https://github.com/Tokemak/v2-core-pub/blob/de163d5a1edf99281d7d000783b4dc8ade03591e/src/liquidation/LiquidationRow.sol) and [`src/rewarders/AbstractRewarder.sol`](https://github.com/Tokemak/v2-core-pub/blob/de163d5a1edf99281d7d000783b4dc8ade03591e/src/rewarders/AbstractRewarder.sol).
 
 ## Related Patterns
 

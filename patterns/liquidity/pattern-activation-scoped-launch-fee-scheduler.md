@@ -70,11 +70,11 @@ fn base_fee(now: u64, price: u128, trade: TradeContext) -> u64 {
 
 ## Source Evidence
 
-- Meteora DAMM v2 defines time, rate-limiter, and market-cap scheduler modes in `/private/tmp/defillama-source/MeteoraAg__damm-v2/programs/cp-amm/src/state/fee.rs`.
+- Meteora DAMM v2 defines time, rate-limiter, and market-cap scheduler modes in [`programs/cp-amm/src/state/fee.rs`](https://github.com/MeteoraAg/damm-v2/blob/58a13fcf45516a9f27f2bd2a2056fb66673454e0/programs/cp-amm/src/state/fee.rs).
 - Meteora computes linear and exponential time tapering in `base_fee/fee_time_scheduler.rs`.
 - Meteora reduces fees by market-cap or price progress in `base_fee/fee_market_cap_scheduler.rs`.
 - Meteora scopes rate-limited launch fees in `base_fee/fee_rate_limiter.rs` and tests them in `programs/cp-amm/src/tests/test_rate_limiter.rs`.
-- Meteora Dynamic Bonding Curve rejects repeated same-pool swap instructions in one transaction while rate-limited launch fees are active in `/private/tmp/defillama-source/MeteoraAg_dynamic-bonding-curve/programs/dynamic-bonding-curve/src/instructions/swap/ix_swap.rs`, with rate-limiter tests in `programs/dynamic-bonding-curve/src/tests/test_rate_limiter.rs`.
+- Meteora Dynamic Bonding Curve rejects repeated same-pool swap instructions in one transaction while rate-limited launch fees are active in [`programs/dynamic-bonding-curve/src/instructions/swap/ix_swap.rs`](https://github.com/MeteoraAg/dynamic-bonding-curve/blob/b4f954733f0e88258f1eb3f0eff75e4314c9610c/programs/dynamic-bonding-curve/src/instructions/swap/ix_swap.rs), with rate-limiter tests in `programs/dynamic-bonding-curve/src/tests/test_rate_limiter.rs`.
 
 ## Real-World Examples
 

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | lending |
-| Tags | lending, liquidation, reserves, inventory, collateral-sale |
+| Tags | lending, liquidation, reserve, inventory, collateral-sale |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -24,6 +24,21 @@
 - The protocol cannot safely custody seized collateral
 - Reserve accounting cannot absorb borrower debt first
 - Inventory sales would become an arbitrary treasury trading surface
+
+## Trade-offs
+
+**Pros:**
+- Liquidators do not need to repay exact borrower debt atomically, lowering capital requirements and widening the liquidator set.
+- Underwater accounts are cleared immediately on absorption, so borrower risk does not linger while collateral is sold.
+- Reserve-target gating and buyer slippage bounds keep inventory sales constrained instead of becoming a discretionary trading surface.
+- Decoupling absorption from resale lets collateral be sold when market conditions allow rather than at fire-sale moments.
+
+**Cons:**
+- The protocol takes price risk on held inventory between absorption and sale; collateral can decay further while reserves carry the debt.
+- Reserves must be deep enough to absorb debt up front; thin reserves turn absorbed bad debt directly into supplier losses.
+- Discount quoting for `buyCollateral` reintroduces oracle dependence and a mispricing surface on the resale path.
+- Reserve accounting, protocol-held collateral balances, and per-asset allowlists add audit surface beyond a simple seize-and-transfer liquidation.
+- Resale only triggers when reserves are below target, so inventory can sit idle and unhedged for long periods.
 
 ## How It Works
 

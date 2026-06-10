@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | routing |
+| Platform | solana |
 | Tags | routing, orderbook, flash, solana, balance-delta |
 | Complexity | High |
 | Gas Efficiency | Medium |
@@ -80,10 +81,10 @@ The route between start and end is intentionally flexible, but the settlement bo
 
 ## Source Evidence
 
-- Kamino Limo stores order lock state and flash-take balance snapshots in `/private/tmp/defillama-source/Kamino-Finance_limo/programs/limo/src/state.rs`.
-- Kamino Limo validates order settlement deltas, maker payouts, and order updates in `/private/tmp/defillama-source/Kamino-Finance_limo/programs/limo/src/operations.rs`.
-- Kamino Limo's flash take handlers pair start/end instructions, validate route boundaries, and settle measured output in `/private/tmp/defillama-source/Kamino-Finance_limo/programs/limo/src/handlers/flash_take_order.rs`.
-- Kamino Limo's instruction parser checks paired instruction placement and interstitial restrictions in `/private/tmp/defillama-source/Kamino-Finance_limo/programs/limo/src/utils/flash_ixs.rs`.
+- Kamino Limo stores order lock state and flash-take balance snapshots in [`programs/limo/src/state.rs`](https://github.com/Kamino-Finance/limo/blob/575e0e22eceefac7f9ccdb76e1ff85210466b525/programs/limo/src/state.rs).
+- Kamino Limo validates order settlement deltas, maker payouts, and order updates in [`programs/limo/src/operations.rs`](https://github.com/Kamino-Finance/limo/blob/575e0e22eceefac7f9ccdb76e1ff85210466b525/programs/limo/src/operations.rs).
+- Kamino Limo's flash take handlers pair start/end instructions, validate route boundaries, and settle measured output in [`programs/limo/src/handlers/flash_take_order.rs`](https://github.com/Kamino-Finance/limo/blob/575e0e22eceefac7f9ccdb76e1ff85210466b525/programs/limo/src/handlers/flash_take_order.rs).
+- Kamino Limo's instruction parser checks paired instruction placement and interstitial restrictions in [`programs/limo/src/utils/flash_ixs.rs`](https://github.com/Kamino-Finance/limo/blob/575e0e22eceefac7f9ccdb76e1ff85210466b525/programs/limo/src/utils/flash_ixs.rs).
 
 ## Related Patterns
 

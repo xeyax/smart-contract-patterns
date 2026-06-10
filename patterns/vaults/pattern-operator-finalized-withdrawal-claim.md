@@ -97,11 +97,11 @@ function claimWithdraw(uint256 id) external {
 
 ## Source Evidence
 
-- Astherus `Earn.sol` burns or accounts withdrawn share tokens in `_doRequestWithdraw`, stores numbered withdrawal requests, lets a bot distribute funding through `distributeWithdraw`, and lets users claim by request number in `claimWithdraw` in `/private/tmp/defillama-source/astherus-contract__astherus-earn-contract/contracts/Earn.sol`.
+- Astherus `Earn.sol` burns or accounts withdrawn share tokens in `_doRequestWithdraw`, stores numbered withdrawal requests, lets a bot distribute funding through `distributeWithdraw`, and lets users claim by request number in `claimWithdraw` in [`contracts/Earn.sol`](https://github.com/astherus-contract/astherus-earn-contract/blob/1472bad4d7267a2c9dbf490b646201ad673e9285/contracts/Earn.sol).
 - The same contract separates emergency and ordinary withdrawal requests, making the operator-funded phase a distinct liveness surface rather than a synchronous redeem path.
-- EtherFi beHYPE finalizes withdrawal requests through an operator-managed queue and exposes claim pausing as an exit-liveness risk in `/private/tmp/defillama-source/etherfi-protocol_beHYPE/src/WithdrawManager.sol`.
-- Puffer finalizes withdrawal requests through `PufferWithdrawalManager`, records claimable request data, and exposes the claim path as a separate liveness surface in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferWithdrawalManager.sol`.
-- Swell `swEXIT` and `RswEXIT` batch requests into operator-finalized exits and claim against finalized batch data in `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lst/contracts/implementations/swEXIT.sol` and `/private/tmp/defillama-source/SwellNetwork__v3-core-public/contracts/lrt/contracts/implementations/RswEXIT.sol`.
+- EtherFi beHYPE finalizes withdrawal requests through an operator-managed queue and exposes claim pausing as an exit-liveness risk in [`src/WithdrawManager.sol`](https://github.com/etherfi-protocol/beHYPE/blob/06ee135254508fa3f0ab6b1bd8e80dc805884420/src/WithdrawManager.sol).
+- Puffer finalizes withdrawal requests through `PufferWithdrawalManager`, records claimable request data, and exposes the claim path as a separate liveness surface in [`mainnet-contracts/src/PufferWithdrawalManager.sol`](https://github.com/PufferFinance/puffer-contracts/blob/380600060cd231fd8616ba167e674d4140486dbb/mainnet-contracts/src/PufferWithdrawalManager.sol).
+- Swell `swEXIT` and `RswEXIT` batch requests into operator-finalized exits and claim against finalized batch data in [`contracts/lst/contracts/implementations/swEXIT.sol`](https://github.com/SwellNetwork/v3-core-public/blob/ba1eeff12ab994a26492fa5dcd0aa8937733dbb4/contracts/lst/contracts/implementations/swEXIT.sol) and [`contracts/lrt/contracts/implementations/RswEXIT.sol`](https://github.com/SwellNetwork/v3-core-public/blob/ba1eeff12ab994a26492fa5dcd0aa8937733dbb4/contracts/lrt/contracts/implementations/RswEXIT.sol).
 
 ## Real-World Examples
 

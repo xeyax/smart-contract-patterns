@@ -83,7 +83,7 @@ _assertNoPendingApprovals();
 
 ## Source Evidence
 
-- Aera v3 stores expected callback caller, selector, callback data offset, and Merkle root in transient slots before an operation, validates them in `CallbackHandler.fallback`, clears them on read, and verifies callback approval cleanup in `/private/tmp/defillama-source/aera-finance__aera-contracts-public/v3/src/core/CallbackHandler.sol` and `BaseVault.sol`.
+- Aera v3 stores expected callback caller, selector, callback data offset, and Merkle root in transient slots before an operation, validates them in `CallbackHandler.fallback`, clears them on read, and verifies callback approval cleanup in [`v3/src/core/CallbackHandler.sol`](https://github.com/aera-finance/aera-contracts-public/blob/9888a9e0d50fa38d4e86a69a8ebb9b605b08dafd/v3/src/core/CallbackHandler.sol) and `BaseVault.sol`.
 
 ## Real-World Examples
 

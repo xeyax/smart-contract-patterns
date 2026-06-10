@@ -7,6 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | oracles |
+| Platform | solana |
 | Tags | oracle, solana, upgradeable-program, rate-adapter, liveness |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
@@ -25,6 +26,21 @@
 - The adapter cannot read ProgramData metadata
 - Valuation liveness is more important than detecting upstream semantic changes
 - Governance cannot monitor and accept upgrades promptly
+
+## Trade-offs
+
+**Pros:**
+- Detects upstream semantic changes that account-layout checks cannot see.
+- Fails closed: a changed upstream program cannot silently feed altered valuation semantics downstream.
+- The acceptance step forces an explicit governance review point for every upstream upgrade.
+- Cheap at runtime — one ProgramData slot comparison per valuation.
+
+**Cons:**
+- Every upstream upgrade halts valuation until acceptance, creating a liveness window an upstream team can trigger at will.
+- Requires prompt, competent governance monitoring; slow acceptance freezes every dependent protocol.
+- Acceptance can be rubber-stamped — the check proves review happened procedurally, not that the upgrade was actually vetted.
+- Adds operational burden (ProgramData alerting) and a privileged acceptance key that must itself be secured.
+- Signals only that semantics may have changed, not what changed or whether it is dangerous.
 
 ## How It Works
 

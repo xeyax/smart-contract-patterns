@@ -68,10 +68,10 @@ fn validate_liquidation(position: &Position, custody: &Custody) -> Result<()> {
 
 ## Source Evidence
 
-- Solana Labs Perpetuals stores initial and maintenance leverage limits in custody configuration in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/state/custody.rs`.
-- Solana Labs Perpetuals validates leverage through pool risk checks in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/state/pool.rs`.
-- Solana Labs Perpetuals applies leverage gates on open, collateral removal, and liquidation in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/src/instructions/open_position.rs`, `instructions/remove_collateral.rs`, and `instructions/liquidate.rs`.
-- Solana Labs Perpetuals tests min/max leverage and liquidation thresholds in `/private/tmp/defillama-source/solana-labs_perpetuals/programs/perpetuals/tests/native/tests_suite/position/min_max_leverage.rs` and `liquidate_position.rs`.
+- Solana Labs Perpetuals stores initial and maintenance leverage limits in custody configuration in [`programs/perpetuals/src/state/custody.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/src/state/custody.rs).
+- Solana Labs Perpetuals validates leverage through pool risk checks in [`programs/perpetuals/src/state/pool.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/src/state/pool.rs).
+- Solana Labs Perpetuals applies leverage gates on open, collateral removal, and liquidation in [`programs/perpetuals/src/instructions/open_position.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/src/instructions/open_position.rs), `instructions/remove_collateral.rs`, and `instructions/liquidate.rs`.
+- Solana Labs Perpetuals tests min/max leverage and liquidation thresholds in [`programs/perpetuals/tests/native/tests_suite/position/min_max_leverage.rs`](https://github.com/solana-labs/perpetuals/blob/ebfb4972ea5d1cde8580a7e8c7b9dbd1fdb2b002/programs/perpetuals/tests/native/tests_suite/position/min_max_leverage.rs) and `liquidate_position.rs`.
 
 ## Related Patterns
 

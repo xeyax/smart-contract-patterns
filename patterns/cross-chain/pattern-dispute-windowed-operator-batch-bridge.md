@@ -85,12 +85,12 @@ function disputeBatch(uint256 id) external onlyCrew {
 
 ## Source Evidence
 
-- Fraxferry v1 queues deposits, commits batch hashes/ranges in `depart`, delays execution in `disembark`, and lets crew dispute batches in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/Fraxferry/Fraxferry.sol`.
-- Fraxferry tests cover embark, depart ordering, delayed execution, wrong hash/size/start reverts, jettison, dispute, and pause in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/test/Fraxferry`.
-- Across HubPool proposes bonded root bundles containing pool rebalance, relayer refund, and slow-relay roots, waits through liveness, verifies Merkle leaves, and publishes roots to spoke pools in `/private/tmp/defillama-source/across-protocol__contracts/contracts/hub-pool/HubPool.sol`.
-- Across SpokePool lets users request slow fills, proves slow-fill leaves against a published root, and marks the same relay filled when either slow or fast fill executes in `/private/tmp/defillama-source/across-protocol__contracts/contracts/spoke-pools/SpokePool.sol`.
-- Hop L1 bridge documents bonded transfer-root preconfirmation followed by canonical confirmation from the origin L2 bridge in `/private/tmp/defillama-source/hop-protocol__contracts/contracts/bridges/L1_Bridge.sol`.
-- Connext RootManager proposes aggregate roots, supports watcher/dispute-mode controls, and tests optimistic-mode and slow-mode transitions in `/private/tmp/defillama-source/connext__monorepo/packages/deployments/contracts/contracts/messaging/RootManager.sol` and `contracts_forge/messaging/RootManager.t.sol`.
+- Fraxferry v1 queues deposits, commits batch hashes/ranges in `depart`, delays execution in `disembark`, and lets crew dispute batches in [`src/hardhat/contracts/Fraxferry/Fraxferry.sol`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/contracts/Fraxferry/Fraxferry.sol).
+- Fraxferry tests cover embark, depart ordering, delayed execution, wrong hash/size/start reverts, jettison, dispute, and pause in [`src/hardhat/test/Fraxferry`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/test/Fraxferry).
+- Across HubPool proposes bonded root bundles containing pool rebalance, relayer refund, and slow-relay roots, waits through liveness, verifies Merkle leaves, and publishes roots to spoke pools in [`contracts/hub-pool/HubPool.sol`](https://github.com/across-protocol/contracts/blob/b4c4a46742dde83cbbace16ee066c6681b47ddee/contracts/hub-pool/HubPool.sol).
+- Across SpokePool lets users request slow fills, proves slow-fill leaves against a published root, and marks the same relay filled when either slow or fast fill executes in [`contracts/spoke-pools/SpokePool.sol`](https://github.com/across-protocol/contracts/blob/b4c4a46742dde83cbbace16ee066c6681b47ddee/contracts/spoke-pools/SpokePool.sol).
+- Hop L1 bridge documents bonded transfer-root preconfirmation followed by canonical confirmation from the origin L2 bridge in [`contracts/bridges/L1_Bridge.sol`](https://github.com/hop-protocol/contracts/blob/0726ffa0e14745134116e552178fd7e0edcfa8e6/contracts/bridges/L1_Bridge.sol).
+- Connext RootManager proposes aggregate roots, supports watcher/dispute-mode controls, and tests optimistic-mode and slow-mode transitions in [`packages/deployments/contracts/contracts/messaging/RootManager.sol`](https://github.com/connext/monorepo/blob/7758e62037bba281b8844c37831bde0b838edd36/packages/deployments/contracts/contracts/messaging/RootManager.sol) and `contracts_forge/messaging/RootManager.t.sol`.
 
 ## Real-World Examples
 

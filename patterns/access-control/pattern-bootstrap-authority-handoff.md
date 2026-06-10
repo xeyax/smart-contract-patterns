@@ -25,6 +25,21 @@
 - Any setup step depends on untrusted external callbacks
 - The factory can be upgraded or reused to regain authority after handoff
 
+## Trade-offs
+
+**Pros:**
+- The contract graph is never observable in a half-configured state; wiring and handoff happen in one transaction
+- No multi-transaction owner ceremony; peers, limits, and roles are set without manual sequencing errors
+- Final authority placement is mechanically assertable in tests and deployment runbooks
+- The temporary authority window is a single transaction, shrinking the exposure period compared to lingering deployer keys
+
+**Cons:**
+- The factory briefly holds every privileged role; a compromised or buggy factory at deploy time controls the entire system
+- One forgotten role in the handoff list silently leaves the factory privileged, and nothing fails loudly without explicit assertions
+- Cross-chain deployments multiply the verification burden: proxy admins, beacon owners, Safe thresholds, and remote peers all need post-deploy checks
+- An upgradeable or reusable factory can regain authority after handoff unless that path is explicitly closed
+- Revert-on-partial-handoff and role-wiring logic adds deployment code that must itself be audited
+
 ## How It Works
 
 ```solidity

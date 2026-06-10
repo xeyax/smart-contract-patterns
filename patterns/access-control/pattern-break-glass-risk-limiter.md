@@ -77,13 +77,13 @@ The emergency role can revoke routes, lower caps, or zero allowances. It cannot 
 - Raydium AMM exposes operation-mode gates for deposit, withdraw, swap, and orderbook behavior; the reusable lesson is the scoped mode matrix, not immediate owner-controlled parameter changes.
 - Euler V2 documentation shows that requiring fresh pull-oracle reads for a risk-reducing LTV setter can block emergency borrow-LTV zeroing and push operators toward unsafe temporary oracle stubs.
 - Lombard's bascule controls distinguish replay-monitor bypass threshold increases from monotonic decreases, including one-shot authority for threshold increases.
-- BENQI's PauseGuardian can pause minting and borrowing when proof-of-reserve monitoring detects token supply above reserves, while unpausing remains admin-controlled; the pause scope is visible through Comptroller pause flags in `/private/tmp/defillama-source/benqi-fi__BENQI-Smart-Contracts/lending`.
-- Avant's gatekeeper can disable mint/redeem and revoke hot minter, redeemer, and collateral-manager roles, while restoration remains with admin-controlled setters in `/private/tmp/defillama-source/Avant-Protocol__avUSD-Contracts/contracts/AvUSDMintingV2.sol`.
-- Sanctum INF uses scoped pool and LST-input disable paths with separate authorities and tests that disabled pools or disabled LST inputs block the intended swap flows in `/private/tmp/defillama-source/igneous-labs_inf-1.5/controller/program/src/instructions/disable_pool` and `controller/program/tests/tests/swap/v2/exact_in/errs.rs`.
+- BENQI's PauseGuardian can pause minting and borrowing when proof-of-reserve monitoring detects token supply above reserves, while unpausing remains admin-controlled; the pause scope is visible through Comptroller pause flags in [`lending`](https://github.com/benqi-fi/BENQI-Smart-Contracts/blob/e0cfd244726719dfe027c9740878d64d1cad98f2/lending).
+- Avant's gatekeeper can disable mint/redeem and revoke hot minter, redeemer, and collateral-manager roles, while restoration remains with admin-controlled setters in [`contracts/AvUSDMintingV2.sol`](https://github.com/Avant-Protocol/avUSD-Contracts/blob/43858abc5a3c481e3b2d02790d168b88e630e7b1/contracts/AvUSDMintingV2.sol).
+- Sanctum INF uses scoped pool and LST-input disable paths with separate authorities and tests that disabled pools or disabled LST inputs block the intended swap flows in [`controller/program/src/instructions/disable_pool`](https://github.com/igneous-labs/inf-1.5/blob/29dbbd47e822e5e3fbcc5a2e2190f00dd4e075be/controller/program/src/instructions/disable_pool) and `controller/program/tests/tests/swap/v2/exact_in/errs.rs`.
 - MetaMorpho exposes guardian revocation and immediate cap decreases as
   monotonic risk reductions while routing cap increases through timelocked
-  governance in `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:213`
-  and `/private/tmp/defillama-source/morpho-org__metamorpho/src/MetaMorpho.sol:420`.
+  governance in [`src/MetaMorpho.sol:213`](https://github.com/morpho-org/metamorpho/blob/163eb2ae022629d4c35e598a668a30451af25f44/src/MetaMorpho.sol#L213)
+  and [`src/MetaMorpho.sol:420`](https://github.com/morpho-org/metamorpho/blob/163eb2ae022629d4c35e598a668a30451af25f44/src/MetaMorpho.sol#L420).
 
 ## Related Patterns
 

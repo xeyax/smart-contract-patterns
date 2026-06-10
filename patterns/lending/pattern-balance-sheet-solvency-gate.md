@@ -96,11 +96,11 @@ back into the wrapper while flooring over-repayment debt at zero.
 
 ## Source Evidence
 
-- Reservoir's `CreditEnforcer` gates PSM, saving module, and term issuance with channel debt caps, then checks asset, equity, and liquidity ratios in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/CreditEnforcer.sol`.
-- Reservoir computes assets, liabilities, risk-weighted assets, short-term assets, and short-term liabilities from PSM, savings, term, and adapter state, with ratio and debt-cap invariants in `/private/tmp/defillama-source/reservoir-protocol__reservoir/test/invariants`.
-- M0 tracks earning token supply and minter owed M through separate indexed principal ledgers in `MToken.sol` and `MinterGateway.sol`, with tests around active owed M indexing and collateral penalties in `/private/tmp/defillama-source/m0-foundation__protocol`.
-- Olympus Deposit Manager tracks ERC6909 receipt liabilities by asset/operator namespace and checks post-withdrawal solvency before yield claims in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/deposits/DepositManager.sol`.
-- Olympus Cooler Treasury Borrower parks reserves in sUSDS, withdraws USDS for loans, records debt, and redeposits repayments in `/private/tmp/defillama-source/OlympusDAO_olympus-v3/src/policies/cooler/CoolerTreasuryBorrower.sol`.
+- Reservoir's `CreditEnforcer` gates PSM, saving module, and term issuance with channel debt caps, then checks asset, equity, and liquidity ratios in [`src/CreditEnforcer.sol`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/src/CreditEnforcer.sol).
+- Reservoir computes assets, liabilities, risk-weighted assets, short-term assets, and short-term liabilities from PSM, savings, term, and adapter state, with ratio and debt-cap invariants in [`test/invariants`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/test/invariants).
+- M0 tracks earning token supply and minter owed M through separate indexed principal ledgers in `MToken.sol` and `MinterGateway.sol`, with tests around active owed M indexing and collateral penalties in [`m0-foundation/protocol`](https://github.com/m0-foundation/protocol/tree/b42fe5bc13b14202c684f78aaa15be284664834d).
+- Olympus Deposit Manager tracks ERC6909 receipt liabilities by asset/operator namespace and checks post-withdrawal solvency before yield claims in [`src/policies/deposits/DepositManager.sol`](https://github.com/OlympusDAO/olympus-v3/blob/120266b021f1eaa0c46b00af0114bd47bbc9e590/src/policies/deposits/DepositManager.sol).
+- Olympus Cooler Treasury Borrower parks reserves in sUSDS, withdraws USDS for loans, records debt, and redeposits repayments in [`src/policies/cooler/CoolerTreasuryBorrower.sol`](https://github.com/OlympusDAO/olympus-v3/blob/120266b021f1eaa0c46b00af0114bd47bbc9e590/src/policies/cooler/CoolerTreasuryBorrower.sol).
 
 ## Related Patterns
 

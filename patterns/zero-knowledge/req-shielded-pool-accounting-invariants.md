@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | zero-knowledge |
-| Tags | zk, shielded-pool, nullifier, accounting, invariants |
+| Tags | zk, shielded-pool, nullifier, accounting, invariant |
 | Type | Requirement |
 
 ## R1: Known Root Membership

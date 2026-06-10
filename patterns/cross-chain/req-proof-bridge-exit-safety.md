@@ -79,8 +79,8 @@
 - Migration paths in Polygon predicates illustrate the need to preserve exit boundaries before moving custody.
 - Optimism Bedrock gates withdrawal finalization on proven output roots, proof maturity, and dispute-game validity.
 - tBTC v2 gates Bitcoin-side bridge transitions on SPV and relay proofs while documenting maintainer trust in canonical chain data.
-- Polygon zkEVM/Agglayer validates canonical global indexes before using claim nullifiers in `/private/tmp/defillama-source/0xPolygonHermez__zkevm-contracts/contracts/AgglayerBridge.sol`, with tests for invalid global-index encodings.
-- Sophon's custom USDC bridge keys duplicate withdrawal finalization by chain, batch, and message index; verifies the L2 sender for the chain; and accepts only the expected withdrawal selector and payload length in `/private/tmp/defillama-source/sophon-org__custom-usdc-bridge/src/L1USDCBridge.sol`.
+- Polygon zkEVM/Agglayer validates canonical global indexes before using claim nullifiers in [`contracts/AgglayerBridge.sol`](https://github.com/0xPolygonHermez/zkevm-contracts/blob/110bda5a03e70ee7331bc06407a8e79226d3e520/contracts/AgglayerBridge.sol), with tests for invalid global-index encodings.
+- Sophon's custom USDC bridge keys duplicate withdrawal finalization by chain, batch, and message index; verifies the L2 sender for the chain; and accepts only the expected withdrawal selector and payload length in [`src/L1USDCBridge.sol`](https://github.com/sophon-org/custom-usdc-bridge/blob/72b36f11fb6c901380836043a43c738c434d5c12/src/L1USDCBridge.sol).
 
 ## Related Patterns
 

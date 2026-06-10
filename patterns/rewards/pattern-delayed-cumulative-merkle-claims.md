@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | rewards |
-| Tags | rewards, merkle, claims, delay, cumulative |
+| Tags | rewards, merkle, claim, delay, cumulative |
 | Complexity | Medium |
 | Gas Efficiency | High |
 | Audit Risk | Medium |
@@ -24,6 +24,21 @@
 - Rewards must be immediately claimable at publication
 - The off-chain generator cannot produce cumulative totals reliably
 - There is no process to detect and revoke bad pending roots during the delay
+
+## Trade-offs
+
+**Pros:**
+- Cumulative leaves roll unclaimed amounts forward, so posting a new root never strands prior rewards.
+- The activation delay creates a monitoring window to detect and revoke a bad root before any claim.
+- Claim cost is one Merkle proof plus one storage slot per user-token, independent of recipient count.
+- Arbitrary reward logic stays off-chain; multiple tokens and campaigns share one claim contract.
+
+**Cons:**
+- Full trust in the off-chain generator: an inflated cumulative total over-pays and the contract cannot detect it.
+- The delay postpones every claim, including correct ones — recurring UX latency each publication cycle.
+- The delay is worthless without an active process actually validating pending roots before activation.
+- Root publisher and canceller are privileged roles that must be governed and secured.
+- One bad activated root can drain the contract across all users before anyone reacts.
 
 ## How It Works
 

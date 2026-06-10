@@ -80,9 +80,9 @@ function requestCaptainWithdrawal(uint256 amount) external {
 
 ## Source Evidence
 
-- Fraxferry V2 lets users choose captains with cumulative amount caps in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/FraxferryV2/FerryOnL1.sol`.
-- Fraxferry V2 destination liquidity, captain predeposit, withdrawal delay, storage-proof `disembark`, and refund/collect flows are implemented in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/contracts/FraxferryV2/FerryOnL2.sol`.
-- Fraxferry V2 tests cover L1-to-L2 proof payout, L2-to-L1 captain collection, and no-disembark refund behavior in `/private/tmp/defillama-source/FraxFinance__frax-solidity/src/hardhat/test/FraxferryV2`.
+- Fraxferry V2 lets users choose captains with cumulative amount caps in [`src/hardhat/contracts/FraxferryV2/FerryOnL1.sol`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/contracts/FraxferryV2/FerryOnL1.sol).
+- Fraxferry V2 destination liquidity, captain predeposit, withdrawal delay, storage-proof `disembark`, and refund/collect flows are implemented in [`src/hardhat/contracts/FraxferryV2/FerryOnL2.sol`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/contracts/FraxferryV2/FerryOnL2.sol).
+- Fraxferry V2 tests cover L1-to-L2 proof payout, L2-to-L1 captain collection, and no-disembark refund behavior in [`src/hardhat/test/FraxferryV2`](https://github.com/FraxFinance/frax-solidity/blob/30532c8cefcbf5c7efafcff4369261bd435a4859/src/hardhat/test/FraxferryV2).
 
 ## Real-World Examples
 

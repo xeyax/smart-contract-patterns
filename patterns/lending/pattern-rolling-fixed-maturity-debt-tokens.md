@@ -86,10 +86,10 @@ each maturity.
 
 ## Source Evidence
 
-- Reservoir's `TermIssuer` maps ids to rolling maturity timestamps, burns discounted rUSD on mint, mints ERC1155 term claims, and mints face-value rUSD only after maturity in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/TermIssuer.sol`.
-- Reservoir's `AccountManager` builds a coupon ladder on top of term ids and requires all coupons to be claimed before principal redemption in `/private/tmp/defillama-source/reservoir-protocol__reservoir/src/AccountManager.sol`.
-- Reservoir term debt caps are covered by invariants and window tests in `/private/tmp/defillama-source/reservoir-protocol__reservoir/test`.
-- Term Finance represents repo obligations through term-scoped token contracts and servicers under `/private/tmp/defillama-source/term-finance__term-finance-contracts/contracts`, alongside auction settlement that selects the active term cohort.
+- Reservoir's `TermIssuer` maps ids to rolling maturity timestamps, burns discounted rUSD on mint, mints ERC1155 term claims, and mints face-value rUSD only after maturity in [`src/TermIssuer.sol`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/src/TermIssuer.sol).
+- Reservoir's `AccountManager` builds a coupon ladder on top of term ids and requires all coupons to be claimed before principal redemption in [`src/AccountManager.sol`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/src/AccountManager.sol).
+- Reservoir term debt caps are covered by invariants and window tests in [`test`](https://github.com/reservoir-protocol/reservoir/blob/95c83d4512a1042f241842431d53d44c0d204801/test).
+- Term Finance represents repo obligations through term-scoped token contracts and servicers under [`contracts`](https://github.com/term-finance/term-finance-contracts/blob/262098c71578bbb9e54d6c2a8d2d88d112b9662a/contracts), alongside auction settlement that selects the active term cohort.
 
 ## Related Patterns
 

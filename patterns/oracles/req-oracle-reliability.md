@@ -2,6 +2,13 @@
 
 > Core requirements that oracle integrations must satisfy for safe DeFi operations.
 
+## Metadata
+
+| Property | Value |
+|----------|-------|
+| Category | oracles |
+| Tags | oracle, reliability, freshness, manipulation |
+
 ## Overview
 
 These requirements define what "reliable" means for price oracle implementations. Patterns and risks in this category should reference these requirements to verify correctness.
@@ -133,19 +140,19 @@ oracle.getPrice() should not revert under normal conditions
 
 ## Source Evidence
 
-- Kamino Scope propagates source timestamps through multiplication-chain composites, validates mapping metadata before refresh, and distinguishes most-recent agreement from capped most-recent agreement in `/private/tmp/defillama-source/Kamino-Finance_scope/programs/scope/src/oracles/multiplication_chain.rs`, `handlers/handler_update_mapping_and_metadata.rs`, `handlers/handler_refresh_prices.rs`, `oracles/most_recent_of.rs`, and `oracles/capped_most_recent_of.rs`.
+- Kamino Scope propagates source timestamps through multiplication-chain composites, validates mapping metadata before refresh, and distinguishes most-recent agreement from capped most-recent agreement in [`programs/scope/src/oracles/multiplication_chain.rs`](https://github.com/Kamino-Finance/scope/blob/3eb930312386bdba39c540e62d863ce24bc4c492/programs/scope/src/oracles/multiplication_chain.rs), `handlers/handler_update_mapping_and_metadata.rs`, `handlers/handler_refresh_prices.rs`, `oracles/most_recent_of.rs`, and `oracles/capped_most_recent_of.rs`.
 - Synthetix V3 oracle-manager composes leaf nodes with staleness and deviation
   circuit-breaker nodes, while its Pyth leaf uses unsafe reads only inside a
   graph that can add staleness/off-chain lookup behavior in
-  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/pyth/PythNode.sol:17-48`,
-  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/StalenessCircuitBreakerNode.sol:14-66`,
-  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/PriceDeviationCircuitBreakerNode.sol:17-67`,
-  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/oracle-manager/contracts/nodes/pyth/PythOffchainLookupNode.sol:18-68`.
+  [`protocol/oracle-manager/contracts/nodes/pyth/PythNode.sol:17-48`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/oracle-manager/contracts/nodes/pyth/PythNode.sol#L17-L48),
+  [`protocol/oracle-manager/contracts/nodes/StalenessCircuitBreakerNode.sol:14-66`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/oracle-manager/contracts/nodes/StalenessCircuitBreakerNode.sol#L14-L66),
+  [`protocol/oracle-manager/contracts/nodes/PriceDeviationCircuitBreakerNode.sol:17-67`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/oracle-manager/contracts/nodes/PriceDeviationCircuitBreakerNode.sol#L17-L67),
+  and [`protocol/oracle-manager/contracts/nodes/pyth/PythOffchainLookupNode.sol:18-68`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/oracle-manager/contracts/nodes/pyth/PythOffchainLookupNode.sol#L18-L68).
 - Uniswap swap-router TWAP slippage checks reject paths whose observation data is
-  unavailable or insufficient in `/private/tmp/defillama-source/Uniswap__swap-router-contracts/contracts/base/OracleSlippage.sol:17`
-  and `/private/tmp/defillama-source/Uniswap__swap-router-contracts/test/OracleSlippage.spec.ts:339`.
+  unavailable or insufficient in [`contracts/base/OracleSlippage.sol:17`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/contracts/base/OracleSlippage.sol#L17)
+  and [`test/OracleSlippage.spec.ts:339`](https://github.com/Uniswap/swap-router-contracts/blob/70bc2e40dfca294c1cea9bf67a4036732ee54303/test/OracleSlippage.spec.ts#L339).
 - Inverse FiRM's pessimistic feed wrappers propagate the older underlying
-  `updatedAt` timestamp in `/private/tmp/defillama-source/InverseFinance__FiRM/src/feeds/PessimisticFeed.sol`, while its main oracle illustrates why consumers still need to check the timestamp returned by `latestRoundData` instead of reading only the price in `/private/tmp/defillama-source/InverseFinance__FiRM/src/Oracle.sol`.
+  `updatedAt` timestamp in [`src/feeds/PessimisticFeed.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/feeds/PessimisticFeed.sol), while its main oracle illustrates why consumers still need to check the timestamp returned by `latestRoundData` instead of reading only the price in [`src/Oracle.sol`](https://github.com/InverseFinance/FiRM/blob/6cd9f06cd0da79ccaad9f663aed299ef3021af10/src/Oracle.sol).
 
 ---
 

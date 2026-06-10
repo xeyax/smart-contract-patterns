@@ -78,12 +78,12 @@ tolerance for the collateral feed.
 
 ## Source Evidence
 
-- Derive V2 documents portfolio margin risk managers in `/private/tmp/defillama-source/derivexyz__v2-core/docs/managers/PMRM.md`.
+- Derive V2 documents portfolio margin risk managers in [`docs/managers/PMRM.md`](https://github.com/derivexyz/v2-core/blob/96796a61dcb1dc852e25518b00cc1a79fb3caeeb/docs/managers/PMRM.md).
 - Derive V2 computes spot, volatility, skew, basis, collateral haircut, and confidence scenario risk in `src/risk-managers/PMRM_2.sol` and `src/risk-managers/PMRMLib_2.sol`.
 - Derive V2 tests portfolio scenario cases in `test/risk-managers/unit-tests/PMRM_2/TestPMRM_2_PortfolioCasesNEW.t.sol`.
 - Synthetix V3 perps applies bounded non-USD collateral discounts by trade size
-  relative to spot-market skew scale in `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`
-  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`.
+  relative to spot-market skew scale in [`markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:23-48`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol#L23-L48)
+  and [`markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol:128-157`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/markets/perps-market/contracts/storage/PerpsCollateralConfiguration.sol#L128-L157).
 
 ## Real-World Examples
 

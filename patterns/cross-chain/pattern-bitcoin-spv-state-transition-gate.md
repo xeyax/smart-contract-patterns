@@ -25,6 +25,21 @@
 - A centralized operator is the real source of truth and no SPV checks are meaningful
 - Users expect trustless Bitcoin finality but the relay depends on trusted maintainers
 
+## Trade-offs
+
+**Pros:**
+- On-chain SPV verification removes reliance on a single attestor for Bitcoin inclusion claims.
+- Normalized nullifiers stop the same Bitcoin transaction from being credited twice.
+- Difficulty-epoch and coinbase checks raise the cost of fabricated-header attacks well above a bare merkle proof.
+- Explicit maintainer trust boundaries keep audits and user expectations aligned with what is actually verified.
+
+**Cons:**
+- Header, merkle, and difficulty verification is gas-heavy, and relayers carry significant off-chain proof-construction burden.
+- Trusted relay maintainers remain a liveness and censorship chokepoint; proof of work alone cannot establish canonical mainnet inclusion.
+- Deep Bitcoin reorgs force coordinated repair of staking state, voting power, and reward indexes — complex, rarely exercised recovery code.
+- Script parsing, endianness handling, merkle verification, and difficulty retargeting are classic bug sources, inflating audit surface.
+- Required confirmation depth adds hours of latency to deposits and state transitions.
+
 ## How It Works
 
 Verify transaction inclusion and header validity before changing bridge state:
@@ -56,7 +71,7 @@ If the system relies on trusted maintainers to submit canonical headers, that tr
 
 - tBTC v2 gates deposit sweeps and bridge transitions on Bitcoin transaction and relay proofs, with comments documenting that proof submission can prove work but still rely on maintainer trust for canonical mainnet inclusion.
 - Babylon BTC staking documentation distinguishes activation finality from unbonding intent and describes reorg repair across staking, voting-power, and reward indexes.
-- Lorenzo validates Bitcoin header linkage and cumulative work, stores canonical light-client state, verifies merkle inclusion before staking mint flows, and applies source-finality checks in `/private/tmp/defillama-source/Lorenzo-Protocol__lorenzo/x/btclightclient` and `x/btcstaking`.
+- Lorenzo validates Bitcoin header linkage and cumulative work, stores canonical light-client state, verifies merkle inclusion before staking mint flows, and applies source-finality checks in [`x/btclightclient`](https://github.com/Lorenzo-Protocol/lorenzo/blob/ee65c41e485ad7b57f4e40d0230c029354610a7d/x/btclightclient) and `x/btcstaking`.
 
 ## Related Patterns
 

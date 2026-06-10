@@ -26,6 +26,21 @@
 - Owner minting or budget changes are unrestricted and unmonitored
 - Recipient-scoped budgets cannot be explained to holders and integrators
 
+## Trade-offs
+
+**Pros:**
+- Enables controlled pre-launch distribution (vesting, treasury operations, designated counterparties) without granting full transferability.
+- Sender-plus-recipient-scoped budgets with burn-down are far harder to misuse than global allowances or blanket allowlists.
+- Events on budget, allowlist, and transferability changes keep the restriction state externally auditable.
+- The unlock can be made irreversible, giving holders a credible end state.
+
+**Cons:**
+- The `_update` hook runs on every transfer, adding gas and a permanent code path that survives launch unlock.
+- Budget and allowlist administration is a centralization point: the owner effectively decides who can move tokens early.
+- Catastrophic if misapplied to redeemable claims — the gate becomes trapped funds rather than a launch control.
+- Interaction between ERC20 approvals and sender-scoped budgets is ambiguous unless explicitly specified, inviting delegation bypasses.
+- Integrators (DEXes, custodians) fail in nonobvious ways while reverting transfers look like token bugs.
+
 ## How It Works
 
 While the token is paused or launch-locked, normal transfers fail unless the sender is exempt or has a budget for the recipient:

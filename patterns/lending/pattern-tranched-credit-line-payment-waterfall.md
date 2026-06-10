@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | lending |
-| Tags | lending, credit-line, tranches, waterfall, rwa |
+| Tags | lending, credit-line, tranche, waterfall, rwa |
 | Complexity | High |
 | Gas Efficiency | Medium |
 | Audit Risk | High |
@@ -74,10 +74,10 @@ function redeem(uint256 poolTokenId) external {
 
 ## Source Evidence
 
-- Goldfinch tranched pool and drawdown logic are in `/private/tmp/defillama-source/goldfinch-eng__mono/packages/protocol/contracts/protocol/core/TranchedPool.sol`.
-- Goldfinch credit-line payment and interest accounting are in `/private/tmp/defillama-source/goldfinch-eng__mono/packages/protocol/contracts/protocol/core/CreditLine.sol` and `Accountant.sol`.
-- Goldfinch tranche allocation and redemption logic are in `/private/tmp/defillama-source/goldfinch-eng__mono/packages/protocol/contracts/protocol/core/TranchingLogic.sol`.
-- Goldfinch integration tests cover tranche drawdown and payment flows in `/private/tmp/defillama-source/goldfinch-eng__mono/packages/protocol/test/integration.test.ts`.
+- Goldfinch tranched pool and drawdown logic are in [`packages/protocol/contracts/protocol/core/TranchedPool.sol`](https://github.com/goldfinch-eng/mono/blob/bb251675d8a28d046f4d4763e1cf8874ee7c2723/packages/protocol/contracts/protocol/core/TranchedPool.sol).
+- Goldfinch credit-line payment and interest accounting are in [`packages/protocol/contracts/protocol/core/CreditLine.sol`](https://github.com/goldfinch-eng/mono/blob/bb251675d8a28d046f4d4763e1cf8874ee7c2723/packages/protocol/contracts/protocol/core/CreditLine.sol) and `Accountant.sol`.
+- Goldfinch tranche allocation and redemption logic are in [`packages/protocol/contracts/protocol/core/TranchingLogic.sol`](https://github.com/goldfinch-eng/mono/blob/bb251675d8a28d046f4d4763e1cf8874ee7c2723/packages/protocol/contracts/protocol/core/TranchingLogic.sol).
+- Goldfinch integration tests cover tranche drawdown and payment flows in [`packages/protocol/test/integration.test.ts`](https://github.com/goldfinch-eng/mono/blob/bb251675d8a28d046f4d4763e1cf8874ee7c2723/packages/protocol/test/integration.test.ts).
 
 ## Real-World Examples
 

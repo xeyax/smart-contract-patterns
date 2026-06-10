@@ -62,9 +62,9 @@
 
 ## Source Evidence
 
-- EigenLayer derives withdrawable shares from deposit scaling factor, operator `maxMagnitude`, and beacon-chain slashing factor; queued withdrawals store scaled shares and complete against slash factors in `/private/tmp/defillama-source/Layr-Labs__eigenlayer-contracts/src/contracts`.
-- Symbiotic computes slashable stake at a capture timestamp inside the vault epoch, subtracts later cumulative slashes, and optionally routes slashes through resolver veto request/execute states in `/private/tmp/defillama-source/symbioticfi__core/src/contracts`.
-- Puffer's restaking protocol and withdrawal manager make validator/accounting finalization part of exit settlement in `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferProtocol.sol` and `/private/tmp/defillama-source/PufferFinance__puffer-contracts/mainnet-contracts/src/PufferWithdrawalManager.sol`.
+- EigenLayer derives withdrawable shares from deposit scaling factor, operator `maxMagnitude`, and beacon-chain slashing factor; queued withdrawals store scaled shares and complete against slash factors in [`src/contracts`](https://github.com/Layr-Labs/eigenlayer-contracts/blob/f84a5151080cdf0b77b9b6e46506cde723d06c28/src/contracts).
+- Symbiotic computes slashable stake at a capture timestamp inside the vault epoch, subtracts later cumulative slashes, and optionally routes slashes through resolver veto request/execute states in [`src/contracts`](https://github.com/symbioticfi/core/blob/7cb06639c5cd656d1d212dafa2c270b5fde39306/src/contracts).
+- Puffer's restaking protocol and withdrawal manager make validator/accounting finalization part of exit settlement in [`mainnet-contracts/src/PufferProtocol.sol`](https://github.com/PufferFinance/puffer-contracts/blob/380600060cd231fd8616ba167e674d4140486dbb/mainnet-contracts/src/PufferProtocol.sol) and [`mainnet-contracts/src/PufferWithdrawalManager.sol`](https://github.com/PufferFinance/puffer-contracts/blob/380600060cd231fd8616ba167e674d4140486dbb/mainnet-contracts/src/PufferWithdrawalManager.sol).
 
 ## Related Patterns
 

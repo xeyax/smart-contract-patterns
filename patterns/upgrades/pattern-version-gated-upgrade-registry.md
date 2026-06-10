@@ -129,7 +129,7 @@ The exact implementation match prevents a different implementation from being su
 - Tests cover registered upgrades and reject unregistered, deprecated, non-owner, and direct-admin paths.
 - Maple uses version registries with explicit upgrade paths and path-specific migration/initializer logic, separating implementation approval from per-instance execution.
 - Lagoon combines registry-approved logic with per-instance delayed proxy upgrades and exact pending-implementation checks; its fail-open registry mode should be treated as a deliberate de-scoping of upgrade gating.
-- Reserve Protocol core upgrades `Main` and `RToken` only through registered, non-deprecated implementations and tests registered, deprecated, and unregistered upgrade paths in `/private/tmp/defillama-source/reserve-protocol__protocol/contracts/registry/VersionRegistry.sol` and `test/Upgradeability.test.ts`.
+- Reserve Protocol core upgrades `Main` and `RToken` only through registered, non-deprecated implementations and tests registered, deprecated, and unregistered upgrade paths in [`contracts/registry/VersionRegistry.sol`](https://github.com/reserve-protocol/protocol/blob/9cda9d89c871e70886fc4453f94fc6aa889445df/contracts/registry/VersionRegistry.sol) and `test/Upgradeability.test.ts`.
 
 ## Related Anti-Patterns
 

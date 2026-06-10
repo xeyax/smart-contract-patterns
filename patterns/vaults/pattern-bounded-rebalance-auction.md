@@ -80,7 +80,7 @@ started so a manager cannot move the price curve after bidders have committed.
 
 - Reserve Index DTF validates rebalance allowlists, TTLs, limits, duplicate tokens, weight ranges, and price ranges before opening auctions.
 - Reserve permits non-allowlisted tokens only when their target weights are zero, allowing sell-down without new exposure.
-- Yearn V3 strategy periphery sells reward tokens through step-decay public auctions with minimum prices, partial fills, callback support, and CoW-style validation in `/private/tmp/defillama-source/yearn_tokenized-strategy-periphery/src/Auctions/Auction.sol`.
+- Yearn V3 strategy periphery sells reward tokens through step-decay public auctions with minimum prices, partial fills, callback support, and CoW-style validation in [`src/Auctions/Auction.sol`](https://github.com/yearn/tokenized-strategy-periphery/blob/8d940ecc518c9b4e198e240cca634f315f37e318/src/Auctions/Auction.sol).
 
 ## Related Patterns
 

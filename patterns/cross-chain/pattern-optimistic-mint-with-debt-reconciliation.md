@@ -25,6 +25,21 @@
 - The optimistic minter can mint without caps, delays, or cancellation
 - Final settlement cannot be matched back to the optimistic mint
 
+## Trade-offs
+
+**Pros:**
+- Users receive minted assets long before slow source-chain settlement completes.
+- The debt ledger reconciles optimistic supply against final proofs, bounding inflation from acceleration errors.
+- Guardian cancellation and pause stop optimistic acceleration without halting normal proof-based minting.
+- Caps and delays bound worst-case loss from a compromised or careless minter.
+
+**Cons:**
+- Minter and guardian roles are explicit trust assumptions; collusion or key compromise can mint unbacked supply up to the caps.
+- Two parallel mint paths double the accounting and test surface: cancellation, double mint, partial sweep repayment, and late settlement all need coverage.
+- Reconciliation edge cases — sweeps smaller than recorded debt, repeated deposits against one key — are subtle insolvency bugs.
+- The contract cannot verify everything on-chain (e.g., Bitcoin confirmations, refund timing); the unverified set must be documented and monitored off-chain.
+- The sync-pool variant must keep deficit accounting strictly separate from ordinary liquidity, which rebalancing flows can easily corrupt.
+
 ## How It Works
 
 Optimistic minting records debt before final source-chain settlement:
@@ -67,7 +82,7 @@ When native assets are bridged through a sync pool, the destination chain can mi
 ## Source Evidence
 
 - tBTC v2 optimistic minting allows faster minting after deposit reveal through minter and guardian roles, records depositor debt, supports cancellation, and reconciles debt when the later sweep finalizes.
-- EtherFi sync pools track native bridge deficits and repay them during later source-chain settlement in `/private/tmp/defillama-source/etherfi-protocol_weETH-cross-chain/contracts/native-minting/layerzero-base/L2BaseSyncPoolUpgradeable.sol` and `contracts/native-minting/layerzero-base/L1BaseSyncPoolUpgradeable.sol`.
+- EtherFi sync pools track native bridge deficits and repay them during later source-chain settlement in [`contracts/native-minting/layerzero-base/L2BaseSyncPoolUpgradeable.sol`](https://github.com/etherfi-protocol/weETH-cross-chain/blob/cc6c220847217df8f9dcc4ba19c1c349106a002c/contracts/native-minting/layerzero-base/L2BaseSyncPoolUpgradeable.sol) and `contracts/native-minting/layerzero-base/L1BaseSyncPoolUpgradeable.sol`.
 
 ## Related Patterns
 

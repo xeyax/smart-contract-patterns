@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | liquidity |
-| Tags | amm, constant-product, reserves, swap, fee |
+| Tags | amm, constant-product, reserve, swap, fee |
 | Complexity | Medium |
 | Gas Efficiency | High |
 | Audit Risk | High |
@@ -24,6 +24,21 @@
 - The pool supports concentrated liquidity or many-token invariants
 - Token balances cannot be trusted because of rebasing or asynchronous accounting
 - The pool needs exact accounting for arbitrary fee-on-transfer tokens
+
+## Trade-offs
+
+**Pros:**
+- Inferring input from balance deltas removes trust in router-supplied amounts; the pool only honors tokens it actually received.
+- A single fee-adjusted `k` check validates the whole swap, keeping the core small, cheap, and easy to audit.
+- No per-swap callbacks or external calls in the happy path, so the attack surface and gas cost stay low.
+- Pre-funding via transfer-then-swap composes naturally with routers and flash-swap flows.
+
+**Cons:**
+- Uniform liquidity across the full price range is capital-inefficient compared to concentrated designs.
+- Balance-delta inference breaks under rebasing tokens and miscounts fee-on-transfer tokens, so token support must be explicitly constrained.
+- Anyone can skim or sync, and donated tokens sit in the gap between balances and reserves; skim/sync semantics need their own reentrancy locking.
+- Reserves are only correct if every state-changing path updates them after the invariant check; a missed update path silently corrupts pricing.
+- Dual stable/volatile invariant variants double the reserve-delta test matrix and invite branch-specific accounting bugs.
 
 ## How It Works
 
@@ -58,7 +73,7 @@ function swap(uint256 amount0Out, uint256 amount1Out, address to) external lock 
 ## Source Evidence
 
 - Uniswap V2 pairs infer swap input from post-transfer balances, apply a 0.3 percent fee adjustment, and require the adjusted product to preserve `k`.
-- Aerodrome V1 infers swap input from balance deltas, accrues fees, and enforces volatile or stable `_k` in `/private/tmp/defillama-source/aerodrome-finance__contracts/contracts/Pool.sol`.
+- Aerodrome V1 infers swap input from balance deltas, accrues fees, and enforces volatile or stable `_k` in [`contracts/Pool.sol`](https://github.com/aerodrome-finance/contracts/blob/1ba30815bba620f7e9faa34769ffd00c214c9b82/contracts/Pool.sol).
 
 ## Related Patterns
 

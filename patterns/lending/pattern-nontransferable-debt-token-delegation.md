@@ -70,8 +70,8 @@ function borrowOnBehalf(address user, uint256 amount) external {
 
 ## Source Evidence
 
-- Aave V2 debt tokens revert ERC20 transfer and allowance paths while using separate borrow allowance consumption in `/private/tmp/defillama-source/aave__protocol-v2/contracts/protocol/tokenization/base/DebtTokenBase.sol`.
-- Aave V2 flash-loan tests cover delegated stable-debt allowance requirements in `/private/tmp/defillama-source/aave__protocol-v2/test-suites/test-aave/flashloan.spec.ts`.
+- Aave V2 debt tokens revert ERC20 transfer and allowance paths while using separate borrow allowance consumption in [`contracts/protocol/tokenization/base/DebtTokenBase.sol`](https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/contracts/protocol/tokenization/base/DebtTokenBase.sol).
+- Aave V2 flash-loan tests cover delegated stable-debt allowance requirements in [`test-suites/test-aave/flashloan.spec.ts`](https://github.com/aave/protocol-v2/blob/ce53c4a8c8620125063168620eba0a8a92854eb8/test-suites/test-aave/flashloan.spec.ts).
 
 ## Real-World Examples
 

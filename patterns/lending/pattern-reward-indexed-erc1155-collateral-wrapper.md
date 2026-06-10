@@ -26,6 +26,21 @@
 - The wrapper cannot custody or unwind the underlying position without external trust
 - The oracle cannot validate the wrapper and underlying asset before valuing collateral
 
+## Trade-offs
+
+**Pros:**
+- One ERC1155 collateral interface for the bank while protocol-specific custody and reward-claim logic stays isolated in wrappers.
+- Reward-index snapshots encoded in the id make claim value deterministic from the token id alone, without per-user reward state in the bank.
+- Balance-delta minting tolerates fee-on-transfer and nonstandard ERC20 inputs at the wrapper boundary.
+- New position types are added by deploying and whitelisting a wrapper, not by changing core bank accounting.
+
+**Cons:**
+- Id bit-packing is a correctness hazard: bounded widths, encode/decode round trips, and overflow on pool id or reward index all need explicit tests.
+- Each reward-index snapshot creates a distinct id, fragmenting positions into non-fungible balances that complicate liquidation, withdrawal, and indexing.
+- The oracle must trust each whitelisted wrapper's `getUnderlyingToken`/`getUnderlyingRate`; a buggy or malicious wrapper mints overvalued collateral.
+- Wrapper custody concentrates the underlying LP/strategy positions in one contract, adding a custody single point of failure per integration.
+- ERC1155 collateral breaks composability with ERC20-only tooling and markets, forcing bespoke integration on every consumer.
+
 ## How It Works
 
 The simplest wrapper mints ERC1155 ids keyed by the underlying token address and
@@ -75,8 +90,8 @@ function collateralValue(address wrapper, uint256 id, uint256 amount) external v
 
 ## Source Evidence
 
-- Alpha Homora V2 wraps ERC20 deposits into ERC1155 ids keyed by token address with balance-delta minting in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/wrapper/WERC20.sol`.
-- Alpha Homora V2 encodes MasterChef and LiquidityGauge pool ids plus reward-per-share snapshots into ERC1155 ids in `/private/tmp/defillama-source/AlphaFinanceLab__alpha-homora-v2-contract/contracts/wrapper/WMasterChef.sol` and `WLiquidityGauge.sol`.
+- Alpha Homora V2 wraps ERC20 deposits into ERC1155 ids keyed by token address with balance-delta minting in [`contracts/wrapper/WERC20.sol`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/wrapper/WERC20.sol).
+- Alpha Homora V2 encodes MasterChef and LiquidityGauge pool ids plus reward-per-share snapshots into ERC1155 ids in [`contracts/wrapper/WMasterChef.sol`](https://github.com/AlphaFinanceLab/alpha-homora-v2-contract/blob/f74fc460bd614ad15bbef57c88f6b470e5efd1fd/contracts/wrapper/WMasterChef.sol) and `WLiquidityGauge.sol`.
 - Alpha Homora V2's `ProxyOracle` whitelists ERC1155 wrappers, resolves underlying token and rate from the wrapper id, then applies underlying token factors for collateral value.
 
 ## Related Patterns

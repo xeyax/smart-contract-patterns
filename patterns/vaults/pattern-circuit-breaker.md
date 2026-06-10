@@ -6,8 +6,8 @@
 
 | Property | Value |
 |----------|-------|
-| Category | vaults, security |
-| Tags | vault, oracle, circuit-breaker, safety, pause, twap |
+| Category | vaults |
+| Tags | vault, oracle, circuit-breaker, safety, pause, twap, security |
 | Complexity | Low |
 | Gas Efficiency | High |
 | Audit Risk | Low |
@@ -286,9 +286,9 @@ function setCircuitBreakerEnabled(bool enabled) external onlyGovernance {
 - [MakerDAO OSM](https://docs.makerdao.com/smart-contract-modules/oracle-module/oracle-security-module-osm-detailed-documentation) — delayed price updates with bounds
 - fx Protocol uses peg and stable-token depeg state to gate borrow, redeem, funding, stable-repay, buyback, and stabilization paths across its core pool and market contracts.
 - GHO GSM uses an oracle-triggered swap freezer with separate freeze/unfreeze
-  thresholds and formal freeze/unfreeze exclusivity properties in `/private/tmp/defillama-source/aave__gho-core/src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol:123`,
-  `/private/tmp/defillama-source/aave__gho-core/src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol:147`,
-  and `/private/tmp/defillama-source/aave__gho-core/src/contracts/facilitators/gsm/Gsm.sol:209`.
+  thresholds and formal freeze/unfreeze exclusivity properties in [`src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol:123`](https://github.com/aave/gho-core/blob/c6335a0bb9cba099960c5378b1ff0db190b8da8f/src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol#L123),
+  [`src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol:147`](https://github.com/aave/gho-core/blob/c6335a0bb9cba099960c5378b1ff0db190b8da8f/src/contracts/facilitators/gsm/swapFreezer/OracleSwapFreezer.sol#L147),
+  and [`src/contracts/facilitators/gsm/Gsm.sol:209`](https://github.com/aave/gho-core/blob/c6335a0bb9cba099960c5378b1ff0db190b8da8f/src/contracts/facilitators/gsm/Gsm.sol#L209).
 
 ## Related Patterns
 

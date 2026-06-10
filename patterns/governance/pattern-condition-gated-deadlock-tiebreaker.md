@@ -26,6 +26,21 @@
 - Recovery powers can move funds or execute arbitrary proposals
 - A monotonic break-glass limiter is sufficient
 
+## Trade-offs
+
+**Pros:**
+- Objective on-chain conditions plus timeouts stop the committee from acting outside genuine deadlock.
+- Narrowly enumerated recovery selectors bound worst-case committee abuse to resume/reseal actions.
+- Restores liveness without granting anyone standing emergency power over normal governance.
+- Detailed per-action events make every recovery publicly attributable and reviewable.
+
+**Cons:**
+- The committee remains a trust assumption; collusion after an engineered deadlock can still exercise recovery powers.
+- Encoding deadlock objectively is hard — loose conditions enable premature activation, strict ones may never fire when actually needed.
+- The mandatory timeout delays recovery even when the deadlock is obvious, prolonging the liveness failure.
+- It is a rarely exercised code path: bugs lie dormant until the worst moment, demanding heavy scenario and negative testing.
+- The recovery selector list needs governance-timelocked maintenance as the system evolves, or new modules remain unrecoverable.
+
 ## How It Works
 
 The tiebreaker checks state and elapsed time before exposing limited recovery actions:

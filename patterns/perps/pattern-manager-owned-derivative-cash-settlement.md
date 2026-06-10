@@ -71,13 +71,13 @@ collateral-backed debt accounting.
 
 ## Source Evidence
 
-- Derive V2 documents asset settlement responsibilities in `/private/tmp/defillama-source/derivexyz__v2-core/docs/assets.md`.
+- Derive V2 documents asset settlement responsibilities in [`docs/assets.md`](https://github.com/derivexyz/v2-core/blob/96796a61dcb1dc852e25518b00cc1a79fb3caeeb/docs/assets.md).
 - Derive V2 manager settlement and cash adjustment logic appears in `src/risk-managers/BaseManager.sol`, while option and cash assets compute settlement behavior in `src/assets/OptionAsset.sol` and `src/assets/CashAsset.sol`.
 - Synthetix V3 lets external markets compute and report debt while core modules
   own USD issuance, net issuance, withdrawable credit, and collateral-backed debt
-  accounting in `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/storage/Market.sol:50-83`,
-  `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/modules/core/MarketManagerModule.sol:254-342`,
-  and `/private/tmp/defillama-source/synthetixio__synthetix-v3/protocol/synthetix/contracts/modules/core/IssueUSDModule.sol:60-118`.
+  accounting in [`protocol/synthetix/contracts/storage/Market.sol:50-83`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/storage/Market.sol#L50-L83),
+  [`protocol/synthetix/contracts/modules/core/MarketManagerModule.sol:254-342`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/modules/core/MarketManagerModule.sol#L254-L342),
+  and [`protocol/synthetix/contracts/modules/core/IssueUSDModule.sol:60-118`](https://github.com/synthetixio/synthetix-v3/blob/23585f73c76d625b2a43aaf94dc440a8a1e7a8fa/protocol/synthetix/contracts/modules/core/IssueUSDModule.sol#L60-L118).
 
 ## Real-World Examples
 

@@ -7,7 +7,7 @@
 | Property | Value |
 |----------|-------|
 | Category | vaults |
-| Tags | ERC4626, composability, fees, referral, whitelabel |
+| Tags | ERC4626, composability, fee, referral, whitelabel |
 | Complexity | Medium |
 | Gas Efficiency | Medium |
 | Audit Risk | Medium |
@@ -223,9 +223,9 @@ See [Vault Composability Risk](./risk-vault-composability.md) for comprehensive 
 - [Morpho MetaMorpho](https://github.com/morpho-org/metamorpho) — meta-vault allocating across multiple Morpho Blue markets
 - Balancer V3 buffers pin ERC4626 wrapper underlying assets, reject changed
   `asset()` values on later adds, avoid external `asset()` calls during removal,
-  and test residual allowance cleanup in `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultAdmin.sol:466-579`,
-  `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/contracts/VaultAdmin.sol:625-773`,
-  and `/private/tmp/defillama-source/balancer__balancer-v3-monorepo/pkg/vault/test/foundry/BufferVaultPrimitive.t.sol:212-240`.
+  and test residual allowance cleanup in [`pkg/vault/contracts/VaultAdmin.sol:466-579`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/VaultAdmin.sol#L466-L579),
+  [`pkg/vault/contracts/VaultAdmin.sol:625-773`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/contracts/VaultAdmin.sol#L625-L773),
+  and [`pkg/vault/test/foundry/BufferVaultPrimitive.t.sol:212-240`](https://github.com/balancer/balancer-v3-monorepo/blob/0a5890a8c5d79865498d75cdc6ecdc75cf8d297d/pkg/vault/test/foundry/BufferVaultPrimitive.t.sol#L212-L240).
 
 ## Related Patterns
 

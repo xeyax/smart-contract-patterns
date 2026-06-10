@@ -26,6 +26,21 @@
 - Bots can choose different wallet, trigger, or action terms at execution
 - Users need full on-chain discoverability without off-chain indexing
 
+## Trade-offs
+
+**Pros:**
+- One 32-byte hash per subscription regardless of strategy size, keeping storage compact
+- The wallet-bound hash prevents bots from substituting terms or executing against the wrong wallet
+- Mandatory resubscription makes every material strategy change explicit and user-authorized
+- Bots can supply rich calldata at execution time without any trusted off-chain storage
+
+**Cons:**
+- Strategy contents are opaque on-chain; users and integrators depend on off-chain indexing to know what is subscribed
+- If the off-chain strategy data is lost, the hash alone cannot reconstruct it and the subscription becomes unexecutable
+- An encoding gap, such as a field omitted from the hash or no version domain, silently lets bots vary the unbound terms
+- Re-hashing the full strategy struct on every execution costs gas proportional to strategy size
+- Even minor parameter tweaks force a full resubscription transaction
+
 ## How It Works
 
 Store a hash that binds the wallet and strategy terms:
